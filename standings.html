@@ -42,10 +42,7 @@
   </nav>
 
   <div class="controls">
-    <span class="mode-label" id="modeLabel"></span>
-    <button class="toggle-btn" id="blendBtn" style="display:none" onclick="toggleBlend()">
-      Switch to Blended Stats
-    </button>
+    <span class="mode-label">Mode: FanGraphs Projections</span>
   </div>
 
   <div id="error"></div>
@@ -53,16 +50,6 @@
 
   <script src="shared.js"></script>
   <script>
-    var useBlend = false;
-
-    function toggleBlend() {
-      useBlend = !useBlend;
-      var btn = document.getElementById('blendBtn');
-      btn.textContent = useBlend ? 'Switch to Projections Only' : 'Switch to Blended Stats';
-      btn.classList.toggle('on', useBlend);
-      render();
-    }
-
     function render() {
       var errEl   = document.getElementById('error');
       var tblWrap = document.getElementById('tblWrap');
@@ -74,7 +61,6 @@
       var projPitch = loadData('ottoneu_proj_pitching');
       var myTeam    = loadData('ottoneu_my_team') || '';
       var il        = loadData('ottoneu_il') || [];
-      var blendAvail = !!(loadData('ottoneu_stats_hitting') || loadData('ottoneu_stats_pitching'));
 
       if (!roster || !projHit || !projPitch) {
         var errDiv = document.createElement('div');
@@ -89,21 +75,8 @@
         return;
       }
 
-      var modeLabel = document.getElementById('modeLabel');
-      var blendBtn  = document.getElementById('blendBtn');
-      if (blendAvail) {
-        blendBtn.style.display = '';
-        modeLabel.textContent  = useBlend ? 'Mode: Projections + Current Stats' : 'Mode: Projections Only';
-      } else {
-        blendBtn.style.display = 'none';
-        modeLabel.textContent  = 'Mode: Projections Only (upload current stats to enable blending)';
-      }
-
-      var statsHit   = useBlend ? loadData('ottoneu_stats_hitting')  : null;
-      var statsPitch = useBlend ? loadData('ottoneu_stats_pitching') : null;
-
       var teamMap = {};
-      var merged  = matchPlayers(roster, projHit, projPitch, statsHit, statsPitch);
+      var merged  = matchPlayers(roster, projHit, projPitch);
       merged.forEach(function(p) {
         if (!teamMap[p.team]) teamMap[p.team] = [];
         teamMap[p.team].push(p);

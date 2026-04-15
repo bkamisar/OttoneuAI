@@ -76,11 +76,9 @@
   <script src="shared.js"></script>
   <script>
     const CSV_CONFIGS = [
-      { key: 'ottoneu_roster',         label: 'Ottoneu Roster',         required: true,  parse: parseRosterCSV },
-      { key: 'ottoneu_proj_hitting',   label: 'Hitting Projections',    required: true,  parse: parseHittingProjections },
-      { key: 'ottoneu_proj_pitching',  label: 'Pitching Projections',   required: true,  parse: parsePitchingProjections },
-      { key: 'ottoneu_stats_hitting',  label: 'Current Hitting Stats',  required: false, parse: parseHittingStats },
-      { key: 'ottoneu_stats_pitching', label: 'Current Pitching Stats', required: false, parse: parsePitchingStats },
+      { key: 'ottoneu_roster',        label: 'Ottoneu Roster',       required: true, parse: parseRosterCSV },
+      { key: 'ottoneu_proj_hitting',  label: 'Hitting Projections',  required: true, parse: parseHittingProjections },
+      { key: 'ottoneu_proj_pitching', label: 'Pitching Projections', required: true, parse: parsePitchingProjections },
     ];
 
     function buildGrid() {

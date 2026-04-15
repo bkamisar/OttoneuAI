@@ -130,36 +130,28 @@
       { fgId: '111', name: 'mike trout',    type: 'H', proj: { pa:550, ab:490, h:140, bb:85, hbp:5, hr:35, r:100, obp:0.420, slg:0.580 } },
       { fgId: '222', name: 'nolan arenado', type: 'H', proj: { pa:580, ab:530, h:160, bb:45, hbp:3, hr:28, r:85,  obp:0.350, slg:0.510 } },
     ];
-    const matched = matchPlayers(rPlayers, hProj, [], null, null);
+    const matched = matchPlayers(rPlayers, hProj, []);
     assertEqual(matched[0].proj.hr, 35, 'matchPlayers: matches by fgId');
     assertEqual(matched[1].proj.hr, 28, 'matchPlayers: falls back to name match');
     assertEqual(matched[0].team, 'My Team', 'matchPlayers: preserves roster fields');
     assertEqual(matched[0].salary, 30, 'matchPlayers: preserves salary');
 
-    section('Blended Stats');
-    const hNoStats = {
-      fgId: '1', name: 'test', type: 'H', stats: null,
+    section('IL Pro-Rating');
+    const hBase = {
+      fgId: '1', name: 'test', type: 'H',
       proj: { pa:600, ab:540, h:162, bb:70, hbp:5, hr:40, r:100, obp:0.380, slg:0.550 },
     };
-    const pure = getBlendedStats(hNoStats, []);
-    assertEqual(pure.hr, 40, 'blended: pure projection when no stats');
+    const noIL = getEffectiveStats(hBase, []);
+    assertEqual(noIL.hr, 40, 'IL: no designation returns full projection');
 
-    const hIL15 = { ...hNoStats, fgId: '2', name: 'il15' };
-    const il15  = getBlendedStats(hIL15, [{ fgId: '2', name: 'il15', type: '15day' }]);
-    assert(Math.abs(il15.hr - 40 * (162 - IL_15_MISS) / 162) < 0.01, 'blended: 15-day IL scales HR');
+    const hIL15 = { ...hBase, fgId: '2', name: 'il15' };
+    const il15  = getEffectiveStats(hIL15, [{ fgId: '2', name: 'il15', type: '15day' }]);
+    assert(Math.abs(il15.hr - 40 * (162 - IL_15_MISS) / 162) < 0.01, 'IL: 15-day scales HR');
 
-    const hIL60 = { ...hNoStats, fgId: '3', name: 'il60' };
-    const il60  = getBlendedStats(hIL60, [{ fgId: '3', name: 'il60', type: '60day' }]);
-    assert(Math.abs(il60.hr - 40 * (162 - IL_60_MISS) / 162) < 0.01, 'blended: 60-day IL scales HR');
-
-    const hMid = {
-      fgId: '4', name: 'mid', type: 'H',
-      proj:  { pa:600, ab:540, h:162, bb:70, hbp:5, hr:40, r:100, obp:0.380, slg:0.550 },
-      stats: { pa:300, ab:270, h:81,  bb:35, hbp:2, hr:25, r:55,  obp:0.410, slg:0.600, g:82 },
-    };
-    const blended = getBlendedStats(hMid, []);
-    assert(blended.hr > 40 && blended.hr < 50, 'blended: mid-season blend HR in range');
-    assert(blended.pa > 550 && blended.pa < 650, 'blended: mid-season blend PA in range');
+    const hIL60 = { ...hBase, fgId: '3', name: 'il60' };
+    const il60  = getEffectiveStats(hIL60, [{ fgId: '3', name: 'il60', type: '60day' }]);
+    assert(Math.abs(il60.hr - 40 * (162 - IL_60_MISS) / 162) < 0.01, 'IL: 60-day scales HR');
+    assertEqual(il15.obp, 0.380, 'IL: rate stats unchanged by IL scaling');
 
     section('Lineup Optimizer');
     function mkH(name, positions, pa, obp, slg) {

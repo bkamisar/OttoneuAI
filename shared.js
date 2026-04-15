@@ -38,7 +38,6 @@ function loadData(key) {
 function clearAllData() {
   [
     'ottoneu_roster', 'ottoneu_proj_hitting', 'ottoneu_proj_pitching',
-    'ottoneu_stats_hitting', 'ottoneu_stats_pitching',
     'ottoneu_my_team', 'ottoneu_il'
   ].forEach(k => localStorage.removeItem(k));
 }
@@ -182,91 +181,20 @@ function parsePitchingProjections(text) {
     });
 }
 
-// ── CURRENT STATS PARSERS ────────────────────────────────────────────────────
-// ⚠️ Verify these against your FanGraphs leaderboard CSV exports
-const HITTING_STATS_COLS = {
-  fgId: 'playerid', name: 'Name', team: 'Team',
-  g: 'G', pa: 'PA', ab: 'AB', h: 'H', bb: 'BB', hbp: 'HBP',
-  hr: 'HR', r: 'R', obp: 'OBP', slg: 'SLG',
-};
-
-const PITCHING_STATS_COLS = {
-  fgId: 'playerid', name: 'Name', team: 'Team',
-  ip: 'IP', h: 'H', bb: 'BB', hr: 'HR', so: 'SO',
-  era: 'ERA', whip: 'WHIP', hr9: 'HR/9',
-};
-
-function parseHittingStats(text) {
-  return parseCSV(text)
-    .filter(row => parseFloat(row[HITTING_STATS_COLS.pa]) > 0)
-    .map(row => {
-      const n = k => parseFloat(row[HITTING_STATS_COLS[k]]) || 0;
-      return {
-        fgId:    (row[HITTING_STATS_COLS.fgId] || '').trim(),
-        name:    normalizeName(row[HITTING_STATS_COLS.name] || ''),
-        rawName: (row[HITTING_STATS_COLS.name] || '').trim(),
-        type:    'H',
-        stats: {
-          g: n('g'), pa: n('pa'), ab: n('ab'), h: n('h'),
-          bb: n('bb'), hbp: n('hbp'),
-          hr: n('hr'), r: n('r'),
-          obp: n('obp'), slg: n('slg'),
-        },
-      };
-    });
-}
-
-function parsePitchingStats(text) {
-  return parseCSV(text)
-    .filter(row => parseFloat(row[PITCHING_STATS_COLS.ip]) > 0)
-    .map(row => {
-      const n   = k => parseFloat(row[PITCHING_STATS_COLS[k]]) || 0;
-      const ip  = n('ip');
-      const era = n('era');
-      const hr  = n('hr');
-      const hr9col = parseFloat(row[PITCHING_STATS_COLS.hr9]) || 0;
-      const hr9 = hr9col > 0 ? hr9col : (ip > 0 ? hr * 9 / ip : 0);
-      return {
-        fgId:    (row[PITCHING_STATS_COLS.fgId] || '').trim(),
-        name:    normalizeName(row[PITCHING_STATS_COLS.name] || ''),
-        rawName: (row[PITCHING_STATS_COLS.name] || '').trim(),
-        type:    'P',
-        stats: {
-          ip, hr, hr9, era,
-          h:    n('h'), bb: n('bb'), so: n('so'),
-          whip: n('whip'),
-          er:   ip > 0 ? era * ip / 9 : 0,
-        },
-      };
-    });
-}
-
 // ── PLAYER MATCHING ──────────────────────────────────────────────────────────
-// Merges roster players with their projections and current stats.
+// Merges roster players with their projections.
 // Match priority: FanGraphs ID → normalized name.
-function matchPlayers(rosterPlayers, hittingProj, pitchingProj, hittingStats, pitchingStats) {
+function matchPlayers(rosterPlayers, hittingProj, pitchingProj) {
   const projById   = {};
   const projByName = {};
   [...(hittingProj || []), ...(pitchingProj || [])].forEach(p => {
-    if (p.fgId)  projById[p.fgId]   = p;
-    if (p.name)  projByName[p.name] = p;
-  });
-
-  const statsById   = {};
-  const statsByName = {};
-  [...(hittingStats || []), ...(pitchingStats || [])].forEach(p => {
-    if (p.fgId)  statsById[p.fgId]   = p;
-    if (p.name)  statsByName[p.name] = p;
+    if (p.fgId) projById[p.fgId]   = p;
+    if (p.name) projByName[p.name] = p;
   });
 
   return rosterPlayers.map(rp => {
-    const projMatch  = projById[rp.fgId]  || projByName[rp.name]  || null;
-    const statsMatch = statsById[rp.fgId] || statsByName[rp.name] || null;
-    return {
-      ...rp,
-      proj:  projMatch  ? projMatch.proj   : null,
-      stats: statsMatch ? statsMatch.stats : null,
-    };
+    const projMatch = projById[rp.fgId] || projByName[rp.name] || null;
+    return { ...rp, proj: projMatch ? projMatch.proj : null };
   });
 }
 
@@ -285,77 +213,31 @@ function getFreeAgents(hittingProj, pitchingProj, rosterPlayers) {
   }));
 }
 
-// ── BLENDED STATS + IL PRO-RATING ────────────────────────────────────────────
-// Returns a full projected season stats object, blending actual YTD stats with
-// remaining projected stats. ilDesignations: [{ fgId, name, type: '15day'|'60day' }]
-function getBlendedStats(player, ilDesignations) {
-  const proj  = player.proj;
-  const stats = player.stats;
+// ── IL PRO-RATING ─────────────────────────────────────────────────────────────
+// Returns projection scaled for IL time missed.
+// ilDesignations: [{ fgId, name, type: '15day'|'60day' }]
+function getEffectiveStats(player, ilDesignations) {
+  const proj = player.proj;
   if (!proj) return null;
-
   const il = (ilDesignations || []).find(d =>
     (d.fgId && d.fgId === player.fgId) || d.name === player.name
   );
   const missedGames = il ? (il.type === '15day' ? IL_15_MISS : IL_60_MISS) : 0;
-  const ilScale     = (162 - missedGames) / 162;
-
-  if (!stats) return scaleStats(proj, ilScale, player.type);
-
-  const fraction = player.type === 'H'
-    ? Math.min((stats.pa || 0) / Math.max(proj.pa, 1), 1)
-    : Math.min((stats.ip || 0) / IP_MAX, 1);
-
-  return blendStats(stats, proj, fraction, Math.max(0, 1 - fraction) * ilScale, player.type);
-}
-
-function scaleStats(proj, scale, type) {
-  if (type === 'H') {
+  const scale = (162 - missedGames) / 162;
+  if (scale === 1) return proj;
+  if (player.type === 'H') {
     return {
-      pa:  proj.pa  * scale, ab:  proj.ab  * scale,
-      h:   proj.h   * scale, bb:  proj.bb  * scale, hbp: proj.hbp * scale,
-      hr:  proj.hr  * scale, r:   proj.r   * scale,
+      pa: proj.pa * scale, ab: proj.ab * scale,
+      h:  proj.h  * scale, bb: proj.bb * scale, hbp: proj.hbp * scale,
+      hr: proj.hr * scale, r:  proj.r  * scale,
       obp: proj.obp, slg: proj.slg,
     };
   }
   const ip = proj.ip * scale;
   return {
     ip, hr: proj.hr * scale, so: proj.so * scale,
-    h:  proj.h  * scale, bb: proj.bb * scale, er: proj.er * scale,
+    h: proj.h * scale, bb: proj.bb * scale, er: proj.er * scale,
     era: proj.era, whip: proj.whip, hr9: proj.hr9,
-  };
-}
-
-function blendStats(stats, proj, fraction, remainingScale, type) {
-  if (type === 'H') {
-    const actPA = stats.pa || 0, actAB = stats.ab || 0;
-    const remPA = proj.pa * remainingScale, remAB = proj.ab * remainingScale;
-    const totPA = actPA + remPA, totAB = actAB + remAB;
-    return {
-      pa:  totPA, ab:  totAB,
-      h:   (stats.h   || 0) + proj.h   * remainingScale,
-      bb:  (stats.bb  || 0) + proj.bb  * remainingScale,
-      hbp: (stats.hbp || 0) + proj.hbp * remainingScale,
-      hr:  (stats.hr  || 0) + proj.hr  * remainingScale,
-      r:   (stats.r   || 0) + proj.r   * remainingScale,
-      obp: totPA > 0 ? (actPA * (stats.obp || 0) + remPA * (proj.obp || 0)) / totPA : 0,
-      slg: totAB > 0 ? (actAB * (stats.slg || 0) + remAB * (proj.slg || 0)) / totAB : 0,
-    };
-  }
-  const actIP = stats.ip || 0, remIP = proj.ip * remainingScale;
-  const totIP = actIP + remIP;
-  const erNum   = actIP * (stats.era  || 0) / 9 + remIP * (proj.era  || 0) / 9;
-  const whipNum = actIP * (stats.whip || 0)     + remIP * (proj.whip || 0);
-  const hr9Num  = actIP * (stats.hr9  || 0) / 9 + remIP * (proj.hr9  || 0) / 9;
-  return {
-    ip:   totIP,
-    hr:   (stats.hr || 0) + proj.hr * remainingScale,
-    so:   (stats.so || 0) + proj.so * remainingScale,
-    h:    (stats.h  || 0) + proj.h  * remainingScale,
-    bb:   (stats.bb || 0) + proj.bb * remainingScale,
-    er:   erNum,
-    era:  totIP > 0 ? erNum  * 9 / totIP : 0,
-    whip: totIP > 0 ? whipNum  / totIP   : 0,
-    hr9:  totIP > 0 ? hr9Num  * 9 / totIP : 0,
   };
 }
 
@@ -380,7 +262,7 @@ function optimizeHitterLineup(hitters, ilDesignations) {
   const scored = hitters
     .filter(p => p.type === 'H')
     .map(p => {
-      const b = getBlendedStats(p, ilDesignations) || {};
+      const b = getEffectiveStats(p, ilDesignations) || {};
       return { ...p, _blended: b, _value: (b.pa || 0) * ((b.obp || 0) + (b.slg || 0)) };
     })
     .sort((a, b) => b._value - a._value);
@@ -406,7 +288,7 @@ function selectPitchers(pitchers, ilDesignations) {
   const scored = pitchers
     .filter(p => p.type === 'P')
     .map(p => {
-      const b        = getBlendedStats(p, ilDesignations) || {};
+      const b        = getEffectiveStats(p, ilDesignations) || {};
       const safeERA  = (b.era  || 0) > 0 ? b.era  : 99;
       const safeWHIP = (b.whip || 0) > 0 ? b.whip : 9;
       return { ...p, _blended: b, _value: (b.ip || 0) * (1 / safeERA + 1 / safeWHIP + (b.so || 0) / 100) };
@@ -430,7 +312,7 @@ function computeTeamStats(hitterAssignment, selectedPitchers, ilDesignations) {
 
   let totPA = 0, totAB = 0, totOBPNum = 0, totSLGNum = 0, totHR = 0, totR = 0;
   for (const p of hitters) {
-    const b = p._blended || getBlendedStats(p, ilDesignations) || {};
+    const b = p._blended || getEffectiveStats(p, ilDesignations) || {};
     totPA     += b.pa  || 0;
     totAB     += b.ab  || 0;
     totOBPNum += (b.pa || 0) * (b.obp || 0);
@@ -441,7 +323,7 @@ function computeTeamStats(hitterAssignment, selectedPitchers, ilDesignations) {
 
   let totIP = 0, totERNum = 0, totWHIPNum = 0, totHR9Num = 0, totSO = 0;
   for (const p of pitchers) {
-    const b = p._blended || getBlendedStats(p, ilDesignations) || {};
+    const b = p._blended || getEffectiveStats(p, ilDesignations) || {};
     const ip = b.ip || 0;
     totIP      += ip;
     totERNum   += ip * (b.era  || 0) / 9;
@@ -534,7 +416,7 @@ function calculateAllValues(allTeamRosters, ilDesignations) {
   allTeamRosters.flat().forEach(player => {
     const key = player.fgId || player.name;
     if (valueMap[key]) return;
-    const b       = getBlendedStats(player, il);
+    const b       = getEffectiveStats(player, il);
     const replKey = getReplacementKey(player);
     const repl    = replLevels[replKey];
     if (!b || !repl) {
@@ -585,7 +467,7 @@ function getReplacementKey(player) {
 function calcReplacementLevels(allTeamRosters, il, startingH, startingP) {
   const groups = { C:[], SS:[], '2B':[], '3B':[], '1B':[], OF:[], UTIL:[], P:[] };
   allTeamRosters.flat().forEach(p => {
-    const b   = getBlendedStats(p, il);
+    const b   = getEffectiveStats(p, il);
     if (!b) return;
     const pk  = getReplacementKey(p);
     const key = p.fgId || p.name;

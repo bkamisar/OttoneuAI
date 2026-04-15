@@ -136,6 +136,87 @@
     assertEqual(matched[0].team, 'My Team', 'matchPlayers: preserves roster fields');
     assertEqual(matched[0].salary, 30, 'matchPlayers: preserves salary');
 
+    section('Blended Stats');
+    const hNoStats = {
+      fgId: '1', name: 'test', type: 'H', stats: null,
+      proj: { pa:600, ab:540, h:162, bb:70, hbp:5, hr:40, r:100, obp:0.380, slg:0.550 },
+    };
+    const pure = getBlendedStats(hNoStats, []);
+    assertEqual(pure.hr, 40, 'blended: pure projection when no stats');
+
+    const hIL15 = { ...hNoStats, fgId: '2', name: 'il15' };
+    const il15  = getBlendedStats(hIL15, [{ fgId: '2', name: 'il15', type: '15day' }]);
+    assert(Math.abs(il15.hr - 40 * (162 - IL_15_MISS) / 162) < 0.01, 'blended: 15-day IL scales HR');
+
+    const hIL60 = { ...hNoStats, fgId: '3', name: 'il60' };
+    const il60  = getBlendedStats(hIL60, [{ fgId: '3', name: 'il60', type: '60day' }]);
+    assert(Math.abs(il60.hr - 40 * (162 - IL_60_MISS) / 162) < 0.01, 'blended: 60-day IL scales HR');
+
+    const hMid = {
+      fgId: '4', name: 'mid', type: 'H',
+      proj:  { pa:600, ab:540, h:162, bb:70, hbp:5, hr:40, r:100, obp:0.380, slg:0.550 },
+      stats: { pa:300, ab:270, h:81,  bb:35, hbp:2, hr:25, r:55,  obp:0.410, slg:0.600, g:82 },
+    };
+    const blended = getBlendedStats(hMid, []);
+    assert(blended.hr > 40 && blended.hr < 50, 'blended: mid-season blend HR in range');
+    assert(blended.pa > 550 && blended.pa < 650, 'blended: mid-season blend PA in range');
+
+    section('Lineup Optimizer');
+    function mkH(name, positions, pa, obp, slg) {
+      const proj = { pa, ab: pa*0.88, h: pa*0.25, bb: pa*0.10, hbp: pa*0.01, hr: pa*0.05, r: pa*0.14, obp, slg };
+      return { fgId: name, name, rawName: name, type: 'H', positions, proj, stats: null, salary: 10, team: 'T' };
+    }
+    const testHitters = [
+      mkH('catcher',   ['c'],       400, 0.330, 0.460),
+      mkH('firstbase', ['1b'],      550, 0.360, 0.520),
+      mkH('second',    ['2b'],      520, 0.340, 0.470),
+      mkH('short',     ['ss'],      510, 0.345, 0.465),
+      mkH('third',     ['3b'],      540, 0.350, 0.500),
+      mkH('midual',    ['2b','ss'], 580, 0.370, 0.530),
+      mkH('of1',       ['of'],      600, 0.400, 0.600),
+      mkH('of2',       ['of'],      590, 0.390, 0.580),
+      mkH('of3',       ['of'],      570, 0.380, 0.560),
+      mkH('of4',       ['of'],      560, 0.375, 0.550),
+      mkH('of5',       ['of'],      550, 0.365, 0.540),
+      mkH('dh',        ['dh'],      530, 0.355, 0.495),
+    ];
+    const lu = optimizeHitterLineup(testHitters, []);
+    assert(lu['C']  && lu['C'].name  === 'catcher',  'optimizer: C assigned to catcher');
+    assert(lu['1B'] && lu['1B'].name === 'firstbase', 'optimizer: 1B assigned');
+    assert(lu['MI'] !== undefined,                    'optimizer: MI slot filled');
+    assert(lu['MI'].positions.includes('2b') || lu['MI'].positions.includes('ss'),
+      'optimizer: MI player is MI-eligible');
+    assert(['OF1','OF2','OF3','OF4','OF5'].every(s => lu[s]), 'optimizer: all 5 OF slots filled');
+    assert(lu['UTIL'] !== undefined, 'optimizer: UTIL filled');
+    const names = Object.values(lu).map(p => p.name);
+    assertEqual(names.length, new Set(names).size, 'optimizer: no duplicate assignments');
+
+    section('Scoring Engine');
+    function mkSH(name, pa, obp, slg, hr, r) {
+      const b = { pa, ab: pa*0.88, obp, slg, hr, r };
+      return { fgId: name, name, type: 'H', positions: ['of'], _blended: b, proj: null, stats: null, salary: 0, team: 'T' };
+    }
+    function mkSP(name, ip, era, whip, hr9, so) {
+      const b = { ip, era, whip, hr9, so };
+      return { fgId: name, name, type: 'P', positions: ['sp'], _blended: b, proj: null, stats: null, salary: 0, team: 'T' };
+    }
+    const testLineup   = { OF1: mkSH('h1',600,0.380,0.540,35,95), OF2: mkSH('h2',550,0.360,0.500,25,80) };
+    const testPitchers = [ mkSP('p1',800,3.20,1.10,1.00,220), mkSP('p2',700,3.80,1.20,1.20,180) ];
+    const ts = computeTeamStats(testLineup, testPitchers, []);
+    assert(ts._pitchingValid, 'scoring: pitching valid when IP >= 1250');
+    assertEqual(ts.HR, 60, 'scoring: HR sums correctly');
+    assertEqual(ts.R,  175, 'scoring: R sums correctly');
+    assert(ts.OBP > 0.36 && ts.OBP < 0.38, 'scoring: OBP is weighted average');
+
+    const teams2 = [
+      { name: 'A', stats: { OBP:0.380, SLG:0.540, HR:200, R:900, ERA:3.50, WHIP:1.20, HR9:1.10, SO:1400 } },
+      { name: 'B', stats: { OBP:0.360, SLG:0.510, HR:180, R:850, ERA:4.00, WHIP:1.30, HR9:1.30, SO:1300 } },
+    ];
+    const standings = buildStandings(teams2);
+    assertEqual(standings[0].name, 'A', 'standings: better team ranks first');
+    assert(standings[0].ranks['ERA'] > standings[1].ranks['ERA'],
+      'standings: lower ERA gets higher points');
+
     // ── Summary ──────────────────────────────────────────────────────────────
     const sumEl = document.getElementById('summary');
     sumEl.textContent = passed + ' passed, ' + failed + ' failed';

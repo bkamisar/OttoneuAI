@@ -285,9 +285,203 @@ function getFreeAgents(hittingProj, pitchingProj, rosterPlayers) {
   }));
 }
 
+// ── BLENDED STATS + IL PRO-RATING ────────────────────────────────────────────
+// Returns a full projected season stats object, blending actual YTD stats with
+// remaining projected stats. ilDesignations: [{ fgId, name, type: '15day'|'60day' }]
+function getBlendedStats(player, ilDesignations) {
+  const proj  = player.proj;
+  const stats = player.stats;
+  if (!proj) return null;
+
+  const il = (ilDesignations || []).find(d =>
+    (d.fgId && d.fgId === player.fgId) || d.name === player.name
+  );
+  const missedGames = il ? (il.type === '15day' ? IL_15_MISS : IL_60_MISS) : 0;
+  const ilScale     = (162 - missedGames) / 162;
+
+  if (!stats) return scaleStats(proj, ilScale, player.type);
+
+  const fraction = player.type === 'H'
+    ? Math.min((stats.pa || 0) / Math.max(proj.pa, 1), 1)
+    : Math.min((stats.ip || 0) / IP_MAX, 1);
+
+  return blendStats(stats, proj, fraction, Math.max(0, 1 - fraction) * ilScale, player.type);
+}
+
+function scaleStats(proj, scale, type) {
+  if (type === 'H') {
+    return {
+      pa:  proj.pa  * scale, ab:  proj.ab  * scale,
+      h:   proj.h   * scale, bb:  proj.bb  * scale, hbp: proj.hbp * scale,
+      hr:  proj.hr  * scale, r:   proj.r   * scale,
+      obp: proj.obp, slg: proj.slg,
+    };
+  }
+  const ip = proj.ip * scale;
+  return {
+    ip, hr: proj.hr * scale, so: proj.so * scale,
+    h:  proj.h  * scale, bb: proj.bb * scale, er: proj.er * scale,
+    era: proj.era, whip: proj.whip, hr9: proj.hr9,
+  };
+}
+
+function blendStats(stats, proj, fraction, remainingScale, type) {
+  if (type === 'H') {
+    const actPA = stats.pa || 0, actAB = stats.ab || 0;
+    const remPA = proj.pa * remainingScale, remAB = proj.ab * remainingScale;
+    const totPA = actPA + remPA, totAB = actAB + remAB;
+    return {
+      pa:  totPA, ab:  totAB,
+      h:   (stats.h   || 0) + proj.h   * remainingScale,
+      bb:  (stats.bb  || 0) + proj.bb  * remainingScale,
+      hbp: (stats.hbp || 0) + proj.hbp * remainingScale,
+      hr:  (stats.hr  || 0) + proj.hr  * remainingScale,
+      r:   (stats.r   || 0) + proj.r   * remainingScale,
+      obp: totPA > 0 ? (actPA * (stats.obp || 0) + remPA * (proj.obp || 0)) / totPA : 0,
+      slg: totAB > 0 ? (actAB * (stats.slg || 0) + remAB * (proj.slg || 0)) / totAB : 0,
+    };
+  }
+  const actIP = stats.ip || 0, remIP = proj.ip * remainingScale;
+  const totIP = actIP + remIP;
+  const erNum   = actIP * (stats.era  || 0) / 9 + remIP * (proj.era  || 0) / 9;
+  const whipNum = actIP * (stats.whip || 0)     + remIP * (proj.whip || 0);
+  const hr9Num  = actIP * (stats.hr9  || 0) / 9 + remIP * (proj.hr9  || 0) / 9;
+  return {
+    ip:   totIP,
+    hr:   (stats.hr || 0) + proj.hr * remainingScale,
+    so:   (stats.so || 0) + proj.so * remainingScale,
+    h:    (stats.h  || 0) + proj.h  * remainingScale,
+    bb:   (stats.bb || 0) + proj.bb * remainingScale,
+    er:   erNum,
+    era:  totIP > 0 ? erNum  * 9 / totIP : 0,
+    whip: totIP > 0 ? whipNum  / totIP   : 0,
+    hr9:  totIP > 0 ? hr9Num  * 9 / totIP : 0,
+  };
+}
+
+// ── LINEUP OPTIMIZER ────────────────────────────────────────────────────────
+const HITTER_SLOTS = [
+  { id: 'C',    eligible: p => p.positions.includes('c') },
+  { id: '1B',   eligible: p => p.positions.includes('1b') },
+  { id: '2B',   eligible: p => p.positions.includes('2b') },
+  { id: 'SS',   eligible: p => p.positions.includes('ss') },
+  { id: '3B',   eligible: p => p.positions.includes('3b') },
+  { id: 'MI',   eligible: p => p.positions.some(pos => pos === '2b' || pos === 'ss') },
+  { id: 'OF1',  eligible: p => p.positions.includes('of') },
+  { id: 'OF2',  eligible: p => p.positions.includes('of') },
+  { id: 'OF3',  eligible: p => p.positions.includes('of') },
+  { id: 'OF4',  eligible: p => p.positions.includes('of') },
+  { id: 'OF5',  eligible: p => p.positions.includes('of') },
+  { id: 'UTIL', eligible: p => p.type === 'H' },
+];
+
+// Assigns hitters to slots. Returns { slotId: player } map.
+function optimizeHitterLineup(hitters, ilDesignations) {
+  const scored = hitters
+    .filter(p => p.type === 'H')
+    .map(p => {
+      const b = getBlendedStats(p, ilDesignations) || {};
+      return { ...p, _blended: b, _value: (b.pa || 0) * ((b.obp || 0) + (b.slg || 0)) };
+    })
+    .sort((a, b) => b._value - a._value);
+
+  const slots = [...HITTER_SLOTS].sort((a, b) =>
+    scored.filter(p => a.eligible(p)).length - scored.filter(p => b.eligible(p)).length
+  );
+
+  const assignment = {};
+  const used = new Set();
+  for (const slot of slots) {
+    const best = scored.find(p => slot.eligible(p) && !used.has(p.fgId || p.name));
+    if (best) {
+      assignment[slot.id] = best;
+      used.add(best.fgId || best.name);
+    }
+  }
+  return assignment;
+}
+
+// Selects pitchers ranked by value up to IP_MAX. Returns [] if projected IP < IP_MIN.
+function selectPitchers(pitchers, ilDesignations) {
+  const scored = pitchers
+    .filter(p => p.type === 'P')
+    .map(p => {
+      const b        = getBlendedStats(p, ilDesignations) || {};
+      const safeERA  = (b.era  || 0) > 0 ? b.era  : 99;
+      const safeWHIP = (b.whip || 0) > 0 ? b.whip : 9;
+      return { ...p, _blended: b, _value: (b.ip || 0) * (1 / safeERA + 1 / safeWHIP + (b.so || 0) / 100) };
+    })
+    .sort((a, b) => b._value - a._value);
+
+  const selected = [];
+  let totalIP = 0;
+  for (const p of scored) {
+    const ip = (p._blended && p._blended.ip) || 0;
+    if (totalIP + ip <= IP_MAX) { selected.push(p); totalIP += ip; }
+  }
+  return totalIP >= IP_MIN ? selected : [];
+}
+
+// ── SCORING ENGINE ───────────────────────────────────────────────────────────
+// Computes 8 category totals for one team from their lineup and pitcher pool.
+function computeTeamStats(hitterAssignment, selectedPitchers, ilDesignations) {
+  const hitters  = Object.values(hitterAssignment || {}).filter(Boolean);
+  const pitchers = selectedPitchers || [];
+
+  let totPA = 0, totAB = 0, totOBPNum = 0, totSLGNum = 0, totHR = 0, totR = 0;
+  for (const p of hitters) {
+    const b = p._blended || getBlendedStats(p, ilDesignations) || {};
+    totPA     += b.pa  || 0;
+    totAB     += b.ab  || 0;
+    totOBPNum += (b.pa || 0) * (b.obp || 0);
+    totSLGNum += (b.ab || 0) * (b.slg || 0);
+    totHR     += b.hr  || 0;
+    totR      += b.r   || 0;
+  }
+
+  let totIP = 0, totERNum = 0, totWHIPNum = 0, totHR9Num = 0, totSO = 0;
+  for (const p of pitchers) {
+    const b = p._blended || getBlendedStats(p, ilDesignations) || {};
+    const ip = b.ip || 0;
+    totIP      += ip;
+    totERNum   += ip * (b.era  || 0) / 9;
+    totWHIPNum += ip * (b.whip || 0);
+    totHR9Num  += ip * (b.hr9  || 0) / 9;
+    totSO      += b.so || 0;
+  }
+
+  const pitOk = totIP >= IP_MIN;
+  return {
+    OBP:  totPA > 0 ? totOBPNum / totPA  : 0,
+    SLG:  totAB > 0 ? totSLGNum / totAB  : 0,
+    HR:   totHR,
+    R:    totR,
+    ERA:  pitOk && totIP > 0 ? totERNum  * 9 / totIP : 0,
+    WHIP: pitOk && totIP > 0 ? totWHIPNum  / totIP   : 0,
+    HR9:  pitOk && totIP > 0 ? totHR9Num * 9 / totIP : 0,
+    SO:   pitOk ? totSO : 0,
+    _ip:  totIP,
+    _pitchingValid: pitOk,
+  };
+}
+
+// Ranks 12 teams 12→1 per category. Returns teams sorted by total points desc.
+function buildStandings(teams) {
+  const n      = teams.length;
+  const ranked = teams.map(t => ({ ...t, points: 0, ranks: {} }));
+  for (const cat of CATS) {
+    const sorted = [...ranked].sort((a, b) => {
+      const av = a.stats[cat] || 0, bv = b.stats[cat] || 0;
+      return LOWER_BETTER.has(cat) ? av - bv : bv - av;
+    });
+    sorted.forEach((team, idx) => {
+      const pts       = n - idx;
+      team.ranks[cat] = pts;
+      team.points    += pts;
+    });
+  }
+  return ranked.sort((a, b) => b.points - a.points);
+}
+
 // ── PLACEHOLDER SECTIONS (filled in subsequent tasks) ───────────────────────
-// Blended stats → Task 6
-// IL pro-rating → Task 6
-// Lineup optim  → Task 7
-// Scoring engine→ Task 8
 // Valuation     → Task 9

@@ -73,6 +73,24 @@
     localStorage.removeItem('_test_key');
     assertEqual(loadData('_test_key'), null, 'loadData returns null for missing key');
 
+    section('Roster Parser');
+    const rosterCSV =
+      'fg_id,Name,Pos,Salary,Team\n' +
+      '12345,Aaron Judge,OF,$36,My Team\n' +
+      '67890,Shohei Ohtani,DH/OF,$75,Other Team\n' +
+      '11111,Gerrit Cole,SP,$40,My Team\n' +
+      ',Unknown Player,1B,$1,';
+
+    const roster = parseRosterCSV(rosterCSV);
+    assertEqual(roster.length, 4, 'parseRosterCSV: row count');
+    assertEqual(roster[0].fgId, '12345', 'parseRosterCSV: fgId');
+    assertEqual(roster[0].salary, 36, 'parseRosterCSV: strips $ from salary');
+    assertEqual(roster[0].type, 'H', 'parseRosterCSV: hitter type');
+    assertEqual(roster[2].type, 'P', 'parseRosterCSV: pitcher type');
+    assertEqual(roster[1].positions, ['dh','of'], 'parseRosterCSV: splits positions');
+    assertEqual(roster[3].team, 'Free Agent', 'parseRosterCSV: blank team → Free Agent');
+    assertEqual(normalizeName('José Ramírez'), 'jose ramirez', 'normalizeName: strips accents');
+
     // ── Summary ──────────────────────────────────────────────────────────────
     const sumEl = document.getElementById('summary');
     sumEl.textContent = passed + ' passed, ' + failed + ' failed';

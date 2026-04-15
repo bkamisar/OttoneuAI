@@ -77,8 +77,50 @@ function parseCSVLine(line) {
   return result;
 }
 
+// ── ROSTER PARSER ────────────────────────────────────────────────────────────
+// ⚠️ Verify these against your actual Ottoneu roster CSV export headers
+const ROSTER_COLS = {
+  fgId:      'fg_id',    // FanGraphs player ID — primary match key
+  name:      'Name',
+  positions: 'Pos',      // e.g. "SS/2B" or "OF" or "SP"
+  salary:    'Salary',   // e.g. "$10" or "10"
+  team:      'Team',     // fantasy team name; blank = free agent
+};
+
+function parseRosterCSV(text) {
+  return parseCSV(text).map(row => ({
+    fgId:      (row[ROSTER_COLS.fgId]      || '').trim(),
+    name:      normalizeName(row[ROSTER_COLS.name] || ''),
+    rawName:   (row[ROSTER_COLS.name]      || '').trim(),
+    positions: parsePositions(row[ROSTER_COLS.positions] || ''),
+    salary:    parseSalary(row[ROSTER_COLS.salary]  || '0'),
+    team:      (row[ROSTER_COLS.team]      || '').trim() || 'Free Agent',
+    type:      inferPlayerType(row[ROSTER_COLS.positions] || ''),
+  }));
+}
+
+function normalizeName(name) {
+  return String(name).toLowerCase()
+    .replace(/[àáâãäå]/g, 'a').replace(/[èéêë]/g, 'e')
+    .replace(/[ìíîï]/g, 'i').replace(/[òóôõö]/g, 'o')
+    .replace(/[ùúûü]/g, 'u').replace(/ñ/g, 'n')
+    .replace(/[^a-z0-9 ]/g, '').replace(/\s+/g, ' ').trim();
+}
+
+function parsePositions(posStr) {
+  return String(posStr).toLowerCase().split(/[/,]/).map(p => p.trim()).filter(Boolean);
+}
+
+function parseSalary(str) {
+  return parseFloat(String(str).replace(/[$,\s]/g, '')) || 0;
+}
+
+function inferPlayerType(posStr) {
+  const pos = String(posStr).toLowerCase();
+  return (pos.includes('sp') || pos.includes('rp') || pos === 'p') ? 'P' : 'H';
+}
+
 // ── PLACEHOLDER SECTIONS (filled in subsequent tasks) ───────────────────────
-// Roster parser → Task 3
 // Proj parsers  → Task 4
 // Stats parsers → Task 5
 // Player match  → Task 5

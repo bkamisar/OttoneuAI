@@ -120,8 +120,69 @@ function inferPlayerType(posStr) {
   return tokens.some(p => p === 'sp' || p === 'rp' || p === 'p') ? 'P' : 'H';
 }
 
+// ── PROJECTION PARSERS ───────────────────────────────────────────────────────
+// ⚠️ Verify these against your actual FanGraphs projection CSV headers
+const HITTING_PROJ_COLS = {
+  fgId: 'playerid', name: 'Name', team: 'Team',
+  pa: 'PA', ab: 'AB', h: 'H', bb: 'BB', hbp: 'HBP',
+  hr: 'HR', r: 'R', obp: 'OBP', slg: 'SLG',
+};
+
+const PITCHING_PROJ_COLS = {
+  fgId: 'playerid', name: 'Name', team: 'Team',
+  ip: 'IP', h: 'H', bb: 'BB', hr: 'HR', so: 'SO',
+  era: 'ERA', whip: 'WHIP', hr9: 'HR/9',
+};
+
+function parseHittingProjections(text) {
+  return parseCSV(text)
+    .filter(row => parseFloat(row[HITTING_PROJ_COLS.pa]) > 0)
+    .map(row => {
+      const n = k => parseFloat(row[HITTING_PROJ_COLS[k]]) || 0;
+      return {
+        fgId:    (row[HITTING_PROJ_COLS.fgId] || '').trim(),
+        name:    normalizeName(row[HITTING_PROJ_COLS.name] || ''),
+        rawName: (row[HITTING_PROJ_COLS.name] || '').trim(),
+        type:    'H',
+        proj: {
+          pa: n('pa'), ab: n('ab'), h: n('h'),
+          bb: n('bb'), hbp: n('hbp'),
+          hr: n('hr'), r: n('r'),
+          obp: n('obp'), slg: n('slg'),
+        },
+      };
+    });
+}
+
+function parsePitchingProjections(text) {
+  return parseCSV(text)
+    .filter(row => parseFloat(row[PITCHING_PROJ_COLS.ip]) > 0)
+    .map(row => {
+      const n   = k => parseFloat(row[PITCHING_PROJ_COLS[k]]) || 0;
+      const ip  = n('ip');
+      const era = n('era');
+      const hr  = n('hr');
+      const hr9col = parseFloat(row[PITCHING_PROJ_COLS.hr9]) || 0;
+      const hr9 = hr9col > 0 ? hr9col : (ip > 0 ? hr * 9 / ip : 0);
+      return {
+        fgId:    (row[PITCHING_PROJ_COLS.fgId] || '').trim(),
+        name:    normalizeName(row[PITCHING_PROJ_COLS.name] || ''),
+        rawName: (row[PITCHING_PROJ_COLS.name] || '').trim(),
+        type:    'P',
+        proj: {
+          ip, hr, hr9,
+          h:    n('h'),
+          bb:   n('bb'),
+          so:   n('so'),
+          era,
+          whip: n('whip'),
+          er:   ip > 0 ? era * ip / 9 : 0,
+        },
+      };
+    });
+}
+
 // ── PLACEHOLDER SECTIONS (filled in subsequent tasks) ───────────────────────
-// Proj parsers  → Task 4
 // Stats parsers → Task 5
 // Player match  → Task 5
 // Blended stats → Task 6

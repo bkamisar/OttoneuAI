@@ -91,6 +91,36 @@
     assertEqual(roster[3].team, 'Free Agent', 'parseRosterCSV: blank team → Free Agent');
     assertEqual(normalizeName('José Ramírez'), 'jose ramirez', 'normalizeName: strips accents');
 
+    section('Projection Parsers');
+    const hitProjCSV =
+      'playerid,Name,Team,PA,AB,H,BB,HBP,HR,R,OBP,SLG\n' +
+      '12345,Aaron Judge,NYY,600,520,150,90,5,55,110,0.400,0.580\n' +
+      '00000,Zero PA Guy,AAA,0,0,0,0,0,0,0,0,0';
+
+    const hitProj = parseHittingProjections(hitProjCSV);
+    assertEqual(hitProj.length, 1, 'parseHittingProjections: filters zero-PA rows');
+    assertEqual(hitProj[0].proj.hr, 55, 'parseHittingProjections: HR');
+    assertEqual(hitProj[0].proj.obp, 0.400, 'parseHittingProjections: OBP');
+    assertEqual(hitProj[0].type, 'H', 'parseHittingProjections: type is H');
+
+    const pitProjCSV =
+      'playerid,Name,Team,IP,H,BB,HR,SO,ERA,WHIP,HR/9\n' +
+      '99999,Gerrit Cole,NYY,200,160,40,20,240,3.00,1.00,0.90';
+
+    const pitProj = parsePitchingProjections(pitProjCSV);
+    assertEqual(pitProj.length, 1, 'parsePitchingProjections: row count');
+    assertEqual(pitProj[0].proj.ip, 200, 'parsePitchingProjections: IP');
+    assertEqual(pitProj[0].proj.so, 240, 'parsePitchingProjections: SO');
+    assert(Math.abs(pitProj[0].proj.er - 200 * 3.00 / 9) < 0.01,
+      'parsePitchingProjections: derived ER');
+
+    const pitProjNoHR9CSV =
+      'playerid,Name,Team,IP,H,BB,HR,SO,ERA,WHIP,HR/9\n' +
+      '88888,No HR9 Pitcher,NYY,180,160,50,18,200,3.50,1.10,0';
+    const pitProjNoHR9 = parsePitchingProjections(pitProjNoHR9CSV);
+    assert(Math.abs(pitProjNoHR9[0].proj.hr9 - (18 * 9 / 180)) < 0.001,
+      'parsePitchingProjections: derives HR/9 when column is zero');
+
     // ── Summary ──────────────────────────────────────────────────────────────
     const sumEl = document.getElementById('summary');
     sumEl.textContent = passed + ' passed, ' + failed + ' failed';

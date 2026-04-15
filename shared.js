@@ -24,9 +24,59 @@ function esc(str) {
     .replace(/'/g, '&#39;');
 }
 
+// ── LOCAL STORAGE ────────────────────────────────────────────────────────────
+function saveData(key, value) {
+  localStorage.setItem(key, JSON.stringify(value));
+}
+
+function loadData(key) {
+  const raw = localStorage.getItem(key);
+  return raw ? JSON.parse(raw) : null;
+}
+
+function clearAllData() {
+  [
+    'ottoneu_roster', 'ottoneu_proj_hitting', 'ottoneu_proj_pitching',
+    'ottoneu_stats_hitting', 'ottoneu_stats_pitching',
+    'ottoneu_my_team', 'ottoneu_il'
+  ].forEach(k => localStorage.removeItem(k));
+}
+
+// ── CSV PARSING ──────────────────────────────────────────────────────────────
+function parseCSV(text) {
+  const lines = text.trim().split(/\r?\n/);
+  if (lines.length < 2) return [];
+  const headers = parseCSVLine(lines[0]).map(h => h.trim().replace(/^"|"$/g, ''));
+  return lines.slice(1)
+    .filter(l => l.trim())
+    .map(line => {
+      const values = parseCSVLine(line);
+      const obj = {};
+      headers.forEach((h, i) => { obj[h] = (values[i] || '').trim().replace(/^"|"$/g, ''); });
+      return obj;
+    });
+}
+
+function parseCSVLine(line) {
+  const result = [];
+  let current = '';
+  let inQuotes = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (ch === '"') {
+      if (inQuotes && line[i + 1] === '"') { current += '"'; i++; }
+      else inQuotes = !inQuotes;
+    } else if (ch === ',' && !inQuotes) {
+      result.push(current); current = '';
+    } else {
+      current += ch;
+    }
+  }
+  result.push(current);
+  return result;
+}
+
 // ── PLACEHOLDER SECTIONS (filled in subsequent tasks) ───────────────────────
-// localStorage  → Task 2
-// CSV parsing   → Task 2
 // Roster parser → Task 3
 // Proj parsers  → Task 4
 // Stats parsers → Task 5

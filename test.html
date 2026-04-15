@@ -59,6 +59,20 @@
     assertEqual(esc(null), '', 'esc: handles null');
     assertEqual(esc(0), '0', 'esc: handles numeric zero');
 
+    section('CSV Parser');
+    const csvSample = 'Name,HR,OBP\n"Judge, Aaron",62,0.400\nTrout,40,0.390';
+    const csvRows = parseCSV(csvSample);
+    assertEqual(csvRows.length, 2, 'parseCSV: correct row count');
+    assertEqual(csvRows[0]['Name'], 'Judge, Aaron', 'parseCSV: handles quoted commas');
+    assertEqual(csvRows[0]['HR'], '62', 'parseCSV: reads numeric field as string');
+    assertEqual(csvRows[1]['OBP'], '0.390', 'parseCSV: reads last field');
+
+    section('localStorage');
+    saveData('_test_key', { x: 42 });
+    assertEqual(loadData('_test_key'), { x: 42 }, 'saveData/loadData roundtrip');
+    localStorage.removeItem('_test_key');
+    assertEqual(loadData('_test_key'), null, 'loadData returns null for missing key');
+
     // ── Summary ──────────────────────────────────────────────────────────────
     const sumEl = document.getElementById('summary');
     sumEl.textContent = passed + ' passed, ' + failed + ' failed';

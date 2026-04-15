@@ -79,11 +79,11 @@ function parseCSVLine(line) {
 // ── ROSTER PARSER ────────────────────────────────────────────────────────────
 // ⚠️ Verify these against your actual Ottoneu roster CSV export headers
 const ROSTER_COLS = {
-  fgId:      'fg_id',    // FanGraphs player ID — primary match key
+  fgId:      'FG MajorLeagueID',  // FanGraphs player ID — primary match key
   name:      'Name',
-  positions: 'Pos',      // e.g. "SS/2B" or "OF" or "SP"
-  salary:    'Salary',   // e.g. "$10" or "10"
-  team:      'Team',     // fantasy team name; blank = free agent
+  positions: 'Position(s)',        // e.g. "SS/2B" or "OF" or "SP"
+  salary:    'Salary',             // e.g. "$60"
+  team:      'Team Name',          // fantasy team name
 };
 
 function parseRosterCSV(text) {

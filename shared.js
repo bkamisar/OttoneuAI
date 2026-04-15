@@ -483,5 +483,145 @@ function buildStandings(teams) {
   return ranked.sort((a, b) => b.points - a.points);
 }
 
-// ── PLACEHOLDER SECTIONS (filled in subsequent tasks) ───────────────────────
-// Valuation     → Task 9
+// ── VALUATION MODEL ──────────────────────────────────────────────────────────
+// Calculates dollar value per player using position-specific replacement level
+// and SGP (standings gain points) denominators derived from projected standings.
+//
+// allTeamRosters: array of 12 arrays of matched player objects
+// ilDesignations: array of { fgId, name, type }
+// Returns: object keyed by player fgId-or-name →
+//   { projectedValue, actualSalary, surplus, sgp }
+
+function calculateAllValues(allTeamRosters, ilDesignations) {
+  const il = ilDesignations || [];
+
+  // 1. Optimize lineup for each team; attach blended stats
+  const teamLineups = allTeamRosters.map(roster => {
+    const hitters = roster.filter(p => p.type === 'H');
+    const pitchers= roster.filter(p => p.type === 'P');
+    const lineup  = optimizeHitterLineup(hitters, il);
+    const pitPool = selectPitchers(pitchers, il);
+    const stats   = computeTeamStats(lineup, pitPool, il);
+    return { lineup, pitPool, stats, roster };
+  });
+
+  // 2. SGP denominators from stdev of each category across all teams
+  const sgpDenom = calcSGPDenoms(teamLineups.map(t => t.stats));
+
+  // 3. Track which players are starters
+  const startingH = new Set();
+  const startingP = new Set();
+  teamLineups.forEach(t => {
+    Object.values(t.lineup).filter(Boolean).forEach(p => startingH.add(p.fgId || p.name));
+    t.pitPool.forEach(p => startingP.add(p.fgId || p.name));
+  });
+
+  // Average team PA and IP (for rate-stat normalization)
+  const avgPA = teamLineups.reduce((s, t) =>
+    s + Object.values(t.lineup).filter(Boolean)
+      .reduce((sp, p) => sp + ((p._blended && p._blended.pa) || 0), 0), 0) / NUM_TEAMS;
+  const avgIP = teamLineups.reduce((s, t) =>
+    s + t.pitPool.reduce((sp, p) => sp + ((p._blended && p._blended.ip) || 0), 0), 0) / NUM_TEAMS;
+
+  // 4. Position-specific replacement level
+  const replLevels = calcReplacementLevels(allTeamRosters, il, startingH, startingP);
+
+  // 5. SGP per player
+  const valueMap = {};
+  let totalSGP = 0;
+  const posSGPs = [];
+
+  allTeamRosters.flat().forEach(player => {
+    const key = player.fgId || player.name;
+    if (valueMap[key]) return;
+    const b       = getBlendedStats(player, il);
+    const replKey = getReplacementKey(player);
+    const repl    = replLevels[replKey];
+    if (!b || !repl) {
+      valueMap[key] = { sgp: 0, projectedValue: 0, actualSalary: player.salary || 0, surplus: -(player.salary || 0) };
+      return;
+    }
+    const sgp = calcPlayerSGP(player, b, repl, sgpDenom, avgPA, avgIP);
+    valueMap[key] = { sgp, actualSalary: player.salary || 0 };
+    if (sgp > 0) { totalSGP += sgp; posSGPs.push({ key, sgp }); }
+  });
+
+  // 6. Normalize to $4,800
+  posSGPs.forEach(({ key, sgp }) => {
+    const val = totalSGP > 0 ? (sgp / totalSGP) * SALARY_POOL : 0;
+    valueMap[key].projectedValue = Math.max(0, val);
+    valueMap[key].surplus = valueMap[key].projectedValue - (valueMap[key].actualSalary || 0);
+  });
+
+  return valueMap;
+}
+
+function calcSGPDenoms(teamStatsArr) {
+  const result = {};
+  CATS.forEach(cat => {
+    const vals = teamStatsArr.map(s => s[cat] || 0).filter(v => v > 0);
+    result[cat] = vals.length > 1 ? stdev(vals) : 1;
+  });
+  return result;
+}
+
+function stdev(values) {
+  const mean = values.reduce((s, v) => s + v, 0) / values.length;
+  return Math.sqrt(values.reduce((s, v) => s + Math.pow(v - mean, 2), 0) / values.length) || 1;
+}
+
+function getReplacementKey(player) {
+  if (player.type === 'P') return 'P';
+  const pos = player.positions || [];
+  if (pos.includes('c'))  return 'C';
+  if (pos.includes('ss')) return 'SS';
+  if (pos.includes('2b')) return '2B';
+  if (pos.includes('3b')) return '3B';
+  if (pos.includes('1b')) return '1B';
+  if (pos.includes('of')) return 'OF';
+  return 'UTIL';
+}
+
+function calcReplacementLevels(allTeamRosters, il, startingH, startingP) {
+  const groups = { C:[], SS:[], '2B':[], '3B':[], '1B':[], OF:[], UTIL:[], P:[] };
+  allTeamRosters.flat().forEach(p => {
+    const b   = getBlendedStats(p, il);
+    if (!b) return;
+    const pk  = getReplacementKey(p);
+    const key = p.fgId || p.name;
+    const isStart = p.type === 'H' ? startingH.has(key) : startingP.has(key);
+    groups[pk].push({ b, isStart, v: valProxy(p, b) });
+  });
+  const result = {};
+  Object.entries(groups).forEach(([pos, players]) => {
+    const sorted = [...players].sort((a, b) => b.v - a.v);
+    const bench  = sorted.find(p => !p.isStart);
+    result[pos]  = bench ? bench.b : (sorted[sorted.length - 1] || { b: null }).b;
+  });
+  return result;
+}
+
+function valProxy(player, b) {
+  if (!b) return 0;
+  if (player.type === 'H') return (b.pa || 0) * ((b.obp || 0) + (b.slg || 0));
+  const safeERA = (b.era || 0) > 0 ? b.era : 99;
+  return (b.ip || 0) * (1 / safeERA + (b.so || 0) / 1000);
+}
+
+function calcPlayerSGP(player, b, repl, sgpDenom, avgPA, avgIP) {
+  let sgp = 0;
+  if (player.type === 'H') {
+    sgp += ((b.hr  || 0) - (repl.hr  || 0)) / (sgpDenom['HR']  || 1);
+    sgp += ((b.r   || 0) - (repl.r   || 0)) / (sgpDenom['R']   || 1);
+    const pa = b.pa || 0;
+    sgp += ((b.obp || 0) - (repl.obp || 0)) * pa / (avgPA || 1) / (sgpDenom['OBP'] || 1);
+    sgp += ((b.slg || 0) - (repl.slg || 0)) * pa / (avgPA || 1) / (sgpDenom['SLG'] || 1);
+  } else {
+    sgp += ((b.so   || 0) - (repl.so   || 0)) / (sgpDenom['SO']   || 1);
+    const ip = b.ip || 0;
+    sgp += ((repl.era  || 0) - (b.era  || 0)) * ip / (avgIP || 1) / (sgpDenom['ERA']  || 1);
+    sgp += ((repl.whip || 0) - (b.whip || 0)) * ip / (avgIP || 1) / (sgpDenom['WHIP'] || 1);
+    sgp += ((repl.hr9  || 0) - (b.hr9  || 0)) * ip / (avgIP || 1) / (sgpDenom['HR9']  || 1);
+  }
+  return sgp;
+}

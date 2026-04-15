@@ -217,6 +217,34 @@
     assert(standings[0].ranks['ERA'] > standings[1].ranks['ERA'],
       'standings: lower ERA gets higher points');
 
+    section('Valuation Model');
+    function mkFull(id, name, type, pos, proj, salary, team) {
+      return { fgId: id, name, rawName: name, type, positions: pos, salary, team, proj, stats: null };
+    }
+    function padPitchers(arr, teamName) {
+      for (let i = arr.length; i < 10; i++)
+        arr.push(mkFull(teamName+'p'+i, teamName+'p'+i, 'P', ['sp'],
+          { ip:100, h:95, bb:35, hr:10, so:110, era:3.60, whip:1.30, hr9:0.90, er:40 }, 4, teamName));
+    }
+    const t1 = [
+      mkFull('s1','star','H',['of'],{ pa:600,ab:540,h:162,bb:70,hbp:5,hr:45,r:110,obp:0.420,slg:0.600 },30,'T1'),
+      mkFull('w1','weak','H',['ss'],{ pa:460,ab:415,h:110,bb:35,hbp:2,hr:10,r:55, obp:0.310,slg:0.400 },5, 'T1'),
+      mkFull('p1','ace', 'P',['sp'],{ ip:220,h:170,bb:45,hr:18,so:260,era:2.90,whip:0.98,hr9:0.74,er:71 },30,'T1'),
+    ];
+    const t2 = [
+      mkFull('s2','avg', 'H',['of'],{ pa:500,ab:450,h:125,bb:45,hbp:4,hr:18,r:65, obp:0.340,slg:0.450 },8, 'T2'),
+      mkFull('w2','poor','H',['c'], { pa:350,ab:315,h:80, bb:25,hbp:2,hr:8, r:35, obp:0.290,slg:0.370 },4, 'T2'),
+      mkFull('p2','mid', 'P',['sp'],{ ip:160,h:170,bb:60,hr:25,so:155,era:4.20,whip:1.44,hr9:1.41,er:75 },10,'T2'),
+    ];
+    padPitchers(t1, 'T1');
+    padPitchers(t2, 'T2');
+
+    const vm = calculateAllValues([t1, t2], []);
+    assert(vm['s1'] !== undefined, 'valuation: star hitter has entry');
+    assert((vm['s1'].projectedValue || 0) > (vm['w2'].projectedValue || 0),
+      'valuation: star hitter valued above poor hitter');
+    assert(vm['s1'].surplus < vm['s1'].projectedValue, 'valuation: surplus = value - salary');
+
     // ── Summary ──────────────────────────────────────────────────────────────
     const sumEl = document.getElementById('summary');
     sumEl.textContent = passed + ' passed, ' + failed + ' failed';

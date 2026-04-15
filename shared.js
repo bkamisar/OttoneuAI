@@ -182,9 +182,110 @@ function parsePitchingProjections(text) {
     });
 }
 
+// ── CURRENT STATS PARSERS ────────────────────────────────────────────────────
+// ⚠️ Verify these against your FanGraphs leaderboard CSV exports
+const HITTING_STATS_COLS = {
+  fgId: 'playerid', name: 'Name', team: 'Team',
+  g: 'G', pa: 'PA', ab: 'AB', h: 'H', bb: 'BB', hbp: 'HBP',
+  hr: 'HR', r: 'R', obp: 'OBP', slg: 'SLG',
+};
+
+const PITCHING_STATS_COLS = {
+  fgId: 'playerid', name: 'Name', team: 'Team',
+  ip: 'IP', h: 'H', bb: 'BB', hr: 'HR', so: 'SO',
+  era: 'ERA', whip: 'WHIP', hr9: 'HR/9',
+};
+
+function parseHittingStats(text) {
+  return parseCSV(text)
+    .filter(row => parseFloat(row[HITTING_STATS_COLS.pa]) > 0)
+    .map(row => {
+      const n = k => parseFloat(row[HITTING_STATS_COLS[k]]) || 0;
+      return {
+        fgId:    (row[HITTING_STATS_COLS.fgId] || '').trim(),
+        name:    normalizeName(row[HITTING_STATS_COLS.name] || ''),
+        rawName: (row[HITTING_STATS_COLS.name] || '').trim(),
+        type:    'H',
+        stats: {
+          g: n('g'), pa: n('pa'), ab: n('ab'), h: n('h'),
+          bb: n('bb'), hbp: n('hbp'),
+          hr: n('hr'), r: n('r'),
+          obp: n('obp'), slg: n('slg'),
+        },
+      };
+    });
+}
+
+function parsePitchingStats(text) {
+  return parseCSV(text)
+    .filter(row => parseFloat(row[PITCHING_STATS_COLS.ip]) > 0)
+    .map(row => {
+      const n   = k => parseFloat(row[PITCHING_STATS_COLS[k]]) || 0;
+      const ip  = n('ip');
+      const era = n('era');
+      const hr  = n('hr');
+      const hr9col = parseFloat(row[PITCHING_STATS_COLS.hr9]) || 0;
+      const hr9 = hr9col > 0 ? hr9col : (ip > 0 ? hr * 9 / ip : 0);
+      return {
+        fgId:    (row[PITCHING_STATS_COLS.fgId] || '').trim(),
+        name:    normalizeName(row[PITCHING_STATS_COLS.name] || ''),
+        rawName: (row[PITCHING_STATS_COLS.name] || '').trim(),
+        type:    'P',
+        stats: {
+          ip, hr, hr9, era,
+          h:    n('h'), bb: n('bb'), so: n('so'),
+          whip: n('whip'),
+          er:   ip > 0 ? era * ip / 9 : 0,
+        },
+      };
+    });
+}
+
+// ── PLAYER MATCHING ──────────────────────────────────────────────────────────
+// Merges roster players with their projections and current stats.
+// Match priority: FanGraphs ID → normalized name.
+function matchPlayers(rosterPlayers, hittingProj, pitchingProj, hittingStats, pitchingStats) {
+  const projById   = {};
+  const projByName = {};
+  [...(hittingProj || []), ...(pitchingProj || [])].forEach(p => {
+    if (p.fgId)  projById[p.fgId]   = p;
+    if (p.name)  projByName[p.name] = p;
+  });
+
+  const statsById   = {};
+  const statsByName = {};
+  [...(hittingStats || []), ...(pitchingStats || [])].forEach(p => {
+    if (p.fgId)  statsById[p.fgId]   = p;
+    if (p.name)  statsByName[p.name] = p;
+  });
+
+  return rosterPlayers.map(rp => {
+    const projMatch  = projById[rp.fgId]  || projByName[rp.name]  || null;
+    const statsMatch = statsById[rp.fgId] || statsByName[rp.name] || null;
+    return {
+      ...rp,
+      proj:  projMatch  ? projMatch.proj   : null,
+      stats: statsMatch ? statsMatch.stats : null,
+    };
+  });
+}
+
+// Players in projection CSVs not assigned to any rostered team = free agents.
+function getFreeAgents(hittingProj, pitchingProj, rosterPlayers) {
+  const rosteredIds   = new Set(rosterPlayers.map(p => p.fgId).filter(Boolean));
+  const rosteredNames = new Set(rosterPlayers.map(p => p.name));
+  return [...(hittingProj || []), ...(pitchingProj || [])].filter(p =>
+    !rosteredIds.has(p.fgId) && !rosteredNames.has(p.name)
+  ).map(p => ({
+    ...p,
+    positions: [],
+    salary:    0,
+    team:      'Free Agent',
+    stats:     null,
+  }));
+}
+
 // ── PLACEHOLDER SECTIONS (filled in subsequent tasks) ───────────────────────
-// Stats parsers → Task 5
-// Player match  → Task 5
 // Blended stats → Task 6
 // IL pro-rating → Task 6
 // Lineup optim  → Task 7

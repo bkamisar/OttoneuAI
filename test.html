@@ -121,6 +121,21 @@
     assert(Math.abs(pitProjNoHR9[0].proj.hr9 - (18 * 9 / 180)) < 0.001,
       'parsePitchingProjections: derives HR/9 when column is zero');
 
+    section('Player Matching');
+    const rPlayers = [
+      { fgId: '111', name: 'mike trout',    rawName: 'Mike Trout',    type: 'H', positions: ['of'], salary: 30, team: 'My Team' },
+      { fgId: '',    name: 'nolan arenado', rawName: 'Nolan Arenado', type: 'H', positions: ['3b'], salary: 20, team: 'Other'   },
+    ];
+    const hProj = [
+      { fgId: '111', name: 'mike trout',    type: 'H', proj: { pa:550, ab:490, h:140, bb:85, hbp:5, hr:35, r:100, obp:0.420, slg:0.580 } },
+      { fgId: '222', name: 'nolan arenado', type: 'H', proj: { pa:580, ab:530, h:160, bb:45, hbp:3, hr:28, r:85,  obp:0.350, slg:0.510 } },
+    ];
+    const matched = matchPlayers(rPlayers, hProj, [], null, null);
+    assertEqual(matched[0].proj.hr, 35, 'matchPlayers: matches by fgId');
+    assertEqual(matched[1].proj.hr, 28, 'matchPlayers: falls back to name match');
+    assertEqual(matched[0].team, 'My Team', 'matchPlayers: preserves roster fields');
+    assertEqual(matched[0].salary, 30, 'matchPlayers: preserves salary');
+
     // ── Summary ──────────────────────────────────────────────────────────────
     const sumEl = document.getElementById('summary');
     sumEl.textContent = passed + ' passed, ' + failed + ' failed';

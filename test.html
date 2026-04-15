@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Ottoneu Shared.js Tests</title>
+  <style>
+    body { font-family: monospace; padding: 20px; background: #1a1a1a; color: #ccc; }
+    .pass { color: #4caf50; }
+    .fail { color: #f44336; font-weight: bold; }
+    .section { margin-top: 20px; color: #90caf9; font-size: 1.1em; }
+    #summary { margin-top: 20px; font-size: 1.2em; }
+  </style>
+</head>
+<body>
+  <h2>shared.js Test Suite</h2>
+  <div id="output"></div>
+  <div id="summary"></div>
+  <script src="shared.js"></script>
+  <script>
+    let passed = 0, failed = 0;
+    const out = document.getElementById('output');
+
+    function section(name) {
+      const d = document.createElement('div');
+      d.className = 'section';
+      d.textContent = '── ' + name + ' ──';
+      out.appendChild(d);
+    }
+
+    function assert(condition, name, detail) {
+      const d = document.createElement('div');
+      if (condition) {
+        passed++;
+        d.className = 'pass';
+        d.textContent = '✓ ' + name;
+      } else {
+        failed++;
+        d.className = 'fail';
+        d.textContent = '✗ ' + name + (detail ? ': ' + detail : '');
+      }
+      out.appendChild(d);
+    }
+
+    function assertEqual(actual, expected, name) {
+      const ok = JSON.stringify(actual) === JSON.stringify(expected);
+      assert(ok, name, ok ? '' : 'got ' + JSON.stringify(actual) + ', want ' + JSON.stringify(expected));
+    }
+
+    // ── Tests ────────────────────────────────────────────────────────────────
+    section('Scaffold');
+    assert(typeof CATS !== 'undefined', 'CATS constant defined');
+    assert(CATS.length === 8, 'CATS has 8 categories');
+    assert(LOWER_BETTER.has('ERA'), 'ERA is lower-better');
+    assert(!LOWER_BETTER.has('HR'), 'HR is not lower-better');
+
+    section('esc()');
+    assertEqual(esc('<script>'), '&lt;script&gt;', 'esc: escapes angle brackets');
+    assertEqual(esc('"hello"'), '&quot;hello&quot;', 'esc: escapes quotes');
+    assertEqual(esc(null), '', 'esc: handles null');
+
+    // ── Summary ──────────────────────────────────────────────────────────────
+    const sumEl = document.getElementById('summary');
+    sumEl.textContent = passed + ' passed, ' + failed + ' failed';
+    sumEl.style.color = failed === 0 ? '#4caf50' : '#f44336';
+  </script>
+</body>
+</html>

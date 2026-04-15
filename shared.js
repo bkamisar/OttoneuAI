@@ -31,7 +31,8 @@ function saveData(key, value) {
 
 function loadData(key) {
   const raw = localStorage.getItem(key);
-  return raw ? JSON.parse(raw) : null;
+  if (!raw) return null;
+  try { return JSON.parse(raw); } catch (e) { console.warn('loadData: bad JSON for key', key); return null; }
 }
 
 function clearAllData() {

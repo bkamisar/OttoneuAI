@@ -116,8 +116,8 @@ function parseSalary(str) {
 }
 
 function inferPlayerType(posStr) {
-  const pos = String(posStr).toLowerCase();
-  return (pos.includes('sp') || pos.includes('rp') || pos === 'p') ? 'P' : 'H';
+  const tokens = String(posStr).toLowerCase().split(/[/,]/).map(p => p.trim());
+  return tokens.some(p => p === 'sp' || p === 'rp' || p === 'p') ? 'P' : 'H';
 }
 
 // ── PLACEHOLDER SECTIONS (filled in subsequent tasks) ───────────────────────

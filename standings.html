@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Ottoneu Tools — Standings</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: system-ui, sans-serif; background: #f5f5f5; margin: 0; padding: 20px; color: #222; }
+    h1 { font-size: 1.3rem; margin-bottom: 4px; }
+    .nav { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+    .nav a { padding: 7px 14px; background: #1a73e8; color: #fff; border-radius: 6px; text-decoration: none; font-size: 0.88rem; }
+    .nav a.active { background: #1557b0; }
+    .controls { display: flex; gap: 12px; align-items: center; margin-bottom: 16px; flex-wrap: wrap; }
+    .mode-label { font-size: 0.88rem; color: #555; }
+    .toggle-btn { padding: 6px 14px; border: 1px solid #1a73e8; color: #1a73e8; background: #fff; border-radius: 6px; cursor: pointer; font-size: 0.85rem; }
+    .toggle-btn.on { background: #1a73e8; color: #fff; }
+    .error { background: #fce8e6; border-left: 4px solid #c62828; padding: 12px 16px; border-radius: 4px; margin-bottom: 16px; }
+    .error a { color: #c62828; }
+    .tbl-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 10px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.1); font-size: 0.88rem; min-width: 700px; }
+    th { background: #1a73e8; color: #fff; padding: 10px 8px; text-align: right; font-weight: 600; white-space: nowrap; }
+    th:first-child, th:nth-child(2) { text-align: left; }
+    td { padding: 8px 8px; text-align: right; border-bottom: 1px solid #f0f0f0; }
+    td:first-child, td:nth-child(2) { text-align: left; }
+    tr.mine td { background: #e8f0fe; font-weight: 600; }
+    tr:hover td { background: #f8f8f8; }
+    tr.mine:hover td { background: #d2e3fc; }
+    .rank { font-weight: 700; color: #555; }
+    .pts  { font-weight: 700; color: #1a73e8; }
+    .low  { color: #c62828; }
+    .cat-pts { font-size: 0.75rem; color: #aaa; display: block; }
+  </style>
+</head>
+<body>
+  <h1>Standings Projector</h1>
+  <nav class="nav">
+    <a href="index.html">Data Hub</a>
+    <a href="standings.html" class="active">Standings</a>
+    <a href="roster.html">Roster Analysis</a>
+    <a href="trade.html">Trade Evaluator</a>
+    <a href="fa.html">FA Finder</a>
+  </nav>
+
+  <div class="controls">
+    <span class="mode-label" id="modeLabel"></span>
+    <button class="toggle-btn" id="blendBtn" style="display:none" onclick="toggleBlend()">
+      Switch to Blended Stats
+    </button>
+  </div>
+
+  <div id="error"></div>
+  <div class="tbl-wrap" id="tblWrap"></div>
+
+  <script src="shared.js"></script>
+  <script>
+    var useBlend = false;
+
+    function toggleBlend() {
+      useBlend = !useBlend;
+      var btn = document.getElementById('blendBtn');
+      btn.textContent = useBlend ? 'Switch to Projections Only' : 'Switch to Blended Stats';
+      btn.classList.toggle('on', useBlend);
+      render();
+    }
+
+    function render() {
+      var errEl   = document.getElementById('error');
+      var tblWrap = document.getElementById('tblWrap');
+      errEl.textContent = '';
+      while (tblWrap.firstChild) tblWrap.removeChild(tblWrap.firstChild);
+
+      var roster    = loadData('ottoneu_roster');
+      var projHit   = loadData('ottoneu_proj_hitting');
+      var projPitch = loadData('ottoneu_proj_pitching');
+      var myTeam    = loadData('ottoneu_my_team') || '';
+      var il        = loadData('ottoneu_il') || [];
+      var blendAvail = !!(loadData('ottoneu_stats_hitting') || loadData('ottoneu_stats_pitching'));
+
+      if (!roster || !projHit || !projPitch) {
+        var errDiv = document.createElement('div');
+        errDiv.className   = 'error';
+        errDiv.textContent = 'Missing data \u2014 please upload the roster and both projection CSVs on the ';
+        var link = document.createElement('a');
+        link.href        = 'index.html';
+        link.textContent = 'Data Hub';
+        errDiv.appendChild(link);
+        errDiv.appendChild(document.createTextNode('.'));
+        errEl.appendChild(errDiv);
+        return;
+      }
+
+      var modeLabel = document.getElementById('modeLabel');
+      var blendBtn  = document.getElementById('blendBtn');
+      if (blendAvail) {
+        blendBtn.style.display = '';
+        modeLabel.textContent  = useBlend ? 'Mode: Projections + Current Stats' : 'Mode: Projections Only';
+      } else {
+        blendBtn.style.display = 'none';
+        modeLabel.textContent  = 'Mode: Projections Only (upload current stats to enable blending)';
+      }
+
+      var statsHit   = useBlend ? loadData('ottoneu_stats_hitting')  : null;
+      var statsPitch = useBlend ? loadData('ottoneu_stats_pitching') : null;
+
+      var teamMap = {};
+      var merged  = matchPlayers(roster, projHit, projPitch, statsHit, statsPitch);
+      merged.forEach(function(p) {
+        if (!teamMap[p.team]) teamMap[p.team] = [];
+        teamMap[p.team].push(p);
+      });
+
+      var teamNames = Object.keys(teamMap).filter(function(t) { return t !== 'Free Agent'; });
+
+      var teamStatsArr = teamNames.map(function(name) {
+        var players  = teamMap[name];
+        var hitters  = players.filter(function(p) { return p.type === 'H'; });
+        var pitchers = players.filter(function(p) { return p.type === 'P'; });
+        var teamIL   = name === myTeam ? il : [];
+        var lineup   = optimizeHitterLineup(hitters, teamIL);
+        var pitPool  = selectPitchers(pitchers, teamIL);
+        var stats    = computeTeamStats(lineup, pitPool, teamIL);
+        return { name: name, stats: stats };
+      });
+
+      var standings = buildStandings(teamStatsArr);
+
+      var table = document.createElement('table');
+
+      var thead = document.createElement('thead');
+      var hrow  = document.createElement('tr');
+      ['#', 'Team', 'Pts'].concat(CATS).forEach(function(h) {
+        var th = document.createElement('th');
+        th.textContent = h;
+        hrow.appendChild(th);
+      });
+      thead.appendChild(hrow);
+      table.appendChild(thead);
+
+      var tbody = document.createElement('tbody');
+      standings.forEach(function(team, idx) {
+        var tr = document.createElement('tr');
+        if (team.name === myTeam) tr.className = 'mine';
+
+        function td(text, cls) {
+          var cell = document.createElement('td');
+          cell.textContent = text;
+          if (cls) cell.className = cls;
+          return cell;
+        }
+
+        tr.appendChild(td(String(idx + 1), 'rank'));
+        tr.appendChild(td(team.name));
+        tr.appendChild(td(String(team.points), 'pts'));
+
+        CATS.forEach(function(cat) {
+          var pts    = team.ranks[cat] || 0;
+          var val    = team.stats[cat] || 0;
+          var isRate = cat === 'OBP' || cat === 'SLG' || cat === 'ERA' || cat === 'WHIP' || cat === 'HR9';
+          var cell   = document.createElement('td');
+          if (pts <= 4) cell.className = 'low';
+
+          cell.appendChild(document.createTextNode(isRate ? val.toFixed(3) : Math.round(val)));
+          var ptsSpan = document.createElement('span');
+          ptsSpan.className   = 'cat-pts';
+          ptsSpan.textContent = pts + 'pts';
+          cell.appendChild(ptsSpan);
+          tr.appendChild(cell);
+        });
+
+        tbody.appendChild(tr);
+      });
+      table.appendChild(tbody);
+      tblWrap.appendChild(table);
+    }
+
+    render();
+  </script>
+</body>
+</html>

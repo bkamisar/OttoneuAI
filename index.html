@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Ottoneu Tools — Data Hub</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: system-ui, sans-serif; background: #f5f5f5; margin: 0; padding: 20px; color: #222; }
+    h1 { font-size: 1.4rem; margin-bottom: 4px; }
+    .subtitle { color: #666; font-size: 0.9rem; margin-bottom: 24px; }
+    .nav { display: flex; gap: 12px; margin-bottom: 28px; flex-wrap: wrap; }
+    .nav a { padding: 8px 16px; background: #1a73e8; color: #fff; border-radius: 6px; text-decoration: none; font-size: 0.9rem; }
+    .nav a:hover { background: #1557b0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+    .card { background: #fff; border-radius: 10px; padding: 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+    .card h2 { font-size: 1rem; margin: 0 0 4px; }
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; margin-bottom: 12px; }
+    .badge.loaded   { background: #e6f4ea; color: #1e7e34; }
+    .badge.missing  { background: #fce8e6; color: #c62828; }
+    .badge.optional { background: #e8f0fe; color: #1a73e8; }
+    .card label { display: block; font-size: 0.85rem; color: #555; margin-bottom: 6px; }
+    .card input[type=file] { width: 100%; font-size: 0.85rem; }
+    .meta { font-size: 0.78rem; color: #888; margin-top: 6px; min-height: 18px; }
+    .section-title { font-size: 1rem; font-weight: 600; margin: 28px 0 12px; }
+    .il-add { display: flex; gap: 8px; margin-bottom: 8px; }
+    .il-add input  { flex: 1; padding: 6px 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.85rem; }
+    .il-add select { padding: 6px 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.85rem; }
+    .il-add button { background: #1a73e8; color: #fff; border: none; border-radius: 4px; padding: 6px 14px; cursor: pointer; font-size: 0.85rem; }
+    .il-row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+    .il-row .il-name { flex: 1; font-size: 0.9rem; }
+    .il-row .il-type { font-size: 0.82rem; color: #555; }
+    .il-row button { background: #f44336; color: #fff; border: none; border-radius: 4px; padding: 4px 10px; cursor: pointer; font-size: 0.82rem; }
+    .il-empty { color: #999; font-size: 0.85rem; }
+    .team-row { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+    .team-row select { padding: 6px 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.9rem; }
+    .clear-btn { margin-top: 28px; padding: 8px 18px; background: #f5f5f5; border: 1px solid #ccc; border-radius: 6px; cursor: pointer; font-size: 0.85rem; color: #555; }
+    .clear-btn:hover { background: #ffe0e0; border-color: #f44336; color: #f44336; }
+    .toast { position: fixed; bottom: 24px; right: 24px; background: #333; color: #fff; padding: 10px 18px; border-radius: 8px; font-size: 0.9rem; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
+    .toast.show { opacity: 1; }
+  </style>
+</head>
+<body>
+  <h1>Ottoneu 4×4 Tools</h1>
+  <p class="subtitle">Upload your data once — all tools share it automatically.</p>
+
+  <nav class="nav">
+    <a href="standings.html">Standings</a>
+    <a href="roster.html">Roster Analysis</a>
+    <a href="trade.html">Trade Evaluator</a>
+    <a href="fa.html">FA Finder</a>
+  </nav>
+
+  <div class="section-title">My Team</div>
+  <div class="team-row">
+    <label for="teamSelect" style="font-size:0.9rem">Your team:</label>
+    <select id="teamSelect"><option value="">— load roster CSV first —</option></select>
+  </div>
+
+  <div class="section-title">Data Files</div>
+  <div class="grid" id="csvGrid"></div>
+
+  <div class="section-title">Injured List (your team only)</div>
+  <div class="il-add">
+    <input  id="ilName" type="text" placeholder="Player name (as in roster)" autocomplete="off">
+    <select id="ilType">
+      <option value="15day">15-day IL</option>
+      <option value="60day">60-day IL</option>
+    </select>
+    <button onclick="addIL()">Add</button>
+  </div>
+  <div id="ilList"></div>
+
+  <button class="clear-btn" onclick="clearAll()">Clear all data</button>
+  <div class="toast" id="toast"></div>
+
+  <script src="shared.js"></script>
+  <script>
+    const CSV_CONFIGS = [
+      { key: 'ottoneu_roster',         label: 'Ottoneu Roster',         required: true,  parse: parseRosterCSV },
+      { key: 'ottoneu_proj_hitting',   label: 'Hitting Projections',    required: true,  parse: parseHittingProjections },
+      { key: 'ottoneu_proj_pitching',  label: 'Pitching Projections',   required: true,  parse: parsePitchingProjections },
+      { key: 'ottoneu_stats_hitting',  label: 'Current Hitting Stats',  required: false, parse: parseHittingStats },
+      { key: 'ottoneu_stats_pitching', label: 'Current Pitching Stats', required: false, parse: parsePitchingStats },
+    ];
+
+    function buildGrid() {
+      const grid = document.getElementById('csvGrid');
+      while (grid.firstChild) grid.removeChild(grid.firstChild);
+
+      CSV_CONFIGS.forEach((cfg, idx) => {
+        const stored    = loadData(cfg.key);
+        const count     = stored ? stored.length : 0;
+        const statusCls = stored ? 'loaded' : (cfg.required ? 'missing' : 'optional');
+        const statusTxt = stored ? '\u2713 ' + count + ' players' : (cfg.required ? 'Required' : 'Optional');
+        const ts        = loadData(cfg.key + '_ts');
+        const metaTxt   = stored && ts
+          ? 'Loaded ' + new Date(ts).toLocaleString()
+          : (stored ? 'Loaded' : 'Not loaded');
+
+        const card = document.createElement('div');
+        card.className = 'card';
+
+        const h2 = document.createElement('h2');
+        h2.textContent = cfg.label;
+
+        const badge = document.createElement('span');
+        badge.className = 'badge ' + statusCls;
+        badge.textContent = statusTxt;
+
+        const lbl = document.createElement('label');
+        lbl.textContent = 'Upload CSV:';
+
+        const input = document.createElement('input');
+        input.type   = 'file';
+        input.accept = '.csv';
+        input.addEventListener('change', function(e) { handleFile(e, cfg.key, idx); });
+
+        const meta = document.createElement('div');
+        meta.className   = 'meta';
+        meta.id          = 'meta_' + cfg.key;
+        meta.textContent = metaTxt;
+
+        card.appendChild(h2);
+        card.appendChild(badge);
+        card.appendChild(lbl);
+        card.appendChild(input);
+        card.appendChild(meta);
+        grid.appendChild(card);
+      });
+    }
+
+    function handleFile(event, key, cfgIdx) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const parsed = CSV_CONFIGS[cfgIdx].parse(e.target.result);
+          saveData(key, parsed);
+          saveData(key + '_ts', Date.now());
+          showToast('Loaded ' + parsed.length + ' rows from ' + file.name);
+          buildGrid();
+          if (key === 'ottoneu_roster') rebuildTeamDropdown(parsed);
+        } catch (err) {
+          showToast('Error parsing file: ' + err.message);
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function rebuildTeamDropdown(rosterPlayers) {
+      const teams = Array.from(new Set(
+        rosterPlayers.map(p => p.team).filter(t => t && t !== 'Free Agent')
+      )).sort();
+      const sel   = document.getElementById('teamSelect');
+      const saved = loadData('ottoneu_my_team') || '';
+      while (sel.firstChild) sel.removeChild(sel.firstChild);
+      const def = document.createElement('option');
+      def.value       = '';
+      def.textContent = '— select your team —';
+      sel.appendChild(def);
+      teams.forEach(t => {
+        const opt = document.createElement('option');
+        opt.value       = t;
+        opt.textContent = t;
+        if (t === saved) opt.selected = true;
+        sel.appendChild(opt);
+      });
+    }
+
+    document.getElementById('teamSelect').addEventListener('change', function() {
+      saveData('ottoneu_my_team', this.value);
+      showToast('My team set to: ' + this.value);
+    });
+
+    function renderIL() {
+      const il   = loadData('ottoneu_il') || [];
+      const list = document.getElementById('ilList');
+      while (list.firstChild) list.removeChild(list.firstChild);
+
+      if (il.length === 0) {
+        const empty = document.createElement('div');
+        empty.className   = 'il-empty';
+        empty.textContent = 'No players on IL';
+        list.appendChild(empty);
+        return;
+      }
+
+      il.forEach((d, i) => {
+        const row = document.createElement('div');
+        row.className = 'il-row';
+
+        const nameSpan = document.createElement('span');
+        nameSpan.className   = 'il-name';
+        nameSpan.textContent = d.rawName || d.name;
+
+        const typeSpan = document.createElement('span');
+        typeSpan.className   = 'il-type';
+        typeSpan.textContent = d.type === '15day' ? '15-day IL' : '60-day IL';
+
+        const btn = document.createElement('button');
+        btn.textContent = 'Remove';
+        btn.addEventListener('click', () => removeIL(i));
+
+        row.appendChild(nameSpan);
+        row.appendChild(typeSpan);
+        row.appendChild(btn);
+        list.appendChild(row);
+      });
+    }
+
+    function addIL() {
+      const rawName = document.getElementById('ilName').value.trim();
+      if (!rawName) return;
+      const il = loadData('ottoneu_il') || [];
+      il.push({ rawName, name: normalizeName(rawName), fgId: '', type: document.getElementById('ilType').value });
+      saveData('ottoneu_il', il);
+      document.getElementById('ilName').value = '';
+      renderIL();
+      showToast(rawName + ' added to IL');
+    }
+
+    function removeIL(idx) {
+      const il = loadData('ottoneu_il') || [];
+      il.splice(idx, 1);
+      saveData('ottoneu_il', il);
+      renderIL();
+    }
+
+    function clearAll() {
+      if (!confirm('Clear all loaded data?')) return;
+      clearAllData();
+      buildGrid();
+      const sel = document.getElementById('teamSelect');
+      while (sel.firstChild) sel.removeChild(sel.firstChild);
+      const def = document.createElement('option');
+      def.value       = '';
+      def.textContent = '— load roster CSV first —';
+      sel.appendChild(def);
+      renderIL();
+      showToast('All data cleared');
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2800);
+    }
+
+    buildGrid();
+    const savedRoster = loadData('ottoneu_roster');
+    if (savedRoster) rebuildTeamDropdown(savedRoster);
+    renderIL();
+  </script>
+</body>
+</html>

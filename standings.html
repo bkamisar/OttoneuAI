@@ -88,7 +88,7 @@
         var players  = teamMap[name];
         var hitters  = players.filter(function(p) { return p.type === 'H'; });
         var pitchers = players.filter(function(p) { return p.type === 'P'; });
-        var teamIL   = name === myTeam ? il : [];
+        var teamIL   = il.filter(function(d) { return !d.team || d.team === name; });
         var lineup   = optimizeHitterLineup(hitters, teamIL);
         var pitPool  = selectPitchers(pitchers, teamIL);
         var stats    = computeTeamStats(lineup, pitPool, teamIL);

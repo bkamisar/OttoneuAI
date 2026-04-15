@@ -57,6 +57,7 @@
     assertEqual(esc('<script>'), '&lt;script&gt;', 'esc: escapes angle brackets');
     assertEqual(esc('"hello"'), '&quot;hello&quot;', 'esc: escapes quotes');
     assertEqual(esc(null), '', 'esc: handles null');
+    assertEqual(esc(0), '0', 'esc: handles numeric zero');
 
     // ── Summary ──────────────────────────────────────────────────────────────
     const sumEl = document.getElementById('summary');

@@ -16,7 +16,7 @@ const IL_60_MISS   = 80;      // assumed games missed on 60-day IL
 // ── SECURITY HELPER ──────────────────────────────────────────────────────────
 // Escape user-supplied strings before inserting into innerHTML.
 function esc(str) {
-  return String(str || '')
+  return String(str == null ? '' : str)
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')

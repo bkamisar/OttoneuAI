@@ -136,23 +136,6 @@
     assertEqual(matched[0].team, 'My Team', 'matchPlayers: preserves roster fields');
     assertEqual(matched[0].salary, 30, 'matchPlayers: preserves salary');
 
-    section('IL Pro-Rating');
-    const hBase = {
-      fgId: '1', name: 'test', type: 'H',
-      proj: { pa:600, ab:540, h:162, bb:70, hbp:5, hr:40, r:100, obp:0.380, slg:0.550 },
-    };
-    const noIL = getEffectiveStats(hBase, []);
-    assertEqual(noIL.hr, 40, 'IL: no designation returns full projection');
-
-    const hIL15 = { ...hBase, fgId: '2', name: 'il15' };
-    const il15  = getEffectiveStats(hIL15, [{ fgId: '2', name: 'il15', type: '15day' }]);
-    assert(Math.abs(il15.hr - 40 * (162 - IL_15_MISS) / 162) < 0.01, 'IL: 15-day scales HR');
-
-    const hIL60 = { ...hBase, fgId: '3', name: 'il60' };
-    const il60  = getEffectiveStats(hIL60, [{ fgId: '3', name: 'il60', type: '60day' }]);
-    assert(Math.abs(il60.hr - 40 * (162 - IL_60_MISS) / 162) < 0.01, 'IL: 60-day scales HR');
-    assertEqual(il15.obp, 0.380, 'IL: rate stats unchanged by IL scaling');
-
     section('Lineup Optimizer');
     function mkH(name, positions, pa, obp, slg) {
       const proj = { pa, ab: pa*0.88, h: pa*0.25, bb: pa*0.10, hbp: pa*0.01, hr: pa*0.05, r: pa*0.14, obp, slg };
@@ -172,7 +155,7 @@
       mkH('of5',       ['of'],      550, 0.365, 0.540),
       mkH('dh',        ['dh'],      530, 0.355, 0.495),
     ];
-    const lu = optimizeHitterLineup(testHitters, []);
+    const lu = optimizeHitterLineup(testHitters);
     assert(lu['C']  && lu['C'].name  === 'catcher',  'optimizer: C assigned to catcher');
     assert(lu['1B'] && lu['1B'].name === 'firstbase', 'optimizer: 1B assigned');
     assert(lu['MI'] !== undefined,                    'optimizer: MI slot filled');
@@ -185,16 +168,16 @@
 
     section('Scoring Engine');
     function mkSH(name, pa, obp, slg, hr, r) {
-      const b = { pa, ab: pa*0.88, obp, slg, hr, r };
-      return { fgId: name, name, type: 'H', positions: ['of'], _blended: b, proj: null, stats: null, salary: 0, team: 'T' };
+      const proj = { pa, ab: pa*0.88, obp, slg, hr, r };
+      return { fgId: name, name, type: 'H', positions: ['of'], proj, salary: 0, team: 'T' };
     }
     function mkSP(name, ip, era, whip, hr9, so) {
-      const b = { ip, era, whip, hr9, so };
-      return { fgId: name, name, type: 'P', positions: ['sp'], _blended: b, proj: null, stats: null, salary: 0, team: 'T' };
+      const proj = { ip, era, whip, hr9, so };
+      return { fgId: name, name, type: 'P', positions: ['sp'], proj, salary: 0, team: 'T' };
     }
     const testLineup   = { OF1: mkSH('h1',600,0.380,0.540,35,95), OF2: mkSH('h2',550,0.360,0.500,25,80) };
     const testPitchers = [ mkSP('p1',800,3.20,1.10,1.00,220), mkSP('p2',700,3.80,1.20,1.20,180) ];
-    const ts = computeTeamStats(testLineup, testPitchers, []);
+    const ts = computeTeamStats(testLineup, testPitchers);
     assert(ts._pitchingValid, 'scoring: pitching valid when IP >= 1250');
     assertEqual(ts.HR, 60, 'scoring: HR sums correctly');
     assertEqual(ts.R,  175, 'scoring: R sums correctly');
@@ -231,7 +214,7 @@
     padPitchers(t1, 'T1');
     padPitchers(t2, 'T2');
 
-    const vm = calculateAllValues([t1, t2], []);
+    const vm = calculateAllValues([t1, t2]);
     assert(vm['s1'] !== undefined, 'valuation: star hitter has entry');
     assert((vm['s1'].projectedValue || 0) > (vm['w2'].projectedValue || 0),
       'valuation: star hitter valued above poor hitter');

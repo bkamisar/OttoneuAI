@@ -10,8 +10,6 @@ const OF_GAME_CAP  = 810;     // 5 OF × 162 games
 const SLOT_CAP     = 162;
 const IP_MAX       = 1500;
 const IP_MIN       = 1250;
-const IL_15_MISS   = 20;      // assumed games missed on 15-day IL
-const IL_60_MISS   = 80;      // assumed games missed on 60-day IL
 
 // ── SECURITY HELPER ──────────────────────────────────────────────────────────
 // Escape user-supplied strings before inserting into innerHTML.
@@ -38,7 +36,7 @@ function loadData(key) {
 function clearAllData() {
   [
     'ottoneu_roster', 'ottoneu_proj_hitting', 'ottoneu_proj_pitching',
-    'ottoneu_my_team', 'ottoneu_il'
+    'ottoneu_my_team'
   ].forEach(k => localStorage.removeItem(k));
 }
 
@@ -213,34 +211,6 @@ function getFreeAgents(hittingProj, pitchingProj, rosterPlayers) {
   }));
 }
 
-// ── IL PRO-RATING ─────────────────────────────────────────────────────────────
-// Returns projection scaled for IL time missed.
-// ilDesignations: [{ fgId, name, type: '15day'|'60day' }]
-function getEffectiveStats(player, ilDesignations) {
-  const proj = player.proj;
-  if (!proj) return null;
-  const il = (ilDesignations || []).find(d =>
-    (d.fgId && d.fgId === player.fgId) || d.name === player.name
-  );
-  const missedGames = il ? (il.type === '15day' ? IL_15_MISS : IL_60_MISS) : 0;
-  const scale = (162 - missedGames) / 162;
-  if (scale === 1) return proj;
-  if (player.type === 'H') {
-    return {
-      pa: proj.pa * scale, ab: proj.ab * scale,
-      h:  proj.h  * scale, bb: proj.bb * scale, hbp: proj.hbp * scale,
-      hr: proj.hr * scale, r:  proj.r  * scale,
-      obp: proj.obp, slg: proj.slg,
-    };
-  }
-  const ip = proj.ip * scale;
-  return {
-    ip, hr: proj.hr * scale, so: proj.so * scale,
-    h: proj.h * scale, bb: proj.bb * scale, er: proj.er * scale,
-    era: proj.era, whip: proj.whip, hr9: proj.hr9,
-  };
-}
-
 // ── LINEUP OPTIMIZER ────────────────────────────────────────────────────────
 const HITTER_SLOTS = [
   { id: 'C',    eligible: p => p.positions.includes('c') },
@@ -258,12 +228,12 @@ const HITTER_SLOTS = [
 ];
 
 // Assigns hitters to slots. Returns { slotId: player } map.
-function optimizeHitterLineup(hitters, ilDesignations) {
+function optimizeHitterLineup(hitters) {
   const scored = hitters
     .filter(p => p.type === 'H')
     .map(p => {
-      const b = getEffectiveStats(p, ilDesignations) || {};
-      return { ...p, _blended: b, _value: (b.pa || 0) * ((b.obp || 0) + (b.slg || 0)) };
+      const b = p.proj || {};
+      return { ...p, _proj: b, _value: (b.pa || 0) * ((b.obp || 0) + (b.slg || 0)) };
     })
     .sort((a, b) => b._value - a._value);
 
@@ -284,21 +254,21 @@ function optimizeHitterLineup(hitters, ilDesignations) {
 }
 
 // Selects pitchers ranked by value up to IP_MAX. Returns [] if projected IP < IP_MIN.
-function selectPitchers(pitchers, ilDesignations) {
+function selectPitchers(pitchers) {
   const scored = pitchers
     .filter(p => p.type === 'P')
     .map(p => {
-      const b        = getEffectiveStats(p, ilDesignations) || {};
+      const b        = p.proj || {};
       const safeERA  = (b.era  || 0) > 0 ? b.era  : 99;
       const safeWHIP = (b.whip || 0) > 0 ? b.whip : 9;
-      return { ...p, _blended: b, _value: (b.ip || 0) * (1 / safeERA + 1 / safeWHIP + (b.so || 0) / 100) };
+      return { ...p, _proj: b, _value: (b.ip || 0) * (1 / safeERA + 1 / safeWHIP + (b.so || 0) / 100) };
     })
     .sort((a, b) => b._value - a._value);
 
   const selected = [];
   let totalIP = 0;
   for (const p of scored) {
-    const ip = (p._blended && p._blended.ip) || 0;
+    const ip = (p._proj && p._proj.ip) || 0;
     if (totalIP + ip <= IP_MAX) { selected.push(p); totalIP += ip; }
   }
   return totalIP >= IP_MIN ? selected : [];
@@ -306,13 +276,13 @@ function selectPitchers(pitchers, ilDesignations) {
 
 // ── SCORING ENGINE ───────────────────────────────────────────────────────────
 // Computes 8 category totals for one team from their lineup and pitcher pool.
-function computeTeamStats(hitterAssignment, selectedPitchers, ilDesignations) {
+function computeTeamStats(hitterAssignment, selectedPitchers) {
   const hitters  = Object.values(hitterAssignment || {}).filter(Boolean);
   const pitchers = selectedPitchers || [];
 
   let totPA = 0, totAB = 0, totOBPNum = 0, totSLGNum = 0, totHR = 0, totR = 0;
   for (const p of hitters) {
-    const b = p._blended || getEffectiveStats(p, ilDesignations) || {};
+    const b = p._proj || p.proj || {};
     totPA     += b.pa  || 0;
     totAB     += b.ab  || 0;
     totOBPNum += (b.pa || 0) * (b.obp || 0);
@@ -323,7 +293,7 @@ function computeTeamStats(hitterAssignment, selectedPitchers, ilDesignations) {
 
   let totIP = 0, totERNum = 0, totWHIPNum = 0, totHR9Num = 0, totSO = 0;
   for (const p of pitchers) {
-    const b = p._blended || getEffectiveStats(p, ilDesignations) || {};
+    const b = p._proj || p.proj || {};
     const ip = b.ip || 0;
     totIP      += ip;
     totERNum   += ip * (b.era  || 0) / 9;
@@ -374,16 +344,14 @@ function buildStandings(teams) {
 // Returns: object keyed by player fgId-or-name →
 //   { projectedValue, actualSalary, surplus, sgp }
 
-function calculateAllValues(allTeamRosters, ilDesignations) {
-  const il = ilDesignations || [];
-
-  // 1. Optimize lineup for each team; attach blended stats
+function calculateAllValues(allTeamRosters) {
+  // 1. Optimize lineup for each team
   const teamLineups = allTeamRosters.map(roster => {
-    const hitters = roster.filter(p => p.type === 'H');
-    const pitchers= roster.filter(p => p.type === 'P');
-    const lineup  = optimizeHitterLineup(hitters, il);
-    const pitPool = selectPitchers(pitchers, il);
-    const stats   = computeTeamStats(lineup, pitPool, il);
+    const hitters  = roster.filter(p => p.type === 'H');
+    const pitchers = roster.filter(p => p.type === 'P');
+    const lineup   = optimizeHitterLineup(hitters);
+    const pitPool  = selectPitchers(pitchers);
+    const stats    = computeTeamStats(lineup, pitPool);
     return { lineup, pitPool, stats, roster };
   });
 
@@ -401,12 +369,12 @@ function calculateAllValues(allTeamRosters, ilDesignations) {
   // Average team PA and IP (for rate-stat normalization)
   const avgPA = teamLineups.reduce((s, t) =>
     s + Object.values(t.lineup).filter(Boolean)
-      .reduce((sp, p) => sp + ((p._blended && p._blended.pa) || 0), 0), 0) / NUM_TEAMS;
+      .reduce((sp, p) => sp + ((p._proj && p._proj.pa) || (p.proj && p.proj.pa) || 0), 0), 0) / NUM_TEAMS;
   const avgIP = teamLineups.reduce((s, t) =>
-    s + t.pitPool.reduce((sp, p) => sp + ((p._blended && p._blended.ip) || 0), 0), 0) / NUM_TEAMS;
+    s + t.pitPool.reduce((sp, p) => sp + ((p._proj && p._proj.ip) || (p.proj && p.proj.ip) || 0), 0), 0) / NUM_TEAMS;
 
   // 4. Position-specific replacement level
-  const replLevels = calcReplacementLevels(allTeamRosters, il, startingH, startingP);
+  const replLevels = calcReplacementLevels(allTeamRosters, startingH, startingP);
 
   // 5. SGP per player
   const valueMap = {};
@@ -416,7 +384,7 @@ function calculateAllValues(allTeamRosters, ilDesignations) {
   allTeamRosters.flat().forEach(player => {
     const key = player.fgId || player.name;
     if (valueMap[key]) return;
-    const b       = getEffectiveStats(player, il);
+    const b       = player.proj;
     const replKey = getReplacementKey(player);
     const repl    = replLevels[replKey];
     if (!b || !repl) {
@@ -464,10 +432,10 @@ function getReplacementKey(player) {
   return 'UTIL';
 }
 
-function calcReplacementLevels(allTeamRosters, il, startingH, startingP) {
+function calcReplacementLevels(allTeamRosters, startingH, startingP) {
   const groups = { C:[], SS:[], '2B':[], '3B':[], '1B':[], OF:[], UTIL:[], P:[] };
   allTeamRosters.flat().forEach(p => {
-    const b   = getEffectiveStats(p, il);
+    const b = p.proj;
     if (!b) return;
     const pk  = getReplacementKey(p);
     const key = p.fgId || p.name;

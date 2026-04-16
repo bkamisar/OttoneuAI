@@ -60,7 +60,6 @@
       var projHit   = loadData('ottoneu_proj_hitting');
       var projPitch = loadData('ottoneu_proj_pitching');
       var myTeam    = loadData('ottoneu_my_team') || '';
-      var il        = loadData('ottoneu_il') || [];
 
       if (!roster || !projHit || !projPitch) {
         var errDiv = document.createElement('div');
@@ -88,10 +87,9 @@
         var players  = teamMap[name];
         var hitters  = players.filter(function(p) { return p.type === 'H'; });
         var pitchers = players.filter(function(p) { return p.type === 'P'; });
-        var teamIL   = il.filter(function(d) { return !d.team || d.team === name; });
-        var lineup   = optimizeHitterLineup(hitters, teamIL);
-        var pitPool  = selectPitchers(pitchers, teamIL);
-        var stats    = computeTeamStats(lineup, pitPool, teamIL);
+        var lineup   = optimizeHitterLineup(hitters);
+        var pitPool  = selectPitchers(pitchers);
+        var stats    = computeTeamStats(lineup, pitPool);
         return { name: name, stats: stats };
       });
 

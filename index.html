@@ -59,18 +59,6 @@
   <div class="section-title">Data Files</div>
   <div class="grid" id="csvGrid"></div>
 
-  <div class="section-title">Injured List (all teams)</div>
-  <div class="il-add">
-    <input  id="ilName" type="text" placeholder="Player name (as in roster)" autocomplete="off">
-    <select id="ilTeam"><option value="">— load roster first —</option></select>
-    <select id="ilType">
-      <option value="15day">15-day IL</option>
-      <option value="60day">60-day IL</option>
-    </select>
-    <button onclick="addIL()">Add</button>
-  </div>
-  <div id="ilList"></div>
-
   <button class="clear-btn" onclick="clearAll()">Clear all data</button>
   <div class="toast" id="toast"></div>
 
@@ -166,75 +154,12 @@
         sel.appendChild(opt);
       });
 
-      // Also populate the IL team selector
-      const ilSel = document.getElementById('ilTeam');
-      while (ilSel.firstChild) ilSel.removeChild(ilSel.firstChild);
-      teams.forEach(t => {
-        const opt = document.createElement('option');
-        opt.value       = t;
-        opt.textContent = t;
-        ilSel.appendChild(opt);
-      });
     }
 
     document.getElementById('teamSelect').addEventListener('change', function() {
       saveData('ottoneu_my_team', this.value);
       showToast('My team set to: ' + this.value);
     });
-
-    function renderIL() {
-      const il   = loadData('ottoneu_il') || [];
-      const list = document.getElementById('ilList');
-      while (list.firstChild) list.removeChild(list.firstChild);
-
-      if (il.length === 0) {
-        const empty = document.createElement('div');
-        empty.className   = 'il-empty';
-        empty.textContent = 'No players on IL';
-        list.appendChild(empty);
-        return;
-      }
-
-      il.forEach((d, i) => {
-        const row = document.createElement('div');
-        row.className = 'il-row';
-
-        const nameSpan = document.createElement('span');
-        nameSpan.className   = 'il-name';
-        nameSpan.textContent = d.rawName || d.name;
-
-        const typeSpan = document.createElement('span');
-        typeSpan.className   = 'il-type';
-        typeSpan.textContent = (d.team ? d.team + ' · ' : '') + (d.type === '15day' ? '15-day IL' : '60-day IL');
-
-        const btn = document.createElement('button');
-        btn.textContent = 'Remove';
-        btn.addEventListener('click', () => removeIL(i));
-
-        row.appendChild(nameSpan);
-        row.appendChild(typeSpan);
-        row.appendChild(btn);
-        list.appendChild(row);
-      });
-    }
-
-    function addIL() {
-      const rawName = document.getElementById('ilName').value.trim();
-      if (!rawName) return;
-      const il = loadData('ottoneu_il') || [];
-      il.push({ rawName, name: normalizeName(rawName), fgId: '', type: document.getElementById('ilType').value, team: document.getElementById('ilTeam').value });
-      saveData('ottoneu_il', il);
-      document.getElementById('ilName').value = '';
-      renderIL();
-      showToast(rawName + ' added to IL');
-    }
-
-    function removeIL(idx) {
-      const il = loadData('ottoneu_il') || [];
-      il.splice(idx, 1);
-      saveData('ottoneu_il', il);
-      renderIL();
-    }
 
     function clearAll() {
       if (!confirm('Clear all loaded data?')) return;
@@ -246,7 +171,6 @@
       def.value       = '';
       def.textContent = '— load roster CSV first —';
       sel.appendChild(def);
-      renderIL();
       showToast('All data cleared');
     }
 
@@ -260,7 +184,6 @@
     buildGrid();
     const savedRoster = loadData('ottoneu_roster');
     if (savedRoster) rebuildTeamDropdown(savedRoster);
-    renderIL();
   </script>
 </body>
 </html>

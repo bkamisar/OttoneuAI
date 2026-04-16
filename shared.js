@@ -44,18 +44,23 @@ function clearAllData() {
 function parseCSV(text) {
   const lines = text.trim().split(/\r?\n/);
   if (lines.length < 2) return [];
-  const headers = parseCSVLine(lines[0]).map(h => h.trim().replace(/^"|"$/g, ''));
+  // Auto-detect delimiter: tab-separated if first line contains a tab
+  const delim = lines[0].includes('\t') ? '\t' : ',';
+  const headers = parseCSVLine(lines[0], delim).map(h => h.trim().replace(/^"|"$/g, ''));
   return lines.slice(1)
     .filter(l => l.trim())
     .map(line => {
-      const values = parseCSVLine(line);
+      const values = parseCSVLine(line, delim);
       const obj = {};
       headers.forEach((h, i) => { obj[h] = (values[i] || '').trim().replace(/^"|"$/g, ''); });
       return obj;
     });
 }
 
-function parseCSVLine(line) {
+function parseCSVLine(line, delim) {
+  delim = delim || ',';
+  // For tab-delimited files, split directly (tabs won't appear inside quoted fields in FanGraphs exports)
+  if (delim === '\t') return line.split('\t');
   const result = [];
   let current = '';
   let inQuotes = false;
@@ -119,15 +124,18 @@ function inferPlayerType(posStr) {
 
 // ── PROJECTION PARSERS ───────────────────────────────────────────────────────
 // ⚠️ Verify these against your actual FanGraphs projection CSV headers
+// Actual FanGraphs projection export headers (tab-separated):
+// Hitting:  #  Name  Team  G  PA  AB  H  HR  R  BB  HBP  OBP  SLG  wOBA  wRC+  ADP
+// Pitching: #  Name  Team  GS  G  IP  ER  HR  SO  BB  HR/9  WHIP  ERA  ADP
 const HITTING_PROJ_COLS = {
-  fgId: 'playerid', name: 'Name', team: 'Team',
+  name: 'Name', team: 'Team',
   pa: 'PA', ab: 'AB', h: 'H', bb: 'BB', hbp: 'HBP',
   hr: 'HR', r: 'R', obp: 'OBP', slg: 'SLG',
 };
 
 const PITCHING_PROJ_COLS = {
-  fgId: 'playerid', name: 'Name', team: 'Team',
-  ip: 'IP', h: 'H', bb: 'BB', hr: 'HR', so: 'SO',
+  name: 'Name', team: 'Team',
+  ip: 'IP', bb: 'BB', hr: 'HR', so: 'SO',
   era: 'ERA', whip: 'WHIP', hr9: 'HR/9',
 };
 
@@ -137,7 +145,7 @@ function parseHittingProjections(text) {
     .map(row => {
       const n = k => parseFloat(row[HITTING_PROJ_COLS[k]]) || 0;
       return {
-        fgId:    (row[HITTING_PROJ_COLS.fgId] || '').trim(),
+        fgId:    '',
         name:    normalizeName(row[HITTING_PROJ_COLS.name] || ''),
         rawName: (row[HITTING_PROJ_COLS.name] || '').trim(),
         type:    'H',
@@ -162,7 +170,7 @@ function parsePitchingProjections(text) {
       const hr9col = parseFloat(row[PITCHING_PROJ_COLS.hr9]) || 0;
       const hr9 = hr9col > 0 ? hr9col : (ip > 0 ? hr * 9 / ip : 0);
       return {
-        fgId:    (row[PITCHING_PROJ_COLS.fgId] || '').trim(),
+        fgId:    '',
         name:    normalizeName(row[PITCHING_PROJ_COLS.name] || ''),
         rawName: (row[PITCHING_PROJ_COLS.name] || '').trim(),
         type:    'P',

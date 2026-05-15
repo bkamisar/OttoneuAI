@@ -232,6 +232,16 @@
     // Star should have positive value above the weaker replacement-level OF.
     assert((vmDynamic['dStar'] || {}).projectedValue > 0, 'dynamic split: star hitter has positive value when pitching SGP is zero');
 
+    section('Proration');
+    const factor = rosProrationFactor();
+    assert(factor >= 0 && factor <= 1, 'rosProrationFactor: returns value between 0 and 1');
+    const today2 = new Date();
+    const mayStart = new Date(today2.getFullYear(), 4, 1);
+    const mayEnd   = new Date(today2.getFullYear(), 4, 31);
+    if (today2 >= mayStart && today2 <= mayEnd) {
+      assert(factor > 0.45 && factor < 0.75, 'rosProrationFactor: mid-May factor is reasonable (~0.55)');
+    }
+
     // ── Summary ──────────────────────────────────────────────────────────────
     const sumEl = document.getElementById('summary');
     sumEl.textContent = passed + ' passed, ' + failed + ' failed';

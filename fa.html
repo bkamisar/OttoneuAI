@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Ottoneu Tools — FA Finder</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: system-ui, sans-serif; background: #f5f5f5; margin: 0; padding: 20px; color: #222; }
+    h1 { font-size: 1.3rem; margin-bottom: 4px; }
+    .nav { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+    .nav a { padding: 7px 14px; background: #1a73e8; color: #fff; border-radius: 6px; text-decoration: none; font-size: 0.88rem; }
+    .nav a.active { background: #1557b0; }
+    .section-title { font-size: 1rem; font-weight: 600; margin: 24px 0 12px; }
+    .error { background: #fce8e6; border-left: 4px solid #c62828; padding: 12px 16px; border-radius: 4px; margin-bottom: 16px; }
+    .error a { color: #c62828; }
+
+    /* Category need cards */
+    .cat-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 8px; margin-bottom: 4px; }
+    .cat-card { background: #fff; border-radius: 8px; padding: 10px 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); text-align: center; }
+    .cat-card .cat-name { font-size: 0.72rem; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 0.05em; }
+    .cat-card .cat-rank { font-size: 1.15rem; font-weight: 700; margin-top: 2px; }
+    .cat-card.strong .cat-rank { color: #1e7e34; }
+    .cat-card.mid    .cat-rank { color: #e65100; }
+    .cat-card.weak   .cat-rank { color: #c62828; }
+
+    /* Filter bar */
+    .filter-bar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; background: #fff; padding: 12px 14px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .pos-btns { display: flex; gap: 5px; flex-wrap: wrap; }
+    .pos-btn { padding: 5px 11px; border: 1px solid #ddd; border-radius: 20px; background: #fff; font-size: 0.82rem; cursor: pointer; color: #444; }
+    .pos-btn.active { background: #1a73e8; color: #fff; border-color: #1a73e8; }
+    .filter-bar select { padding: 5px 8px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.84rem; }
+    .filter-bar input { padding: 5px 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.84rem; min-width: 160px; }
+    .filter-bar label { font-size: 0.8rem; color: #888; white-space: nowrap; }
+
+    /* Tables */
+    .tbl-wrap { overflow-x: auto; margin-bottom: 24px; }
+    table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 10px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.1); font-size: 0.86rem; }
+    th { background: #1a73e8; color: #fff; padding: 9px 10px; text-align: right; font-weight: 600; white-space: nowrap; }
+    th:first-child, th:nth-child(2) { text-align: left; }
+    td { padding: 7px 10px; text-align: right; border-bottom: 1px solid #f0f0f0; }
+    td:first-child, td:nth-child(2) { text-align: left; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #f8f8f8; }
+    .val-strong { color: #1e7e34; font-weight: 700; }
+    .val-mid    { color: #e65100; }
+    .val-zero   { color: #bbb; }
+
+    /* Helps badges */
+    .helps-cell { display: flex; gap: 3px; flex-wrap: wrap; justify-content: flex-end; }
+    .help-badge { display: inline-block; font-size: 0.7rem; padding: 1px 5px; border-radius: 8px; font-weight: 600; white-space: nowrap; }
+    .help-need { background: #e6f4ea; color: #1e7e34; }   /* helps a weak category */
+    .help-ok   { background: #f0f0f0; color: #888; }      /* above avg but cat is fine */
+
+    .subsection-title { font-size: 0.9rem; font-weight: 700; color: #444; margin: 20px 0 8px; }
+    .empty-notice { background: #fff; border-radius: 8px; padding: 20px; text-align: center; color: #bbb; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin-bottom: 24px; }
+
+    /* Add/drop simulator */
+    .sim-panel { background: #fff; border-radius: 10px; padding: 16px 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.1); margin-bottom: 24px; }
+    .sim-panel h3 { font-size: 0.9rem; font-weight: 700; margin: 0 0 12px; }
+    .sim-row { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 12px; }
+    .sim-field { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 160px; }
+    .sim-field label { font-size: 0.8rem; color: #555; }
+    .sim-field select { padding: 6px 8px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.85rem; }
+    .sim-btn { padding: 7px 18px; background: #1a73e8; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem; white-space: nowrap; }
+    .sim-btn:hover { background: #1557b0; }
+    .sim-result { background: #f8f8f8; border-radius: 8px; padding: 12px 16px; font-size: 0.85rem; }
+    .sim-pts { font-size: 1rem; font-weight: 700; margin-bottom: 8px; }
+    .sim-delta-pos { color: #1e7e34; }
+    .sim-delta-neg { color: #c62828; }
+    .sim-delta-neu { color: #666; }
+    .sim-cats { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+    .sim-cats th { text-align: right; padding: 3px 8px; color: #999; font-size: 0.72rem; text-transform: uppercase; border-bottom: 1px solid #eee; }
+    .sim-cats th:first-child { text-align: left; }
+    .sim-cats td { padding: 4px 8px; text-align: right; border-bottom: 1px solid #f5f5f5; }
+    .sim-cats td:first-child { text-align: left; }
+    .rank-up { color: #1e7e34; font-weight: 600; }
+    .rank-dn { color: #c62828; font-weight: 600; }
+
+    @media (max-width: 700px) {
+      .cat-grid { grid-template-columns: repeat(4, 1fr); }
+    }
+  </style>
+</head>
+<body>
+  <h1>FA Finder</h1>
+  <nav class="nav">
+    <a href="index.html">Data Hub</a>
+    <a href="standings.html">Standings</a>
+    <a href="roster.html">Roster Analysis</a>
+    <a href="trade.html">Trade Evaluator</a>
+    <a href="fa.html" class="active">FA Finder</a>
+  </nav>
+
+  <div id="error"></div>
+  <div id="content" style="display:none">
+
+    <div class="section-title">My Team Category Needs</div>
+    <div class="cat-grid" id="catGrid"></div>
+
+    <div class="section-title">Add / Drop Simulator</div>
+    <div class="sim-panel">
+      <div class="sim-row">
+        <div class="sim-field">
+          <label>Add (free agent)</label>
+          <select id="simAdd"><option value="">— pick a player —</option></select>
+        </div>
+        <div class="sim-field">
+          <label>Drop (my roster)</label>
+          <select id="simDrop"><option value="">— pick a player —</option></select>
+        </div>
+        <button class="sim-btn" id="simBtn">Evaluate</button>
+      </div>
+      <div id="simResult" style="display:none" class="sim-result"></div>
+    </div>
+
+    <div class="section-title">Available Free Agents</div>
+    <div class="filter-bar">
+      <div class="pos-btns" id="posBtns"></div>
+      <label>Sort by</label>
+      <select id="sortSel"></select>
+      <input type="text" id="faSearch" placeholder="Search players…" autocomplete="off">
+    </div>
+
+    <div id="hitSection">
+      <div class="subsection-title">Hitters</div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr id="hitHead"></tr></thead>
+          <tbody id="hitBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="pitSection">
+      <div class="subsection-title">Pitchers</div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr id="pitHead"></tr></thead>
+          <tbody id="pitBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="shared.js"></script>
+  <script>
+  (function () {
+    var errEl   = document.getElementById('error');
+    var content = document.getElementById('content');
+
+    function showErr(msg, linkText, linkHref) {
+      var d = document.createElement('div'); d.className = 'error';
+      d.textContent = msg + (linkText ? ' ' : '');
+      if (linkText) { var a = document.createElement('a'); a.href = linkHref; a.textContent = linkText; d.appendChild(a); }
+      errEl.appendChild(d);
+    }
+
+    var roster    = loadData('ottoneu_roster');
+    var projHit   = loadData('ottoneu_proj_hitting');
+    var projPitch = loadData('ottoneu_proj_pitching');
+    var myTeam    = loadData('ottoneu_my_team') || '';
+
+    if (!roster || !projHit || !projPitch) { showErr('Missing data — upload CSVs on the', 'Data Hub.', 'index.html'); return; }
+    if (!myTeam) { showErr('Set your team on the', 'Data Hub.', 'index.html'); return; }
+
+    var merged = matchPlayers(roster, projHit, projPitch);
+    var teamMap = {};
+    merged.forEach(function (p) {
+      if (!teamMap[p.team]) teamMap[p.team] = [];
+      teamMap[p.team].push(p);
+    });
+
+    var teamNames = Object.keys(teamMap).filter(function (t) { return t !== 'Free Agent'; });
+    if (!teamMap[myTeam]) { showErr('Team "' + myTeam + '" not found — re-select on the', 'Data Hub.', 'index.html'); return; }
+
+    // FA pool = projection players not matched to any rostered player.
+    // The Ottoneu roster export only includes rostered players, so FAs must be
+    // derived from the projection CSVs. Position data is not available for FAs.
+    // Attach future-year projections if available
+    var hitY1 = loadData('ottoneu_proj_hitting_y1');
+    var pitY1 = loadData('ottoneu_proj_pitching_y1');
+    var hitY2 = loadData('ottoneu_proj_hitting_y2');
+    var pitY2 = loadData('ottoneu_proj_pitching_y2');
+    if (hitY1 || pitY1) merged = attachYearProjections(merged, hitY1, pitY1, 'proj_y1');
+    if (hitY2 || pitY2) merged = attachYearProjections(merged, hitY2, pitY2, 'proj_y2');
+    var hasDynasty = !!(hitY1 || pitY1 || hitY2 || pitY2);
+
+    var faPool = getFreeAgents(projHit, projPitch, merged);
+    if (!faPool.length) { showErr('No free agents found — check that your projection CSVs are loaded.', '', ''); return; }
+
+    content.style.display = '';
+
+    // ── Standings for my category ranks ──────────────────────────────────────
+    function calcStats(name, players) {
+      var lu  = optimizeHitterLineup(players.filter(function (p) { return p.type === 'H'; }));
+      var pit = selectPitchers(players.filter(function (p) { return p.type === 'P'; }));
+      return { name: name, stats: computeTeamStats(lu, pit) };
+    }
+    var baseArr       = teamNames.map(function (n) { return calcStats(n, teamMap[n]); });
+    var baseStandings = buildStandings(baseArr);
+    var myStanding    = baseStandings.find(function (t) { return t.name === myTeam; });
+    var n             = teamNames.length;
+
+    // Weak = bottom half (ranks points < n/2)
+    var weakCats = new Set();
+    CATS.forEach(function (cat) {
+      var pts = myStanding.ranks[cat] || 0;
+      if (pts < Math.ceil(n / 2)) weakCats.add(cat);
+    });
+
+    // ── Standings impact helper ───────────────────────────────────────────────
+    function standingsWithMyStats(myNewStats) {
+      var newArr = baseArr.map(function (t) { return t.name === myTeam ? myNewStats : t; });
+      return buildStandings(newArr);
+    }
+    function computeAddImpact(faPlayer) {
+      if (!faPlayer.proj) return 0;
+      var myNewRoster = (teamMap[myTeam] || []).concat([faPlayer]);
+      var myNew = standingsWithMyStats(calcStats(myTeam, myNewRoster))
+        .find(function (t) { return t.name === myTeam; });
+      return (myNew ? myNew.points : 0) - myStanding.points;
+    }
+    function computeAddDropImpact(faPlayer, dropPlayer) {
+      if (!faPlayer.proj) return null;
+      var dropKey = dropPlayer.fgId || dropPlayer.name;
+      var myNewRoster = (teamMap[myTeam] || [])
+        .filter(function (p) { return (p.fgId || p.name) !== dropKey; })
+        .concat([faPlayer]);
+      var newStandings = standingsWithMyStats(calcStats(myTeam, myNewRoster));
+      var myNew = newStandings.find(function (t) { return t.name === myTeam; });
+      return { newStandings: newStandings, myNew: myNew || myStanding };
+    }
+
+    faPool.forEach(function (p) { p._stImpact = computeAddImpact(p); });
+
+    // ── Valuations ────────────────────────────────────────────────────────────
+    var allRosters = teamNames.map(function (n) { return teamMap[n]; });
+    var weights    = loadData('ottoneu_dynasty_weights') || { y1: 0.90, y2: 0.81 };
+    var valueMap   = hasDynasty
+      ? calculateDynastyValues(allRosters, weights, faPool)
+      : calculateAllValues(allRosters, faPool);
+
+    // ── Category grid ────────────────────────────────────────────────────────
+    var grid = document.getElementById('catGrid');
+    CATS.forEach(function (cat) {
+      var pts   = myStanding.ranks[cat] || 0;
+      var place = n + 1 - pts;
+      var tier  = pts >= (n - 3) ? 'strong' : (pts >= Math.ceil(n / 2) ? 'mid' : 'weak');
+      var card  = document.createElement('div');
+      card.className = 'cat-card ' + tier;
+      var nm = document.createElement('div'); nm.className = 'cat-name'; nm.textContent = cat;
+      var rk = document.createElement('div'); rk.className = 'cat-rank'; rk.textContent = ordinal(place);
+      card.appendChild(nm); card.appendChild(rk);
+      grid.appendChild(card);
+    });
+
+    // ── Above-median thresholds for FA pool ───────────────────────────────────
+    // Computed per category for hitters and pitchers separately.
+    var hitFAs = faPool.filter(function (p) { return p.type === 'H' && p.proj; });
+    var pitFAs = faPool.filter(function (p) { return p.type === 'P' && p.proj; });
+
+    function median(arr) {
+      if (!arr.length) return 0;
+      var s = arr.slice().sort(function (a, b) { return a - b; });
+      var m = Math.floor(s.length / 2);
+      return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;
+    }
+
+    var hitThresh = {
+      HR:  median(hitFAs.map(function (p) { return p.proj.hr  || 0; })),
+      R:   median(hitFAs.map(function (p) { return p.proj.r   || 0; })),
+      OBP: median(hitFAs.map(function (p) { return p.proj.obp || 0; })),
+      SLG: median(hitFAs.map(function (p) { return p.proj.slg || 0; })),
+    };
+    var pitThresh = {
+      SO:   median(pitFAs.map(function (p) { return p.proj.so   || 0; })),
+      ERA:  median(pitFAs.map(function (p) { return p.proj.era  || 99; })),
+      WHIP: median(pitFAs.map(function (p) { return p.proj.whip || 99; })),
+      HR9:  median(pitFAs.map(function (p) { return p.proj.hr9  || 99; })),
+    };
+
+    // Does player project above-median in a given category?
+    function helpsCategory(p, cat) {
+      if (!p.proj) return false;
+      var pr = p.proj;
+      if (p.type === 'H') {
+        if (cat === 'HR')  return (pr.hr  || 0) >  hitThresh.HR;
+        if (cat === 'R')   return (pr.r   || 0) >  hitThresh.R;
+        if (cat === 'OBP') return (pr.obp || 0) >  hitThresh.OBP;
+        if (cat === 'SLG') return (pr.slg || 0) >  hitThresh.SLG;
+      } else {
+        if (cat === 'SO')   return (pr.so   || 0)  >  pitThresh.SO;
+        if (cat === 'ERA')  return (pr.era  || 99) <  pitThresh.ERA;
+        if (cat === 'WHIP') return (pr.whip || 99) <  pitThresh.WHIP;
+        if (cat === 'HR9')  return (pr.hr9  || 99) <  pitThresh.HR9;
+      }
+      return false;
+    }
+
+    var HIT_CATS = ['HR', 'R', 'OBP', 'SLG'];
+    var PIT_CATS = ['SO', 'ERA', 'WHIP', 'HR9'];
+
+    // ── Filter/sort state ─────────────────────────────────────────────────────
+    // FA players come from projection CSVs which have no position column,
+    // so we filter by player type (H/P) only.
+    var TYPE_FILTER = ['All','Hitters','Pitchers'];
+    var activeTypeFilter = 'All';
+    var activeSortKey    = 'value';
+
+    var posBtns = document.getElementById('posBtns');
+    TYPE_FILTER.forEach(function (label) {
+      var btn = document.createElement('button');
+      btn.className = 'pos-btn' + (label === activeTypeFilter ? ' active' : '');
+      btn.textContent = label;
+      btn.addEventListener('click', function () {
+        activeTypeFilter = label;
+        posBtns.querySelectorAll('.pos-btn').forEach(function (b) { b.classList.remove('active'); });
+        btn.classList.add('active');
+        renderTables();
+      });
+      posBtns.appendChild(btn);
+    });
+
+    var sortOptions = [
+      { val: 'value',   lbl: 'Current Value' },
+      { val: 'impact',  lbl: 'Standings Impact' },
+      { val: 'dynasty', lbl: 'Dynasty Value', dynastyOnly: true },
+      { val: 'HR',  lbl: 'HR' }, { val: 'R',    lbl: 'R' },
+      { val: 'OBP', lbl: 'OBP' }, { val: 'SLG',  lbl: 'SLG' },
+      { val: 'SO',  lbl: 'SO (K)' }, { val: 'ERA',  lbl: 'ERA' },
+      { val: 'WHIP', lbl: 'WHIP' }, { val: 'HR9',  lbl: 'HR9' },
+    ];
+    var sortSel = document.getElementById('sortSel');
+    sortOptions.forEach(function (opt) {
+      if (opt.dynastyOnly && !hasDynasty) return;
+      var o = document.createElement('option'); o.value = opt.val; o.textContent = opt.lbl;
+      sortSel.appendChild(o);
+    });
+    sortSel.addEventListener('change', function () { activeSortKey = sortSel.value; renderTables(); });
+    document.getElementById('faSearch').addEventListener('input', renderTables);
+
+    // ── Table rendering ───────────────────────────────────────────────────────
+    function el(tag, cls) { var e = document.createElement(tag); if (cls) e.className = cls; return e; }
+
+    function buildHead(trEl, cols) {
+      while (trEl.firstChild) trEl.removeChild(trEl.firstChild);
+      cols.forEach(function (c) { var th = el('th'); th.textContent = c; trEl.appendChild(th); });
+    }
+
+    function playerValue(p) {
+      var vm = valueMap[p.fgId || p.name] || {};
+      return vm.projectedValue || 0;
+    }
+
+    function dynastyValue(p) {
+      var vm = valueMap[p.fgId || p.name] || {};
+      return vm.dynastyValue || 0;
+    }
+
+    function sortValue(p, key) {
+      if (key === 'value')   return playerValue(p);
+      if (key === 'impact')  return p._stImpact || 0;
+      if (key === 'dynasty') return dynastyValue(p);
+      var pr = p.proj || {};
+      if (key === 'HR')   return pr.hr   || 0;
+      if (key === 'R')    return pr.r    || 0;
+      if (key === 'OBP')  return pr.obp  || 0;
+      if (key === 'SLG')  return pr.slg  || 0;
+      if (key === 'SO')   return pr.so   || 0;
+      if (key === 'ERA')  return -(pr.era  || 99);
+      if (key === 'WHIP') return -(pr.whip || 99);
+      if (key === 'HR9')  return -(pr.hr9  || 99);
+      return 0;
+    }
+
+    function matchesType(p, typeFilter) {
+      if (typeFilter === 'All') return true;
+      if (typeFilter === 'Hitters')  return p.type === 'H';
+      if (typeFilter === 'Pitchers') return p.type === 'P';
+      return true;
+    }
+
+    function matchesSearch(p, q) {
+      if (!q) return true;
+      return (p.rawName || p.name).toLowerCase().includes(q);
+    }
+
+    function renderHelps(td, p) {
+      var cats = p.type === 'H' ? HIT_CATS : PIT_CATS;
+      var cell = el('div', 'helps-cell');
+      var any  = false;
+      cats.forEach(function (cat) {
+        if (!helpsCategory(p, cat)) return;
+        any = true;
+        var badge = el('span', 'help-badge ' + (weakCats.has(cat) ? 'help-need' : 'help-ok'));
+        badge.textContent = cat;
+        cell.appendChild(badge);
+      });
+      if (!any) {
+        var dash = document.createTextNode('—');
+        cell.appendChild(dash);
+      }
+      td.appendChild(cell);
+    }
+
+    function renderHitterRow(tbody, p) {
+      var vm  = valueMap[p.fgId || p.name] || {};
+      var val = vm.projectedValue || 0;
+      var pr  = p.proj || {};
+      var tr  = el('tr');
+
+      function td(text, cls) {
+        var c = el('td'); c.textContent = text; if (cls) c.className = cls; return c;
+      }
+      var valCls = val >= 20 ? 'val-strong' : (val >= 5 ? 'val-mid' : 'val-zero');
+
+      tr.appendChild(td(p.rawName || p.name));
+      tr.appendChild(td('H'));
+      tr.appendChild(td(vm.noProj ? '—' : '$' + Math.round(val), valCls));
+      var rosFactorH = rosProrationFactor();
+      var rosValH    = val * rosFactorH;
+      var rosClsH    = rosValH >= 20 ? 'val-strong' : (rosValH >= 5 ? 'val-mid' : 'val-zero');
+      tr.appendChild(td(vm.noProj ? '—' : '$' + Math.round(rosValH), rosClsH));
+      if (hasDynasty) {
+        var dv = vm.dynastyValue || 0;
+        var dvCls = dv >= 20 ? 'val-strong' : (dv >= 5 ? 'val-mid' : 'val-zero');
+        tr.appendChild(td(vm.noProj ? '—' : '$' + Math.round(dv), dvCls));
+      }
+      tr.appendChild(td(Math.round(pr.hr  || 0)));
+      tr.appendChild(td(Math.round(pr.r   || 0)));
+      tr.appendChild(td((pr.obp || 0).toFixed(3)));
+      tr.appendChild(td((pr.slg || 0).toFixed(3)));
+
+      var helpsTd = el('td');
+      renderHelps(helpsTd, p);
+      tr.appendChild(helpsTd);
+
+      tbody.appendChild(tr);
+    }
+
+    function renderPitcherRow(tbody, p) {
+      var vm  = valueMap[p.fgId || p.name] || {};
+      var val = vm.projectedValue || 0;
+      var pr  = p.proj || {};
+      var tr  = el('tr');
+
+      function td(text, cls) {
+        var c = el('td'); c.textContent = text; if (cls) c.className = cls; return c;
+      }
+      var valCls = val >= 10 ? 'val-strong' : (val >= 3 ? 'val-mid' : 'val-zero');
+
+      tr.appendChild(td(p.rawName || p.name));
+      tr.appendChild(td('P'));
+      tr.appendChild(td(vm.noProj ? '—' : '$' + Math.round(val), valCls));
+      var rosFactorP = rosProrationFactor();
+      var rosValP    = val * rosFactorP;
+      var rosClsP    = rosValP >= 10 ? 'val-strong' : (rosValP >= 3 ? 'val-mid' : 'val-zero');
+      tr.appendChild(td(vm.noProj ? '—' : '$' + Math.round(rosValP), rosClsP));
+      if (hasDynasty) {
+        var dv = vm.dynastyValue || 0;
+        var dvCls = dv >= 10 ? 'val-strong' : (dv >= 3 ? 'val-mid' : 'val-zero');
+        tr.appendChild(td(vm.noProj ? '—' : '$' + Math.round(dv), dvCls));
+      }
+      tr.appendChild(td(Math.round(pr.so   || 0)));
+      tr.appendChild(td((pr.era  || 0).toFixed(2)));
+      tr.appendChild(td((pr.whip || 0).toFixed(3)));
+      tr.appendChild(td((pr.hr9  || 0).toFixed(2)));
+
+      var helpsTd = el('td');
+      renderHelps(helpsTd, p);
+      tr.appendChild(helpsTd);
+
+      tbody.appendChild(tr);
+    }
+
+    function renderTables() {
+      var q          = document.getElementById('faSearch').value.toLowerCase().trim();
+      var typeFilter = activeTypeFilter;
+      var sortKey    = activeSortKey;
+
+      var showHit = (typeFilter === 'All' || typeFilter === 'Hitters');
+      var showPit = (typeFilter === 'All' || typeFilter === 'Pitchers');
+
+      document.getElementById('hitSection').style.display = showHit ? '' : 'none';
+      document.getElementById('pitSection').style.display = showPit ? '' : 'none';
+
+      function filterSort(players, type) {
+        return players.filter(function (p) {
+          return p.type === type && matchesType(p, typeFilter) && matchesSearch(p, q);
+        }).sort(function (a, b) {
+          return sortValue(b, sortKey) - sortValue(a, sortKey);
+        });
+      }
+
+      if (showHit) {
+        var hitCols = hasDynasty
+          ? ['Name', 'Pos', 'Curr $', 'RoS $', 'Dynasty $', 'HR', 'R', 'OBP', 'SLG', 'Helps']
+          : ['Name', 'Pos', 'Proj $', 'RoS $', 'HR', 'R', 'OBP', 'SLG', 'Helps'];
+        buildHead(document.getElementById('hitHead'), hitCols);
+        var hitBody = document.getElementById('hitBody');
+        while (hitBody.firstChild) hitBody.removeChild(hitBody.firstChild);
+        var hitters = filterSort(faPool, 'H');
+        if (hitters.length) {
+          hitters.forEach(function (p) { renderHitterRow(hitBody, p); });
+        } else {
+          var tr = el('tr'); var td = el('td'); td.colSpan = hasDynasty ? 9 : 8;
+          td.textContent = 'No hitters match filter.';
+          td.style.textAlign = 'center'; td.style.color = '#bbb'; td.style.padding = '20px';
+          tr.appendChild(td); hitBody.appendChild(tr);
+        }
+      }
+
+      if (showPit) {
+        var pitCols = hasDynasty
+          ? ['Name', 'Pos', 'Curr $', 'RoS $', 'Dynasty $', 'SO', 'ERA', 'WHIP', 'HR9', 'Helps']
+          : ['Name', 'Pos', 'Proj $', 'RoS $', 'SO', 'ERA', 'WHIP', 'HR9', 'Helps'];
+        buildHead(document.getElementById('pitHead'), pitCols);
+        var pitBody = document.getElementById('pitBody');
+        while (pitBody.firstChild) pitBody.removeChild(pitBody.firstChild);
+        var pitchers = filterSort(faPool, 'P');
+        if (pitchers.length) {
+          pitchers.forEach(function (p) { renderPitcherRow(pitBody, p); });
+        } else {
+          var tr2 = el('tr'); var td2 = el('td'); td2.colSpan = hasDynasty ? 9 : 8;
+          td2.textContent = 'No pitchers match filter.';
+          td2.style.textAlign = 'center'; td2.style.color = '#bbb'; td2.style.padding = '20px';
+          tr2.appendChild(td2); pitBody.appendChild(tr2);
+        }
+      }
+    }
+
+    renderTables();
+
+    // ── Add/drop simulator ────────────────────────────────────────────────────
+    var simAdd  = document.getElementById('simAdd');
+    var simDrop = document.getElementById('simDrop');
+    var simBtn  = document.getElementById('simBtn');
+    var simResult = document.getElementById('simResult');
+
+    // Populate add select: all FAs with projections, sorted by impact desc
+    faPool.slice()
+      .filter(function (p) { return p.proj; })
+      .sort(function (a, b) { return (b._stImpact || 0) - (a._stImpact || 0); })
+      .forEach(function (p) {
+        var o = document.createElement('option');
+        o.value = p.fgId || p.name;
+        o.textContent = (p.rawName || p.name) + ' (' + p.type + ')';
+        o.dataset.key = p.fgId || p.name;
+        simAdd.appendChild(o);
+      });
+
+    // Populate drop select: my roster players sorted by salary desc
+    (teamMap[myTeam] || []).slice()
+      .sort(function (a, b) { return (b.salary || 0) - (a.salary || 0); })
+      .forEach(function (p) {
+        var o = document.createElement('option');
+        o.value = p.fgId || p.name;
+        o.textContent = (p.rawName || p.name) +
+          ' (' + p.positions.map(function (x) { return x.toUpperCase(); }).join('/') + ')' +
+          (p.salary ? ' $' + p.salary : '');
+        simDrop.appendChild(o);
+      });
+
+    simBtn.addEventListener('click', function () {
+      var addKey  = simAdd.value;
+      var dropKey = simDrop.value;
+      if (!addKey || !dropKey) return;
+
+      var faPlayer   = faPool.find(function (p) { return (p.fgId || p.name) === addKey; });
+      var dropPlayer = (teamMap[myTeam] || []).find(function (p) { return (p.fgId || p.name) === dropKey; });
+      if (!faPlayer || !dropPlayer) return;
+
+      var result = computeAddDropImpact(faPlayer, dropPlayer);
+      var myNew  = result.myNew;
+      var delta  = myNew.points - myStanding.points;
+      var deltaCls = delta > 0 ? 'sim-delta-pos' : (delta < 0 ? 'sim-delta-neg' : 'sim-delta-neu');
+
+      while (simResult.firstChild) simResult.removeChild(simResult.firstChild);
+
+      var ptsDiv = document.createElement('div');
+      ptsDiv.className = 'sim-pts';
+      ptsDiv.textContent = myStanding.points + ' pts → ' + myNew.points + ' pts ';
+      var dSpan = document.createElement('span');
+      dSpan.className = deltaCls;
+      dSpan.textContent = (delta >= 0 ? '+' : '') + delta + ' pts';
+      ptsDiv.appendChild(dSpan);
+      simResult.appendChild(ptsDiv);
+
+      var tbl = document.createElement('table');
+      tbl.className = 'sim-cats';
+      var thead = document.createElement('thead');
+      var htr = document.createElement('tr');
+      ['Cat', 'Before', 'After', 'Chg'].forEach(function (h) {
+        var th = document.createElement('th'); th.textContent = h; htr.appendChild(th);
+      });
+      thead.appendChild(htr); tbl.appendChild(thead);
+
+      var tbody = document.createElement('tbody');
+      CATS.forEach(function (cat) {
+        var bRank = n + 1 - (myStanding.ranks[cat] || 0);
+        var aRank = n + 1 - (myNew.ranks[cat] || 0);
+        var chg   = bRank - aRank;
+        var tr = document.createElement('tr');
+        function simTd(txt, cls) {
+          var td = document.createElement('td');
+          td.textContent = txt;
+          if (cls) td.className = cls;
+          return td;
+        }
+        tr.appendChild(simTd(cat));
+        tr.appendChild(simTd(ordinal(bRank)));
+        tr.appendChild(simTd(ordinal(aRank)));
+        tr.appendChild(simTd(chg > 0 ? '+' + chg : (chg < 0 ? String(chg) : '—'),
+          chg > 0 ? 'rank-up' : (chg < 0 ? 'rank-dn' : '')));
+        tbody.appendChild(tr);
+      });
+      tbl.appendChild(tbody);
+      simResult.appendChild(tbl);
+      simResult.style.display = '';
+    });
+
+    function ordinal(n) {
+      var s = ['th','st','nd','rd'], v = n % 100;
+      return n + (s[(v - 20) % 10] || s[v] || s[0]);
+    }
+
+  })();
+  </script>
+</body>
+</html>

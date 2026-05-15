@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Ottoneu Tools — Trade Evaluator</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: system-ui, sans-serif; background: #f5f5f5; margin: 0; padding: 20px; color: #222; }
+    h1 { font-size: 1.3rem; margin-bottom: 4px; }
+    .nav { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+    .nav a { padding: 7px 14px; background: #1a73e8; color: #fff; border-radius: 6px; text-decoration: none; font-size: 0.88rem; }
+    .nav a.active { background: #1557b0; }
+    .section-title { font-size: 1rem; font-weight: 600; margin: 24px 0 12px; }
+    .error { background: #fce8e6; border-left: 4px solid #c62828; padding: 12px 16px; border-radius: 4px; margin-bottom: 16px; }
+    .error a { color: #c62828; }
+
+    .trade-setup { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .trade-col { background: #fff; border-radius: 8px; padding: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+    .col-header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+    .col-header .gives-lbl { font-size: 0.82rem; font-weight: 700; color: #555; text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap; }
+    .col-header select { flex: 1; padding: 4px 8px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.85rem; font-weight: 600; }
+    .search-box { width: 100%; padding: 7px 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.88rem; margin-bottom: 6px; }
+    .player-list { max-height: 220px; overflow-y: auto; border: 1px solid #eee; border-radius: 6px; }
+    .player-opt { padding: 7px 10px; font-size: 0.84rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f5f5f5; }
+    .player-opt:last-child { border-bottom: none; }
+    .player-opt:hover { background: #f0f4ff; }
+    .player-opt .meta { font-size: 0.75rem; color: #999; }
+    .chips { min-height: 36px; margin-top: 10px; }
+    .chip { display: inline-flex; align-items: center; gap: 5px; background: #e8f0fe; color: #1a73e8; border-radius: 14px; padding: 3px 10px; font-size: 0.81rem; margin: 2px; }
+    .chip button { background: none; border: none; color: #1a73e8; cursor: pointer; font-size: 1rem; padding: 0; line-height: 1; }
+    .empty-msg { color: #bbb; font-size: 0.82rem; padding: 10px; }
+    .eval-btn { display: block; width: 100%; padding: 11px; background: #1a73e8; color: #fff; border: none; border-radius: 8px; font-size: 0.95rem; font-weight: 600; cursor: pointer; margin-top: 16px; }
+    .eval-btn:hover { background: #1557b0; }
+
+    .vex-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 4px; }
+    .vex-col { background: #fff; border-radius: 8px; padding: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+    .vex-col h4 { font-size: 0.82rem; font-weight: 700; color: #555; text-transform: uppercase; letter-spacing: 0.05em; margin: 0 0 10px; }
+    .vex-tbl { width: 100%; border-collapse: collapse; font-size: 0.83rem; }
+    .vex-tbl th { padding: 4px 6px; text-align: right; color: #999; font-size: 0.73rem; text-transform: uppercase; letter-spacing: 0.04em; border-bottom: 1px solid #eee; }
+    .vex-tbl th:first-child { text-align: left; }
+    .vex-tbl td { padding: 5px 6px; border-bottom: 1px solid #f8f8f8; text-align: right; }
+    .vex-tbl td:first-child { text-align: left; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .vex-tbl tr.total-row td { border-top: 2px solid #eee; border-bottom: none; font-weight: 700; padding-top: 7px; }
+    .results-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .result-card { background: #fff; border-radius: 8px; padding: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+    .result-card h3 { font-size: 0.9rem; font-weight: 700; margin: 0 0 12px; }
+    .pts-row { display: flex; align-items: center; gap: 8px; padding: 10px 12px; background: #f8f8f8; border-radius: 6px; margin-bottom: 14px; }
+    .pts-before { font-size: 1rem; color: #999; }
+    .pts-arrow { color: #bbb; }
+    .pts-after { font-size: 1.25rem; font-weight: 700; }
+    .pts-delta { font-size: 0.85rem; font-weight: 600; padding: 2px 8px; border-radius: 10px; margin-left: auto; }
+    .d-pos { background: #e6f4ea; color: #1e7e34; }
+    .d-neg { background: #fce8e6; color: #c62828; }
+    .d-neu { background: #f0f0f0; color: #666; }
+    .cat-tbl { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+    .cat-tbl th { padding: 4px 6px; text-align: right; color: #999; font-size: 0.73rem; text-transform: uppercase; letter-spacing: 0.04em; border-bottom: 1px solid #eee; }
+    .cat-tbl th:first-child { text-align: left; }
+    .cat-tbl td { padding: 5px 6px; border-bottom: 1px solid #f8f8f8; text-align: right; }
+    .cat-tbl td:first-child { text-align: left; }
+    .rank-up { color: #1e7e34; font-weight: 600; }
+    .rank-dn { color: #c62828; font-weight: 600; }
+    .stat-dim { color: #bbb; font-size: .78rem; }
+    .net-bar { display: flex; gap: 24px; flex-wrap: wrap; background: #fff; border-radius: 8px; padding: 14px 18px; box-shadow: 0 1px 4px rgba(0,0,0,0.1); margin-top: 16px; }
+    .net-item strong { display: block; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; color: #999; margin-bottom: 3px; }
+    .net-item span { font-size: 0.88rem; }
+    .disclaimer { font-size: 0.76rem; color: #bbb; margin-top: 10px; font-style: italic; }
+    .surplus-pos { color: #1e7e34; font-weight: 600; }
+    .surplus-neg { color: #c62828; font-weight: 600; }
+
+    @media (max-width: 640px) {
+      .trade-setup, .results-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <h1>Trade Evaluator</h1>
+  <nav class="nav">
+    <a href="index.html">Data Hub</a>
+    <a href="standings.html">Standings</a>
+    <a href="roster.html">Roster Analysis</a>
+    <a href="trade.html" class="active">Trade Evaluator</a>
+    <a href="fa.html">FA Finder</a>
+  </nav>
+
+  <div id="error"></div>
+  <div id="content" style="display:none">
+
+    <div class="trade-setup">
+      <div class="trade-col">
+        <div class="col-header">
+          <select id="teamASel"></select>
+          <span class="gives-lbl">gives</span>
+        </div>
+        <input class="search-box" id="giveSearch" placeholder="Search players…" autocomplete="off">
+        <div class="player-list" id="giveList"></div>
+        <div class="chips" id="giveChips"></div>
+      </div>
+      <div class="trade-col">
+        <div class="col-header">
+          <select id="teamBSel"></select>
+          <span class="gives-lbl">gives</span>
+        </div>
+        <input class="search-box" id="recvSearch" placeholder="Search players…" autocomplete="off">
+        <div class="player-list" id="recvList"></div>
+        <div class="chips" id="recvChips"></div>
+      </div>
+    </div>
+
+    <button class="eval-btn" id="evalBtn">Evaluate Trade</button>
+
+    <div id="results" style="display:none">
+      <div class="section-title">Value Exchange</div>
+      <div class="vex-grid" id="vexGrid"></div>
+      <div class="section-title">Standings Impact</div>
+      <div class="results-grid">
+        <div class="result-card" id="myCard"></div>
+        <div class="result-card" id="partnerCard"></div>
+      </div>
+      <div class="net-bar" id="netBar"></div>
+      <p class="disclaimer">Standings impact is approximate — other teams' category ranks shift based on the two trading teams' changes, but other rosters are not re-optimized.</p>
+    </div>
+  </div>
+
+  <script src="shared.js"></script>
+  <script>
+  (function () {
+    var errEl   = document.getElementById('error');
+    var content = document.getElementById('content');
+
+    function showErr(msg, linkText, linkHref) {
+      var d = document.createElement('div');
+      d.className = 'error';
+      d.textContent = msg + (linkText ? ' ' : '');
+      if (linkText) {
+        var a = document.createElement('a'); a.href = linkHref; a.textContent = linkText;
+        d.appendChild(a);
+      }
+      errEl.appendChild(d);
+    }
+
+    var roster    = loadData('ottoneu_roster');
+    var projHit   = loadData('ottoneu_proj_hitting');
+    var projPitch = loadData('ottoneu_proj_pitching');
+    var myTeam    = loadData('ottoneu_my_team') || '';
+
+    if (!roster || !projHit || !projPitch) { showErr('Missing data — upload CSVs on the', 'Data Hub.', 'index.html'); return; }
+    if (!myTeam) { showErr('Set your team on the', 'Data Hub.', 'index.html'); return; }
+
+    var merged = matchPlayers(roster, projHit, projPitch);
+
+    // Attach future-year projections if available
+    var hitY1 = loadData('ottoneu_proj_hitting_y1');
+    var pitY1 = loadData('ottoneu_proj_pitching_y1');
+    var hitY2 = loadData('ottoneu_proj_hitting_y2');
+    var pitY2 = loadData('ottoneu_proj_pitching_y2');
+    if (hitY1 || pitY1) merged = attachYearProjections(merged, hitY1, pitY1, 'proj_y1');
+    if (hitY2 || pitY2) merged = attachYearProjections(merged, hitY2, pitY2, 'proj_y2');
+    var hasDynasty = !!(hitY1 || pitY1 || hitY2 || pitY2);
+
+    var teamMap = {};
+    merged.forEach(function (p) {
+      if (!teamMap[p.team]) teamMap[p.team] = [];
+      teamMap[p.team].push(p);
+    });
+
+    var teamNames = Object.keys(teamMap).filter(function (t) { return t !== 'Free Agent'; });
+    if (!teamMap[myTeam]) { showErr('Team "' + myTeam + '" not found — re-select on the', 'Data Hub.', 'index.html'); return; }
+
+    content.style.display = '';
+
+    // ── Baseline standings ────────────────────────────────────────────────────
+    function calcStats(name, players) {
+      var lu  = optimizeHitterLineup(players.filter(function (p) { return p.type === 'H'; }));
+      var pit = selectPitchers(players.filter(function (p) { return p.type === 'P'; }));
+      return { name: name, stats: computeTeamStats(lu, pit) };
+    }
+    var baseArr       = teamNames.map(function (n) { return calcStats(n, teamMap[n]); });
+    var baseStandings = buildStandings(baseArr);
+
+    var allRosters = teamNames.map(function (n) { return teamMap[n]; });
+    var weights    = loadData('ottoneu_dynasty_weights') || { y1: 0.90, y2: 0.81 };
+    var valueMap   = hasDynasty
+      ? calculateDynastyValues(allRosters, weights)
+      : calculateAllValues(allRosters);
+
+    // ── Team selectors ────────────────────────────────────────────────────────
+    var teamASel = document.getElementById('teamASel');
+    var teamBSel = document.getElementById('teamBSel');
+
+    teamNames.forEach(function (t) {
+      var a = document.createElement('option'); a.value = t; a.textContent = t;
+      var b = document.createElement('option'); b.value = t; b.textContent = t;
+      teamASel.appendChild(a);
+      teamBSel.appendChild(b);
+    });
+
+    // Default: Team A = my team, Team B = first other team
+    teamASel.value = myTeam;
+    teamBSel.value = teamNames.find(function (t) { return t !== myTeam; }) || teamNames[0];
+
+    // ── Picker state ──────────────────────────────────────────────────────────
+    var givePlayers = [];
+    var recvPlayers = [];
+    function pkey(p) { return p.fgId || p.name; }
+    function bysal(a, b) { return (b.salary || 0) - (a.salary || 0); }
+
+    function renderList(listEl, players, selected, opposite, searchEl) {
+      var q    = searchEl.value.toLowerCase();
+      var excl = new Set(selected.concat(opposite).map(pkey));
+      while (listEl.firstChild) listEl.removeChild(listEl.firstChild);
+      var shown = 0;
+      players.forEach(function (p) {
+        if (excl.has(pkey(p))) return;
+        var label = p.rawName || p.name;
+        if (q && !label.toLowerCase().includes(q)) return;
+        if (shown >= 40) return;
+        shown++;
+        var row = document.createElement('div');
+        row.className = 'player-opt';
+        var nameSpan = document.createElement('span');
+        nameSpan.textContent = label;
+        var metaSpan = document.createElement('span');
+        metaSpan.className = 'meta';
+        metaSpan.textContent =
+          p.positions.map(function (x) { return x.toUpperCase(); }).join('/') +
+          (p.salary ? '  $' + p.salary : '');
+        row.appendChild(nameSpan);
+        row.appendChild(metaSpan);
+        row.addEventListener('click', function () {
+          selected.push(p);
+          searchEl.value = '';
+          renderAll();
+        });
+        listEl.appendChild(row);
+      });
+      if (!shown) {
+        var msg = document.createElement('div');
+        msg.className = 'empty-msg';
+        msg.textContent = q ? 'No matches.' : 'No players available.';
+        listEl.appendChild(msg);
+      }
+    }
+
+    function renderChips(containerEl, selected) {
+      while (containerEl.firstChild) containerEl.removeChild(containerEl.firstChild);
+      if (!selected.length) {
+        var msg = document.createElement('div');
+        msg.className = 'empty-msg';
+        msg.textContent = 'None selected.';
+        containerEl.appendChild(msg);
+        return;
+      }
+      selected.forEach(function (p, i) {
+        var chip = document.createElement('span');
+        chip.className = 'chip';
+        chip.appendChild(document.createTextNode((p.rawName || p.name) + ' '));
+        var btn = document.createElement('button');
+        btn.title = 'Remove'; btn.textContent = '×';
+        btn.addEventListener('click', (function (idx) {
+          return function () { selected.splice(idx, 1); renderAll(); };
+        })(i));
+        chip.appendChild(btn);
+        containerEl.appendChild(chip);
+      });
+    }
+
+    function renderAll() {
+      var aR = (teamMap[teamASel.value] || []).slice().sort(bysal);
+      var bR = (teamMap[teamBSel.value] || []).slice().sort(bysal);
+      renderList(document.getElementById('giveList'), aR, givePlayers, recvPlayers, document.getElementById('giveSearch'));
+      renderList(document.getElementById('recvList'), bR, recvPlayers, givePlayers, document.getElementById('recvSearch'));
+      renderChips(document.getElementById('giveChips'), givePlayers);
+      renderChips(document.getElementById('recvChips'), recvPlayers);
+    }
+
+    function resetTrade() {
+      givePlayers = []; recvPlayers = [];
+      document.getElementById('giveSearch').value = '';
+      document.getElementById('recvSearch').value = '';
+      document.getElementById('results').style.display = 'none';
+      renderAll();
+    }
+
+    document.getElementById('giveSearch').addEventListener('input', renderAll);
+    document.getElementById('recvSearch').addEventListener('input', renderAll);
+    teamASel.addEventListener('change', resetTrade);
+    teamBSel.addEventListener('change', resetTrade);
+    renderAll();
+
+    // ── Value Exchange ────────────────────────────────────────────────────────
+    function renderValueExchange(teamA, teamB) {
+      var vexGrid = document.getElementById('vexGrid');
+      while (vexGrid.firstChild) vexGrid.removeChild(vexGrid.firstChild);
+
+      function buildVexCol(heading, players) {
+        var col = el('div', 'vex-col');
+        var h4 = el('h4'); h4.textContent = heading; col.appendChild(h4);
+
+        var tbl = el('table', 'vex-tbl');
+        var thead = el('thead'); var htr = el('tr');
+        var cols = hasDynasty
+          ? ['Name', 'Salary', 'Curr $', 'Curr Surp', 'RoS $', 'RoS Surp', 'Dynasty $', 'Dyn. Surp']
+          : ['Name', 'Salary', 'Proj $', 'Surplus', 'RoS $', 'RoS Surp'];
+        cols.forEach(function (h) {
+          var th = el('th'); th.textContent = h; htr.appendChild(th);
+        });
+        thead.appendChild(htr); tbl.appendChild(thead);
+
+        var tbody = el('tbody');
+        var rosFactor = rosProrationFactor();
+        var totSal = 0, totVal = 0, totSurp = 0, totRosVal = 0, totRosSurp = 0, totDyn = 0, totDynSurp = 0, allHaveProj = true;
+
+        players.forEach(function (p) {
+          var key = p.fgId || p.name;
+          var vm = valueMap[key] || {};
+          var salary  = p.salary || 0;
+          var value   = vm.projectedValue || 0;
+          var surplus = vm.surplus !== undefined ? vm.surplus : -salary;
+          var dynVal  = vm.dynastyValue   || 0;
+          var dynSurp = vm.dynastySurplus !== undefined ? vm.dynastySurplus : -salary;
+          var noProj  = !!vm.noProj;
+
+          totSal += salary;
+          var rosVal  = value * rosFactor;
+          var rosSurp = rosVal - salary;
+          if (!noProj) { totVal += value; totSurp += surplus; totRosVal += rosVal; totRosSurp += rosSurp; totDyn += dynVal; totDynSurp += dynSurp; }
+          else { allHaveProj = false; }
+
+          function surpTd(val, noP) {
+            var td = el('td');
+            if (noP) { td.textContent = 'No proj'; return td; }
+            td.textContent = (val >= 0 ? '+$' : '-$') + Math.abs(Math.round(val));
+            td.className = val >= 0 ? 'surplus-pos' : 'surplus-neg';
+            return td;
+          }
+
+          var tr = el('tr');
+          var tdN = el('td'); tdN.textContent = p.rawName || p.name;
+          var tdS = el('td'); tdS.textContent = '$' + salary;
+          var tdV = el('td'); tdV.textContent = noProj ? '—' : '$' + Math.round(value);
+          tr.appendChild(tdN); tr.appendChild(tdS); tr.appendChild(tdV);
+          tr.appendChild(surpTd(surplus, noProj));
+          var tdRos = el('td'); tdRos.textContent = noProj ? '—' : '$' + Math.round(rosVal);
+          tr.appendChild(tdRos);
+          tr.appendChild(surpTd(rosSurp, noProj));
+          if (hasDynasty) {
+            var tdD = el('td'); tdD.textContent = noProj ? '—' : '$' + Math.round(dynVal);
+            if (!noProj) tdD.style.color = '#6a1b9a';
+            tr.appendChild(tdD);
+            tr.appendChild(surpTd(dynSurp, noProj));
+          }
+          tbody.appendChild(tr);
+        });
+
+        // Totals row
+        var totTr = el('tr'); totTr.className = 'total-row';
+        var totN = el('td'); totN.textContent = 'Total';
+        var totS = el('td'); totS.textContent = '$' + totSal;
+        var totV = el('td'); totV.textContent = allHaveProj ? '$' + Math.round(totVal) : '—';
+        var totX = el('td');
+        if (allHaveProj) {
+          totX.textContent = (totSurp >= 0 ? '+$' : '-$') + Math.abs(Math.round(totSurp));
+          totX.className = totSurp >= 0 ? 'surplus-pos' : 'surplus-neg';
+        } else { totX.textContent = 'partial'; }
+        totTr.appendChild(totN); totTr.appendChild(totS); totTr.appendChild(totV); totTr.appendChild(totX);
+        var totRV = el('td'); totRV.textContent = allHaveProj ? '$' + Math.round(totRosVal) : '—';
+        var totRS = el('td');
+        if (allHaveProj) {
+          totRS.textContent = (totRosSurp >= 0 ? '+$' : '-$') + Math.abs(Math.round(totRosSurp));
+          totRS.className = totRosSurp >= 0 ? 'surplus-pos' : 'surplus-neg';
+        } else { totRS.textContent = 'partial'; }
+        totTr.appendChild(totRV); totTr.appendChild(totRS);
+        if (hasDynasty) {
+          var totD = el('td'); totD.textContent = allHaveProj ? '$' + Math.round(totDyn) : '—';
+          if (allHaveProj) totD.style.color = '#6a1b9a';
+          var totDS = el('td');
+          if (allHaveProj) {
+            totDS.textContent = (totDynSurp >= 0 ? '+$' : '-$') + Math.abs(Math.round(totDynSurp));
+            totDS.className = totDynSurp >= 0 ? 'surplus-pos' : 'surplus-neg';
+          } else { totDS.textContent = 'partial'; }
+          totTr.appendChild(totD); totTr.appendChild(totDS);
+        }
+        tbody.appendChild(totTr);
+
+        tbl.appendChild(tbody); col.appendChild(tbl);
+        return col;
+      }
+
+      vexGrid.appendChild(buildVexCol(teamA + ' gives', givePlayers));
+      vexGrid.appendChild(buildVexCol(teamB + ' gives', recvPlayers));
+    }
+
+    // ── Evaluate ──────────────────────────────────────────────────────────────
+    document.getElementById('evalBtn').addEventListener('click', function () {
+      if (!givePlayers.length && !recvPlayers.length) return;
+      var teamA    = teamASel.value;
+      var teamB    = teamBSel.value;
+      var giveKeys = new Set(givePlayers.map(pkey));
+      var recvKeys = new Set(recvPlayers.map(pkey));
+
+      function tradedRoster(name) {
+        var excl = name === teamA ? giveKeys : recvKeys;
+        var base = (teamMap[name] || []).filter(function (p) { return !excl.has(pkey(p)); });
+        return base.concat(name === teamA ? recvPlayers : givePlayers);
+      }
+
+      var afterArr = baseArr.map(function (t) {
+        if (t.name === teamA || t.name === teamB) return calcStats(t.name, tradedRoster(t.name));
+        return t;
+      });
+      var afterStandings = buildStandings(afterArr);
+      var n = teamNames.length;
+
+      function find(standings, name) { return standings.find(function (t) { return t.name === name; }); }
+
+      renderValueExchange(teamA, teamB);
+      renderCard(document.getElementById('myCard'),      teamA, find(baseStandings, teamA), find(afterStandings, teamA), n);
+      renderCard(document.getElementById('partnerCard'), teamB, find(baseStandings, teamB), find(afterStandings, teamB), n);
+      renderNetBar(teamA, find(baseStandings, teamA), find(afterStandings, teamA), n);
+
+      document.getElementById('results').style.display = '';
+      document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+
+    // ── Result rendering ──────────────────────────────────────────────────────
+    function el(tag, cls) { var e = document.createElement(tag); if (cls) e.className = cls; return e; }
+    function txt(str) { return document.createTextNode(str); }
+    function deltaClass(n) { return n > 0 ? 'd-pos' : (n < 0 ? 'd-neg' : 'd-neu'); }
+    function deltaTxt(n)   { return (n > 0 ? '+' : '') + n; }
+
+    function renderCard(cardEl, name, before, after, n) {
+      var ptsDelta = after.points - before.points;
+
+      while (cardEl.firstChild) cardEl.removeChild(cardEl.firstChild);
+
+      var h3 = el('h3'); h3.textContent = name;
+      cardEl.appendChild(h3);
+
+      var ptsRow = el('div', 'pts-row');
+      var s1 = el('span', 'pts-before'); s1.textContent = before.points + ' pts';
+      var s2 = el('span', 'pts-arrow');  s2.textContent = '→';
+      var s3 = el('span', 'pts-after');  s3.textContent = after.points + ' pts';
+      var s4 = el('span', 'pts-delta ' + deltaClass(ptsDelta)); s4.textContent = deltaTxt(ptsDelta);
+      ptsRow.appendChild(s1); ptsRow.appendChild(s2); ptsRow.appendChild(s3); ptsRow.appendChild(s4);
+      cardEl.appendChild(ptsRow);
+
+      var tbl = el('table', 'cat-tbl');
+      var thead = el('thead'); var htr = el('tr');
+      ['Cat','Before','After','Chg'].forEach(function (h) {
+        var th = el('th'); th.textContent = h; htr.appendChild(th);
+      });
+      thead.appendChild(htr); tbl.appendChild(thead);
+
+      var tbody = el('tbody');
+      CATS.forEach(function (cat) {
+        var bRank = n + 1 - (before.ranks[cat] || 0);
+        var aRank = n + 1 - (after.ranks[cat]  || 0);
+        var chg   = bRank - aRank;
+        var tr = el('tr');
+
+        var tdCat = el('td'); var strong = el('strong'); strong.textContent = cat; tdCat.appendChild(strong);
+
+        var tdB = el('td');
+        tdB.appendChild(txt(ordinal(bRank) + ' '));
+        var dimB = el('span', 'stat-dim'); dimB.textContent = '(' + fmt(cat, before.stats[cat]) + ')';
+        tdB.appendChild(dimB);
+
+        var tdA = el('td');
+        tdA.appendChild(txt(ordinal(aRank) + ' '));
+        var dimA = el('span', 'stat-dim'); dimA.textContent = '(' + fmt(cat, after.stats[cat]) + ')';
+        tdA.appendChild(dimA);
+
+        var tdChg = el('td', chg > 0 ? 'rank-up' : (chg < 0 ? 'rank-dn' : ''));
+        tdChg.textContent = chg > 0 ? '+' + chg : (chg < 0 ? String(chg) : '—');
+
+        tr.appendChild(tdCat); tr.appendChild(tdB); tr.appendChild(tdA); tr.appendChild(tdChg);
+        tbody.appendChild(tr);
+      });
+      tbl.appendChild(tbody);
+      cardEl.appendChild(tbl);
+    }
+
+    function renderNetBar(teamA, before, after, n) {
+      var gained = [], lost = [];
+      CATS.forEach(function (cat) {
+        var bRank = n + 1 - (before.ranks[cat] || 0);
+        var aRank = n + 1 - (after.ranks[cat]  || 0);
+        if (bRank > aRank) gained.push(cat);
+        else if (bRank < aRank) lost.push(cat);
+      });
+
+      var ptsDelta = after.points - before.points;
+      var givesal  = givePlayers.reduce(function (s, p) { return s + (p.salary || 0); }, 0);
+      var recvsal  = recvPlayers.reduce(function (s, p) { return s + (p.salary || 0); }, 0);
+      var salDelta = recvsal - givesal;  // from teamA's perspective: receiving - giving
+      var salTxt   = (salDelta >= 0 ? '+$' : '-$') + Math.abs(salDelta);
+
+      var nb = document.getElementById('netBar');
+      while (nb.firstChild) nb.removeChild(nb.firstChild);
+
+      function netItem(label, valueText, cls) {
+        var d = el('div', 'net-item');
+        var strong = el('strong'); strong.textContent = label;
+        var span = el('span'); span.textContent = valueText;
+        if (cls) span.className = 'pts-delta ' + cls;
+        d.appendChild(strong); d.appendChild(span);
+        nb.appendChild(d);
+      }
+
+      var shortA = teamA.length > 20 ? teamA.slice(0, 18) + '…' : teamA;
+      netItem(shortA + ' gains', gained.length ? gained.join(', ') : '—');
+      netItem(shortA + ' loses', lost.length   ? lost.join(', ')   : '—');
+      netItem('Net pts (left)',  deltaTxt(ptsDelta), deltaClass(ptsDelta));
+      netItem('Salary shift (left)', salTxt, deltaClass(-salDelta));
+    }
+
+    function fmt(cat, val) {
+      return ['OBP','SLG','ERA','WHIP','HR9'].indexOf(cat) > -1
+        ? (val || 0).toFixed(3)
+        : String(Math.round(val || 0));
+    }
+
+    function ordinal(n) {
+      var s = ['th','st','nd','rd'], v = n % 100;
+      return n + (s[(v - 20) % 10] || s[v] || s[0]);
+    }
+
+  })();
+  </script>
+</body>
+</html>

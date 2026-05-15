@@ -32,6 +32,20 @@ const SLOT_CAP     = 162;
 const IP_MAX       = 1500;
 const IP_MIN       = 1250;
 
+// ── PRORATION ────────────────────────────────────────────────────────────────
+// Returns the fraction of the MLB season remaining as of today.
+// Used by FA and trade tools to show rest-of-season dollar value alongside
+// full-season value. Approximates opening day as March 28, end as September 28.
+function rosProrationFactor() {
+  const year  = new Date().getFullYear();
+  const start = new Date(year, 2, 28);  // March 28
+  const end   = new Date(year, 8, 28);  // September 28
+  const today = new Date();
+  if (today <= start) return 1.0;
+  if (today >= end)   return 0.0;
+  return (end - today) / (end - start);
+}
+
 // ── SECURITY HELPER ──────────────────────────────────────────────────────────
 // Escape user-supplied strings before inserting into innerHTML.
 function esc(str) {

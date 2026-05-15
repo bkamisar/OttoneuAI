@@ -220,6 +220,18 @@
       'valuation: star hitter valued above poor hitter');
     assert(vm['s1'].surplus < vm['s1'].projectedValue, 'valuation: surplus = value - salary');
 
+    // Dynamic H/P split: when pitching is invalid (low IP), all dollars go to hitters.
+    // Use distinct player keys per team so replacement level is set by the weaker team.
+    const dStar = mkFull('dStar','dstar','H',['of'],{ pa:600,ab:540,h:162,bb:70,hbp:5,hr:45,r:110,obp:0.420,slg:0.600 },0,'D1');
+    const dRepl = mkFull('dRepl','drepl','H',['of'],{ pa:300,ab:270,h:67, bb:25,hbp:2,hr:8, r:35, obp:0.310,slg:0.380 },0,'D2');
+    const dPit1 = mkFull('dPit1','dpit1','P',['sp'],{ ip:1000,h:800,bb:250,hr:80,so:600,era:4.24,whip:1.28,hr9:1.15,er:471 },0,'D1');
+    const dPit2 = mkFull('dPit2','dpit2','P',['sp'],{ ip:1000,h:800,bb:250,hr:80,so:600,era:4.24,whip:1.28,hr9:1.15,er:471 },0,'D2');
+    const vmDynamic = calculateAllValues([[dStar, dPit1], [dRepl, dPit2]]);
+    assert(typeof vmDynamic !== 'undefined', 'dynamic split: calculateAllValues returns a value map');
+    // Pitching is invalid (1000 IP < IP_MIN 1250) so all dollars go to hitters.
+    // Star should have positive value above the weaker replacement-level OF.
+    assert((vmDynamic['dStar'] || {}).projectedValue > 0, 'dynamic split: star hitter has positive value when pitching SGP is zero');
+
     // ── Summary ──────────────────────────────────────────────────────────────
     const sumEl = document.getElementById('summary');
     sumEl.textContent = passed + ' passed, ' + failed + ' failed';

@@ -6,7 +6,6 @@ const CATS         = ["OBP","SLG","HR","R","ERA","WHIP","HR9","SO"];
 const LOWER_BETTER = new Set(["ERA","WHIP","HR9"]);
 const NUM_TEAMS    = 12;
 const SALARY_POOL  = 4800;    // $400 × 12 teams
-const HIT_POOL_SHARE = 0.60;  // hitters share 60% of pool; pitchers share 40%
 
 // BatX RoS projections are already regression-adjusted from real stats-to-date.
 // Setting these to 0 passes rate stats through unchanged (no double regression).
@@ -614,10 +613,13 @@ function calculateAllValues(allTeamRosters, extraPlayers) {
     }
   });
 
-  // 6. Normalize to $4,800 with a hitting/pitching pool split.
-  // Hitting gets HIT_POOL_SHARE (65%) — hitting is scarcer and harder to replace.
-  const hitDollars = SALARY_POOL * HIT_POOL_SHARE;
-  const pitDollars = SALARY_POOL * (1 - HIT_POOL_SHARE);
+  // 6. Normalize to $4,800 with a hitting/pitching pool split derived from SGP totals.
+  // Allocating dollars proportional to where scoring opportunity exists avoids
+  // hardcoded assumptions and self-corrects as projections update.
+  const totalSGP = totalHitSGP + totalPitSGP;
+  const dynamicHitShare = totalSGP > 0 ? totalHitSGP / totalSGP : 0.60;
+  const hitDollars = SALARY_POOL * dynamicHitShare;
+  const pitDollars = SALARY_POOL * (1 - dynamicHitShare);
 
   const hitRate = totalHitSGP > 0 ? hitDollars / totalHitSGP : 0;
   const pitRate = totalPitSGP > 0 ? pitDollars / totalPitSGP : 0;

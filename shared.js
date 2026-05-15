@@ -9,10 +9,11 @@ const SALARY_POOL  = 4800;    // $400 × 12 teams
 
 // BatX RoS projections are already regression-adjusted from real stats-to-date.
 // Setting these to 0 passes rate stats through unchanged (no double regression).
-// LG_MEAN is retained for future Y1/Y2 regression use; see Task 2 for calibrated values.
+// LG_MEAN is retained for future Y1/Y2 regression use; currently inactive (REGRESS = 0).
+// Values = mean team stats across 24 team-seasons (2024 + 2025, 12 teams each).
 const REGRESS_PA = 0;
 const REGRESS_IP = 0;
-const LG_MEAN = { OBP: 0.318, SLG: 0.414, ERA: 4.25, WHIP: 1.28, HR9: 1.15 };
+const LG_MEAN = { OBP: 0.325, SLG: 0.430, ERA: 3.735, WHIP: 1.197, HR9: 1.087 };
 
 // Active lineup slots per position across the 12-team league.
 // Replacement = the (N+1)th best rostered player at that position —

@@ -6,6 +6,28 @@ const CATS         = ["OBP","SLG","HR","R","ERA","WHIP","HR9","SO"];
 const LOWER_BETTER = new Set(["ERA","WHIP","HR9"]);
 const NUM_TEAMS    = 12;
 const SALARY_POOL  = 4800;    // $400 × 12 teams
+const HIT_POOL_SHARE = 0.60;  // hitters share 60% of pool; pitchers share 40%
+
+// BatX RoS projections are already regression-adjusted from real stats-to-date.
+// Setting these to 0 passes rate stats through unchanged (no double regression).
+// LG_MEAN is retained for future Y1/Y2 regression use; see Task 2 for calibrated values.
+const REGRESS_PA = 0;
+const REGRESS_IP = 0;
+const LG_MEAN = { OBP: 0.318, SLG: 0.414, ERA: 4.25, WHIP: 1.28, HR9: 1.15 };
+
+// Active lineup slots per position across the 12-team league.
+// Replacement = the (N+1)th best rostered player at that position —
+// represents who you'd realistically plug in from active rosters, not the
+// 40-man bench (too high a bar) and not the waiver wire (too low).
+const REPL_DEPTH = {
+  C:    12,   // 1 per team
+  '1B': 12,
+  '2B': 16,   // 12 dedicated + ~4 for MI slot sharing with SS
+  'SS': 16,   // 12 dedicated + ~4 for MI slot sharing with 2B
+  '3B': 12,
+  OF:   60,   // 5 per team
+  UTIL: 12,   // fallback; not used in eligible-key evaluation
+};
 const OF_GAME_CAP  = 810;     // 5 OF × 162 games
 const SLOT_CAP     = 162;
 const IP_MAX       = 1500;
@@ -35,8 +57,13 @@ function loadData(key) {
 
 function clearAllData() {
   [
-    'ottoneu_roster', 'ottoneu_proj_hitting', 'ottoneu_proj_pitching',
-    'ottoneu_my_team'
+    'ottoneu_roster',
+    'ottoneu_proj_hitting',  'ottoneu_proj_pitching',
+    'ottoneu_proj_hitting_y1', 'ottoneu_proj_pitching_y1',
+    'ottoneu_proj_hitting_y2', 'ottoneu_proj_pitching_y2',
+    'ottoneu_dynasty_weights',
+    'ottoneu_my_team',
+    'ottoneu_curr_standings', 'ottoneu_curr_standings_ts',
   ].forEach(k => localStorage.removeItem(k));
 }
 
@@ -143,17 +170,20 @@ function parseHittingProjections(text) {
   return parseCSV(text)
     .filter(row => parseFloat(row[HITTING_PROJ_COLS.pa]) > 0)
     .map(row => {
-      const n = k => parseFloat(row[HITTING_PROJ_COLS[k]]) || 0;
+      const n  = k => parseFloat(row[HITTING_PROJ_COLS[k]]) || 0;
+      const pa = n('pa');
+      const regW = pa + REGRESS_PA;
       return {
         fgId:    '',
         name:    normalizeName(row[HITTING_PROJ_COLS.name] || ''),
         rawName: (row[HITTING_PROJ_COLS.name] || '').trim(),
         type:    'H',
         proj: {
-          pa: n('pa'), ab: n('ab'), h: n('h'),
+          pa, ab: n('ab'), h: n('h'),
           bb: n('bb'), hbp: n('hbp'),
           hr: n('hr'), r: n('r'),
-          obp: n('obp'), slg: n('slg'),
+          obp: (pa * n('obp') + REGRESS_PA * LG_MEAN.OBP) / regW,
+          slg: (pa * n('slg') + REGRESS_PA * LG_MEAN.SLG) / regW,
         },
       };
     });
@@ -165,23 +195,30 @@ function parsePitchingProjections(text) {
     .map(row => {
       const n   = k => parseFloat(row[PITCHING_PROJ_COLS[k]]) || 0;
       const ip  = n('ip');
-      const era = n('era');
       const hr  = n('hr');
-      const hr9col = parseFloat(row[PITCHING_PROJ_COLS.hr9]) || 0;
-      const hr9 = hr9col > 0 ? hr9col : (ip > 0 ? hr * 9 / ip : 0);
+      const gs  = parseFloat(row['GS']) || 0;
+      const g   = parseFloat(row['G'])  || 0;
+      const role = (g > 0 && gs / g >= 0.4) ? 'SP' : 'RP';
+
+      const hr9col  = parseFloat(row[PITCHING_PROJ_COLS.hr9]) || 0;
+      const rawHR9  = hr9col > 0 ? hr9col : (ip > 0 ? hr * 9 / ip : 0);
+      const rawERA  = n('era');
+      const rawWHIP = n('whip');
+
+      const regW = ip + REGRESS_IP;
+      const era  = ip > 0 ? (ip * rawERA  + REGRESS_IP * LG_MEAN.ERA)  / regW : 0;
+      const whip = ip > 0 ? (ip * rawWHIP + REGRESS_IP * LG_MEAN.WHIP) / regW : 0;
+      const hr9  = ip > 0 ? (ip * rawHR9  + REGRESS_IP * LG_MEAN.HR9)  / regW : 0;
+
       return {
         fgId:    '',
         name:    normalizeName(row[PITCHING_PROJ_COLS.name] || ''),
         rawName: (row[PITCHING_PROJ_COLS.name] || '').trim(),
         type:    'P',
         proj: {
-          ip, hr, hr9,
-          h:    n('h'),
-          bb:   n('bb'),
-          so:   n('so'),
-          era,
-          whip: n('whip'),
-          er:   ip > 0 ? era * ip / 9 : 0,
+          ip, hr, hr9, h: n('h'), bb: n('bb'), so: n('so'),
+          era, whip, role,
+          er: ip > 0 ? era * ip / 9 : 0,
         },
       };
     });
@@ -217,6 +254,76 @@ function getFreeAgents(hittingProj, pitchingProj, rosterPlayers) {
     team:      'Free Agent',
     stats:     null,
   }));
+}
+
+// Attaches a future-year projection to already-matched roster players.
+// projKey: 'proj_y1' or 'proj_y2'. Matched by normalized name only
+// (projection CSVs have no player ID column).
+function attachYearProjections(matchedPlayers, hittingProj, pitchingProj, projKey) {
+  if (!hittingProj && !pitchingProj) return matchedPlayers;
+  const byName = {};
+  [...(hittingProj || []), ...(pitchingProj || [])].forEach(p => {
+    if (p.name) byName[p.name] = p.proj;
+  });
+  return matchedPlayers.map(p => ({ ...p, [projKey]: byName[p.name] || null }));
+}
+
+// Computes dynasty value by running the SGP model across up to three projection
+// years and combining with weighted discounting.
+// weights: { y1: 0.90, y2: 0.81 }  (defaults; pass null to use Y0 only)
+// Players with no Y1/Y2 projection simply contribute 0 for that year.
+function calculateDynastyValues(allRosters, weights, extraPlayers) {
+  const w1 = weights ? (weights.y1 || 0) : 0;
+  const w2 = weights ? (weights.y2 || 0) : 0;
+
+  // Helper: clone rosters swapping proj → a different year's projection.
+  function cloneForYear(rosters, yearKey) {
+    return rosters.map(r => r.map(p => ({ ...p, proj: p[yearKey] || null })));
+  }
+  function cloneExtras(extras, yearKey) {
+    return extras ? extras.map(p => ({ ...p, proj: p[yearKey] || null })) : null;
+  }
+
+  // Y0 — always run
+  const vmY0 = calculateAllValues(allRosters, extraPlayers);
+
+  // Y1 — run only if any player actually has proj_y1 data
+  const hasY1 = w1 > 0 && allRosters.flat().some(p => p.proj_y1);
+  const vmY1 = hasY1
+    ? calculateAllValues(cloneForYear(allRosters, 'proj_y1'), cloneExtras(extraPlayers, 'proj_y1'))
+    : null;
+
+  // Y2 — run only if any player actually has proj_y2 data
+  const hasY2 = w2 > 0 && allRosters.flat().some(p => p.proj_y2);
+  const vmY2 = hasY2
+    ? calculateAllValues(cloneForYear(allRosters, 'proj_y2'), cloneExtras(extraPlayers, 'proj_y2'))
+    : null;
+
+  // Dynasty salary cost: apply the same discount weights to salary as to value.
+  // Salary is paid each year, so total cost in present-value terms mirrors the
+  // same discount logic: cost = salary × (1 + w1 + w2).
+  // This keeps surplus meaningful — a player at $10 with default weights costs
+  // $27.10 in dynasty terms, not $10.
+  const salaryMultiplier = 1 + w1 + w2;
+
+  // Merge into a single map: all Y0 keys, enriched with dynasty values.
+  const dynastyMap = {};
+  Object.keys(vmY0).forEach(key => {
+    const v0 = vmY0[key] || {};
+    const v1 = vmY1 ? (vmY1[key] || {}) : {};
+    const v2 = vmY2 ? (vmY2[key] || {}) : {};
+    const currentValue = v0.projectedValue || 0;
+    const dynastyValue = currentValue
+      + w1 * (v1.projectedValue || 0)
+      + w2 * (v2.projectedValue || 0);
+    const dynastyCost = (v0.actualSalary || 0) * salaryMultiplier;
+    dynastyMap[key] = {
+      ...v0,
+      dynastyValue,
+      dynastySurplus: dynastyValue - dynastyCost,
+    };
+  });
+  return dynastyMap;
 }
 
 // ── LINEUP OPTIMIZER ────────────────────────────────────────────────────────
@@ -320,8 +427,84 @@ function computeTeamStats(hitterAssignment, selectedPitchers) {
     WHIP: pitOk && totIP > 0 ? totWHIPNum  / totIP   : 0,
     HR9:  pitOk && totIP > 0 ? totHR9Num * 9 / totIP : 0,
     SO:   pitOk ? totSO : 0,
-    _ip:  totIP,
+    _ip:           totIP,
+    _totPA:        totPA,
+    _totAB:        totAB,
     _pitchingValid: pitOk,
+  };
+}
+
+// ── CURRENT STANDINGS PARSER ─────────────────────────────────────────────────
+// Parses the user's current-standings CSV (Team,Games,R,HR,OBP,SLG,IP,K,HR/9,ERA,WHIP).
+// IP is in baseball ⅓-inning notation: 357.2 = 357⅔ innings.
+function parseIPInnings(s) {
+  const f     = parseFloat(s) || 0;
+  const whole = Math.floor(f);
+  const outs  = Math.round((f - whole) * 10);  // 0, 1, or 2
+  return whole + outs / 3;
+}
+
+function parseCurrStandings(text) {
+  return parseCSV(text).map(row => ({
+    name:  (row['Team'] || '').trim(),
+    games: parseFloat(row['Games']) || 0,
+    r:     parseFloat(row['R'])     || 0,
+    hr:    parseFloat(row['HR'])    || 0,
+    obp:   parseFloat(row['OBP'])   || 0,
+    slg:   parseFloat(row['SLG'])   || 0,
+    ip:    parseIPInnings(row['IP']),
+    k:     parseFloat(row['K'])     || 0,
+    hr9:   parseFloat(row['HR/9'])  || 0,
+    era:   parseFloat(row['ERA'])   || 0,
+    whip:  parseFloat(row['WHIP'])  || 0,
+  })).filter(r => r.name);
+}
+
+// ── REST-OF-SEASON BLENDER ────────────────────────────────────────────────────
+// Combines current actual stats with projected remaining stats.
+//
+// curr  — one row from parseCurrStandings
+// proj  — result of computeTeamStats (full-season projection)
+//
+// Hitting: Games × PA_PER_GAME gives current PA proxy; remainder drawn from proj._totPA.
+// Pitching: curr.ip is the exact denominator; remainder = proj._ip − curr.ip.
+// Rate stats are weighted by their natural denominators (PA for hitting, IP for pitching).
+const PA_PER_GAME = 4.2;
+
+function blendStats(curr, proj) {
+  // ── Hitting ───────────────────────────────────────────────────────────────
+  const currPA    = curr.games * PA_PER_GAME;
+  const projFullPA = proj._totPA || 1;
+  const remPA     = Math.max(0, projFullPA - currPA);
+  const totalPA   = currPA + remPA;
+  const hitFrac   = projFullPA > 0 ? remPA / projFullPA : 0;
+
+  const obp = totalPA > 0
+    ? (curr.obp * currPA + proj.OBP * remPA) / totalPA : proj.OBP;
+  const slg = totalPA > 0
+    ? (curr.slg * currPA + proj.SLG * remPA) / totalPA : proj.SLG;
+  const hr  = curr.hr + proj.HR * hitFrac;
+  const r   = curr.r  + proj.R  * hitFrac;
+
+  // ── Pitching ──────────────────────────────────────────────────────────────
+  const currIP    = curr.ip;
+  const projFullIP = proj._ip || 1;
+  const remIP     = Math.max(0, projFullIP - currIP);
+  const totalIP   = currIP + remIP;
+  const pitFrac   = projFullIP > 0 ? remIP / projFullIP : 0;
+
+  const era  = totalIP > 0
+    ? (curr.era * currIP / 9 + proj.ERA  * remIP / 9) * 9 / totalIP : proj.ERA;
+  const whip = totalIP > 0
+    ? (curr.whip * currIP    + proj.WHIP * remIP)      / totalIP     : proj.WHIP;
+  const hr9  = totalIP > 0
+    ? (curr.hr9 * currIP / 9 + proj.HR9  * remIP / 9) * 9 / totalIP : proj.HR9;
+  const so   = curr.k + proj.SO * pitFrac;
+
+  return {
+    OBP: obp, SLG: slg, HR: hr, R: r,
+    ERA: era, WHIP: whip, HR9: hr9, SO: so,
+    _ip: totalIP, _totPA: totalPA, _pitchingValid: proj._pitchingValid,
   };
 }
 
@@ -352,7 +535,9 @@ function buildStandings(teams) {
 // Returns: object keyed by player fgId-or-name →
 //   { projectedValue, actualSalary, surplus, sgp }
 
-function calculateAllValues(allTeamRosters) {
+// extraPlayers: optional array of FA players to value using the same rates.
+// They do NOT affect replacement levels or total SGP — keeping existing values calibrated.
+function calculateAllValues(allTeamRosters, extraPlayers) {
   // 1. Optimize lineup for each team
   const teamLineups = allTeamRosters.map(roster => {
     const hitters  = roster.filter(p => p.type === 'H');
@@ -366,7 +551,7 @@ function calculateAllValues(allTeamRosters) {
   // 2. SGP denominators from stdev of each category across all teams
   const sgpDenom = calcSGPDenoms(teamLineups.map(t => t.stats));
 
-  // 3. Track which players are starters
+  // 3. Track which players are starters (used for hitter replacement level only)
   const startingH = new Set();
   const startingP = new Set();
   teamLineups.forEach(t => {
@@ -382,34 +567,103 @@ function calculateAllValues(allTeamRosters) {
     s + t.pitPool.reduce((sp, p) => sp + ((p._proj && p._proj.ip) || (p.proj && p.proj.ip) || 0), 0), 0) / NUM_TEAMS;
 
   // 4. Position-specific replacement level
-  const replLevels = calcReplacementLevels(allTeamRosters, startingH, startingP);
+  const replLevels = calcReplacementLevels(allTeamRosters, startingP);
 
-  // 5. SGP per player
+  // 5. SGP per player — split into hitting and pitching pools
   const valueMap = {};
-  let totalSGP = 0;
-  const posSGPs = [];
+  const hitSGPs  = [];
+  const pitSGPs  = [];
+  let totalHitSGP = 0;
+  let totalPitSGP = 0;
 
   allTeamRosters.flat().forEach(player => {
     const key = player.fgId || player.name;
     if (valueMap[key]) return;
-    const b       = player.proj;
-    const replKey = getReplacementKey(player);
-    const repl    = replLevels[replKey];
-    if (!b || !repl) {
-      valueMap[key] = { sgp: 0, projectedValue: 0, actualSalary: player.salary || 0, surplus: -(player.salary || 0) };
+    const b = player.proj;
+
+    if (!b) {
+      console.warn('[Ottoneu] No projection matched for:', player.rawName || player.name,
+        '(salary $' + (player.salary || 0) + ', pos ' + (player.positions || []).join('/') + ')');
+      valueMap[key] = { sgp: 0, noProj: true, actualSalary: player.salary || 0, surplus: -(player.salary || 0) };
       return;
     }
-    const sgp = calcPlayerSGP(player, b, repl, sgpDenom, avgPA, avgIP);
+
+    let sgp;
+    if (player.type === 'P') {
+      const repl = replLevels['P'];
+      if (!repl) { valueMap[key] = { sgp: 0, actualSalary: player.salary || 0, surplus: -(player.salary || 0) }; return; }
+      sgp = calcPlayerSGP(player, b, repl, sgpDenom, avgPA, avgIP);
+    } else {
+      // Try every eligible position bucket; use the one that gives the best SGP.
+      // This correctly values multi-position players at their most scarce slot.
+      const eligibleKeys = getEligibleReplacementKeys(player);
+      let bestSGP = null;
+      for (const replKey of eligibleKeys) {
+        const repl = replLevels[replKey];
+        if (!repl) continue;
+        const s = calcPlayerSGP(player, b, repl, sgpDenom, avgPA, avgIP);
+        if (bestSGP === null || s > bestSGP) bestSGP = s;
+      }
+      sgp = bestSGP !== null ? bestSGP : 0;
+    }
+
     valueMap[key] = { sgp, actualSalary: player.salary || 0 };
-    if (sgp > 0) { totalSGP += sgp; posSGPs.push({ key, sgp }); }
+    if (sgp > 0) {
+      if (player.type === 'H') { totalHitSGP += sgp; hitSGPs.push({ key, sgp }); }
+      else                     { totalPitSGP += sgp; pitSGPs.push({ key, sgp }); }
+    }
   });
 
-  // 6. Normalize to $4,800
-  posSGPs.forEach(({ key, sgp }) => {
-    const val = totalSGP > 0 ? (sgp / totalSGP) * SALARY_POOL : 0;
+  // 6. Normalize to $4,800 with a hitting/pitching pool split.
+  // Hitting gets HIT_POOL_SHARE (65%) — hitting is scarcer and harder to replace.
+  const hitDollars = SALARY_POOL * HIT_POOL_SHARE;
+  const pitDollars = SALARY_POOL * (1 - HIT_POOL_SHARE);
+
+  const hitRate = totalHitSGP > 0 ? hitDollars / totalHitSGP : 0;
+  const pitRate = totalPitSGP > 0 ? pitDollars / totalPitSGP : 0;
+
+  hitSGPs.forEach(({ key, sgp }) => {
+    const val = sgp * hitRate;
     valueMap[key].projectedValue = Math.max(0, val);
     valueMap[key].surplus = valueMap[key].projectedValue - (valueMap[key].actualSalary || 0);
   });
+  pitSGPs.forEach(({ key, sgp }) => {
+    const val = sgp * pitRate;
+    valueMap[key].projectedValue = Math.max(0, val);
+    valueMap[key].surplus = valueMap[key].projectedValue - (valueMap[key].actualSalary || 0);
+  });
+
+  // Value extra (FA) players using the same $/SGP rates without affecting denominators.
+  if (extraPlayers && extraPlayers.length) {
+    extraPlayers.forEach(player => {
+      const key = player.fgId || player.name;
+      if (valueMap[key]) return;
+      const b = player.proj;
+      if (!b) {
+        valueMap[key] = { noProj: true, projectedValue: 0, actualSalary: 0, surplus: 0 };
+        return;
+      }
+      let sgp;
+      if (player.type === 'P') {
+        const repl = replLevels['P'];
+        if (!repl) { valueMap[key] = { projectedValue: 0, sgp: 0, actualSalary: 0, surplus: 0 }; return; }
+        sgp = calcPlayerSGP(player, b, repl, sgpDenom, avgPA, avgIP);
+      } else {
+        const eligibleKeys = getEligibleReplacementKeys(player);
+        let bestSGP = null;
+        for (const rk of eligibleKeys) {
+          const repl = replLevels[rk];
+          if (!repl) continue;
+          const s = calcPlayerSGP(player, b, repl, sgpDenom, avgPA, avgIP);
+          if (bestSGP === null || s > bestSGP) bestSGP = s;
+        }
+        sgp = bestSGP !== null ? bestSGP : 0;
+      }
+      const rate = player.type === 'P' ? pitRate : hitRate;
+      const projectedValue = Math.max(0, sgp * rate);
+      valueMap[key] = { sgp, projectedValue, actualSalary: 0, surplus: projectedValue };
+    });
+  }
 
   return valueMap;
 }
@@ -440,21 +694,63 @@ function getReplacementKey(player) {
   return 'UTIL';
 }
 
-function calcReplacementLevels(allTeamRosters, startingH, startingP) {
+// Returns all replacement-level buckets a hitter is eligible for.
+// Used to value multi-position players at their most scarce slot.
+function getEligibleReplacementKeys(player) {
+  if (player.type === 'P') return ['P'];
+  const pos = player.positions || [];
+  const keys = [];
+  if (pos.includes('c'))  keys.push('C');
+  if (pos.includes('ss')) keys.push('SS');
+  if (pos.includes('2b')) keys.push('2B');
+  if (pos.includes('3b')) keys.push('3B');
+  if (pos.includes('1b')) keys.push('1B');
+  if (pos.includes('of')) keys.push('OF');
+  return keys.length ? keys : ['UTIL'];
+}
+
+function calcReplacementLevels(allTeamRosters, startingP) {
   const groups = { C:[], SS:[], '2B':[], '3B':[], '1B':[], OF:[], UTIL:[], P:[] };
   allTeamRosters.flat().forEach(p => {
     const b = p.proj;
     if (!b) return;
     const pk  = getReplacementKey(p);
     const key = p.fgId || p.name;
-    const isStart = p.type === 'H' ? startingH.has(key) : startingP.has(key);
-    groups[pk].push({ b, isStart, v: valProxy(p, b) });
+    if (p.type === 'P') {
+      groups[pk].push({ b, isStart: startingP.has(key), v: valProxy(p, b) });
+    } else {
+      groups[pk].push({ b, v: valProxy(p, b) });
+    }
   });
+
   const result = {};
   Object.entries(groups).forEach(([pos, players]) => {
     const sorted = [...players].sort((a, b) => b.v - a.v);
-    const bench  = sorted.find(p => !p.isStart);
-    result[pos]  = bench ? bench.b : (sorted[sorted.length - 1] || { b: null }).b;
+
+    if (pos === 'P') {
+      // Simulate full-league IP budget to find true replacement pitcher.
+      // Avoids the fallback-to-worst-pitcher bug when all rostered arms fit under
+      // each team's individual cap but collectively exceed the league's budget.
+      const leagueBudget = IP_MAX * NUM_TEAMS;
+      let usedIP = 0;
+      let replPitcher = null;
+      for (const p of sorted) {
+        const ip = p.b.ip || 0;
+        if (usedIP + ip <= leagueBudget) {
+          usedIP += ip;
+        } else {
+          replPitcher = p;
+          break;
+        }
+      }
+      result[pos] = replPitcher ? replPitcher.b : (sorted[sorted.length - 1] || { b: null }).b;
+    } else {
+      // Use fixed active-roster depth: the player just beyond the expected number
+      // of active lineup slots league-wide. Accounts for 40-man rosters without
+      // treating waiver-wire dregs as the replacement.
+      const depth = REPL_DEPTH[pos] || 12;
+      result[pos] = (sorted[depth] || sorted[sorted.length - 1] || { b: null }).b;
+    }
   });
   return result;
 }

@@ -82,6 +82,7 @@
     <a href="fa.html">FA Finder</a>
   </nav>
 
+  <div id="loading" style="display:none;color:#666;font-size:.88rem;padding:8px 0">Loading league data…</div>
   <div id="error"></div>
   <div id="content" style="display:none">
 
@@ -123,7 +124,11 @@
 
   <script src="shared.js"></script>
   <script>
-  (function () {
+  (async function () {
+    document.getElementById('loading').style.display = '';
+    await autoLoadFromRepo();
+    document.getElementById('loading').style.display = 'none';
+
     var errEl   = document.getElementById('error');
     var content = document.getElementById('content');
 

@@ -47,6 +47,39 @@ function rosProrationFactor() {
   return (end - today) / (end - start);
 }
 
+// ── REPO AUTO-LOAD ───────────────────────────────────────────────────────────
+// Maps data/ filenames to localStorage keys and parser functions.
+// Matches the keys the rest of the app reads from localStorage.
+const REPO_FILES = [
+  { file: 'roster.csv',           key: 'ottoneu_roster',            parse: parseRosterCSV },
+  { file: 'proj_hitting.csv',     key: 'ottoneu_proj_hitting',      parse: parseHittingProjections },
+  { file: 'proj_pitching.csv',    key: 'ottoneu_proj_pitching',     parse: parsePitchingProjections },
+  { file: 'proj_hitting_y1.csv',  key: 'ottoneu_proj_hitting_y1',   parse: parseHittingProjections },
+  { file: 'proj_pitching_y1.csv', key: 'ottoneu_proj_pitching_y1',  parse: parsePitchingProjections },
+  { file: 'proj_hitting_y2.csv',  key: 'ottoneu_proj_hitting_y2',   parse: parseHittingProjections },
+  { file: 'proj_pitching_y2.csv', key: 'ottoneu_proj_pitching_y2',  parse: parsePitchingProjections },
+];
+
+// Fetches all data/ CSVs from the repo, parses them, and writes to localStorage.
+// Returns a status map: { 'roster.csv': true, 'proj_hitting.csv': false, ... }
+// Returns {} immediately on file:// so local dev is unaffected.
+async function autoLoadFromRepo() {
+  if (window.location.protocol === 'file:') return {};
+  const status = {};
+  await Promise.all(REPO_FILES.map(async function({ file, key, parse }) {
+    try {
+      const res = await fetch('./data/' + file);
+      if (!res.ok) { status[file] = false; return; }
+      const text = await res.text();
+      saveData(key, parse(text));
+      status[file] = true;
+    } catch (_) {
+      status[file] = false;
+    }
+  }));
+  return status;
+}
+
 // ── SECURITY HELPER ──────────────────────────────────────────────────────────
 // Escape user-supplied strings before inserting into innerHTML.
 function esc(str) {

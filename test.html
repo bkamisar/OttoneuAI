@@ -242,6 +242,23 @@
       assert(factor > 0.45 && factor < 0.75, 'rosProrationFactor: mid-May factor is reasonable (~0.55)');
     }
 
+    section('Repo Auto-Load');
+    assert(typeof REPO_FILES !== 'undefined', 'REPO_FILES: defined');
+    assert(Array.isArray(REPO_FILES), 'REPO_FILES: is an array');
+    assert(REPO_FILES.length === 7, 'REPO_FILES: has 7 entries');
+    REPO_FILES.forEach(function(entry, i) {
+      assert(typeof entry.file  === 'string',   'REPO_FILES[' + i + ']: has file string');
+      assert(typeof entry.key   === 'string',   'REPO_FILES[' + i + ']: has key string');
+      assert(typeof entry.parse === 'function', 'REPO_FILES[' + i + ']: has parse function');
+    });
+    assert(typeof autoLoadFromRepo === 'function', 'autoLoadFromRepo: defined as function');
+    var p = autoLoadFromRepo();
+    assert(p instanceof Promise, 'autoLoadFromRepo: returns a Promise');
+    assert(REPO_FILES[0].file === 'roster.csv',           'REPO_FILES[0]: roster.csv');
+    assert(REPO_FILES[1].file === 'proj_hitting.csv',     'REPO_FILES[1]: proj_hitting.csv');
+    assert(REPO_FILES[2].file === 'proj_pitching.csv',    'REPO_FILES[2]: proj_pitching.csv');
+    assert(REPO_FILES[3].file === 'proj_hitting_y1.csv',  'REPO_FILES[3]: proj_hitting_y1.csv');
+
     // ── Summary ──────────────────────────────────────────────────────────────
     const sumEl = document.getElementById('summary');
     sumEl.textContent = passed + ' passed, ' + failed + ' failed';

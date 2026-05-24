@@ -83,11 +83,14 @@ async function autoLoadFromRepo() {
 
 // ── PROSPECT PARSER ──────────────────────────────────────────────────────────
 function parseProspectsCSV(text) {
+  // FanGraphs exports the rank column with a multi-line quoted header
+  // ("Top 100\nRank in\nall baseball"). Collapse it before line-based parsing.
+  text = text.replace(/^"[\s\S]*?"/, 'Top100');
   return parseCSV(text).map(function(row) {
     const fv  = parseInt(row['FV'])      || 0;
     const name = (row['Name'] || '').trim();
     if (!name || !fv) return null;
-    const rankRaw = parseInt(row['Top 100']);
+    const rankRaw = parseInt(row['Top100']);
     return {
       name:    normalizeName(name),
       rawName: name,

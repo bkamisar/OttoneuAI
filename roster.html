@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Ottoneu Tools — Roster Analysis</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: system-ui, sans-serif; background: #f5f5f5; margin: 0; padding: 20px; color: #222; }
+    h1 { font-size: 1.3rem; margin-bottom: 4px; }
+    .nav { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+    .nav a { padding: 7px 14px; background: #1a73e8; color: #fff; border-radius: 6px; text-decoration: none; font-size: 0.88rem; }
+    .nav a.active { background: #1557b0; }
+    .section-title { font-size: 1rem; font-weight: 600; margin: 24px 0 12px; }
+    .error { background: #fce8e6; border-left: 4px solid #c62828; padding: 12px 16px; border-radius: 4px; margin-bottom: 16px; }
+    .error a { color: #c62828; }
+
+    .cat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    .cat-card { background: #fff; border-radius: 8px; padding: 14px 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+    .cat-card .cat-name { font-size: 0.78rem; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+    .cat-card .cat-rank { font-size: 1.5rem; font-weight: 700; }
+    .cat-card .cat-val  { font-size: 0.8rem; color: #999; margin-top: 2px; }
+    .cat-card.strong .cat-rank { color: #1e7e34; }
+    .cat-card.mid    .cat-rank { color: #e65100; }
+    .cat-card.weak   .cat-rank { color: #c62828; }
+
+    .tbl-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 10px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.1); font-size: 0.88rem; }
+    th { background: #1a73e8; color: #fff; padding: 10px; text-align: right; font-weight: 600; white-space: nowrap; }
+    th:first-child, th:nth-child(2), th:nth-child(3) { text-align: left; }
+    td { padding: 8px 10px; text-align: right; border-bottom: 1px solid #f0f0f0; }
+    td:first-child, td:nth-child(2), td:nth-child(3) { text-align: left; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #f8f8f8; }
+    .surplus-pos { color: #1e7e34; font-weight: 600; }
+    .surplus-neg { color: #c62828; font-weight: 600; }
+    .badge { display: inline-block; font-size: 0.72rem; padding: 1px 6px; border-radius: 10px; font-weight: 600; }
+    .badge-h  { background: #e8f0fe; color: #1a73e8; }
+    .badge-p  { background: #fce8e6; color: #c62828; }
+    .badge-sp { background: #e6f4ea; color: #1e7e34; margin-left: 3px; }
+    .badge-rp { background: #fff3e0; color: #e65100; margin-left: 3px; }
+
+    .title-row { display: flex; align-items: center; gap: 12px; margin: 24px 0 12px; }
+    .title-row .section-title { margin: 0; }
+    .view-toggle { display: inline-flex; border: 1px solid #ddd; border-radius: 6px; overflow: hidden; }
+    .view-toggle button { padding: 4px 13px; border: none; background: #fff; font-size: 0.8rem; cursor: pointer; color: #555; }
+    .view-toggle button.active { background: #1a73e8; color: #fff; }
+    .dynasty-val { color: #6a1b9a; font-weight: 600; }
+
+    @media (max-width: 600px) { .cat-grid { grid-template-columns: repeat(2, 1fr); } }
+  </style>
+</head>
+<body>
+  <h1>Roster Analysis</h1>
+  <nav class="nav">
+    <a href="index.html">Data Hub</a>
+    <a href="standings.html">Standings</a>
+    <a href="roster.html" class="active">Roster Analysis</a>
+    <a href="trade.html">Trade Evaluator</a>
+    <a href="fa.html">FA Finder</a>
+  </nav>
+
+  <div id="loading" style="display:none;color:#666;font-size:.88rem;padding:8px 0">Loading league data…</div>
+  <div id="error"></div>
+  <div id="content" style="display:none">
+    <div class="section-title" id="teamHeading"></div>
+
+    <div class="section-title">Category Standing</div>
+    <div class="cat-grid" id="catGrid"></div>
+
+    <div class="title-row">
+      <div class="section-title">Player Values</div>
+      <div class="view-toggle" id="viewToggle" style="display:none">
+        <button id="btnCurrent" class="active" onclick="setView('current')">Current Year</button>
+        <button id="btnDynasty" onclick="setView('dynasty')">Dynasty</button>
+      </div>
+    </div>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr id="tableHead"></tr></thead>
+        <tbody id="playerBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script src="shared.js"></script>
+  <script>
+    var activeView = 'current';
+    var cachedRows = [];
+    var hasDynasty = false;
+
+    function setView(v) {
+      activeView = v;
+      document.getElementById('btnCurrent').classList.toggle('active', v === 'current');
+      document.getElementById('btnDynasty').classList.toggle('active', v === 'dynasty');
+      renderTable();
+    }
+
+    function render() {
+      var errEl   = document.getElementById('error');
+      var content = document.getElementById('content');
+
+      var roster    = loadData('ottoneu_roster');
+      var projHit   = loadData('ottoneu_proj_hitting');
+      var projPitch = loadData('ottoneu_proj_pitching');
+      var myTeam    = loadData('ottoneu_my_team') || '';
+
+      function showErr(msg, linkText, linkHref) {
+        var d = document.createElement('div');
+        d.className = 'error';
+        d.textContent = msg + (linkText ? ' ' : '');
+        if (linkText) {
+          var a = document.createElement('a'); a.href = linkHref; a.textContent = linkText;
+          d.appendChild(a);
+        }
+        errEl.appendChild(d);
+      }
+
+      if (!roster || !projHit || !projPitch) { showErr('Missing data — upload CSVs on the', 'Data Hub.', 'index.html'); return; }
+      if (!myTeam) { showErr('Set your team on the', 'Data Hub.', 'index.html'); return; }
+
+      // Base match
+      var merged = matchPlayers(roster, projHit, projPitch);
+
+      // Attach future-year projections if available
+      var hitY1  = loadData('ottoneu_proj_hitting_y1');
+      var pitY1  = loadData('ottoneu_proj_pitching_y1');
+      var hitY2  = loadData('ottoneu_proj_hitting_y2');
+      var pitY2  = loadData('ottoneu_proj_pitching_y2');
+      if (hitY1 || pitY1) merged = attachYearProjections(merged, hitY1, pitY1, 'proj_y1');
+      if (hitY2 || pitY2) merged = attachYearProjections(merged, hitY2, pitY2, 'proj_y2');
+      hasDynasty = !!(hitY1 || pitY1 || hitY2 || pitY2);
+
+      var teamMap = {};
+      merged.forEach(function(p) {
+        if (!teamMap[p.team]) teamMap[p.team] = [];
+        teamMap[p.team].push(p);
+      });
+
+      var teamNames = Object.keys(teamMap).filter(function(t) { return t !== 'Free Agent'; });
+      if (!teamMap[myTeam]) { showErr('Team "' + myTeam + '" not found — re-select on the', 'Data Hub.', 'index.html'); return; }
+
+      // Standings for category ranks
+      var teamStatsArr = teamNames.map(function(name) {
+        var players = teamMap[name];
+        var lineup  = optimizeHitterLineup(players.filter(function(p) { return p.type === 'H'; }));
+        var pitPool = selectPitchers(players.filter(function(p) { return p.type === 'P'; }));
+        return { name: name, stats: computeTeamStats(lineup, pitPool) };
+      });
+      var standings  = buildStandings(teamStatsArr);
+      var myStanding = standings.find(function(t) { return t.name === myTeam; });
+      var n          = standings.length;
+
+      // Valuation — dynasty if future data loaded, otherwise current only
+      var allRosters = teamNames.map(function(name) { return teamMap[name]; });
+      var weights    = loadData('ottoneu_dynasty_weights') || { y1: 0.90, y2: 0.81 };
+      var valueMap   = hasDynasty
+        ? calculateDynastyValues(allRosters, weights)
+        : calculateAllValues(allRosters);
+
+      content.style.display = '';
+      document.getElementById('teamHeading').textContent = myTeam;
+      if (hasDynasty) document.getElementById('viewToggle').style.display = '';
+
+      // ── Category grid ───────────────────────────────────────────────────────
+      var grid = document.getElementById('catGrid');
+      while (grid.firstChild) grid.removeChild(grid.firstChild);
+      CATS.forEach(function(cat) {
+        var pts    = myStanding.ranks[cat] || 0;
+        var place  = n + 1 - pts;
+        var val    = myStanding.stats[cat] || 0;
+        var isRate = ['OBP','SLG','ERA','WHIP','HR9'].indexOf(cat) > -1;
+        var tier   = pts >= (n - 3) ? 'strong' : (pts >= Math.floor(n / 2) ? 'mid' : 'weak');
+        var card   = document.createElement('div');
+        card.className = 'cat-card ' + tier;
+        var nm = document.createElement('div'); nm.className = 'cat-name'; nm.textContent = cat;
+        var rk = document.createElement('div'); rk.className = 'cat-rank'; rk.textContent = ordinal(place) + ' of ' + n;
+        var vl = document.createElement('div'); vl.className = 'cat-val';  vl.textContent = isRate ? val.toFixed(3) : Math.round(val);
+        card.appendChild(nm); card.appendChild(rk); card.appendChild(vl);
+        grid.appendChild(card);
+      });
+
+      // Build row data once — render from cache on toggle
+      cachedRows = teamMap[myTeam].map(function(p) {
+        var key = p.fgId || p.name;
+        var vm  = valueMap[key] || {};
+        return {
+          p:              p,
+          salary:         p.salary || 0,
+          value:          vm.projectedValue || 0,
+          surplus:        vm.surplus !== undefined ? vm.surplus : -(p.salary || 0),
+          dynastyValue:   vm.dynastyValue   || 0,
+          dynastySurplus: vm.dynastySurplus !== undefined ? vm.dynastySurplus : -(p.salary || 0),
+          noProj:         !!vm.noProj,
+        };
+      });
+
+      renderTable();
+    }
+
+    function renderTable() {
+      var isDynasty = activeView === 'dynasty' && hasDynasty;
+
+      // Header
+      var head = document.getElementById('tableHead');
+      while (head.firstChild) head.removeChild(head.firstChild);
+      var headers = isDynasty
+        ? ['Name','Pos','Type','Salary','Dynasty $','Dyn. Surplus']
+        : ['Name','Pos','Type','Salary','Proj $','Surplus'];
+      headers.forEach(function(h) { var th = document.createElement('th'); th.textContent = h; head.appendChild(th); });
+
+      // Sort
+      var rows = cachedRows.slice().sort(function(a, b) {
+        return isDynasty
+          ? b.dynastySurplus - a.dynastySurplus
+          : b.surplus - a.surplus;
+      });
+
+      var tbody = document.getElementById('playerBody');
+      while (tbody.firstChild) tbody.removeChild(tbody.firstChild);
+
+      rows.forEach(function(row) {
+        var p  = row.p;
+        var tr = document.createElement('tr');
+
+        function td(text, cls) {
+          var cell = document.createElement('td');
+          cell.textContent = text;
+          if (cls) cell.className = cls;
+          return cell;
+        }
+
+        var badge = document.createElement('span');
+        badge.className   = 'badge ' + (p.type === 'P' ? 'badge-p' : 'badge-h');
+        badge.textContent = p.type;
+        var typeTd = document.createElement('td');
+        typeTd.appendChild(badge);
+        if (p.type === 'P' && p.proj && p.proj.role) {
+          var roleBadge = document.createElement('span');
+          roleBadge.className   = 'badge badge-' + p.proj.role.toLowerCase();
+          roleBadge.textContent = p.proj.role;
+          typeTd.appendChild(roleBadge);
+        }
+
+        tr.appendChild(td(p.rawName || p.name));
+        tr.appendChild(td(p.positions.map(function(x) { return x.toUpperCase(); }).join('/')));
+        tr.appendChild(typeTd);
+        tr.appendChild(td('$' + row.salary));
+
+        if (isDynasty) {
+          var dynVal  = row.dynastyValue;
+          var dynSurp = row.dynastySurplus;
+          var dynSurpTxt = (dynSurp >= 0 ? '+$' : '-$') + Math.abs(Math.round(dynSurp));
+          tr.appendChild(td(row.noProj ? '—' : '$' + Math.round(dynVal), 'dynasty-val'));
+          tr.appendChild(td(row.noProj ? 'No proj' : dynSurpTxt,
+            row.noProj ? '' : (dynSurp >= 0 ? 'surplus-pos' : 'surplus-neg')));
+        } else {
+          var surplusTxt = (row.surplus >= 0 ? '+$' : '-$') + Math.abs(Math.round(row.surplus));
+          tr.appendChild(td(row.noProj ? '—' : '$' + Math.round(row.value)));
+          tr.appendChild(td(row.noProj ? 'No proj' : surplusTxt,
+            row.noProj ? '' : (row.surplus >= 0 ? 'surplus-pos' : 'surplus-neg')));
+        }
+
+        tbody.appendChild(tr);
+      });
+    }
+
+    function ordinal(n) {
+      var s = ['th','st','nd','rd'], v = n % 100;
+      return n + (s[(v - 20) % 10] || s[v] || s[0]);
+    }
+
+    (async function() {
+      document.getElementById('loading').style.display = '';
+      await autoLoadFromRepo();
+      document.getElementById('loading').style.display = 'none';
+      render();
+    })();
+  </script>
+</body>
+</html>

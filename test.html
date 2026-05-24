@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Ottoneu Shared.js Tests</title>
+  <style>
+    body { font-family: monospace; padding: 20px; background: #1a1a1a; color: #ccc; }
+    .pass { color: #4caf50; }
+    .fail { color: #f44336; font-weight: bold; }
+    .section { margin-top: 20px; color: #90caf9; font-size: 1.1em; }
+    #summary { margin-top: 20px; font-size: 1.2em; }
+  </style>
+</head>
+<body>
+  <h2>shared.js Test Suite</h2>
+  <div id="output"></div>
+  <div id="summary"></div>
+  <script src="shared.js"></script>
+  <script>
+    let passed = 0, failed = 0;
+    const out = document.getElementById('output');
+
+    function section(name) {
+      const d = document.createElement('div');
+      d.className = 'section';
+      d.textContent = '── ' + name + ' ──';
+      out.appendChild(d);
+    }
+
+    function assert(condition, name, detail) {
+      const d = document.createElement('div');
+      if (condition) {
+        passed++;
+        d.className = 'pass';
+        d.textContent = '✓ ' + name;
+      } else {
+        failed++;
+        d.className = 'fail';
+        d.textContent = '✗ ' + name + (detail ? ': ' + detail : '');
+      }
+      out.appendChild(d);
+    }
+
+    function assertEqual(actual, expected, name) {
+      const ok = JSON.stringify(actual) === JSON.stringify(expected);
+      assert(ok, name, ok ? '' : 'got ' + JSON.stringify(actual) + ', want ' + JSON.stringify(expected));
+    }
+
+    // ── Tests ────────────────────────────────────────────────────────────────
+    section('Scaffold');
+    assert(typeof CATS !== 'undefined', 'CATS constant defined');
+    assert(CATS.length === 8, 'CATS has 8 categories');
+    assert(LOWER_BETTER.has('ERA'), 'ERA is lower-better');
+    assert(!LOWER_BETTER.has('HR'), 'HR is not lower-better');
+
+    section('esc()');
+    assertEqual(esc('<script>'), '&lt;script&gt;', 'esc: escapes angle brackets');
+    assertEqual(esc('"hello"'), '&quot;hello&quot;', 'esc: escapes quotes');
+    assertEqual(esc(null), '', 'esc: handles null');
+    assertEqual(esc(0), '0', 'esc: handles numeric zero');
+
+    section('CSV Parser');
+    const csvSample = 'Name,HR,OBP\n"Judge, Aaron",62,0.400\nTrout,40,0.390';
+    const csvRows = parseCSV(csvSample);
+    assertEqual(csvRows.length, 2, 'parseCSV: correct row count');
+    assertEqual(csvRows[0]['Name'], 'Judge, Aaron', 'parseCSV: handles quoted commas');
+    assertEqual(csvRows[0]['HR'], '62', 'parseCSV: reads numeric field as string');
+    assertEqual(csvRows[1]['OBP'], '0.390', 'parseCSV: reads last field');
+
+    section('localStorage');
+    saveData('_test_key', { x: 42 });
+    assertEqual(loadData('_test_key'), { x: 42 }, 'saveData/loadData roundtrip');
+    localStorage.removeItem('_test_key');
+    assertEqual(loadData('_test_key'), null, 'loadData returns null for missing key');
+
+    section('Roster Parser');
+    const rosterCSV =
+      'FG MajorLeagueID,Name,Position(s),Salary,Team Name\n' +
+      '12345,Aaron Judge,OF,$36,My Team\n' +
+      '67890,Shohei Ohtani,DH/OF,$75,Other Team\n' +
+      '11111,Gerrit Cole,SP,$40,My Team\n' +
+      ',Unknown Player,1B,$1,';
+
+    const roster = parseRosterCSV(rosterCSV);
+    assertEqual(roster.length, 4, 'parseRosterCSV: row count');
+    assertEqual(roster[0].fgId, '12345', 'parseRosterCSV: fgId');
+    assertEqual(roster[0].salary, 36, 'parseRosterCSV: strips $ from salary');
+    assertEqual(roster[0].type, 'H', 'parseRosterCSV: hitter type');
+    assertEqual(roster[2].type, 'P', 'parseRosterCSV: pitcher type');
+    assertEqual(roster[1].positions, ['dh','of'], 'parseRosterCSV: splits positions');
+    assertEqual(roster[3].team, 'Free Agent', 'parseRosterCSV: blank team → Free Agent');
+    assertEqual(normalizeName('José Ramírez'), 'jose ramirez', 'normalizeName: strips accents');
+
+    section('Projection Parsers');
+    const hitProjCSV =
+      'playerid,Name,Team,PA,AB,H,BB,HBP,HR,R,OBP,SLG\n' +
+      '12345,Aaron Judge,NYY,600,520,150,90,5,55,110,0.400,0.580\n' +
+      '00000,Zero PA Guy,AAA,0,0,0,0,0,0,0,0,0';
+
+    const hitProj = parseHittingProjections(hitProjCSV);
+    assertEqual(hitProj.length, 1, 'parseHittingProjections: filters zero-PA rows');
+    assertEqual(hitProj[0].proj.hr, 55, 'parseHittingProjections: HR');
+    assertEqual(hitProj[0].proj.obp, 0.400, 'parseHittingProjections: OBP');
+    assertEqual(hitProj[0].type, 'H', 'parseHittingProjections: type is H');
+
+    const pitProjCSV =
+      'playerid,Name,Team,IP,H,BB,HR,SO,ERA,WHIP,HR/9\n' +
+      '99999,Gerrit Cole,NYY,200,160,40,20,240,3.00,1.00,0.90';
+
+    const pitProj = parsePitchingProjections(pitProjCSV);
+    assertEqual(pitProj.length, 1, 'parsePitchingProjections: row count');
+    assertEqual(pitProj[0].proj.ip, 200, 'parsePitchingProjections: IP');
+    assertEqual(pitProj[0].proj.so, 240, 'parsePitchingProjections: SO');
+    assert(Math.abs(pitProj[0].proj.er - 200 * 3.00 / 9) < 0.01,
+      'parsePitchingProjections: derived ER');
+
+    const pitProjNoHR9CSV =
+      'playerid,Name,Team,IP,H,BB,HR,SO,ERA,WHIP,HR/9\n' +
+      '88888,No HR9 Pitcher,NYY,180,160,50,18,200,3.50,1.10,0';
+    const pitProjNoHR9 = parsePitchingProjections(pitProjNoHR9CSV);
+    assert(Math.abs(pitProjNoHR9[0].proj.hr9 - (18 * 9 / 180)) < 0.001,
+      'parsePitchingProjections: derives HR/9 when column is zero');
+
+    section('Player Matching');
+    const rPlayers = [
+      { fgId: '111', name: 'mike trout',    rawName: 'Mike Trout',    type: 'H', positions: ['of'], salary: 30, team: 'My Team' },
+      { fgId: '',    name: 'nolan arenado', rawName: 'Nolan Arenado', type: 'H', positions: ['3b'], salary: 20, team: 'Other'   },
+    ];
+    const hProj = [
+      { fgId: '111', name: 'mike trout',    type: 'H', proj: { pa:550, ab:490, h:140, bb:85, hbp:5, hr:35, r:100, obp:0.420, slg:0.580 } },
+      { fgId: '222', name: 'nolan arenado', type: 'H', proj: { pa:580, ab:530, h:160, bb:45, hbp:3, hr:28, r:85,  obp:0.350, slg:0.510 } },
+    ];
+    const matched = matchPlayers(rPlayers, hProj, []);
+    assertEqual(matched[0].proj.hr, 35, 'matchPlayers: matches by fgId');
+    assertEqual(matched[1].proj.hr, 28, 'matchPlayers: falls back to name match');
+    assertEqual(matched[0].team, 'My Team', 'matchPlayers: preserves roster fields');
+    assertEqual(matched[0].salary, 30, 'matchPlayers: preserves salary');
+
+    section('Lineup Optimizer');
+    function mkH(name, positions, pa, obp, slg) {
+      const proj = { pa, ab: pa*0.88, h: pa*0.25, bb: pa*0.10, hbp: pa*0.01, hr: pa*0.05, r: pa*0.14, obp, slg };
+      return { fgId: name, name, rawName: name, type: 'H', positions, proj, stats: null, salary: 10, team: 'T' };
+    }
+    const testHitters = [
+      mkH('catcher',   ['c'],       400, 0.330, 0.460),
+      mkH('firstbase', ['1b'],      550, 0.360, 0.520),
+      mkH('second',    ['2b'],      520, 0.340, 0.470),
+      mkH('short',     ['ss'],      510, 0.345, 0.465),
+      mkH('third',     ['3b'],      540, 0.350, 0.500),
+      mkH('midual',    ['2b','ss'], 580, 0.370, 0.530),
+      mkH('of1',       ['of'],      600, 0.400, 0.600),
+      mkH('of2',       ['of'],      590, 0.390, 0.580),
+      mkH('of3',       ['of'],      570, 0.380, 0.560),
+      mkH('of4',       ['of'],      560, 0.375, 0.550),
+      mkH('of5',       ['of'],      550, 0.365, 0.540),
+      mkH('dh',        ['dh'],      530, 0.355, 0.495),
+    ];
+    const lu = optimizeHitterLineup(testHitters);
+    assert(lu['C']  && lu['C'].name  === 'catcher',  'optimizer: C assigned to catcher');
+    assert(lu['1B'] && lu['1B'].name === 'firstbase', 'optimizer: 1B assigned');
+    assert(lu['MI'] !== undefined,                    'optimizer: MI slot filled');
+    assert(lu['MI'].positions.includes('2b') || lu['MI'].positions.includes('ss'),
+      'optimizer: MI player is MI-eligible');
+    assert(['OF1','OF2','OF3','OF4','OF5'].every(s => lu[s]), 'optimizer: all 5 OF slots filled');
+    assert(lu['UTIL'] !== undefined, 'optimizer: UTIL filled');
+    const names = Object.values(lu).map(p => p.name);
+    assertEqual(names.length, new Set(names).size, 'optimizer: no duplicate assignments');
+
+    section('Scoring Engine');
+    function mkSH(name, pa, obp, slg, hr, r) {
+      const proj = { pa, ab: pa*0.88, obp, slg, hr, r };
+      return { fgId: name, name, type: 'H', positions: ['of'], proj, salary: 0, team: 'T' };
+    }
+    function mkSP(name, ip, era, whip, hr9, so) {
+      const proj = { ip, era, whip, hr9, so };
+      return { fgId: name, name, type: 'P', positions: ['sp'], proj, salary: 0, team: 'T' };
+    }
+    const testLineup   = { OF1: mkSH('h1',600,0.380,0.540,35,95), OF2: mkSH('h2',550,0.360,0.500,25,80) };
+    const testPitchers = [ mkSP('p1',800,3.20,1.10,1.00,220), mkSP('p2',700,3.80,1.20,1.20,180) ];
+    const ts = computeTeamStats(testLineup, testPitchers);
+    assert(ts._pitchingValid, 'scoring: pitching valid when IP >= 1250');
+    assertEqual(ts.HR, 60, 'scoring: HR sums correctly');
+    assertEqual(ts.R,  175, 'scoring: R sums correctly');
+    assert(ts.OBP > 0.36 && ts.OBP < 0.38, 'scoring: OBP is weighted average');
+
+    const teams2 = [
+      { name: 'A', stats: { OBP:0.380, SLG:0.540, HR:200, R:900, ERA:3.50, WHIP:1.20, HR9:1.10, SO:1400 } },
+      { name: 'B', stats: { OBP:0.360, SLG:0.510, HR:180, R:850, ERA:4.00, WHIP:1.30, HR9:1.30, SO:1300 } },
+    ];
+    const standings = buildStandings(teams2);
+    assertEqual(standings[0].name, 'A', 'standings: better team ranks first');
+    assert(standings[0].ranks['ERA'] > standings[1].ranks['ERA'],
+      'standings: lower ERA gets higher points');
+
+    section('Valuation Model');
+    function mkFull(id, name, type, pos, proj, salary, team) {
+      return { fgId: id, name, rawName: name, type, positions: pos, salary, team, proj, stats: null };
+    }
+    function padPitchers(arr, teamName) {
+      for (let i = arr.length; i < 10; i++)
+        arr.push(mkFull(teamName+'p'+i, teamName+'p'+i, 'P', ['sp'],
+          { ip:100, h:95, bb:35, hr:10, so:110, era:3.60, whip:1.30, hr9:0.90, er:40 }, 4, teamName));
+    }
+    const t1 = [
+      mkFull('s1','star','H',['of'],{ pa:600,ab:540,h:162,bb:70,hbp:5,hr:45,r:110,obp:0.420,slg:0.600 },30,'T1'),
+      mkFull('w1','weak','H',['ss'],{ pa:460,ab:415,h:110,bb:35,hbp:2,hr:10,r:55, obp:0.310,slg:0.400 },5, 'T1'),
+      mkFull('p1','ace', 'P',['sp'],{ ip:220,h:170,bb:45,hr:18,so:260,era:2.90,whip:0.98,hr9:0.74,er:71 },30,'T1'),
+    ];
+    const t2 = [
+      mkFull('s2','avg', 'H',['of'],{ pa:500,ab:450,h:125,bb:45,hbp:4,hr:18,r:65, obp:0.340,slg:0.450 },8, 'T2'),
+      mkFull('w2','poor','H',['c'], { pa:350,ab:315,h:80, bb:25,hbp:2,hr:8, r:35, obp:0.290,slg:0.370 },4, 'T2'),
+      mkFull('p2','mid', 'P',['sp'],{ ip:160,h:170,bb:60,hr:25,so:155,era:4.20,whip:1.44,hr9:1.41,er:75 },10,'T2'),
+    ];
+    padPitchers(t1, 'T1');
+    padPitchers(t2, 'T2');
+
+    const vm = calculateAllValues([t1, t2]);
+    assert(vm['s1'] !== undefined, 'valuation: star hitter has entry');
+    assert((vm['s1'].projectedValue || 0) > (vm['w2'].projectedValue || 0),
+      'valuation: star hitter valued above poor hitter');
+    assert(vm['s1'].surplus < vm['s1'].projectedValue, 'valuation: surplus = value - salary');
+
+    // Dynamic H/P split: when pitching is invalid (low IP), all dollars go to hitters.
+    // Use distinct player keys per team so replacement level is set by the weaker team.
+    const dStar = mkFull('dStar','dstar','H',['of'],{ pa:600,ab:540,h:162,bb:70,hbp:5,hr:45,r:110,obp:0.420,slg:0.600 },0,'D1');
+    const dRepl = mkFull('dRepl','drepl','H',['of'],{ pa:300,ab:270,h:67, bb:25,hbp:2,hr:8, r:35, obp:0.310,slg:0.380 },0,'D2');
+    const dPit1 = mkFull('dPit1','dpit1','P',['sp'],{ ip:1000,h:800,bb:250,hr:80,so:600,era:4.24,whip:1.28,hr9:1.15,er:471 },0,'D1');
+    const dPit2 = mkFull('dPit2','dpit2','P',['sp'],{ ip:1000,h:800,bb:250,hr:80,so:600,era:4.24,whip:1.28,hr9:1.15,er:471 },0,'D2');
+    const vmDynamic = calculateAllValues([[dStar, dPit1], [dRepl, dPit2]]);
+    assert(typeof vmDynamic !== 'undefined', 'dynamic split: calculateAllValues returns a value map');
+    // Pitching is invalid (1000 IP < IP_MIN 1250) so all dollars go to hitters.
+    // Star should have positive value above the weaker replacement-level OF.
+    assert((vmDynamic['dStar'] || {}).projectedValue > 0, 'dynamic split: star hitter has positive value when pitching SGP is zero');
+
+    section('Proration');
+    const factor = rosProrationFactor();
+    assert(factor >= 0 && factor <= 1, 'rosProrationFactor: returns value between 0 and 1');
+    const today2 = new Date();
+    const mayStart = new Date(today2.getFullYear(), 4, 1);
+    const mayEnd   = new Date(today2.getFullYear(), 4, 31);
+    if (today2 >= mayStart && today2 <= mayEnd) {
+      assert(factor > 0.45 && factor < 0.75, 'rosProrationFactor: mid-May factor is reasonable (~0.55)');
+    }
+
+    section('Repo Auto-Load');
+    assert(typeof REPO_FILES !== 'undefined', 'REPO_FILES: defined');
+    assert(Array.isArray(REPO_FILES), 'REPO_FILES: is an array');
+    assert(REPO_FILES.length === 7, 'REPO_FILES: has 7 entries');
+    REPO_FILES.forEach(function(entry, i) {
+      assert(typeof entry.file  === 'string',   'REPO_FILES[' + i + ']: has file string');
+      assert(typeof entry.key   === 'string',   'REPO_FILES[' + i + ']: has key string');
+      assert(typeof entry.parse === 'function', 'REPO_FILES[' + i + ']: has parse function');
+    });
+    assert(typeof autoLoadFromRepo === 'function', 'autoLoadFromRepo: defined as function');
+    var p = autoLoadFromRepo();
+    assert(p instanceof Promise, 'autoLoadFromRepo: returns a Promise');
+    assert(REPO_FILES[0].file === 'roster.csv',           'REPO_FILES[0]: roster.csv');
+    assert(REPO_FILES[1].file === 'proj_hitting.csv',     'REPO_FILES[1]: proj_hitting.csv');
+    assert(REPO_FILES[2].file === 'proj_pitching.csv',    'REPO_FILES[2]: proj_pitching.csv');
+    assert(REPO_FILES[3].file === 'proj_hitting_y1.csv',  'REPO_FILES[3]: proj_hitting_y1.csv');
+
+    // ── Summary ──────────────────────────────────────────────────────────────
+    const sumEl = document.getElementById('summary');
+    sumEl.textContent = passed + ' passed, ' + failed + ' failed';
+    sumEl.style.color = failed === 0 ? '#4caf50' : '#f44336';
+  </script>
+</body>
+</html>

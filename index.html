@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Ottoneu Tools — Data Hub</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: system-ui, sans-serif; background: #f5f5f5; margin: 0; padding: 20px; color: #222; }
+    h1 { font-size: 1.4rem; margin-bottom: 4px; }
+    .subtitle { color: #666; font-size: 0.9rem; margin-bottom: 24px; }
+    .nav { display: flex; gap: 12px; margin-bottom: 28px; flex-wrap: wrap; }
+    .nav a { padding: 8px 16px; background: #1a73e8; color: #fff; border-radius: 6px; text-decoration: none; font-size: 0.9rem; }
+    .nav a:hover { background: #1557b0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+    .card { background: #fff; border-radius: 10px; padding: 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+    .card h2 { font-size: 1rem; margin: 0 0 4px; }
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; margin-bottom: 12px; }
+    .badge.loaded   { background: #e6f4ea; color: #1e7e34; }
+    .badge.missing  { background: #fce8e6; color: #c62828; }
+    .badge.optional { background: #e8f0fe; color: #1a73e8; }
+    .card label { display: block; font-size: 0.85rem; color: #555; margin-bottom: 6px; }
+    .card input[type=file] { width: 100%; font-size: 0.85rem; }
+    .meta { font-size: 0.78rem; color: #888; margin-top: 6px; min-height: 18px; }
+    .section-title { font-size: 1rem; font-weight: 600; margin: 28px 0 12px; }
+    .il-add { display: flex; gap: 8px; margin-bottom: 8px; }
+    .il-add input  { flex: 1; padding: 6px 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.85rem; }
+    .il-add select { padding: 6px 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.85rem; }
+    .il-add button { background: #1a73e8; color: #fff; border: none; border-radius: 4px; padding: 6px 14px; cursor: pointer; font-size: 0.85rem; }
+    .il-row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+    .il-row .il-name { flex: 1; font-size: 0.9rem; }
+    .il-row .il-type { font-size: 0.82rem; color: #555; }
+    .il-row button { background: #f44336; color: #fff; border: none; border-radius: 4px; padding: 4px 10px; cursor: pointer; font-size: 0.82rem; }
+    .il-empty { color: #999; font-size: 0.85rem; }
+    .team-row { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+    .team-row select { padding: 6px 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.9rem; }
+    .clear-btn { margin-top: 28px; padding: 8px 18px; background: #f5f5f5; border: 1px solid #ccc; border-radius: 6px; cursor: pointer; font-size: 0.85rem; color: #555; }
+    .clear-btn:hover { background: #ffe0e0; border-color: #f44336; color: #f44336; }
+    .weights-card { background: #fff; border-radius: 10px; padding: 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.1); margin-top: 16px; }
+    .weights-card h2 { font-size: 1rem; margin: 0 0 4px; }
+    .weights-card p { font-size: 0.82rem; color: #888; margin: 0 0 14px; }
+    .weights-row { display: flex; gap: 20px; align-items: flex-end; flex-wrap: wrap; }
+    .weights-field { display: flex; flex-direction: column; gap: 4px; }
+    .weights-field label { font-size: 0.82rem; color: #555; }
+    .weights-field input { width: 90px; padding: 6px 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.9rem; }
+    .weights-save { padding: 7px 18px; background: #1a73e8; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem; }
+    .weights-save:hover { background: #1557b0; }
+    .toast { position: fixed; bottom: 24px; right: 24px; background: #333; color: #fff; padding: 10px 18px; border-radius: 8px; font-size: 0.9rem; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
+    .toast.show { opacity: 1; }
+    .status-list { background:#fff; border-radius:8px; padding:12px 16px; box-shadow:0 1px 4px rgba(0,0,0,.1); display:flex; flex-direction:column; gap:8px; }
+    .status-row  { display:flex; align-items:center; gap:12px; font-size:.88rem; }
+    .status-fname { font-family:monospace; color:#333; min-width:210px; display:inline-block; }
+    .status-badge-ok  { background:#e6f4ea; color:#1e7e34; padding:2px 8px; border-radius:12px; font-size:.75rem; font-weight:600; }
+    .status-badge-err { background:#fce8e6; color:#c62828; padding:2px 8px; border-radius:12px; font-size:.75rem; font-weight:600; }
+    .status-badge-opt { background:#f5f5f5; color:#999;    padding:2px 8px; border-radius:12px; font-size:.75rem; font-weight:600; }
+  </style>
+</head>
+<body>
+  <h1>Ottoneu 4×4 Tools</h1>
+  <p class="subtitle">Upload your data once — all tools share it automatically.</p>
+
+  <nav class="nav">
+    <a href="standings.html">Standings</a>
+    <a href="roster.html">Roster Analysis</a>
+    <a href="trade.html">Trade Evaluator</a>
+    <a href="fa.html">FA Finder</a>
+  </nav>
+
+  <div id="repoLoading" style="display:none;color:#666;font-size:.88rem;padding:4px 0 12px">Loading league data from repo…</div>
+
+  <div class="section-title">My Team</div>
+  <div class="team-row">
+    <label for="teamSelect" style="font-size:0.9rem">Your team:</label>
+    <select id="teamSelect"><option value="">— load roster CSV first —</option></select>
+  </div>
+
+  <div class="section-title">Data Files</div>
+  <div class="grid" id="csvGrid"></div>
+
+  <div id="repoStatusSection" style="display:none">
+    <div class="section-title">Repo Data Status <span style="font-weight:400;color:#888;font-size:.85rem">— files loaded automatically from GitHub</span></div>
+    <div id="repoStatusList" class="status-list"></div>
+  </div>
+
+  <div class="section-title">Current Standings <span style="font-weight:400;color:#888;font-size:0.85rem">— optional, enables Rest of Season mode on Standings page</span></div>
+  <div class="grid">
+    <div class="card">
+      <h2>Current Standings CSV</h2>
+      <span class="badge" id="currBadge">Optional</span>
+      <label>Columns: Team, Games, R, HR, OBP, SLG, IP, K, HR/9, ERA, WHIP</label>
+      <input type="file" accept=".csv" id="currFile">
+      <div class="meta" id="currMeta">Not loaded</div>
+    </div>
+  </div>
+
+  <div class="section-title">Dynasty Settings</div>
+  <div class="weights-card">
+    <h2>Future Year Discount Weights</h2>
+    <p>Used when Y+1 / Y+2 projection CSVs are loaded. Based on a ~10% annual discount rate (MLB front-office benchmark). Adjust to taste.</p>
+    <div class="weights-row">
+      <div class="weights-field">
+        <label>Y+1 weight (default 0.90)</label>
+        <input type="number" id="weightY1" min="0" max="1" step="0.01" value="0.90">
+      </div>
+      <div class="weights-field">
+        <label>Y+2 weight (default 0.81)</label>
+        <input type="number" id="weightY2" min="0" max="1" step="0.01" value="0.81">
+      </div>
+      <button class="weights-save" onclick="saveWeights()">Save</button>
+    </div>
+  </div>
+
+  <button class="clear-btn" onclick="clearAll()">Clear all data</button>
+  <div class="toast" id="toast"></div>
+
+  <script src="shared.js"></script>
+  <script>
+    var STATUS_FILES = [
+      { file: 'roster.csv',           required: true  },
+      { file: 'proj_hitting.csv',     required: true  },
+      { file: 'proj_pitching.csv',    required: true  },
+      { file: 'proj_hitting_y1.csv',  required: false },
+      { file: 'proj_pitching_y1.csv', required: false },
+      { file: 'proj_hitting_y2.csv',  required: false },
+      { file: 'proj_pitching_y2.csv', required: false },
+    ];
+
+    function renderDataStatus(status) {
+      if (!status || Object.keys(status).length === 0) return;
+      var section = document.getElementById('repoStatusSection');
+      var list    = document.getElementById('repoStatusList');
+      section.style.display = '';
+      while (list.firstChild) list.removeChild(list.firstChild);
+      STATUS_FILES.forEach(function(f) {
+        var loaded = status[f.file];
+        var row    = document.createElement('div');
+        row.className = 'status-row';
+        var icon = document.createElement('span');
+        icon.textContent = loaded ? '✅' : (f.required ? '⚠️' : '○');
+        icon.style.minWidth = '24px';
+        var fname = document.createElement('code');
+        fname.className   = 'status-fname';
+        fname.textContent = f.file;
+        var badge = document.createElement('span');
+        badge.className   = loaded ? 'status-badge-ok' : (f.required ? 'status-badge-err' : 'status-badge-opt');
+        badge.textContent = loaded ? 'LOADED' : 'NOT DETECTED';
+        row.appendChild(icon);
+        row.appendChild(fname);
+        row.appendChild(badge);
+        list.appendChild(row);
+      });
+    }
+
+    const CSV_CONFIGS = [
+      { key: 'ottoneu_roster',           label: 'Ottoneu Roster',              required: true,  parse: parseRosterCSV },
+      { key: 'ottoneu_proj_hitting',     label: 'Hitting Projections (Y0)',    required: true,  parse: parseHittingProjections },
+      { key: 'ottoneu_proj_pitching',    label: 'Pitching Projections (Y0)',   required: true,  parse: parsePitchingProjections },
+      { key: 'ottoneu_proj_hitting_y1',  label: 'Hitting Projections (Y+1)',   required: false, parse: parseHittingProjections },
+      { key: 'ottoneu_proj_pitching_y1', label: 'Pitching Projections (Y+1)', required: false, parse: parsePitchingProjections },
+      { key: 'ottoneu_proj_hitting_y2',  label: 'Hitting Projections (Y+2)',   required: false, parse: parseHittingProjections },
+      { key: 'ottoneu_proj_pitching_y2', label: 'Pitching Projections (Y+2)', required: false, parse: parsePitchingProjections },
+    ];
+
+    function buildGrid() {
+      const grid = document.getElementById('csvGrid');
+      while (grid.firstChild) grid.removeChild(grid.firstChild);
+
+      CSV_CONFIGS.forEach((cfg, idx) => {
+        const stored    = loadData(cfg.key);
+        const count     = stored ? stored.length : 0;
+        const statusCls = stored ? 'loaded' : (cfg.required ? 'missing' : 'optional');
+        const statusTxt = stored ? '\u2713 ' + count + ' players' : (cfg.required ? 'Required' : 'Optional');
+        const ts        = loadData(cfg.key + '_ts');
+        const metaTxt   = stored && ts
+          ? 'Loaded ' + new Date(ts).toLocaleString()
+          : (stored ? 'Loaded' : 'Not loaded');
+
+        const card = document.createElement('div');
+        card.className = 'card';
+
+        const h2 = document.createElement('h2');
+        h2.textContent = cfg.label;
+
+        const badge = document.createElement('span');
+        badge.className = 'badge ' + statusCls;
+        badge.textContent = statusTxt;
+
+        const lbl = document.createElement('label');
+        lbl.textContent = 'Upload CSV:';
+
+        const input = document.createElement('input');
+        input.type   = 'file';
+        input.accept = '.csv';
+        input.addEventListener('change', function(e) { handleFile(e, cfg.key, idx); });
+
+        const meta = document.createElement('div');
+        meta.className   = 'meta';
+        meta.id          = 'meta_' + cfg.key;
+        meta.textContent = metaTxt;
+
+        card.appendChild(h2);
+        card.appendChild(badge);
+        card.appendChild(lbl);
+        card.appendChild(input);
+        card.appendChild(meta);
+        grid.appendChild(card);
+      });
+    }
+
+    function handleFile(event, key, cfgIdx) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const parsed = CSV_CONFIGS[cfgIdx].parse(e.target.result);
+          saveData(key, parsed);
+          saveData(key + '_ts', Date.now());
+          showToast('Loaded ' + parsed.length + ' rows from ' + file.name);
+          buildGrid();
+          if (key === 'ottoneu_roster') rebuildTeamDropdown(parsed);
+        } catch (err) {
+          showToast('Error parsing file: ' + err.message);
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function rebuildTeamDropdown(rosterPlayers) {
+      const teams = Array.from(new Set(
+        rosterPlayers.map(p => p.team).filter(t => t && t !== 'Free Agent')
+      )).sort();
+      const sel   = document.getElementById('teamSelect');
+      const saved = loadData('ottoneu_my_team') || '';
+      while (sel.firstChild) sel.removeChild(sel.firstChild);
+      const def = document.createElement('option');
+      def.value       = '';
+      def.textContent = '— select your team —';
+      sel.appendChild(def);
+      teams.forEach(t => {
+        const opt = document.createElement('option');
+        opt.value       = t;
+        opt.textContent = t;
+        if (t === saved) opt.selected = true;
+        sel.appendChild(opt);
+      });
+
+    }
+
+    document.getElementById('teamSelect').addEventListener('change', function() {
+      saveData('ottoneu_my_team', this.value);
+      showToast('My team set to: ' + this.value);
+    });
+
+    function clearAll() {
+      if (!confirm('Clear all loaded data?')) return;
+      clearAllData();
+      buildGrid();
+      const sel = document.getElementById('teamSelect');
+      while (sel.firstChild) sel.removeChild(sel.firstChild);
+      const def = document.createElement('option');
+      def.value       = '';
+      def.textContent = '— load roster CSV first —';
+      sel.appendChild(def);
+      showToast('All data cleared');
+    }
+
+    // ── Current standings upload ───────────────────────────────────────────────
+    (function initCurrStandings() {
+      const stored = loadData('ottoneu_curr_standings');
+      if (stored) {
+        document.getElementById('currBadge').className = 'badge loaded';
+        document.getElementById('currBadge').textContent = '✓ ' + stored.length + ' teams';
+        const ts = loadData('ottoneu_curr_standings_ts');
+        document.getElementById('currMeta').textContent = ts
+          ? 'Loaded ' + new Date(ts).toLocaleString() : 'Loaded';
+      } else {
+        document.getElementById('currBadge').className = 'badge optional';
+      }
+    })();
+
+    document.getElementById('currFile').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(ev) {
+        try {
+          const parsed = parseCurrStandings(ev.target.result);
+          if (!parsed.length) throw new Error('No rows parsed — check column headers.');
+          saveData('ottoneu_curr_standings', parsed);
+          saveData('ottoneu_curr_standings_ts', Date.now());
+          document.getElementById('currBadge').className = 'badge loaded';
+          document.getElementById('currBadge').textContent = '✓ ' + parsed.length + ' teams';
+          document.getElementById('currMeta').textContent = 'Loaded ' + new Date().toLocaleString();
+          showToast('Current standings loaded: ' + parsed.length + ' teams');
+        } catch (err) {
+          showToast('Error: ' + err.message);
+        }
+      };
+      reader.readAsText(file);
+    });
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2800);
+    }
+
+    function saveWeights() {
+      const y1 = parseFloat(document.getElementById('weightY1').value) || 0.90;
+      const y2 = parseFloat(document.getElementById('weightY2').value) || 0.81;
+      saveData('ottoneu_dynasty_weights', { y1, y2 });
+      showToast('Dynasty weights saved (' + y1.toFixed(2) + ' / ' + y2.toFixed(2) + ')');
+    }
+
+    // Pre-fill weight inputs from saved values
+    (function loadWeights() {
+      const w = loadData('ottoneu_dynasty_weights');
+      if (w) {
+        document.getElementById('weightY1').value = w.y1 != null ? w.y1 : 0.90;
+        document.getElementById('weightY2').value = w.y2 != null ? w.y2 : 0.81;
+      }
+    })();
+
+    (async function() {
+      document.getElementById('repoLoading').style.display = '';
+      var status = await autoLoadFromRepo();
+      document.getElementById('repoLoading').style.display = 'none';
+      buildGrid();
+      var savedRoster = loadData('ottoneu_roster');
+      if (savedRoster) rebuildTeamDropdown(savedRoster);
+      renderDataStatus(status);
+    })();
+  </script>
+</body>
+</html>

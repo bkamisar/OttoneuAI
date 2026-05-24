@@ -30,7 +30,17 @@
     td { padding: 8px 10px; text-align: right; border-bottom: 1px solid #f0f0f0; }
     td:first-child, td:nth-child(2), td:nth-child(3) { text-align: left; }
     tr:last-child td { border-bottom: none; }
-    tr:hover td { background: #f8f8f8; }
+    .player-row { cursor: pointer; }
+    .player-row:hover td { background: #f0f4ff; }
+    .detail-row td { background: #f0f4ff; padding: 10px 16px; border-bottom: 1px solid #dce6ff; }
+    .detail-card { display: flex; gap: 28px; flex-wrap: wrap; align-items: flex-start; }
+    .detail-section { min-width: 130px; }
+    .detail-section h4 { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; color: #999; margin: 0 0 6px; font-weight: 700; }
+    .detail-stat-grid { display: grid; grid-template-columns: auto auto; gap: 2px 12px; font-size: 0.82rem; }
+    .stat-lbl { color: #888; }
+    .stat-val { font-weight: 600; }
+    .detail-val-row { font-size: 0.82rem; margin-bottom: 3px; }
+    .val-lbl { color: #888; display: inline-block; min-width: 90px; }
     .surplus-pos { color: #1e7e34; font-weight: 600; }
     .surplus-neg { color: #c62828; font-weight: 600; }
     .badge { display: inline-block; font-size: 0.72rem; padding: 1px 6px; border-radius: 10px; font-weight: 600; }
@@ -198,6 +208,81 @@
       renderTable();
     }
 
+    function buildStatGrid(type, proj) {
+      var grid = document.createElement('div');
+      grid.className = 'detail-stat-grid';
+      var stats = type === 'H'
+        ? [['HR', proj.hr, false], ['R', proj.r, false], ['OBP', proj.obp, true], ['SLG', proj.slg, true]]
+        : [['ERA', proj.era, true], ['WHIP', proj.whip, true], ['HR9', proj.hr9, true], ['SO', proj.so, false]];
+      stats.forEach(function(s) {
+        var lbl = document.createElement('span'); lbl.className = 'stat-lbl'; lbl.textContent = s[0] + ':';
+        var val = document.createElement('span'); val.className = 'stat-val';
+        val.textContent = s[1] == null ? '—' : (s[2] ? Number(s[1]).toFixed(3) : Math.round(s[1]));
+        grid.appendChild(lbl); grid.appendChild(val);
+      });
+      return grid;
+    }
+
+    function buildDetailRow(row, numCols) {
+      var p = row.p;
+      var detailTr = document.createElement('tr');
+      detailTr.className = 'detail-row';
+      var detailTd = document.createElement('td');
+      detailTd.colSpan = numCols;
+      var card = document.createElement('div');
+      card.className = 'detail-card';
+
+      if (p.proj) {
+        var s0 = document.createElement('div'); s0.className = 'detail-section';
+        var h0 = document.createElement('h4'); h0.textContent = 'This Season'; s0.appendChild(h0);
+        s0.appendChild(buildStatGrid(p.type, p.proj));
+        card.appendChild(s0);
+      }
+
+      var y1 = p.proj_y1, y2 = p.proj_y2;
+      if (y1 || y2) {
+        var statKeys = p.type === 'H' ? ['hr','r','obp','slg'] : ['era','whip','hr9','so'];
+        var avgProj = {};
+        statKeys.forEach(function(k) {
+          var vals = [];
+          if (y1 && y1[k] != null) vals.push(y1[k]);
+          if (y2 && y2[k] != null) vals.push(y2[k]);
+          avgProj[k] = vals.length ? vals.reduce(function(a,b){return a+b;},0)/vals.length : null;
+        });
+        var sAvg = document.createElement('div'); sAvg.className = 'detail-section';
+        var hAvg = document.createElement('h4'); hAvg.textContent = 'Y1/Y2 Avg'; sAvg.appendChild(hAvg);
+        sAvg.appendChild(buildStatGrid(p.type, avgProj));
+        card.appendChild(sAvg);
+      }
+
+      var vDiv = document.createElement('div'); vDiv.className = 'detail-section';
+      var hVal = document.createElement('h4'); hVal.textContent = 'Value'; vDiv.appendChild(hVal);
+      function vRow(lbl, txt, cls) {
+        var d = document.createElement('div'); d.className = 'detail-val-row';
+        var l = document.createElement('span'); l.className = 'val-lbl'; l.textContent = lbl;
+        var v = document.createElement('span'); if (cls) v.className = cls; v.textContent = txt;
+        d.appendChild(l); d.appendChild(v); return d;
+      }
+      vDiv.appendChild(vRow('Salary:', '$' + row.salary));
+      if (!row.noProj) {
+        vDiv.appendChild(vRow('Proj $:', '$' + Math.round(row.value)));
+        var st = row.surplus;
+        vDiv.appendChild(vRow('Surplus:', (st >= 0 ? '+$' : '-$') + Math.abs(Math.round(st)), st >= 0 ? 'surplus-pos' : 'surplus-neg'));
+        if (hasDynasty) {
+          vDiv.appendChild(vRow('Dynasty $:', '$' + Math.round(row.dynastyValue)));
+          var ds = row.dynastySurplus;
+          vDiv.appendChild(vRow('Dyn. Surplus:', (ds >= 0 ? '+$' : '-$') + Math.abs(Math.round(ds)), ds >= 0 ? 'surplus-pos' : 'surplus-neg'));
+        }
+      } else {
+        var np = document.createElement('div'); np.style.color = '#999'; np.style.fontSize = '0.82rem'; np.textContent = 'No projection matched';
+        vDiv.appendChild(np);
+      }
+      card.appendChild(vDiv);
+      detailTd.appendChild(card);
+      detailTr.appendChild(detailTd);
+      return detailTr;
+    }
+
     function renderTable() {
       var isDynasty = activeView === 'dynasty' && hasDynasty;
 
@@ -260,6 +345,19 @@
           tr.appendChild(td(row.noProj ? 'No proj' : surplusTxt,
             row.noProj ? '' : (row.surplus >= 0 ? 'surplus-pos' : 'surplus-neg')));
         }
+
+        tr.className = 'player-row';
+        tr.addEventListener('click', (function(r, nc) {
+          return function() {
+            var next = tr.nextElementSibling;
+            if (next && next.classList.contains('detail-row')) {
+              tbody.removeChild(next);
+            } else {
+              var detailTr = buildDetailRow(r, nc);
+              tr.nextSibling ? tbody.insertBefore(detailTr, tr.nextSibling) : tbody.appendChild(detailTr);
+            }
+          };
+        })(row, headers.length));
 
         tbody.appendChild(tr);
       });

@@ -83,25 +83,52 @@ async function autoLoadFromRepo() {
 
 // ── PROSPECT PARSER ──────────────────────────────────────────────────────────
 function parseProspectsCSV(text) {
-  // FanGraphs exports the rank column with a multi-line quoted header
-  // ("Top 100\nRank in\nall baseball"). Collapse it before line-based parsing.
-  text = text.replace(/^"[\s\S]*?"/, 'Top100');
-  return parseCSV(text).map(function(row) {
-    const fv  = parseInt(row['FV'])      || 0;
-    const name = (row['Name'] || '').trim();
+  // Strip UTF-8 BOM and split into non-empty lines.
+  var lines = text.replace(/^﻿/, '').split(/\r?\n/).filter(function(l) { return l.trim(); });
+
+  // Find the header line by scanning for one that contains both Name and FV columns.
+  // This handles FanGraphs' multi-line quoted first column header gracefully.
+  var headerIdx = -1;
+  for (var i = 0; i < Math.min(6, lines.length); i++) {
+    if (lines[i].indexOf('Name') !== -1 && lines[i].indexOf('FV') !== -1) {
+      headerIdx = i;
+      break;
+    }
+  }
+  if (headerIdx < 0) return [];
+
+  // Detect delimiter from the first data row (not the header) so a manually
+  // edited comma-separated header still works with tab-separated data rows.
+  var firstData = lines[headerIdx + 1] || '';
+  var delim = firstData.includes('\t') ? '\t' : ',';
+
+  function splitLine(line) {
+    return line.split(delim).map(function(c) { return c.trim().replace(/^"|"$/g, ''); });
+  }
+
+  var headers = splitLine(lines[headerIdx]);
+  var idx = {};
+  headers.forEach(function(h, i) { idx[h] = i; });
+
+  if (idx['Name'] === undefined || idx['FV'] === undefined) return [];
+
+  return lines.slice(headerIdx + 1).map(function(line) {
+    var cols = splitLine(line);
+    var name = cols[idx['Name']] || '';
+    var fv   = parseInt(cols[idx['FV']]) || 0;
     if (!name || !fv) return null;
-    const rankRaw = parseInt(row['Top100']);
+    var rankRaw = idx['Top 100'] !== undefined ? parseInt(cols[idx['Top 100']]) : NaN;
     return {
       name:    normalizeName(name),
       rawName: name,
       rank:    isNaN(rankRaw) ? null : rankRaw,
-      orgRank: parseInt(row['Org Rk']) || null,
-      org:     (row['Org']           || '').trim(),
-      pos:     (row['Pos']           || '').trim(),
-      level:   (row['Current Level'] || '').trim(),
-      eta:     (row['ETA']           || '').trim(),
+      orgRank: idx['Org Rk']       !== undefined ? (parseInt(cols[idx['Org Rk']])       || null) : null,
+      org:     idx['Org']          !== undefined ? (cols[idx['Org']]          || '')              : '',
+      pos:     idx['Pos']          !== undefined ? (cols[idx['Pos']]          || '')              : '',
+      level:   idx['Current Level']!== undefined ? (cols[idx['Current Level']]|| '')              : '',
+      eta:     idx['ETA']          !== undefined ? (cols[idx['ETA']]          || '')              : '',
       fv,
-      age:     parseFloat(row['Age']) || null,
+      age:     idx['Age']          !== undefined ? (parseFloat(cols[idx['Age']]) || null)         : null,
     };
   }).filter(Boolean);
 }

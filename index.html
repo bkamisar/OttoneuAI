@@ -122,6 +122,7 @@
       { file: 'proj_pitching_y1.csv', required: false },
       { file: 'proj_hitting_y2.csv',  required: false },
       { file: 'proj_pitching_y2.csv', required: false },
+      { file: 'prospects.csv',        required: false },
     ];
 
     function renderDataStatus(status) {
@@ -158,6 +159,7 @@
       { key: 'ottoneu_proj_pitching_y1', label: 'Pitching Projections (Y+1)', required: false, parse: parsePitchingProjections },
       { key: 'ottoneu_proj_hitting_y2',  label: 'Hitting Projections (Y+2)',   required: false, parse: parseHittingProjections },
       { key: 'ottoneu_proj_pitching_y2', label: 'Pitching Projections (Y+2)', required: false, parse: parsePitchingProjections },
+      { key: 'ottoneu_prospects',        label: 'Prospect List (FanGraphs)',   required: false, parse: parseProspectsCSV },
     ];
 
     function buildGrid() {

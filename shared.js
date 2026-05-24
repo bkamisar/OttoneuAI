@@ -58,6 +58,7 @@ const REPO_FILES = [
   { file: 'proj_pitching_y1.csv', key: 'ottoneu_proj_pitching_y1',  parse: parsePitchingProjections },
   { file: 'proj_hitting_y2.csv',  key: 'ottoneu_proj_hitting_y2',   parse: parseHittingProjections },
   { file: 'proj_pitching_y2.csv', key: 'ottoneu_proj_pitching_y2',  parse: parsePitchingProjections },
+  { file: 'prospects.csv',        key: 'ottoneu_prospects',          parse: parseProspectsCSV },
 ];
 
 // Fetches all data/ CSVs from the repo, parses them, and writes to localStorage.
@@ -78,6 +79,28 @@ async function autoLoadFromRepo() {
     }
   }));
   return status;
+}
+
+// ── PROSPECT PARSER ──────────────────────────────────────────────────────────
+function parseProspectsCSV(text) {
+  return parseCSV(text).map(function(row) {
+    const fv  = parseInt(row['FV'])      || 0;
+    const name = (row['Name'] || '').trim();
+    if (!name || !fv) return null;
+    const rankRaw = parseInt(row['Top 100']);
+    return {
+      name:    normalizeName(name),
+      rawName: name,
+      rank:    isNaN(rankRaw) ? null : rankRaw,
+      orgRank: parseInt(row['Org Rk']) || null,
+      org:     (row['Org']           || '').trim(),
+      pos:     (row['Pos']           || '').trim(),
+      level:   (row['Current Level'] || '').trim(),
+      eta:     (row['ETA']           || '').trim(),
+      fv,
+      age:     parseFloat(row['Age']) || null,
+    };
+  }).filter(Boolean);
 }
 
 // ── SECURITY HELPER ──────────────────────────────────────────────────────────

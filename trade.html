@@ -77,6 +77,14 @@
     .stat-val { font-weight: 600; }
     .detail-val-row { font-size: 0.82rem; margin-bottom: 3px; }
     .val-lbl { color: #888; display: inline-block; min-width: 90px; }
+    .badge-fv        { margin-left: 5px; font-size: 0.68rem; padding: 1px 5px; border-radius: 10px; font-weight: 600; display: inline-block; }
+    .badge-fv-elite  { background: #f3e5f5; color: #6a1b9a; }
+    .badge-fv-high   { background: #e8f0fe; color: #1557b0; }
+    .badge-fv-mid    { background: #e0f2f1; color: #00695c; }
+    .badge-fv-low    { background: #f5f5f5; color: #666;    }
+    .prospect-section { border-left: 3px solid #6a1b9a; padding-left: 10px; }
+    .prospect-section h4 { color: #6a1b9a; }
+    .prospect-note { font-size: 0.78rem; color: #888; font-style: italic; margin-top: 4px; }
 
     @media (max-width: 640px) {
       .trade-setup, .results-grid { grid-template-columns: 1fr; }
@@ -161,6 +169,17 @@
 
     if (!roster || !projHit || !projPitch) { showErr('Missing data — upload CSVs on the', 'Data Hub.', 'index.html'); return; }
     if (!myTeam) { showErr('Set your team on the', 'Data Hub.', 'index.html'); return; }
+
+    var prospectList = loadData('ottoneu_prospects') || [];
+    var prospectMap  = {};
+    prospectList.forEach(function(pr) { prospectMap[pr.name] = pr; });
+
+    function fvClass(fv) {
+      if (fv >= 70) return 'badge-fv-elite';
+      if (fv >= 60) return 'badge-fv-high';
+      if (fv >= 50) return 'badge-fv-mid';
+      return 'badge-fv-low';
+    }
 
     var merged = matchPlayers(roster, projHit, projPitch);
 
@@ -319,7 +338,7 @@
       return grid;
     }
 
-    function buildDetailRow(p, salary, value, surplus, rosVal, rosSurp, dynVal, dynSurp, noProj, numCols) {
+    function buildDetailRow(p, salary, value, surplus, rosVal, rosSurp, dynVal, dynSurp, noProj, prospect, numCols) {
       var detailTr = document.createElement('tr');
       detailTr.className = 'detail-row';
       var detailTd = document.createElement('td');
@@ -373,6 +392,36 @@
         vDiv.appendChild(np);
       }
       card.appendChild(vDiv);
+
+      if (prospect) {
+        var pr = prospect;
+        var pDiv = document.createElement('div');
+        pDiv.className = 'detail-section prospect-section';
+        var pH = document.createElement('h4'); pH.textContent = '⭐ FanGraphs Prospect'; pDiv.appendChild(pH);
+        function pRow(lbl, val) {
+          if (!val) return;
+          var d = document.createElement('div'); d.className = 'detail-val-row';
+          var l = document.createElement('span'); l.className = 'val-lbl'; l.textContent = lbl;
+          var v = document.createElement('span'); v.textContent = val;
+          d.appendChild(l); d.appendChild(v); pDiv.appendChild(d);
+        }
+        pRow('FV:', pr.fv + '/80');
+        if (pr.rank)    pRow('Top 100:', '#' + pr.rank);
+        if (pr.orgRank) pRow('Org Rank:', '#' + pr.orgRank);
+        pRow('Org:', pr.org);
+        pRow('Position:', pr.pos);
+        pRow('Level:', pr.level);
+        pRow('ETA:', pr.eta);
+        if (pr.age)     pRow('Age:', pr.age);
+        if (noProj) {
+          var note = document.createElement('div');
+          note.className = 'prospect-note';
+          note.textContent = 'No MLB projections — valuation pending.';
+          pDiv.appendChild(note);
+        }
+        card.appendChild(pDiv);
+      }
+
       detailTd.appendChild(card);
       detailTr.appendChild(detailTd);
       return detailTr;
@@ -425,8 +474,13 @@
             return td;
           }
 
+          var prospect = prospectMap[p.name] || null;
           var tr = el('tr');
           var tdN = el('td'); tdN.textContent = p.rawName || p.name;
+          if (prospect) {
+            var fvBadge = el('span'); fvBadge.className = 'badge badge-fv ' + fvClass(prospect.fv);
+            fvBadge.textContent = 'FV ' + prospect.fv; tdN.appendChild(fvBadge);
+          }
           var tdS = el('td'); tdS.textContent = '$' + salary;
           var tdV = el('td'); tdV.textContent = noProj ? '—' : '$' + Math.round(value);
           tr.appendChild(tdN); tr.appendChild(tdS); tr.appendChild(tdV);
@@ -441,17 +495,17 @@
             tr.appendChild(surpTd(dynSurp, noProj));
           }
           tr.className = 'player-row';
-          tr.addEventListener('click', (function(player, sal, val, surp, rv, rs, dv, ds, np, nc) {
+          tr.addEventListener('click', (function(player, sal, val, surp, rv, rs, dv, ds, np, pr, nc) {
             return function() {
               var next = tr.nextElementSibling;
               if (next && next.classList.contains('detail-row')) {
                 tbody.removeChild(next);
               } else {
-                var detailTr = buildDetailRow(player, sal, val, surp, rv, rs, dv, ds, np, nc);
+                var detailTr = buildDetailRow(player, sal, val, surp, rv, rs, dv, ds, np, pr, nc);
                 tr.nextSibling ? tbody.insertBefore(detailTr, tr.nextSibling) : tbody.appendChild(detailTr);
               }
             };
-          })(p, salary, value, surplus, rosVal, rosSurp, dynVal, dynSurp, noProj, cols.length));
+          })(p, salary, value, surplus, rosVal, rosSurp, dynVal, dynSurp, noProj, prospect, cols.length));
 
           tbody.appendChild(tr);
         });

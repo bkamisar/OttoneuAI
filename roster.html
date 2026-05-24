@@ -56,6 +56,14 @@
     .view-toggle button.active { background: #1a73e8; color: #fff; }
     .dynasty-val { color: #6a1b9a; font-weight: 600; }
 
+    .badge-fv        { margin-left: 5px; font-size: 0.68rem; padding: 1px 5px; border-radius: 10px; font-weight: 600; display: inline-block; }
+    .badge-fv-elite  { background: #f3e5f5; color: #6a1b9a; }
+    .badge-fv-high   { background: #e8f0fe; color: #1557b0; }
+    .badge-fv-mid    { background: #e0f2f1; color: #00695c; }
+    .badge-fv-low    { background: #f5f5f5; color: #666;    }
+    .prospect-section { border-left: 3px solid #6a1b9a; padding-left: 10px; }
+    .prospect-section h4 { color: #6a1b9a; }
+    .prospect-note { font-size: 0.78rem; color: #888; font-style: italic; margin-top: 4px; }
     @media (max-width: 600px) { .cat-grid { grid-template-columns: repeat(2, 1fr); } }
   </style>
 </head>
@@ -141,6 +149,10 @@
       if (hitY2 || pitY2) merged = attachYearProjections(merged, hitY2, pitY2, 'proj_y2');
       hasDynasty = !!(hitY1 || pitY1 || hitY2 || pitY2);
 
+      var prospectList = loadData('ottoneu_prospects') || [];
+      var prospectMap  = {};
+      prospectList.forEach(function(pr) { prospectMap[pr.name] = pr; });
+
       var teamMap = {};
       merged.forEach(function(p) {
         if (!teamMap[p.team]) teamMap[p.team] = [];
@@ -202,10 +214,18 @@
           dynastyValue:   vm.dynastyValue   || 0,
           dynastySurplus: vm.dynastySurplus !== undefined ? vm.dynastySurplus : -(p.salary || 0),
           noProj:         !!vm.noProj,
+          prospect:       prospectMap[p.name] || null,
         };
       });
 
       renderTable();
+    }
+
+    function fvClass(fv) {
+      if (fv >= 70) return 'badge-fv-elite';
+      if (fv >= 60) return 'badge-fv-high';
+      if (fv >= 50) return 'badge-fv-mid';
+      return 'badge-fv-low';
     }
 
     function buildStatGrid(type, proj) {
@@ -278,6 +298,36 @@
         vDiv.appendChild(np);
       }
       card.appendChild(vDiv);
+
+      if (row.prospect) {
+        var pr = row.prospect;
+        var pDiv = document.createElement('div');
+        pDiv.className = 'detail-section prospect-section';
+        var pH = document.createElement('h4'); pH.textContent = '⭐ FanGraphs Prospect'; pDiv.appendChild(pH);
+        function pRow(lbl, val) {
+          if (!val) return;
+          var d = document.createElement('div'); d.className = 'detail-val-row';
+          var l = document.createElement('span'); l.className = 'val-lbl'; l.textContent = lbl;
+          var v = document.createElement('span'); v.textContent = val;
+          d.appendChild(l); d.appendChild(v); pDiv.appendChild(d);
+        }
+        pRow('FV:', pr.fv + '/80');
+        if (pr.rank)    pRow('Top 100:', '#' + pr.rank);
+        if (pr.orgRank) pRow('Org Rank:', '#' + pr.orgRank);
+        pRow('Org:', pr.org);
+        pRow('Position:', pr.pos);
+        pRow('Level:', pr.level);
+        pRow('ETA:', pr.eta);
+        if (pr.age)     pRow('Age:', pr.age);
+        if (row.noProj) {
+          var note = document.createElement('div');
+          note.className = 'prospect-note';
+          note.textContent = 'No MLB projections — valuation pending.';
+          pDiv.appendChild(note);
+        }
+        card.appendChild(pDiv);
+      }
+
       detailTd.appendChild(card);
       detailTr.appendChild(detailTd);
       return detailTr;
@@ -327,7 +377,15 @@
           typeTd.appendChild(roleBadge);
         }
 
-        tr.appendChild(td(p.rawName || p.name));
+        var nameTd = document.createElement('td');
+        nameTd.textContent = p.rawName || p.name;
+        if (row.prospect) {
+          var fvBadge = document.createElement('span');
+          fvBadge.className = 'badge badge-fv ' + fvClass(row.prospect.fv);
+          fvBadge.textContent = 'FV ' + row.prospect.fv;
+          nameTd.appendChild(fvBadge);
+        }
+        tr.appendChild(nameTd);
         tr.appendChild(td(p.positions.map(function(x) { return x.toUpperCase(); }).join('/')));
         tr.appendChild(typeTd);
         tr.appendChild(td('$' + row.salary));

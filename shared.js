@@ -363,7 +363,8 @@ function calculateDynastyValues(allRosters, weights, extraPlayers) {
     const dynastyValue = currentValue
       + w1 * (v1.projectedValue || 0)
       + w2 * (v2.projectedValue || 0);
-    const dynastyCost = (v0.actualSalary || 0) * salaryMultiplier;
+    const s0 = Math.max(1, v0.actualSalary || 0);
+    const dynastyCost = s0 + w1 * Math.max(1, s0 + 2) + w2 * Math.max(1, s0 + 4);
     dynastyMap[key] = {
       ...v0,
       dynastyValue,

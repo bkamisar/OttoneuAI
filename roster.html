@@ -75,6 +75,7 @@
     <a href="roster.html" class="active">Roster Analysis</a>
     <a href="trade.html">Trade Evaluator</a>
     <a href="fa.html">FA Finder</a>
+    <a href="prospects.html">Prospects</a>
   </nav>
 
   <div id="loading" style="display:none;color:#666;font-size:.88rem;padding:8px 0">Loading league data…</div>
@@ -93,7 +94,6 @@
       </div>
     </div>
 
-    <div id="prospectDebug" style="font-size:0.75rem;color:#888;font-style:italic;margin-bottom:6px"></div>
     <div class="tbl-wrap">
       <table>
         <thead><tr id="tableHead"></tr></thead>
@@ -218,15 +218,6 @@
           prospect:       prospectMap[p.name] || null,
         };
       });
-
-      // DEBUG — remove once prospect matching is confirmed working
-      var debugEl = document.getElementById('prospectDebug');
-      if (debugEl) {
-        var keys = Object.keys(prospectMap);
-        debugEl.textContent = 'Prospects loaded: ' + keys.length +
-          (keys.length ? ' | Sample key: "' + keys[0] + '"' : '') +
-          ' | Sample roster name: "' + (cachedRows[0] ? cachedRows[0].p.name : 'n/a') + '"';
-      }
 
       renderTable();
     }

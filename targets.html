@@ -156,6 +156,7 @@
     var myRoster    = [];
     var teamCards   = [];
     var myWeakCats  = {};   // cat → weakness weight (higher = more urgent)
+    var lgAvg       = {};   // league average per category stat
     var activeView  = 'current';
     var hasDynasty  = false;
     var typeFilter  = 'all';
@@ -192,14 +193,51 @@
       return type === 'P' ? PIT_CATS : HIT_CATS;
     }
 
-    function fitScore(type) {
-      return playerCats(type).reduce(function(sum, c) {
-        return sum + (myWeakCats[c] || 0);
-      }, 0);
+    function computeLgAvg(projHit, projPitch) {
+      function avg(arr, fn) {
+        var vals = (arr || []).map(fn).filter(function(v) { return v > 0; });
+        return vals.length ? vals.reduce(function(s, v) { return s + v; }, 0) / vals.length : 0;
+      }
+      var hp = (projHit   || []).filter(function(p) { return p.proj && p.proj.pa > 50; });
+      var pp = (projPitch || []).filter(function(p) { return p.proj && p.proj.ip > 10; });
+      return {
+        OBP:  avg(hp, function(p) { return p.proj.obp; }),
+        SLG:  avg(hp, function(p) { return p.proj.slg; }),
+        HR:   avg(hp, function(p) { return p.proj.hr / p.proj.pa; }),
+        R:    avg(hp, function(p) { return p.proj.r  / p.proj.pa; }),
+        ERA:  avg(pp, function(p) { return p.proj.era;  }),
+        WHIP: avg(pp, function(p) { return p.proj.whip; }),
+        HR9:  avg(pp, function(p) { return p.proj.hr9;  }),
+        SO:   avg(pp, function(p) { return p.proj.so / p.proj.ip; }),
+      };
     }
 
-    function helpedCats(type) {
-      return playerCats(type).filter(function(c) { return myWeakCats[c] > 0; });
+    function playerHelps(player, cat) {
+      var b = player.proj;
+      if (!b) return false;
+      switch (cat) {
+        case 'OBP':  return b.pa > 50  && b.obp  > lgAvg.OBP;
+        case 'SLG':  return b.pa > 50  && b.slg  > lgAvg.SLG;
+        case 'HR':   return b.pa > 50  && (b.hr / b.pa) > lgAvg.HR;
+        case 'R':    return b.pa > 50  && (b.r  / b.pa) > lgAvg.R;
+        case 'ERA':  return b.ip > 10  && b.era  > 0 && b.era  < lgAvg.ERA;
+        case 'WHIP': return b.ip > 10  && b.whip > 0 && b.whip < lgAvg.WHIP;
+        case 'HR9':  return b.ip > 10  && b.hr9  > 0 && b.hr9  < lgAvg.HR9;
+        case 'SO':   return b.ip > 10  && (b.so / b.ip) > lgAvg.SO;
+        default:     return false;
+      }
+    }
+
+    function helpedCats(player) {
+      return playerCats(player.type).filter(function(c) {
+        return myWeakCats[c] > 0 && playerHelps(player, c);
+      });
+    }
+
+    function fitScore(player) {
+      return helpedCats(player).reduce(function(sum, c) {
+        return sum + (myWeakCats[c] || 0);
+      }, 0);
     }
 
     // ── Render needs grid ──────────────────────────────────────────────────────
@@ -314,6 +352,38 @@
       while (grid.firstChild) grid.removeChild(grid.firstChild);
 
       teamCards.forEach(function(tc) {
+        // "You can offer": my tradeable players (I have depth) that help their needs
+        var myOffers = myRoster
+          .filter(function(p) {
+            return isTradeable(p) && tc.weakCats.some(function(c) { return playerHelps(p, c); });
+          })
+          .map(function(p) {
+            return Object.assign({}, p, {
+              helpsCats: tc.weakCats.filter(function(c) { return playerHelps(p, c); })
+            });
+          })
+          .sort(function(a, b) {
+            return activeView === 'dynasty'
+              ? b.dynastySurplus - a.dynastySurplus
+              : b.surplus - a.surplus;
+          })
+          .slice(0, 4);
+
+        // "Their chips": only their players who fill MY weak cats, sorted by fit then surplus
+        var theirChips = tc.theirChipsRaw
+          .map(function(p) {
+            var helped = helpedCats(p);
+            var fit    = helped.reduce(function(s, c) { return s + (myWeakCats[c] || 0); }, 0);
+            return Object.assign({}, p, { fit: fit, helped: helped });
+          })
+          .filter(function(p) { return p.fit > 0; })
+          .sort(function(a, b) {
+            if (b.fit !== a.fit) return b.fit - a.fit;
+            return activeView === 'dynasty'
+              ? b.dynastySurplus - a.dynastySurplus
+              : b.surplus - a.surplus;
+          })
+          .slice(0, 5);
         var card = document.createElement('div');
         card.className = 'team-card';
 
@@ -343,8 +413,8 @@
         var offerLbl = document.createElement('div'); offerLbl.className = 'card-section-lbl'; offerLbl.textContent = 'You can offer';
         card.appendChild(offerLbl);
         var offerList = document.createElement('div'); offerList.className = 'chip-list';
-        if (tc.myOffers.length) {
-          tc.myOffers.forEach(function(p) {
+        if (myOffers.length) {
+          myOffers.forEach(function(p) {
             var row = document.createElement('div'); row.className = 'chip-row';
             var left = document.createElement('div');
             var nm = document.createElement('span'); nm.className = 'chip-name'; nm.textContent = p.rawName || p.name;
@@ -374,8 +444,8 @@
         var chipLbl = document.createElement('div'); chipLbl.className = 'card-section-lbl'; chipLbl.textContent = 'Their trade chips';
         card.appendChild(chipLbl);
         var chipList = document.createElement('div'); chipList.className = 'chip-list';
-        if (tc.theirChips.length) {
-          tc.theirChips.forEach(function(p) {
+        if (theirChips.length) {
+          theirChips.forEach(function(p) {
             var row = document.createElement('div'); row.className = 'chip-row';
             var left = document.createElement('div');
             var nm = document.createElement('span'); nm.className = 'chip-name'; nm.textContent = p.rawName || p.name;
@@ -519,12 +589,26 @@
           return Object.assign({}, p, vm);
         });
 
+      // Depth: how many of my players have positive surplus per type (H/P)
+      // Used to filter "You can offer" to only players I can afford to move
+      var myDepth = { H: 0, P: 0 };
+      myRoster.forEach(function(p) {
+        if (p.surplus > 0) myDepth[p.type] = (myDepth[p.type] || 0) + 1;
+      });
+      // A player is "tradeable" if I have at least 3 other surplus players of the same type
+      function isTradeable(p) {
+        return p.hasProj && p.surplus > 0 && (myDepth[p.type] || 0) >= 3;
+      }
+
+      // League averages for precise fit scoring
+      lgAvg = computeLgAvg(projHit, projPitch);
+
       // All non-my-team players as targets
       allTargets = merged
         .filter(function(p) { return p.team && p.team !== myTeam && p.team !== 'Free Agent'; })
         .map(function(p) {
           var vm      = getVm(p);
-          var helped  = helpedCats(p.type);
+          var helped  = helpedCats(p);
           var fit     = helped.reduce(function(sum, c) { return sum + myWeakCats[c]; }, 0);
           var pr      = prospectMap[p.name] || null;
           return {
@@ -543,60 +627,25 @@
           };
         });
 
-      // Team breakdown cards (sorted: most tradeable = most surplus first)
+      // Team breakdown — store raw data; offers/chips are sorted in renderCards
       var otherStandings = standings.filter(function(s) { return s.name !== myTeam; });
       otherStandings.sort(function(a, b) { return b.points - a.points; });
 
       teamCards = otherStandings.map(function(ts) {
         var theirPlayers = merged.filter(function(p) { return p.team === ts.name; });
-
-        // Their weak cats
         var theirWeakCats = CATS.filter(function(c) {
           return (ts.ranks[c] || 0) < Math.ceil(n / 2);
-        }).sort(function(a, b) {
-          return (ts.ranks[a] || 0) - (ts.ranks[b] || 0); // worst first
-        });
+        }).sort(function(a, b) { return (ts.ranks[a] || 0) - (ts.ranks[b] || 0); });
 
-        // What I can offer them: my players who help their weak cats, sorted by surplus
-        var myOffers = myRoster
-          .filter(function(p) {
-            if (!p.hasProj) return false;
-            return playerCats(p.type).some(function(c) {
-              return theirWeakCats.indexOf(c) !== -1;
-            });
-          })
-          .map(function(p) {
-            var helpsCats = playerCats(p.type).filter(function(c) {
-              return theirWeakCats.indexOf(c) !== -1;
-            });
-            return Object.assign({}, p, { helpsCats: helpsCats });
-          })
-          .sort(function(a, b) {
-            var sv = activeView === 'dynasty' ? b.dynastySurplus - a.dynastySurplus : b.surplus - a.surplus;
-            return sv;
-          })
-          .slice(0, 4);
-
-        // Their trade chips: their top surplus players
-        var theirChips = theirPlayers
+        var theirChipsRaw = theirPlayers
           .filter(function(p) { return p.proj; })
-          .map(function(p) {
-            var vm = getVm(p);
-            return Object.assign({}, p, vm);
-          })
-          .sort(function(a, b) {
-            return activeView === 'dynasty'
-              ? b.dynastySurplus - a.dynastySurplus
-              : b.surplus - a.surplus;
-          })
-          .slice(0, 5);
+          .map(function(p) { return Object.assign({}, p, getVm(p)); });
 
         return {
-          name:      ts.name,
-          points:    ts.points,
-          weakCats:  theirWeakCats,
-          myOffers:  myOffers,
-          theirChips: theirChips,
+          name:          ts.name,
+          points:        ts.points,
+          weakCats:      theirWeakCats,
+          theirChipsRaw: theirChipsRaw,
         };
       });
 

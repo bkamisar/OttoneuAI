@@ -122,6 +122,9 @@
         <button class="type-btn" data-type="H">Hitters</button>
         <button class="type-btn" data-type="P">Pitchers</button>
       </div>
+      <label style="font-size:0.8rem;color:#555;display:flex;align-items:center;gap:5px;cursor:pointer">
+        <input type="checkbox" id="showAllChk"> Show all players
+      </label>
       <div class="count-line" id="countLine"></div>
     </div>
 
@@ -157,6 +160,12 @@
     var teamCards   = [];
     var myWeakCats  = {};   // cat → weakness weight (higher = more urgent)
     var lgAvg       = {};   // league average per category stat
+    var myDepth     = { H: 0, P: 0 };
+    var showAll     = false;
+
+    function isTradeable(p) {
+      return p.hasProj && p.surplus > 0 && (myDepth[p.type] || 0) >= 3;
+    }
     var activeView  = 'current';
     var hasDynasty  = false;
     var typeFilter  = 'all';
@@ -263,6 +272,7 @@
     function renderTable() {
       var query = document.getElementById('searchBox').value.toLowerCase();
       var filtered = allTargets.filter(function(r) {
+        if (!showAll && r.fit === 0) return false;
         if (typeFilter !== 'all' && r.type !== typeFilter) return false;
         if (query && (r.rawName || r.name).toLowerCase().indexOf(query) === -1) return false;
         return true;
@@ -496,6 +506,10 @@
     });
 
     document.getElementById('searchBox').addEventListener('input', renderTable);
+    document.getElementById('showAllChk').addEventListener('change', function() {
+      showAll = this.checked;
+      renderTable();
+    });
 
     // ── Init ──────────────────────────────────────────────────────────────────
     (async function() {
@@ -589,16 +603,11 @@
           return Object.assign({}, p, vm);
         });
 
-      // Depth: how many of my players have positive surplus per type (H/P)
-      // Used to filter "You can offer" to only players I can afford to move
-      var myDepth = { H: 0, P: 0 };
+      // Depth: how many of my players have positive surplus per type
+      myDepth = { H: 0, P: 0 };
       myRoster.forEach(function(p) {
         if (p.surplus > 0) myDepth[p.type] = (myDepth[p.type] || 0) + 1;
       });
-      // A player is "tradeable" if I have at least 3 other surplus players of the same type
-      function isTradeable(p) {
-        return p.hasProj && p.surplus > 0 && (myDepth[p.type] || 0) >= 3;
-      }
 
       // League averages for precise fit scoring
       lgAvg = computeLgAvg(projHit, projPitch);

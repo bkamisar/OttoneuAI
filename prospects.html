@@ -13,6 +13,11 @@
     .error { background: #fce8e6; border-left: 4px solid #c62828; padding: 12px 16px; border-radius: 4px; margin-bottom: 16px; }
     .error a { color: #c62828; }
 
+    .title-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+    .view-toggle { display: inline-flex; border: 1px solid #ddd; border-radius: 6px; overflow: hidden; }
+    .view-toggle button { padding: 4px 13px; border: none; background: #fff; font-size: 0.8rem; cursor: pointer; color: #555; }
+    .view-toggle button.active { background: #1a73e8; color: #fff; }
+
     .filter-bar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; background: #fff; padding: 10px 14px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
     .filter-bar input { padding: 5px 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.84rem; min-width: 180px; }
     .type-btns { display: flex; gap: 5px; }
@@ -34,6 +39,7 @@
     .dim { color: #bbb; }
     .surplus-pos { color: #1e7e34; font-weight: 600; }
     .surplus-neg { color: #c62828; font-weight: 600; }
+    .dynasty-val { color: #6a1b9a; font-weight: 600; }
     .fa-tag { color: #aaa; }
 
     .badge-fv        { font-size: 0.68rem; padding: 1px 5px; border-radius: 10px; font-weight: 600; display: inline-block; white-space: nowrap; }
@@ -57,6 +63,12 @@
   <div id="loading" style="display:none;color:#666;font-size:.88rem;padding:8px 0">Loading data…</div>
   <div id="error"></div>
   <div id="content" style="display:none">
+    <div class="title-row">
+      <div class="view-toggle" id="viewToggle" style="display:none">
+        <button id="btnCurrent" class="active" onclick="setView('current')">Current Year</button>
+        <button id="btnDynasty" onclick="setView('dynasty')">Dynasty</button>
+      </div>
+    </div>
     <div class="filter-bar">
       <input type="text" id="searchBox" placeholder="Search prospects…" autocomplete="off">
       <div class="type-btns">
@@ -77,10 +89,10 @@
             <th data-col="level">Level</th>
             <th data-col="eta">ETA</th>
             <th data-col="age">Age</th>
-            <th data-col="value">Proj $</th>
+            <th data-col="value" id="thValue">Proj $</th>
             <th data-col="team">Ottoneu Team</th>
             <th data-col="salary">Salary</th>
-            <th data-col="surplus">Surplus</th>
+            <th data-col="surplus" id="thSurplus">Surplus</th>
           </tr>
         </thead>
         <tbody id="prospectBody"></tbody>
@@ -94,6 +106,17 @@
     var sortCol    = 'fv';
     var sortDir    = -1;
     var typeFilter = 'all';
+    var activeView = 'current';
+    var hasDynasty = false;
+
+    function setView(v) {
+      activeView = v;
+      document.getElementById('btnCurrent').classList.toggle('active', v === 'current');
+      document.getElementById('btnDynasty').classList.toggle('active', v === 'dynasty');
+      document.getElementById('thValue').textContent   = v === 'dynasty' ? 'Dynasty $'       : 'Proj $';
+      document.getElementById('thSurplus').textContent = v === 'dynasty' ? 'Dynasty Surplus'  : 'Surplus';
+      render();
+    }
 
     function fvClass(fv) {
       if (fv >= 70) return 'badge-fv-elite';
@@ -120,6 +143,9 @@
       return '$0';
     }
 
+    function rowValue(row)   { return activeView === 'dynasty' ? row.dynastyValue   : row.value; }
+    function rowSurplus(row) { return activeView === 'dynasty' ? row.dynastySurplus : row.surplus; }
+
     function sortValue(row, col) {
       switch (col) {
         case 'fv':      return row.prospect.fv;
@@ -129,17 +155,18 @@
         case 'level':   return (row.prospect.level || '').toLowerCase();
         case 'eta':     return row.prospect.eta || '9999';
         case 'age':     return row.prospect.age || 99;
-        case 'value':   return row.value;
+        case 'value':   return rowValue(row);
         case 'team':    return (row.team || '').toLowerCase();
         case 'salary':  return row.salary;
-        case 'surplus': return row.surplus;
+        case 'surplus': return rowSurplus(row);
         default:        return 0;
       }
     }
 
     function render() {
-      var query    = document.getElementById('searchBox').value.toLowerCase();
-      var filtered = allRows.filter(function(r) {
+      var isDynasty = activeView === 'dynasty';
+      var query     = document.getElementById('searchBox').value.toLowerCase();
+      var filtered  = allRows.filter(function(r) {
         var t = r.projType || inferType(r.prospect.pos);
         if (typeFilter !== 'all' && t !== typeFilter) return false;
         if (query) {
@@ -165,6 +192,8 @@
       filtered.forEach(function(row) {
         var pr = row.prospect;
         var tr = document.createElement('tr');
+        var val  = rowValue(row);
+        var surp = rowSurplus(row);
 
         function td(text, cls) {
           var cell = document.createElement('td');
@@ -193,7 +222,8 @@
         tr.appendChild(td(pr.age   ? pr.age.toFixed(1) : '—'));
 
         if (row.hasProj) {
-          tr.appendChild(td(fmt$(row.value), row.value >= 10 ? 'surplus-pos' : ''));
+          var valCls = isDynasty ? 'dynasty-val' : (val >= 10 ? 'surplus-pos' : '');
+          tr.appendChild(td(fmt$(val), valCls));
         } else {
           tr.appendChild(td('—', 'dim'));
         }
@@ -207,7 +237,7 @@
         tr.appendChild(td(row.salary > 0 ? '$' + row.salary : '—', row.salary === 0 ? 'dim' : ''));
 
         if (row.hasProj) {
-          tr.appendChild(td(fmt$(row.surplus), row.surplus >= 0 ? 'surplus-pos' : 'surplus-neg'));
+          tr.appendChild(td(fmt$(surp), surp >= 0 ? 'surplus-pos' : 'surplus-neg'));
         } else {
           tr.appendChild(td('—', 'dim'));
         }
@@ -226,7 +256,7 @@
           sortDir = (['name','org','pos','level','eta','team'].indexOf(col) !== -1) ? 1 : -1;
         }
         document.querySelectorAll('th').forEach(function(h) { h.className = ''; });
-        this.className = sortDir === -1 ? 'sort-desc' : 'sort-asc';
+        this.dataset.col && (this.className = sortDir === -1 ? 'sort-desc' : 'sort-asc');
         render();
       });
     });
@@ -264,7 +294,15 @@
 
       var projHit   = loadData('ottoneu_proj_hitting');
       var projPitch = loadData('ottoneu_proj_pitching');
+      var hitY1     = loadData('ottoneu_proj_hitting_y1');
+      var pitY1     = loadData('ottoneu_proj_pitching_y1');
+      var hitY2     = loadData('ottoneu_proj_hitting_y2');
+      var pitY2     = loadData('ottoneu_proj_pitching_y2');
       var roster    = loadData('ottoneu_roster');
+      var weights   = loadData('ottoneu_dynasty_weights') || { y1: 0.90, y2: 0.81 };
+
+      hasDynasty = !!(hitY1 || pitY1 || hitY2 || pitY2);
+      if (hasDynasty) document.getElementById('viewToggle').style.display = '';
 
       var projByName = {};
       [...(projHit || []), ...(projPitch || [])].forEach(function(p) {
@@ -276,21 +314,29 @@
         roster.forEach(function(p) { if (p.name) rosterByName[p.name] = p; });
       }
 
-      var valueMap = {};
+      var valueMap        = {};
+      var dynastyValueMap = {};
+
       if (roster && projHit && projPitch) {
-        var merged    = matchPlayers(roster, projHit, projPitch);
-        var teamSet   = {};
+        var merged = matchPlayers(roster, projHit, projPitch);
+        if (hitY1 || pitY1) merged = attachYearProjections(merged, hitY1, pitY1, 'proj_y1');
+        if (hitY2 || pitY2) merged = attachYearProjections(merged, hitY2, pitY2, 'proj_y2');
+
+        var teamSet = {};
         merged.forEach(function(p) { if (p.team && p.team !== 'Free Agent') teamSet[p.team] = true; });
         var allRosters = Object.keys(teamSet).map(function(t) {
           return merged.filter(function(p) { return p.team === t; });
         });
 
         var rosteredNames = new Set(roster.map(function(p) { return p.name; }));
-        var extraPlayers  = prospectList
+
+        // Build extra players for unrostered prospects that have base projections.
+        // For dynasty extras, also attach Y1/Y2 projections by name.
+        var extraPlayers = prospectList
           .filter(function(pr) { return !rosteredNames.has(pr.name) && projByName[pr.name]; })
           .map(function(pr) {
             var pm = projByName[pr.name];
-            return {
+            var ep = {
               name:      pr.name,
               rawName:   pr.rawName,
               type:      pm.type,
@@ -299,23 +345,35 @@
               proj:      pm.proj,
               fgId:      '',
             };
+            // Attach Y1/Y2 if available (attachYearProjections works on arrays)
+            var wrapped = [ep];
+            if (hitY1 || pitY1) wrapped = attachYearProjections(wrapped, hitY1, pitY1, 'proj_y1');
+            if (hitY2 || pitY2) wrapped = attachYearProjections(wrapped, hitY2, pitY2, 'proj_y2');
+            return wrapped[0];
           });
 
         valueMap = calculateAllValues(allRosters, extraPlayers);
+        if (hasDynasty) {
+          dynastyValueMap = calculateDynastyValues(allRosters, weights, extraPlayers);
+        }
       }
 
       allRows = prospectList.map(function(pr) {
-        var rp = rosterByName[pr.name] || null;
-        var pm = projByName[pr.name]   || null;
-        var vm = valueMap[pr.name]     || {};
+        var rp  = rosterByName[pr.name] || null;
+        var pm  = projByName[pr.name]   || null;
+        var vm  = valueMap[pr.name]        || {};
+        var dvm = dynastyValueMap[pr.name] || {};
+        var sal = rp ? (rp.salary || 0) : 0;
         return {
-          prospect: pr,
-          salary:   rp ? (rp.salary || 0) : 0,
-          team:     rp ? (rp.team   || 'FA') : 'FA',
-          value:    vm.projectedValue || 0,
-          surplus:  vm.surplus !== undefined ? vm.surplus : (rp ? -(rp.salary || 0) : 0),
-          hasProj:  !!pm,
-          projType: pm ? pm.type : null,
+          prospect:       pr,
+          salary:         sal,
+          team:           rp ? (rp.team || 'FA') : 'FA',
+          value:          vm.projectedValue  || 0,
+          surplus:        vm.surplus  !== undefined ? vm.surplus  : (rp ? -sal : 0),
+          dynastyValue:   dvm.dynastyValue   || 0,
+          dynastySurplus: dvm.dynastySurplus !== undefined ? dvm.dynastySurplus : (rp ? -sal : 0),
+          hasProj:        !!pm,
+          projType:       pm ? pm.type : null,
         };
       });
 

@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Ottoneu Tools — Trade Targets</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: system-ui, sans-serif; background: #f5f5f5; margin: 0; padding: 20px; color: #222; }
+    h1 { font-size: 1.3rem; margin-bottom: 4px; }
+    .nav { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+    .nav a { padding: 7px 14px; background: #1a73e8; color: #fff; border-radius: 6px; text-decoration: none; font-size: 0.88rem; }
+    .nav a.active { background: #1557b0; }
+    .section-title { font-size: 1rem; font-weight: 600; margin: 24px 0 10px; }
+    .error { background: #fce8e6; border-left: 4px solid #c62828; padding: 12px 16px; border-radius: 4px; margin-bottom: 16px; }
+    .error a { color: #c62828; }
+
+    /* Category needs */
+    .needs-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 8px; margin-bottom: 4px; }
+    .need-card { background: #fff; border-radius: 8px; padding: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); text-align: center; }
+    .need-card .cat-name { font-size: 0.7rem; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 0.05em; }
+    .need-card .cat-rank { font-size: 1.2rem; font-weight: 700; margin-top: 3px; }
+    .need-card.weak   { border-top: 3px solid #c62828; }
+    .need-card.weak   .cat-rank { color: #c62828; }
+    .need-card.mid    .cat-rank { color: #e65100; }
+    .need-card.strong .cat-rank { color: #1e7e34; }
+
+    /* View toggle */
+    .title-row { display: flex; align-items: center; gap: 12px; }
+    .view-toggle { display: inline-flex; border: 1px solid #ddd; border-radius: 6px; overflow: hidden; }
+    .view-toggle button { padding: 4px 13px; border: none; background: #fff; font-size: 0.8rem; cursor: pointer; color: #555; }
+    .view-toggle button.active { background: #1a73e8; color: #fff; }
+
+    /* Filter bar */
+    .filter-bar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; background: #fff; padding: 10px 14px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+    .filter-bar input { padding: 5px 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.84rem; min-width: 180px; }
+    .type-btns { display: flex; gap: 5px; }
+    .type-btn { padding: 5px 12px; border: 1px solid #ddd; border-radius: 20px; background: #fff; font-size: 0.82rem; cursor: pointer; color: #444; }
+    .type-btn.active { background: #1a73e8; color: #fff; border-color: #1a73e8; }
+    .count-line { font-size: 0.78rem; color: #999; margin-left: auto; }
+
+    /* Targets table */
+    .tbl-wrap { overflow-x: auto; margin-bottom: 24px; }
+    table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 10px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.1); font-size: 0.86rem; }
+    th { background: #1a73e8; color: #fff; padding: 9px 10px; text-align: right; font-weight: 600; white-space: nowrap; cursor: pointer; user-select: none; }
+    th:first-child, th:nth-child(2), th:nth-child(3) { text-align: left; }
+    th:hover { background: #1557b0; }
+    th.sort-asc::after  { content: ' ▲'; font-size: 0.7rem; }
+    th.sort-desc::after { content: ' ▼'; font-size: 0.7rem; }
+    td { padding: 7px 10px; text-align: right; border-bottom: 1px solid #f0f0f0; }
+    td:first-child, td:nth-child(2), td:nth-child(3) { text-align: left; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #f8f8f8; }
+    .surplus-pos { color: #1e7e34; font-weight: 600; }
+    .surplus-neg { color: #c62828; font-weight: 600; }
+    .dynasty-val { color: #6a1b9a; font-weight: 600; }
+    .dim { color: #bbb; }
+
+    /* Cat / fit badges */
+    .badge { display: inline-block; font-size: 0.68rem; padding: 1px 5px; border-radius: 8px; font-weight: 600; margin: 1px; white-space: nowrap; }
+    .badge-need { background: #fce8e6; color: #c62828; }
+    .badge-fit  { background: #fff3e0; color: #e65100; }
+    .badge-fv        { font-size: 0.65rem; padding: 1px 4px; border-radius: 8px; font-weight: 600; margin-left: 4px; }
+    .badge-fv-elite  { background: #f3e5f5; color: #6a1b9a; }
+    .badge-fv-high   { background: #e8f0fe; color: #1557b0; }
+    .badge-fv-mid    { background: #e0f2f1; color: #00695c; }
+    .badge-fv-low    { background: #f5f5f5; color: #666;    }
+
+    /* Team cards */
+    .team-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px; }
+    .team-card { background: #fff; border-radius: 10px; padding: 14px 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+    .team-card-header { display: flex; align-items: baseline; gap: 8px; margin-bottom: 10px; }
+    .team-card-name { font-size: 0.9rem; font-weight: 700; }
+    .team-card-pts  { font-size: 0.78rem; color: #999; }
+    .card-section-lbl { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #999; margin: 8px 0 4px; }
+    .card-needs { display: flex; flex-wrap: wrap; gap: 3px; margin-bottom: 2px; }
+    .chip-list { display: flex; flex-direction: column; gap: 3px; }
+    .chip-row { display: flex; justify-content: space-between; align-items: center; font-size: 0.81rem; padding: 3px 0; border-bottom: 1px solid #f5f5f5; }
+    .chip-row:last-child { border-bottom: none; }
+    .chip-name { font-weight: 500; color: #222; }
+    .chip-meta { font-size: 0.74rem; color: #999; margin-left: 4px; }
+    .chip-right { display: flex; align-items: center; gap: 6px; }
+    .chip-cats { display: flex; gap: 2px; }
+    .none-msg { font-size: 0.78rem; color: #bbb; font-style: italic; }
+
+    @media (max-width: 700px) {
+      .needs-grid { grid-template-columns: repeat(4, 1fr); }
+      .team-grid  { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <h1>Trade Targets</h1>
+  <nav class="nav">
+    <a href="index.html">Data Hub</a>
+    <a href="standings.html">Standings</a>
+    <a href="roster.html">Roster Analysis</a>
+    <a href="trade.html">Trade Evaluator</a>
+    <a href="fa.html">FA Finder</a>
+    <a href="prospects.html">Prospects</a>
+    <a href="targets.html" class="active">Trade Targets</a>
+  </nav>
+
+  <div id="loading" style="display:none;color:#666;font-size:.88rem;padding:8px 0">Loading data…</div>
+  <div id="error"></div>
+  <div id="content" style="display:none">
+
+    <div class="section-title">My Category Needs</div>
+    <div class="needs-grid" id="needsGrid"></div>
+
+    <div class="title-row">
+      <div class="section-title" style="margin-bottom:0">Top Trade Targets</div>
+      <div class="view-toggle" id="viewToggle" style="display:none">
+        <button id="btnCurrent" class="active" onclick="setView('current')">Current Year</button>
+        <button id="btnDynasty" onclick="setView('dynasty')">Dynasty</button>
+      </div>
+    </div>
+
+    <div class="filter-bar" style="margin-top:10px">
+      <input type="text" id="searchBox" placeholder="Search players…" autocomplete="off">
+      <div class="type-btns">
+        <button class="type-btn active" data-type="all">All</button>
+        <button class="type-btn" data-type="H">Hitters</button>
+        <button class="type-btn" data-type="P">Pitchers</button>
+      </div>
+      <div class="count-line" id="countLine"></div>
+    </div>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th data-col="name">Name</th>
+            <th data-col="team">Team</th>
+            <th data-col="pos">Pos</th>
+            <th data-col="fit">Fit</th>
+            <th data-col="salary">Salary</th>
+            <th data-col="surplus" id="thSurplus">Surplus</th>
+            <th>Helps Your</th>
+          </tr>
+        </thead>
+        <tbody id="targetBody"></tbody>
+      </table>
+    </div>
+
+    <div class="section-title">Team Breakdown</div>
+    <div class="team-grid" id="teamGrid"></div>
+
+  </div>
+
+  <script src="shared.js"></script>
+  <script>
+    var HIT_CATS = ['OBP', 'SLG', 'HR', 'R'];
+    var PIT_CATS = ['ERA', 'WHIP', 'HR9', 'SO'];
+
+    var allTargets  = [];
+    var myRoster    = [];
+    var teamCards   = [];
+    var myWeakCats  = {};   // cat → weakness weight (higher = more urgent)
+    var activeView  = 'current';
+    var hasDynasty  = false;
+    var typeFilter  = 'all';
+    var sortCol     = 'fit';
+    var sortDir     = -1;
+
+    function setView(v) {
+      activeView = v;
+      document.getElementById('btnCurrent').classList.toggle('active', v === 'current');
+      document.getElementById('btnDynasty').classList.toggle('active', v === 'dynasty');
+      document.getElementById('thSurplus').textContent = v === 'dynasty' ? 'Dyn Surplus' : 'Surplus';
+      renderTable();
+      renderCards();
+    }
+
+    function fvClass(fv) {
+      if (fv >= 70) return 'badge-fv-elite';
+      if (fv >= 60) return 'badge-fv-high';
+      if (fv >= 50) return 'badge-fv-mid';
+      return 'badge-fv-low';
+    }
+
+    function surp(row) {
+      return activeView === 'dynasty' ? row.dynastySurplus : row.surplus;
+    }
+
+    function fmt$(n) {
+      if (n > 0)  return '$' + n.toFixed(1);
+      if (n < 0)  return '-$' + Math.abs(n).toFixed(1);
+      return '$0';
+    }
+
+    function playerCats(type) {
+      return type === 'P' ? PIT_CATS : HIT_CATS;
+    }
+
+    function fitScore(type) {
+      return playerCats(type).reduce(function(sum, c) {
+        return sum + (myWeakCats[c] || 0);
+      }, 0);
+    }
+
+    function helpedCats(type) {
+      return playerCats(type).filter(function(c) { return myWeakCats[c] > 0; });
+    }
+
+    // ── Render needs grid ──────────────────────────────────────────────────────
+    function renderNeeds(myStanding, n) {
+      var grid = document.getElementById('needsGrid');
+      while (grid.firstChild) grid.removeChild(grid.firstChild);
+      CATS.forEach(function(cat) {
+        var rank  = myStanding.ranks[cat] || 0;
+        var tier  = rank <= Math.floor(n / 3)       ? 'weak'
+                  : rank <= Math.ceil(n * 2 / 3)    ? 'mid' : 'strong';
+        var place = n + 1 - rank;
+        var card  = document.createElement('div');
+        card.className = 'need-card ' + tier;
+        var nm = document.createElement('div'); nm.className = 'cat-name'; nm.textContent = cat;
+        var rk = document.createElement('div'); rk.className = 'cat-rank';
+        rk.textContent = place + (place === 1 ? 'st' : place === 2 ? 'nd' : place === 3 ? 'rd' : 'th') + ' of ' + n;
+        card.appendChild(nm); card.appendChild(rk);
+        grid.appendChild(card);
+      });
+    }
+
+    // ── Render targets table ───────────────────────────────────────────────────
+    function renderTable() {
+      var query = document.getElementById('searchBox').value.toLowerCase();
+      var filtered = allTargets.filter(function(r) {
+        if (typeFilter !== 'all' && r.type !== typeFilter) return false;
+        if (query && (r.rawName || r.name).toLowerCase().indexOf(query) === -1) return false;
+        return true;
+      });
+
+      filtered.sort(function(a, b) {
+        var av, bv;
+        if (sortCol === 'fit')     { av = a.fit;  bv = b.fit; }
+        else if (sortCol === 'surplus') { av = surp(a); bv = surp(b); }
+        else if (sortCol === 'salary')  { av = a.salary; bv = b.salary; }
+        else if (sortCol === 'name')    { av = (a.rawName||a.name).toLowerCase(); bv = (b.rawName||b.name).toLowerCase(); }
+        else if (sortCol === 'team')    { av = a.teamName.toLowerCase(); bv = b.teamName.toLowerCase(); }
+        else if (sortCol === 'pos')     { av = (a.pos||'').toLowerCase(); bv = (b.pos||'').toLowerCase(); }
+        else { av = 0; bv = 0; }
+        if (av < bv) return sortDir;
+        if (av > bv) return -sortDir;
+        // secondary: fit desc, surplus desc
+        if (sortCol !== 'fit')     { var fd = b.fit - a.fit; if (fd) return fd; }
+        if (sortCol !== 'surplus') { var sd = surp(b) - surp(a); if (sd) return sd; }
+        return 0;
+      });
+
+      document.getElementById('countLine').textContent =
+        'Showing ' + filtered.length + ' of ' + allTargets.length;
+
+      var tbody = document.getElementById('targetBody');
+      while (tbody.firstChild) tbody.removeChild(tbody.firstChild);
+
+      filtered.forEach(function(row) {
+        var tr = document.createElement('tr');
+        var s  = surp(row);
+
+        function td(text, cls) {
+          var cell = document.createElement('td');
+          cell.textContent = text;
+          if (cls) cell.className = cls;
+          return cell;
+        }
+
+        // Name + optional FV badge
+        var nameTd = document.createElement('td');
+        nameTd.textContent = row.rawName || row.name;
+        if (row.fv) {
+          var fvBadge = document.createElement('span');
+          fvBadge.className = 'badge badge-fv ' + fvClass(row.fv);
+          fvBadge.textContent = 'FV ' + row.fv;
+          nameTd.appendChild(fvBadge);
+        }
+        tr.appendChild(nameTd);
+
+        tr.appendChild(td(row.teamName));
+        tr.appendChild(td(row.pos || '—'));
+
+        // Fit score cell (show count of weak cats helped)
+        td_fit = document.createElement('td');
+        td_fit.textContent = row.fit > 0 ? row.fit : '—';
+        td_fit.style.textAlign = 'right';
+        if (row.fit >= 3)      td_fit.style.color = '#1e7e34';
+        else if (row.fit >= 2) td_fit.style.color = '#e65100';
+        else if (row.fit === 0) td_fit.className = 'dim';
+        tr.appendChild(td_fit);
+
+        tr.appendChild(td(row.salary > 0 ? '$' + row.salary : '—', row.salary === 0 ? 'dim' : ''));
+
+        var surpCls = activeView === 'dynasty' ? 'dynasty-val' : (s >= 0 ? 'surplus-pos' : 'surplus-neg');
+        tr.appendChild(td(row.hasProj ? fmt$(s) : '—', row.hasProj ? surpCls : 'dim'));
+
+        // Helps Your cats
+        var catTd = document.createElement('td');
+        catTd.style.textAlign = 'left';
+        row.helped.forEach(function(c) {
+          var b = document.createElement('span');
+          b.className = 'badge badge-fit';
+          b.textContent = c;
+          catTd.appendChild(b);
+        });
+        if (!row.helped.length) { catTd.textContent = '—'; catTd.className = 'dim'; }
+        tr.appendChild(catTd);
+
+        tbody.appendChild(tr);
+      });
+    }
+
+    // ── Render team cards ──────────────────────────────────────────────────────
+    function renderCards() {
+      var grid = document.getElementById('teamGrid');
+      while (grid.firstChild) grid.removeChild(grid.firstChild);
+
+      teamCards.forEach(function(tc) {
+        var card = document.createElement('div');
+        card.className = 'team-card';
+
+        var header = document.createElement('div');
+        header.className = 'team-card-header';
+        var nameEl = document.createElement('div'); nameEl.className = 'team-card-name'; nameEl.textContent = tc.name;
+        var ptsEl  = document.createElement('div'); ptsEl.className  = 'team-card-pts';  ptsEl.textContent  = tc.points + ' pts';
+        header.appendChild(nameEl); header.appendChild(ptsEl);
+        card.appendChild(header);
+
+        // Their needs
+        var needLbl = document.createElement('div'); needLbl.className = 'card-section-lbl'; needLbl.textContent = 'They need';
+        card.appendChild(needLbl);
+        var needRow = document.createElement('div'); needRow.className = 'card-needs';
+        if (tc.weakCats.length) {
+          tc.weakCats.forEach(function(c) {
+            var b = document.createElement('span'); b.className = 'badge badge-need'; b.textContent = c;
+            needRow.appendChild(b);
+          });
+        } else {
+          var nm = document.createElement('span'); nm.className = 'none-msg'; nm.textContent = 'No obvious needs';
+          needRow.appendChild(nm);
+        }
+        card.appendChild(needRow);
+
+        // What you can offer them
+        var offerLbl = document.createElement('div'); offerLbl.className = 'card-section-lbl'; offerLbl.textContent = 'You can offer';
+        card.appendChild(offerLbl);
+        var offerList = document.createElement('div'); offerList.className = 'chip-list';
+        if (tc.myOffers.length) {
+          tc.myOffers.forEach(function(p) {
+            var row = document.createElement('div'); row.className = 'chip-row';
+            var left = document.createElement('div');
+            var nm = document.createElement('span'); nm.className = 'chip-name'; nm.textContent = p.rawName || p.name;
+            var pos = document.createElement('span'); pos.className = 'chip-meta';
+            pos.textContent = ' ' + (p.positions || []).map(function(x){ return x.toUpperCase(); }).join('/');
+            left.appendChild(nm); left.appendChild(pos);
+            var right = document.createElement('div'); right.className = 'chip-right';
+            var sv = activeView === 'dynasty' ? p.dynastySurplus : p.surplus;
+            var surpSpan = document.createElement('span');
+            surpSpan.className = sv >= 0 ? 'surplus-pos' : 'surplus-neg';
+            surpSpan.textContent = fmt$(sv);
+            right.appendChild(surpSpan);
+            p.helpsCats.forEach(function(c) {
+              var b = document.createElement('span'); b.className = 'badge badge-fit'; b.textContent = c;
+              right.appendChild(b);
+            });
+            row.appendChild(left); row.appendChild(right);
+            offerList.appendChild(row);
+          });
+        } else {
+          var nm2 = document.createElement('div'); nm2.className = 'none-msg'; nm2.textContent = 'No strong matches';
+          offerList.appendChild(nm2);
+        }
+        card.appendChild(offerList);
+
+        // Their trade chips
+        var chipLbl = document.createElement('div'); chipLbl.className = 'card-section-lbl'; chipLbl.textContent = 'Their trade chips';
+        card.appendChild(chipLbl);
+        var chipList = document.createElement('div'); chipList.className = 'chip-list';
+        if (tc.theirChips.length) {
+          tc.theirChips.forEach(function(p) {
+            var row = document.createElement('div'); row.className = 'chip-row';
+            var left = document.createElement('div');
+            var nm = document.createElement('span'); nm.className = 'chip-name'; nm.textContent = p.rawName || p.name;
+            var pos = document.createElement('span'); pos.className = 'chip-meta';
+            pos.textContent = ' ' + (p.positions || []).map(function(x){ return x.toUpperCase(); }).join('/');
+            left.appendChild(nm); left.appendChild(pos);
+            var right = document.createElement('div'); right.className = 'chip-right';
+            var sv = activeView === 'dynasty' ? p.dynastySurplus : p.surplus;
+            var surpSpan = document.createElement('span');
+            surpSpan.className = (activeView === 'dynasty') ? 'dynasty-val' : (sv >= 0 ? 'surplus-pos' : 'surplus-neg');
+            surpSpan.textContent = fmt$(sv);
+            right.appendChild(surpSpan);
+            row.appendChild(left); row.appendChild(right);
+            chipList.appendChild(row);
+          });
+        } else {
+          var nm3 = document.createElement('div'); nm3.className = 'none-msg'; nm3.textContent = 'No projection data';
+          chipList.appendChild(nm3);
+        }
+        card.appendChild(chipList);
+
+        grid.appendChild(card);
+      });
+    }
+
+    // Sort header clicks
+    document.querySelectorAll('th[data-col]').forEach(function(th) {
+      th.addEventListener('click', function() {
+        var col = this.dataset.col;
+        if (sortCol === col) { sortDir = -sortDir; }
+        else {
+          sortCol = col;
+          sortDir = (col === 'name' || col === 'team' || col === 'pos') ? 1 : -1;
+        }
+        document.querySelectorAll('th').forEach(function(h) { h.className = ''; });
+        this.className = sortDir === -1 ? 'sort-desc' : 'sort-asc';
+        renderTable();
+      });
+    });
+
+    document.querySelectorAll('.type-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        typeFilter = this.dataset.type;
+        document.querySelectorAll('.type-btn').forEach(function(b) { b.classList.remove('active'); });
+        this.classList.add('active');
+        renderTable();
+      });
+    });
+
+    document.getElementById('searchBox').addEventListener('input', renderTable);
+
+    // ── Init ──────────────────────────────────────────────────────────────────
+    (async function() {
+      document.getElementById('loading').style.display = '';
+      await autoLoadFromRepo();
+      document.getElementById('loading').style.display = 'none';
+
+      var errEl  = document.getElementById('error');
+      var myTeam = loadData('ottoneu_my_team');
+      var roster = loadData('ottoneu_roster');
+
+      function showErr(msg, linkText, linkHref) {
+        var d = document.createElement('div'); d.className = 'error';
+        d.textContent = msg + (linkText ? ' ' : '');
+        if (linkText) { var a = document.createElement('a'); a.href = linkHref; a.textContent = linkText; d.appendChild(a); }
+        errEl.appendChild(d);
+      }
+
+      if (!roster)  { showErr('No roster data — upload CSVs on the', 'Data Hub.', 'index.html'); return; }
+      if (!myTeam)  { showErr('Set your team on the', 'Data Hub.', 'index.html'); return; }
+
+      var projHit  = loadData('ottoneu_proj_hitting');
+      var projPitch = loadData('ottoneu_proj_pitching');
+      if (!projHit && !projPitch) { showErr('No projection data — upload CSVs on the', 'Data Hub.', 'index.html'); return; }
+
+      var hitY1 = loadData('ottoneu_proj_hitting_y1');
+      var pitY1 = loadData('ottoneu_proj_pitching_y1');
+      var hitY2 = loadData('ottoneu_proj_hitting_y2');
+      var pitY2 = loadData('ottoneu_proj_pitching_y2');
+      var weights = loadData('ottoneu_dynasty_weights') || { y1: 0.90, y2: 0.81 };
+      hasDynasty = !!(hitY1 || pitY1 || hitY2 || pitY2);
+      if (hasDynasty) document.getElementById('viewToggle').style.display = '';
+
+      var prospectList = loadData('ottoneu_prospects') || [];
+      var prospectMap  = {};
+      prospectList.forEach(function(pr) { prospectMap[pr.name] = pr; });
+
+      // Match and attach projections
+      var merged = matchPlayers(roster, projHit, projPitch);
+      if (hitY1 || pitY1) merged = attachYearProjections(merged, hitY1, pitY1, 'proj_y1');
+      if (hitY2 || pitY2) merged = attachYearProjections(merged, hitY2, pitY2, 'proj_y2');
+
+      // Group by team
+      var teamSet = {};
+      merged.forEach(function(p) { if (p.team && p.team !== 'Free Agent') teamSet[p.team] = true; });
+      var teamNames = Object.keys(teamSet);
+      var allRosters = teamNames.map(function(t) {
+        return merged.filter(function(p) { return p.team === t; });
+      });
+
+      // Valuations
+      var valueMap        = calculateAllValues(allRosters);
+      var dynastyValueMap = hasDynasty ? calculateDynastyValues(allRosters, weights) : {};
+
+      function getVm(player) {
+        var key = player.fgId || player.name;
+        return {
+          surplus:        (valueMap[key]        || {}).surplus        || 0,
+          dynastySurplus: (dynastyValueMap[key] || {}).dynastySurplus || 0,
+          hasProj:        !!(player.proj),
+        };
+      }
+
+      // Standings
+      var teamStatsArr = teamNames.map(function(t) {
+        var players = teamSet[t] ? merged.filter(function(p) { return p.team === t; }) : [];
+        var lineup  = optimizeHitterLineup(players.filter(function(p) { return p.type === 'H'; }));
+        var pitPool = selectPitchers(players.filter(function(p) { return p.type === 'P'; }));
+        return { name: t, stats: computeTeamStats(lineup, pitPool) };
+      });
+      var standings  = buildStandings(teamStatsArr);
+      var n          = standings.length;
+      var myStanding = standings.find(function(s) { return s.name === myTeam; });
+
+      if (!myStanding) { showErr('Team "' + myTeam + '" not found — re-select on the', 'Data Hub.', 'index.html'); return; }
+
+      // My weak cats: weight = how far below median (max = floor(N/2))
+      CATS.forEach(function(cat) {
+        var rank   = myStanding.ranks[cat] || 0;
+        var median = Math.ceil(n / 2);
+        myWeakCats[cat] = rank < median ? (median - rank) : 0;
+      });
+
+      renderNeeds(myStanding, n);
+
+      // My roster players with valuation
+      myRoster = merged
+        .filter(function(p) { return p.team === myTeam; })
+        .map(function(p) {
+          var vm = getVm(p);
+          return Object.assign({}, p, vm);
+        });
+
+      // All non-my-team players as targets
+      allTargets = merged
+        .filter(function(p) { return p.team && p.team !== myTeam && p.team !== 'Free Agent'; })
+        .map(function(p) {
+          var vm      = getVm(p);
+          var helped  = helpedCats(p.type);
+          var fit     = helped.reduce(function(sum, c) { return sum + myWeakCats[c]; }, 0);
+          var pr      = prospectMap[p.name] || null;
+          return {
+            name:           p.name,
+            rawName:        p.rawName,
+            teamName:       p.team,
+            type:           p.type,
+            pos:            (p.positions || []).map(function(x){ return x.toUpperCase(); }).join('/'),
+            salary:         p.salary || 0,
+            surplus:        vm.surplus,
+            dynastySurplus: vm.dynastySurplus,
+            hasProj:        vm.hasProj,
+            fit:            fit,
+            helped:         helped,
+            fv:             pr ? pr.fv : null,
+          };
+        });
+
+      // Team breakdown cards (sorted: most tradeable = most surplus first)
+      var otherStandings = standings.filter(function(s) { return s.name !== myTeam; });
+      otherStandings.sort(function(a, b) { return b.points - a.points; });
+
+      teamCards = otherStandings.map(function(ts) {
+        var theirPlayers = merged.filter(function(p) { return p.team === ts.name; });
+
+        // Their weak cats
+        var theirWeakCats = CATS.filter(function(c) {
+          return (ts.ranks[c] || 0) < Math.ceil(n / 2);
+        }).sort(function(a, b) {
+          return (ts.ranks[a] || 0) - (ts.ranks[b] || 0); // worst first
+        });
+
+        // What I can offer them: my players who help their weak cats, sorted by surplus
+        var myOffers = myRoster
+          .filter(function(p) {
+            if (!p.hasProj) return false;
+            return playerCats(p.type).some(function(c) {
+              return theirWeakCats.indexOf(c) !== -1;
+            });
+          })
+          .map(function(p) {
+            var helpsCats = playerCats(p.type).filter(function(c) {
+              return theirWeakCats.indexOf(c) !== -1;
+            });
+            return Object.assign({}, p, { helpsCats: helpsCats });
+          })
+          .sort(function(a, b) {
+            var sv = activeView === 'dynasty' ? b.dynastySurplus - a.dynastySurplus : b.surplus - a.surplus;
+            return sv;
+          })
+          .slice(0, 4);
+
+        // Their trade chips: their top surplus players
+        var theirChips = theirPlayers
+          .filter(function(p) { return p.proj; })
+          .map(function(p) {
+            var vm = getVm(p);
+            return Object.assign({}, p, vm);
+          })
+          .sort(function(a, b) {
+            return activeView === 'dynasty'
+              ? b.dynastySurplus - a.dynastySurplus
+              : b.surplus - a.surplus;
+          })
+          .slice(0, 5);
+
+        return {
+          name:      ts.name,
+          points:    ts.points,
+          weakCats:  theirWeakCats,
+          myOffers:  myOffers,
+          theirChips: theirChips,
+        };
+      });
+
+      document.querySelector('th[data-col="fit"]').className = 'sort-desc';
+      document.getElementById('content').style.display = '';
+      renderTable();
+      renderCards();
+    })();
+  </script>
+</body>
+</html>

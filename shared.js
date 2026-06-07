@@ -31,7 +31,7 @@ const REPL_DEPTH = {
 const OF_GAME_CAP  = 810;     // 5 OF × 162 games
 const SLOT_CAP     = 162;
 const IP_MAX       = 1500;
-const IP_MIN       = 1250;
+const IP_MIN       = 400;   // RoS projections have lower IP totals; 400 works year-round
 
 // ── PRORATION ────────────────────────────────────────────────────────────────
 // Returns the fraction of the MLB season remaining as of today.

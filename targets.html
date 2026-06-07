@@ -98,9 +98,13 @@
     .finder-btn { padding: 8px 22px; background: #1a73e8; color: #fff; border: none; border-radius: 6px; font-size: 0.87rem; cursor: pointer; font-weight: 600; }
     .finder-btn:hover { background: #1557b0; }
     .finder-hint { font-size: 0.78rem; color: #aaa; }
-    .role-row { display: flex; align-items: center; gap: 16px; margin-bottom: 12px; flex-wrap: wrap; font-size: 0.84rem; }
-    .role-row .role-lbl { font-weight: 600; color: #555; font-size: 0.8rem; }
-    .role-row label { display: flex; align-items: center; gap: 5px; cursor: pointer; color: #444; }
+    .role-row { display: flex; align-items: center; gap: 20px; margin-bottom: 12px; flex-wrap: wrap; }
+    .val-group { display: flex; align-items: center; gap: 8px; }
+    .role-lbl { font-weight: 600; color: #555; font-size: 0.8rem; white-space: nowrap; }
+    .val-toggle { display: inline-flex; border: 1px solid #ddd; border-radius: 6px; overflow: hidden; }
+    .val-btn { padding: 3px 11px; border: none; background: #fff; font-size: 0.78rem; cursor: pointer; color: #666; }
+    .val-btn.active { background: #1a73e8; color: #fff; }
+    .val-btn:not(.active):hover { background: #f0f4ff; }
     .finder-results { margin-top: 16px; display: flex; flex-direction: column; gap: 10px; }
     .trade-card { border: 1px solid #e8eaf6; border-radius: 8px; padding: 12px 14px; }
     .trade-card-hdr { font-size: 0.84rem; font-weight: 700; margin-bottom: 8px; color: #333; display: flex; align-items: center; gap: 8px; }
@@ -215,10 +219,20 @@
         <label><input type="radio" name="tradeMode" id="modeAcquire" value="acquire"> I want to acquire…</label>
       </div>
       <div class="role-row" id="roleRow" style="display:none">
-        <span class="role-lbl">My role:</span>
-        <label><input type="radio" name="tradeRole" value="balanced" checked> Balanced</label>
-        <label><input type="radio" name="tradeRole" value="winnow"> Win-now <span style="color:#999;font-size:0.77rem">(give future, get star)</span></label>
-        <label><input type="radio" name="tradeRole" value="rebuild"> Rebuilding <span style="color:#999;font-size:0.77rem">(give star, get future)</span></label>
+        <div class="val-group">
+          <span class="role-lbl">My players:</span>
+          <div class="val-toggle">
+            <button class="val-btn active" data-side="my" data-val="current">This year</button>
+            <button class="val-btn" data-side="my" data-val="dynasty">Dynasty</button>
+          </div>
+        </div>
+        <div class="val-group">
+          <span class="role-lbl">Their players:</span>
+          <div class="val-toggle">
+            <button class="val-btn active" data-side="their" data-val="current">This year</button>
+            <button class="val-btn" data-side="their" data-val="dynasty">Dynasty</button>
+          </div>
+        </div>
       </div>
       <div class="pkg-grid">
         <div class="pkg-panel" id="myPkgPanel">
@@ -269,10 +283,11 @@
     var lastFiltered = [];  // cached filtered+sorted list for pagination
 
     // Trade Finder
-    var tradeMode     = 'offer';
-    var tradeRole     = 'balanced'; // 'balanced' | 'winnow' | 'rebuild'
-    var myPackage     = [];   // players I'm offering (full player objects)
-    var targetPackage = [];   // players I want to acquire
+    var tradeMode      = 'offer';
+    var myValuation    = 'current';  // 'current' | 'dynasty'
+    var theirValuation = 'current';  // 'current' | 'dynasty'
+    var myPackage      = [];   // players I'm offering (full player objects)
+    var targetPackage  = [];   // players I want to acquire
 
     function isTradeable(p) {
       return p.hasProj && p.surplus > 0 && (myDepth[p.type] || 0) >= 3;
@@ -651,14 +666,11 @@
     // ── Trade Finder ──────────────────────────────────────────────────────────
 
     // side = 'offer' (what I give) | 'return' (what I get)
-    // balanced: both sides follow the dynasty toggle
-    // winnow:   offer side uses dynasty surplus, return side uses current surplus
-    // rebuild:  offer side uses current surplus, return side uses dynasty surplus
+    // Uses projected value (not surplus) — a $70 star at $72 salary is worth $70 in a trade.
+    // Salary is displayed separately so users see the full picture.
     function playerSurp(p, side) {
-      var useDynasty = tradeRole === 'balanced' ? activeView === 'dynasty'
-                     : tradeRole === 'winnow'   ? side === 'offer'
-                     :                            side === 'return'; // rebuild
-      return useDynasty ? (p.dynastySurplus || 0) : (p.surplus || 0);
+      var useDynasty = side === 'offer' ? myValuation === 'dynasty' : theirValuation === 'dynasty';
+      return useDynasty ? Math.max(0, p.dynValue || 0) : Math.max(0, p.projValue || 0);
     }
 
     function pkgSurp(players, side) {
@@ -697,7 +709,7 @@
         chips.appendChild(chip);
       });
       var totalEl = document.getElementById(totalId);
-      totalEl.textContent = pkg.length ? 'Package total: ' + fmt$(pkgSurp(pkg, side)) + ' surplus' : '';
+      totalEl.textContent = pkg.length ? 'Package total: ' + fmt$(pkgSurp(pkg, side)) + ' trade value' : '';
     }
 
     function makeDropdown(inputId, ddId, getOptions, pkg, chipsId, totalId, side) {
@@ -757,10 +769,16 @@
         });
       });
 
-      document.querySelectorAll('input[name="tradeRole"]').forEach(function(radio) {
-        radio.addEventListener('change', function() {
-          tradeRole = this.value;
-          // Refresh chip displays so surplus values update to reflect the new role
+      document.querySelectorAll('.val-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          var side = this.dataset.side;
+          var val  = this.dataset.val;
+          if (side === 'my') myValuation = val; else theirValuation = val;
+          // Update active state within this toggle group only
+          this.closest('.val-toggle').querySelectorAll('.val-btn').forEach(function(b) {
+            b.classList.toggle('active', b.dataset.val === val);
+          });
+          // Refresh chip displays so surplus values update immediately
           renderPkgChips('myPkgChips',     myPackage,     'myPkgTotal',     'offer');
           renderPkgChips('targetPkgChips', targetPackage, 'targetPkgTotal', 'return');
           var fr = document.getElementById('finderResults'); clearEl(fr);
@@ -814,7 +832,7 @@
       var found = 0;
       teamCards.forEach(function(tc) {
         var tradeable = tc.theirChipsRaw.filter(function(p) {
-          return p.proj && playerSurp(p, 'return') > 0;
+          return p.proj && playerSurp(p, 'return') > 1;
         });
         var options = buildReturnOptions(tradeable, myTotal);
         if (!options.length) return;
@@ -832,7 +850,7 @@
       var targetTotal = pkgSurp(targetPackage, 'return');
       var tol = tradeTol(targetTotal);
       var myPool = myRoster
-        .filter(function(p) { return p.hasProj && playerSurp(p, 'offer') > 0; })
+        .filter(function(p) { return p.hasProj && playerSurp(p, 'offer') > 1; })
         .sort(function(a, b) { return playerSurp(b, 'offer') - playerSurp(a, 'offer'); })
         .slice(0, 15);
 
@@ -886,22 +904,27 @@
       card.appendChild(hdr);
 
       function makeSide(lbl, players, tradeSide) {
-        var usedDynasty = tradeRole === 'balanced' ? activeView === 'dynasty'
-                        : tradeRole === 'winnow'   ? tradeSide === 'offer'
-                        :                            tradeSide === 'return'; // rebuild
+        var usedDynasty = tradeSide === 'offer' ? myValuation === 'dynasty' : theirValuation === 'dynasty';
         var sideEl = document.createElement('div'); sideEl.className = 'trade-side';
         var lblEl  = document.createElement('div'); lblEl.className = 'trade-side-lbl'; lblEl.textContent = lbl;
         if (usedDynasty) { lblEl.textContent += ' (dynasty)'; }
         sideEl.appendChild(lblEl);
         players.forEach(function(p) {
-          var sv     = playerSurp(p, tradeSide);
+          var tv     = playerSurp(p, tradeSide);  // trade value (projected value)
+          var sal    = p.salary || 0;
           var helped = helpedCats(p);
           var pd = document.createElement('div'); pd.className = 'trade-player';
           var nm = document.createElement('span'); nm.className = 'trade-player-name'; nm.textContent = p.rawName || p.name;
           var sp = document.createElement('span');
-          sp.className = 'trade-player-surp ' + (usedDynasty ? 'dynasty-val' : (sv >= 0 ? 'surplus-pos' : 'surplus-neg'));
-          sp.textContent = fmt$(sv);
+          sp.className = 'trade-player-surp ' + (usedDynasty ? 'dynasty-val' : 'surplus-pos');
+          sp.textContent = fmt$(tv);
           pd.appendChild(nm); pd.appendChild(sp);
+          if (sal > 0) {
+            var salSpan = document.createElement('span');
+            salSpan.className = 'chip-meta';
+            salSpan.textContent = '$' + sal + ' sal';
+            pd.appendChild(salSpan);
+          }
           helped.forEach(function(c) { var b = document.createElement('span'); b.className = 'badge badge-fit'; b.textContent = c; pd.appendChild(b); });
           sideEl.appendChild(pd);
         });
@@ -997,7 +1020,9 @@
       function getVm(player) {
         var key = player.fgId || player.name;
         return {
+          projValue:      (valueMap[key]        || {}).projectedValue || 0,
           surplus:        (valueMap[key]        || {}).surplus        || 0,
+          dynValue:       (dynastyValueMap[key] || {}).dynastyValue   || 0,
           dynastySurplus: (dynastyValueMap[key] || {}).dynastySurplus || 0,
           hasProj:        !!(player.proj),
         };
@@ -1057,7 +1082,9 @@
             type:           p.type,
             pos:            (p.positions || []).map(function(x){ return x.toUpperCase(); }).join('/'),
             salary:         p.salary || 0,
+            projValue:      vm.projValue,
             surplus:        vm.surplus,
+            dynValue:       vm.dynValue,
             dynastySurplus: vm.dynastySurplus,
             hasProj:        vm.hasProj,
             fit:            fit,

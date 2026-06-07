@@ -851,7 +851,7 @@
         var options = buildReturnOptions(tradeable, myTotal);
         if (!options.length) return;
         found++;
-        resultsEl.appendChild(makeTradeCard(tc.name, tc.weakCats, myPackage, options, false));
+        resultsEl.appendChild(makeTradeCard(tc.name, tc.weakCats, options, myPackage, false));
       });
       if (!found) {
         var msg = document.createElement('div'); msg.className = 'no-trades-msg';

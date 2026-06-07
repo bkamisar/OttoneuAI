@@ -70,11 +70,14 @@ async function autoLoadFromRepo() {
   await Promise.all(REPO_FILES.map(async function({ file, key, parse }) {
     try {
       const res = await fetch('./data/' + file);
-      if (!res.ok) { status[file] = false; return; }
+      if (!res.ok) { console.warn('[autoLoad] 404:', file); status[file] = false; return; }
       const text = await res.text();
-      saveData(key, parse(text));
+      const parsed = parse(text);
+      console.log('[autoLoad]', file, '→', Array.isArray(parsed) ? parsed.length + ' rows' : typeof parsed);
+      saveData(key, parsed);
       status[file] = true;
-    } catch (_) {
+    } catch (e) {
+      console.error('[autoLoad] ERROR:', file, e);
       status[file] = false;
     }
   }));
@@ -255,12 +258,14 @@ function inferPlayerType(posStr) {
 // Hitting:  #  Name  Team  G  PA  AB  H  HR  R  BB  HBP  OBP  SLG  wOBA  wRC+  ADP
 // Pitching: #  Name  Team  GS  G  IP  ER  HR  SO  BB  HR/9  WHIP  ERA  ADP
 const HITTING_PROJ_COLS = {
+  fgId: 'fgId',
   name: 'Name', team: 'Team',
   pa: 'PA', ab: 'AB', h: 'H', bb: 'BB', hbp: 'HBP',
   hr: 'HR', r: 'R', obp: 'OBP', slg: 'SLG',
 };
 
 const PITCHING_PROJ_COLS = {
+  fgId: 'fgId',
   name: 'Name', team: 'Team',
   ip: 'IP', bb: 'BB', hr: 'HR', so: 'SO',
   era: 'ERA', whip: 'WHIP', hr9: 'HR/9',
@@ -274,7 +279,7 @@ function parseHittingProjections(text) {
       const pa = n('pa');
       const regW = pa + REGRESS_PA;
       return {
-        fgId:    '',
+        fgId:    (row[HITTING_PROJ_COLS.fgId] || '').trim(),
         name:    normalizeName(row[HITTING_PROJ_COLS.name] || ''),
         rawName: (row[HITTING_PROJ_COLS.name] || '').trim(),
         type:    'H',
@@ -311,7 +316,7 @@ function parsePitchingProjections(text) {
       const hr9  = ip > 0 ? (ip * rawHR9  + REGRESS_IP * LG_MEAN.HR9)  / regW : 0;
 
       return {
-        fgId:    '',
+        fgId:    (row[PITCHING_PROJ_COLS.fgId] || '').trim(),
         name:    normalizeName(row[PITCHING_PROJ_COLS.name] || ''),
         rawName: (row[PITCHING_PROJ_COLS.name] || '').trim(),
         type:    'P',
@@ -335,10 +340,16 @@ function matchPlayers(rosterPlayers, hittingProj, pitchingProj) {
     if (p.name) projByName[p.name] = p;
   });
 
-  return rosterPlayers.map(rp => {
+  const matched = rosterPlayers.map(rp => {
     const projMatch = projById[rp.fgId] || projByName[rp.name] || null;
     return { ...rp, proj: projMatch ? projMatch.proj : null };
   });
+  const hMatched = matched.filter(p => p.type === 'H' && p.proj).length;
+  const pMatched = matched.filter(p => p.type === 'P' && p.proj).length;
+  const hTotal   = matched.filter(p => p.type === 'H').length;
+  const pTotal   = matched.filter(p => p.type === 'P').length;
+  console.log('[matchPlayers] hitters:', hMatched + '/' + hTotal, '| pitchers:', pMatched + '/' + pTotal);
+  return matched;
 }
 
 // Players in projection CSVs not assigned to any rostered team = free agents.

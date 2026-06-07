@@ -77,6 +77,9 @@
         <button class="type-btn" data-type="H">Hitters</button>
         <button class="type-btn" data-type="P">Pitchers</button>
       </div>
+      <label style="font-size:0.8rem;color:#555;display:flex;align-items:center;gap:5px;cursor:pointer">
+        <input type="checkbox" id="faOnlyChk"> Free agents only
+      </label>
       <div class="count-line" id="countLine"></div>
     </div>
     <div class="tbl-wrap">
@@ -109,6 +112,7 @@
     var typeFilter = 'all';
     var activeView = 'current';
     var hasDynasty = false;
+    var faOnly     = false;
 
     function setView(v) {
       activeView = v;
@@ -170,6 +174,7 @@
       var filtered  = allRows.filter(function(r) {
         var t = r.projType || inferType(r.prospect.pos);
         if (typeFilter !== 'all' && t !== typeFilter) return false;
+        if (faOnly && r.team !== 'FA') return false;
         if (query) {
           var name = (r.prospect.rawName || r.prospect.name).toLowerCase();
           if (name.indexOf(query) === -1) return false;
@@ -272,6 +277,9 @@
     });
 
     document.getElementById('searchBox').addEventListener('input', render);
+    document.getElementById('faOnlyChk').addEventListener('change', function() {
+      faOnly = this.checked; render();
+    });
 
     (async function() {
       document.getElementById('loading').style.display = '';

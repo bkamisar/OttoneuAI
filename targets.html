@@ -98,6 +98,9 @@
     .finder-btn { padding: 8px 22px; background: #1a73e8; color: #fff; border: none; border-radius: 6px; font-size: 0.87rem; cursor: pointer; font-weight: 600; }
     .finder-btn:hover { background: #1557b0; }
     .finder-hint { font-size: 0.78rem; color: #aaa; }
+    .role-row { display: flex; align-items: center; gap: 16px; margin-bottom: 12px; flex-wrap: wrap; font-size: 0.84rem; }
+    .role-row .role-lbl { font-weight: 600; color: #555; font-size: 0.8rem; }
+    .role-row label { display: flex; align-items: center; gap: 5px; cursor: pointer; color: #444; }
     .finder-results { margin-top: 16px; display: flex; flex-direction: column; gap: 10px; }
     .trade-card { border: 1px solid #e8eaf6; border-radius: 8px; padding: 12px 14px; }
     .trade-card-hdr { font-size: 0.84rem; font-weight: 700; margin-bottom: 8px; color: #333; display: flex; align-items: center; gap: 8px; }
@@ -206,6 +209,12 @@
         <label><input type="radio" name="tradeMode" id="modeOffer" value="offer" checked> I want to offer…</label>
         <label><input type="radio" name="tradeMode" id="modeAcquire" value="acquire"> I want to acquire…</label>
       </div>
+      <div class="role-row" id="roleRow" style="display:none">
+        <span class="role-lbl">My role:</span>
+        <label><input type="radio" name="tradeRole" value="balanced" checked> Balanced</label>
+        <label><input type="radio" name="tradeRole" value="winnow"> Win-now <span style="color:#999;font-size:0.77rem">(give future, get star)</span></label>
+        <label><input type="radio" name="tradeRole" value="rebuild"> Rebuilding <span style="color:#999;font-size:0.77rem">(give star, get future)</span></label>
+      </div>
       <div class="pkg-grid">
         <div class="pkg-panel">
           <h4 id="myPkgLabel">My package (up to 3)</h4>
@@ -255,9 +264,10 @@
     var lastFiltered = [];  // cached filtered+sorted list for pagination
 
     // Trade Finder
-    var tradeMode    = 'offer';
-    var myPackage    = [];   // players I'm offering (full player objects)
-    var targetPackage = [];  // players I want to acquire
+    var tradeMode     = 'offer';
+    var tradeRole     = 'balanced'; // 'balanced' | 'winnow' | 'rebuild'
+    var myPackage     = [];   // players I'm offering (full player objects)
+    var targetPackage = [];   // players I want to acquire
 
     function isTradeable(p) {
       return p.hasProj && p.surplus > 0 && (myDepth[p.type] || 0) >= 3;
@@ -635,10 +645,19 @@
 
     // ── Trade Finder ──────────────────────────────────────────────────────────
 
-    function pkgSurp(players) {
-      return players.reduce(function(sum, p) {
-        return sum + (activeView === 'dynasty' ? (p.dynastySurplus || 0) : (p.surplus || 0));
-      }, 0);
+    // side = 'offer' (what I give) | 'return' (what I get)
+    // balanced: both sides follow the dynasty toggle
+    // winnow:   offer side uses dynasty surplus, return side uses current surplus
+    // rebuild:  offer side uses current surplus, return side uses dynasty surplus
+    function playerSurp(p, side) {
+      var useDynasty = tradeRole === 'balanced' ? activeView === 'dynasty'
+                     : tradeRole === 'winnow'   ? side === 'offer'
+                     :                            side === 'return'; // rebuild
+      return useDynasty ? (p.dynastySurplus || 0) : (p.surplus || 0);
+    }
+
+    function pkgSurp(players, side) {
+      return players.reduce(function(sum, p) { return sum + playerSurp(p, side); }, 0);
     }
 
     function tradeTol(total) { return Math.max(3, Math.abs(total) * 0.30); }
@@ -653,11 +672,11 @@
 
     function clearEl(el) { while (el.firstChild) el.removeChild(el.firstChild); }
 
-    function renderPkgChips(chipsId, pkg, totalId) {
+    function renderPkgChips(chipsId, pkg, totalId, side) {
       var chips = document.getElementById(chipsId);
       clearEl(chips);
       pkg.forEach(function(p, i) {
-        var sv = activeView === 'dynasty' ? (p.dynastySurplus || 0) : (p.surplus || 0);
+        var sv = playerSurp(p, side);
         var chip = document.createElement('div'); chip.className = 'pkg-chip';
         var nm = document.createElement('span'); nm.className = 'pkg-chip-name';
         nm.textContent = p.rawName || p.name;
@@ -667,16 +686,16 @@
         surpSpan.textContent = fmt$(sv);
         var rm = document.createElement('span'); rm.className = 'pkg-chip-rm'; rm.textContent = '×';
         (function(idx) {
-          rm.addEventListener('click', function() { pkg.splice(idx, 1); renderPkgChips(chipsId, pkg, totalId); });
+          rm.addEventListener('click', function() { pkg.splice(idx, 1); renderPkgChips(chipsId, pkg, totalId, side); });
         })(i);
         chip.appendChild(nm); chip.appendChild(meta); chip.appendChild(surpSpan); chip.appendChild(rm);
         chips.appendChild(chip);
       });
       var totalEl = document.getElementById(totalId);
-      totalEl.textContent = pkg.length ? 'Package total: ' + fmt$(pkgSurp(pkg)) + ' surplus' : '';
+      totalEl.textContent = pkg.length ? 'Package total: ' + fmt$(pkgSurp(pkg, side)) + ' surplus' : '';
     }
 
-    function makeDropdown(inputId, ddId, getOptions, pkg, chipsId, totalId) {
+    function makeDropdown(inputId, ddId, getOptions, pkg, chipsId, totalId, side) {
       var input = document.getElementById(inputId);
       var dd    = document.getElementById(ddId);
       input.addEventListener('input', function() {
@@ -686,7 +705,7 @@
         var opts = getOptions(q).slice(0, 12);
         if (!opts.length) return;
         opts.forEach(function(p) {
-          var sv   = activeView === 'dynasty' ? (p.dynastySurplus || 0) : (p.surplus || 0);
+          var sv   = playerSurp(p, side);
           var item = document.createElement('div'); item.className = 'pkg-dd-item';
           var nm   = document.createElement('span');
           nm.textContent = (p.rawName || p.name) + (p.teamName || p.team ? ' — ' + (p.teamName || p.team) : '');
@@ -697,7 +716,7 @@
             if (pkg.length >= 3) return;
             if (!pkg.some(function(x) { return (x.fgId || x.name) === (p.fgId || p.name); })) pkg.push(p);
             input.value = ''; clearEl(dd); dd.style.display = 'none';
-            renderPkgChips(chipsId, pkg, totalId);
+            renderPkgChips(chipsId, pkg, totalId, side);
           });
           dd.appendChild(item);
         });
@@ -707,21 +726,34 @@
     }
 
     function initFinder() {
+      if (hasDynasty) document.getElementById('roleRow').style.display = '';
+
       makeDropdown('myPkgSearch', 'myPkgDD', function(q) {
         return myRoster.filter(function(p) { return (p.rawName || p.name).toLowerCase().indexOf(q) !== -1; });
-      }, myPackage, 'myPkgChips', 'myPkgTotal');
+      }, myPackage, 'myPkgChips', 'myPkgTotal', 'offer');
 
       makeDropdown('targetPkgSearch', 'targetPkgDD', function(q) {
         return allTargets
           .filter(function(p) { return (p.rawName || p.name).toLowerCase().indexOf(q) !== -1; })
-          .sort(function(a, b) { return (activeView === 'dynasty' ? b.dynastySurplus - a.dynastySurplus : b.surplus - a.surplus); });
-      }, targetPackage, 'targetPkgChips', 'targetPkgTotal');
+          .sort(function(a, b) { return playerSurp(b, 'return') - playerSurp(a, 'return'); });
+      }, targetPackage, 'targetPkgChips', 'targetPkgTotal', 'return');
 
       document.querySelectorAll('input[name="tradeMode"]').forEach(function(radio) {
         radio.addEventListener('change', function() {
           tradeMode = this.value;
           document.getElementById('myPkgLabel').textContent = 'My package (up to 3)';
           document.getElementById('targetPkgPanel').style.display = tradeMode === 'acquire' ? '' : 'none';
+          var fr = document.getElementById('finderResults'); clearEl(fr);
+          document.getElementById('finderHint').textContent = '';
+        });
+      });
+
+      document.querySelectorAll('input[name="tradeRole"]').forEach(function(radio) {
+        radio.addEventListener('change', function() {
+          tradeRole = this.value;
+          // Refresh chip displays so surplus values update to reflect the new role
+          renderPkgChips('myPkgChips',     myPackage,     'myPkgTotal',     'offer');
+          renderPkgChips('targetPkgChips', targetPackage, 'targetPkgTotal', 'return');
           var fr = document.getElementById('finderResults'); clearEl(fr);
           document.getElementById('finderHint').textContent = '';
         });
@@ -747,12 +779,12 @@
     function buildReturnOptions(tradeablePlayers, myTotal) {
       var tol  = tradeTol(myTotal);
       var pool = tradeablePlayers
-        .sort(function(a, b) { return (activeView === 'dynasty' ? b.dynastySurplus - a.dynastySurplus : b.surplus - a.surplus); })
+        .sort(function(a, b) { return playerSurp(b, 'return') - playerSurp(a, 'return'); })
         .slice(0, 15);
       var options = [];
       [1, 2, 3].forEach(function(k) {
         combos(pool.slice(0, k === 3 ? 12 : 15), k).forEach(function(combo) {
-          var total = pkgSurp(combo);
+          var total = pkgSurp(combo, 'return');
           if (total >= myTotal - tol && total <= myTotal + tol) {
             var fit = combo.reduce(function(s, p) {
               return s + helpedCats(p).reduce(function(ss, c) { return ss + (myWeakCats[c] || 0); }, 0);
@@ -769,12 +801,11 @@
     }
 
     function runOfferMode(resultsEl) {
-      var myTotal = pkgSurp(myPackage);
+      var myTotal = pkgSurp(myPackage, 'offer');
       var found = 0;
       teamCards.forEach(function(tc) {
         var tradeable = tc.theirChipsRaw.filter(function(p) {
-          var sv = activeView === 'dynasty' ? (p.dynastySurplus || 0) : (p.surplus || 0);
-          return p.proj && sv > 0;
+          return p.proj && playerSurp(p, 'return') > 0;
         });
         var options = buildReturnOptions(tradeable, myTotal);
         if (!options.length) return;
@@ -789,11 +820,11 @@
     }
 
     function runAcquireMode(resultsEl) {
-      var targetTotal = pkgSurp(targetPackage);
+      var targetTotal = pkgSurp(targetPackage, 'return');
       var tol = tradeTol(targetTotal);
       var myPool = myRoster
-        .filter(function(p) { var sv = activeView === 'dynasty' ? (p.dynastySurplus||0) : (p.surplus||0); return p.hasProj && sv > 0; })
-        .sort(function(a, b) { return (activeView === 'dynasty' ? b.dynastySurplus - a.dynastySurplus : b.surplus - a.surplus); })
+        .filter(function(p) { return p.hasProj && playerSurp(p, 'offer') > 0; })
+        .sort(function(a, b) { return playerSurp(b, 'offer') - playerSurp(a, 'offer'); })
         .slice(0, 15);
 
       var teamsNeeded = {};
@@ -802,7 +833,7 @@
       var options = [];
       [1, 2, 3].forEach(function(k) {
         combos(myPool.slice(0, k === 3 ? 12 : 15), k).forEach(function(combo) {
-          var total = pkgSurp(combo);
+          var total = pkgSurp(combo, 'offer');
           if (total >= targetTotal - tol && total <= targetTotal + tol) {
             var targetTC = teamCards.find(function(tc) { return teamsNeeded[tc.name]; });
             var myFit = combo.reduce(function(s, p) {
@@ -845,33 +876,37 @@
       }
       card.appendChild(hdr);
 
-      function makeSide(lbl, players) {
-        var side = document.createElement('div'); side.className = 'trade-side';
-        var lblEl = document.createElement('div'); lblEl.className = 'trade-side-lbl'; lblEl.textContent = lbl;
-        side.appendChild(lblEl);
+      function makeSide(lbl, players, tradeSide) {
+        var usedDynasty = tradeRole === 'balanced' ? activeView === 'dynasty'
+                        : tradeRole === 'winnow'   ? tradeSide === 'offer'
+                        :                            tradeSide === 'return'; // rebuild
+        var sideEl = document.createElement('div'); sideEl.className = 'trade-side';
+        var lblEl  = document.createElement('div'); lblEl.className = 'trade-side-lbl'; lblEl.textContent = lbl;
+        if (usedDynasty) { lblEl.textContent += ' (dynasty)'; }
+        sideEl.appendChild(lblEl);
         players.forEach(function(p) {
-          var sv      = activeView === 'dynasty' ? (p.dynastySurplus||0) : (p.surplus||0);
-          var helped  = helpedCats(p);
+          var sv     = playerSurp(p, tradeSide);
+          var helped = helpedCats(p);
           var pd = document.createElement('div'); pd.className = 'trade-player';
           var nm = document.createElement('span'); nm.className = 'trade-player-name'; nm.textContent = p.rawName || p.name;
           var sp = document.createElement('span');
-          sp.className = 'trade-player-surp ' + (activeView === 'dynasty' ? 'dynasty-val' : (sv >= 0 ? 'surplus-pos' : 'surplus-neg'));
+          sp.className = 'trade-player-surp ' + (usedDynasty ? 'dynasty-val' : (sv >= 0 ? 'surplus-pos' : 'surplus-neg'));
           sp.textContent = fmt$(sv);
           pd.appendChild(nm); pd.appendChild(sp);
           helped.forEach(function(c) { var b = document.createElement('span'); b.className = 'badge badge-fit'; b.textContent = c; pd.appendChild(b); });
-          side.appendChild(pd);
+          sideEl.appendChild(pd);
         });
-        return side;
+        return sideEl;
       }
 
       options.forEach(function(opt) {
         var offerPlayers   = acquireMode ? opt.players    : (fixedMyPkg || []);
         var receivePlayers = acquireMode ? targetPackage  : opt.players;
         var row = document.createElement('div'); row.className = 'trade-option';
-        row.appendChild(makeSide('You offer',   offerPlayers));
+        row.appendChild(makeSide('You offer',   offerPlayers,   'offer'));
         var arrow = document.createElement('div'); arrow.className = 'trade-arrow'; arrow.textContent = '⇄';
         row.appendChild(arrow);
-        row.appendChild(makeSide('You receive', receivePlayers));
+        row.appendChild(makeSide('You receive', receivePlayers, 'return'));
         card.appendChild(row);
       });
       return card;

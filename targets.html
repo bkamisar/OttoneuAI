@@ -105,8 +105,13 @@
     .trade-card { border: 1px solid #e8eaf6; border-radius: 8px; padding: 12px 14px; }
     .trade-card-hdr { font-size: 0.84rem; font-weight: 700; margin-bottom: 8px; color: #333; display: flex; align-items: center; gap: 8px; }
     .trade-card-needs { display: flex; gap: 3px; }
-    .trade-option { display: grid; grid-template-columns: 1fr 28px 1fr; gap: 8px; align-items: start; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid #f5f5f5; }
+    .pkg-grid-single { grid-template-columns: 1fr !important; }
+    .trade-option { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #f0f0f0; }
     .trade-option:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+    .trade-opt-hdr { display: flex; align-items: center; gap: 6px; }
+    .trade-opt-num { font-size: 0.72rem; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 0.05em; }
+    .badge-pkg { background: #e8f0fe; color: #1557b0; font-size: 0.68rem; padding: 1px 5px; border-radius: 8px; font-weight: 600; }
+    .trade-legs { display: grid; grid-template-columns: 1fr 28px 1fr; gap: 8px; align-items: start; }
     .trade-side { display: flex; flex-direction: column; gap: 3px; }
     .trade-side-lbl { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.05em; color: #aaa; font-weight: 700; margin-bottom: 2px; }
     .trade-arrow { text-align: center; color: #ccc; font-size: 1rem; padding-top: 16px; }
@@ -216,7 +221,7 @@
         <label><input type="radio" name="tradeRole" value="rebuild"> Rebuilding <span style="color:#999;font-size:0.77rem">(give star, get future)</span></label>
       </div>
       <div class="pkg-grid">
-        <div class="pkg-panel">
+        <div class="pkg-panel" id="myPkgPanel">
           <h4 id="myPkgLabel">My package (up to 3)</h4>
           <div class="pkg-search-wrap">
             <input type="text" class="pkg-search" id="myPkgSearch" placeholder="Search your players…" autocomplete="off">
@@ -741,8 +746,12 @@
       document.querySelectorAll('input[name="tradeMode"]').forEach(function(radio) {
         radio.addEventListener('change', function() {
           tradeMode = this.value;
-          document.getElementById('myPkgLabel').textContent = 'My package (up to 3)';
-          document.getElementById('targetPkgPanel').style.display = tradeMode === 'acquire' ? '' : 'none';
+          var isAcquire = tradeMode === 'acquire';
+          // In acquire mode: hide the "my package" builder — the system suggests it automatically
+          document.getElementById('myPkgPanel').style.display    = isAcquire ? 'none' : '';
+          document.getElementById('targetPkgPanel').style.display = isAcquire ? ''     : 'none';
+          // Single column when only one panel is visible
+          document.querySelector('.pkg-grid').classList.toggle('pkg-grid-single', isAcquire);
           var fr = document.getElementById('finderResults'); clearEl(fr);
           document.getElementById('finderHint').textContent = '';
         });
@@ -771,7 +780,7 @@
         if (!myPackage.length) { hintEl.textContent = 'Add at least one player to your package.'; return; }
         runOfferMode(resultsEl);
       } else {
-        if (!myPackage.length || !targetPackage.length) { hintEl.textContent = 'Add players to both panels.'; return; }
+        if (!targetPackage.length) { hintEl.textContent = 'Add at least one target player.'; return; }
         runAcquireMode(resultsEl);
       }
     }
@@ -899,14 +908,33 @@
         return sideEl;
       }
 
-      options.forEach(function(opt) {
+      options.forEach(function(opt, idx) {
         var offerPlayers   = acquireMode ? opt.players    : (fixedMyPkg || []);
         var receivePlayers = acquireMode ? targetPackage  : opt.players;
+        var totalPlayers   = offerPlayers.length + receivePlayers.length;
+        var isMulti        = offerPlayers.length > 1 || receivePlayers.length > 1;
+
         var row = document.createElement('div'); row.className = 'trade-option';
-        row.appendChild(makeSide('You offer',   offerPlayers,   'offer'));
+
+        // Option header
+        var optHdr = document.createElement('div'); optHdr.className = 'trade-opt-hdr';
+        var optNum = document.createElement('span'); optNum.className = 'trade-opt-num';
+        optNum.textContent = 'Option ' + (idx + 1);
+        optHdr.appendChild(optNum);
+        if (isMulti) {
+          var pkgBadge = document.createElement('span'); pkgBadge.className = 'badge badge-pkg';
+          pkgBadge.textContent = offerPlayers.length + '-for-' + receivePlayers.length + ' package';
+          optHdr.appendChild(pkgBadge);
+        }
+        row.appendChild(optHdr);
+
+        // Trade layout
+        var legs = document.createElement('div'); legs.className = 'trade-legs';
+        legs.appendChild(makeSide('You offer',   offerPlayers,   'offer'));
         var arrow = document.createElement('div'); arrow.className = 'trade-arrow'; arrow.textContent = '⇄';
-        row.appendChild(arrow);
-        row.appendChild(makeSide('You receive', receivePlayers, 'return'));
+        legs.appendChild(arrow);
+        legs.appendChild(makeSide('You receive', receivePlayers, 'return'));
+        row.appendChild(legs);
         card.appendChild(row);
       });
       return card;

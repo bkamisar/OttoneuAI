@@ -794,12 +794,26 @@
       var hintEl    = document.getElementById('finderHint');
       clearEl(resultsEl); hintEl.textContent = '';
 
-      if (tradeMode === 'offer') {
-        if (!myPackage.length) { hintEl.textContent = 'Add at least one player to your package.'; return; }
-        runOfferMode(resultsEl);
-      } else {
-        if (!targetPackage.length) { hintEl.textContent = 'Add at least one target player.'; return; }
-        runAcquireMode(resultsEl);
+      try {
+        if (tradeMode === 'offer') {
+          if (!myPackage.length) { hintEl.textContent = 'Add at least one player to your package.'; return; }
+          var myTotal = pkgSurp(myPackage, 'offer');
+          hintEl.textContent = 'Package value: ' + fmt$(myTotal) + ' — searching…';
+          runOfferMode(resultsEl, myTotal);
+          hintEl.textContent = '';
+        } else {
+          if (!targetPackage.length) { hintEl.textContent = 'Add at least one target player.'; return; }
+          var tgtTotal = pkgSurp(targetPackage, 'return');
+          hintEl.textContent = 'Target value: ' + fmt$(tgtTotal) + ' — searching…';
+          runAcquireMode(resultsEl);
+          hintEl.textContent = '';
+        }
+        // Scroll results into view if anything was rendered
+        if (resultsEl.firstChild) {
+          resultsEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+      } catch(e) {
+        hintEl.textContent = 'Error: ' + e.message;
       }
     }
 
@@ -827,8 +841,8 @@
       return options.slice(0, 4);
     }
 
-    function runOfferMode(resultsEl) {
-      var myTotal = pkgSurp(myPackage, 'offer');
+    function runOfferMode(resultsEl, myTotal) {
+      myTotal = myTotal !== undefined ? myTotal : pkgSurp(myPackage, 'offer');
       var found = 0;
       teamCards.forEach(function(tc) {
         var tradeable = tc.theirChipsRaw.filter(function(p) {

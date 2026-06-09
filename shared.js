@@ -251,7 +251,11 @@ function parseSalary(str) {
 
 function inferPlayerType(posStr) {
   const tokens = String(posStr).toLowerCase().split(/[/,]/).map(p => p.trim());
-  return tokens.some(p => p === 'sp' || p === 'rp' || p === 'p') ? 'P' : 'H';
+  const hasPitching = tokens.some(p => p === 'sp' || p === 'rp' || p === 'p');
+  const hasHitting  = tokens.some(p => ['c','1b','2b','ss','3b','of','dh','mi','ci','util'].includes(p));
+  // Only classify as pitcher if there are NO hitting positions.
+  // Players like "1b/of/rp" are hitters who occasionally pitch — treat as 'H'.
+  return hasPitching && !hasHitting ? 'P' : 'H';
 }
 
 // ── PROJECTION PARSERS ───────────────────────────────────────────────────────
@@ -701,16 +705,10 @@ function calculateAllValues(allTeamRosters, extraPlayers, quiet) {
   let totalHitSGP = 0;
   let totalPitSGP = 0;
 
-  const DEBUG_NAMES = new Set(['juan soto','corey seager','eury perez','spencer schwellenbach','addison barger','seth lugo']);
   allTeamRosters.flat().forEach(player => {
     const key = player.fgId || player.name;
     if (valueMap[key]) return;
     const b = player.proj;
-
-    if (!quiet && DEBUG_NAMES.has(player.name)) {
-      console.log('[debug2]', player.rawName, '| type:', player.type, '| proj:', b ? 'matched' : 'NULL',
-        b ? '| PA:'+(b.pa||'–')+' HR:'+b.hr+' ERA:'+(b.era||'–') : '');
-    }
 
     if (!b) {
       if (!quiet) console.warn('[Ottoneu] No projection matched for:', player.rawName || player.name,
@@ -855,12 +853,17 @@ function calcReplacementLevels(allTeamRosters, startingP) {
   allTeamRosters.flat().forEach(p => {
     const b = p.proj;
     if (!b) return;
-    const pk  = getReplacementKey(p);
     const key = p.fgId || p.name;
     if (p.type === 'P') {
-      groups[pk].push({ b, isStart: startingP.has(key), v: valProxy(p, b) });
+      groups['P'].push({ b, isStart: startingP.has(key), v: valProxy(p, b) });
     } else {
-      groups[pk].push({ b, v: valProxy(p, b) });
+      // Add hitter to EVERY bucket they're eligible for, not just the primary one.
+      // This ensures the replacement pool for each slot (e.g. OF) reflects all
+      // players who could fill it — not only single-position players.
+      const eligKeys = getEligibleReplacementKeys(p);
+      eligKeys.forEach(pk => {
+        if (groups[pk]) groups[pk].push({ b, v: valProxy(p, b) });
+      });
     }
   });
 
@@ -876,8 +879,12 @@ function calcReplacementLevels(allTeamRosters, startingP) {
       const byERA = [...players].sort((a, b) => (a.b.era || 99) - (b.b.era || 99));
       result[pos] = (byERA[depth] || byERA[byERA.length - 1] || { b: null }).b;
     } else {
-      // Hitters: sort by valProxy descending (PA-weighted OBP+SLG).
-      const sorted = [...players].sort((a, b) => b.v - a.v);
+      // Hitters: sort by rate quality (OBP+SLG) descending.
+      // Using raw OBP+SLG rather than PA-weighted valProxy prevents a low-PA
+      // injury returner with elite rates from landing at the depth cutoff and
+      // inflating the replacement OBP to an unreachably high level.
+      const sorted = [...players].sort((a, b) =>
+        ((b.b.obp || 0) + (b.b.slg || 0)) - ((a.b.obp || 0) + (a.b.slg || 0)));
       result[pos] = (sorted[depth] || sorted[sorted.length - 1] || { b: null }).b;
     }
   });

@@ -27,6 +27,7 @@ const REPL_DEPTH = {
   '3B': 12,
   OF:   60,   // 5 per team
   UTIL: 12,   // fallback; not used in eligible-key evaluation
+  P:   156,   // ~13 active pitching spots per team × 12 teams
 };
 const OF_GAME_CAP  = 810;     // 5 OF × 162 games
 const SLOT_CAP     = 162;
@@ -739,9 +740,11 @@ function calculateAllValues(allTeamRosters, extraPlayers, quiet) {
   const pitRate = totalPitSGP > 0 ? pitDollars / totalPitSGP : 0;
   if (!quiet) console.log('[values] hitShare:', (dynamicHitShare*100).toFixed(1)+'%',
     '| hitRate: $'+hitRate.toFixed(2)+'/SGP | pitRate: $'+pitRate.toFixed(2)+'/SGP',
-    '| repl ERA:', (replLevels.P && replLevels.P.era || 0).toFixed(2),
+    '| replP ERA:', (replLevels.P && replLevels.P.era || 0).toFixed(2),
     'WHIP:', (replLevels.P && replLevels.P.whip || 0).toFixed(3),
-    'SO:', Math.round(replLevels.P && replLevels.P.so || 0));
+    'SO:', Math.round(replLevels.P && replLevels.P.so || 0),
+    '| replOF HR:', Math.round(replLevels.OF && replLevels.OF.hr || 0),
+    'OBP:', (replLevels.OF && replLevels.OF.obp || 0).toFixed(3));
 
   hitSGPs.forEach(({ key, sgp }) => {
     const val = sgp * hitRate;
@@ -848,33 +851,12 @@ function calcReplacementLevels(allTeamRosters, startingP) {
   Object.entries(groups).forEach(([pos, players]) => {
     const sorted = [...players].sort((a, b) => b.v - a.v);
 
-    if (pos === 'P') {
-      // Simulate full-league IP budget to find the marginal (replacement) pitcher.
-      // Budget = 80% of total rostered pitcher IP, so the bottom ~20% of arms
-      // are below replacement. This self-calibrates for both full-season and RoS
-      // projections — avoids the old hardcoded full-season budget causing all RoS
-      // pitchers to look elite relative to a garbage fallback.
-      const totalRosteredIP = sorted.reduce((s, p) => s + (p.b.ip || 0), 0);
-      const leagueBudget = totalRosteredIP * 0.80;
-      let usedIP = 0;
-      let replPitcher = null;
-      for (const p of sorted) {
-        const ip = p.b.ip || 0;
-        if (usedIP + ip <= leagueBudget) {
-          usedIP += ip;
-        } else {
-          replPitcher = p;
-          break;
-        }
-      }
-      result[pos] = replPitcher ? replPitcher.b : (sorted[sorted.length - 1] || { b: null }).b;
-    } else {
-      // Use fixed active-roster depth: the player just beyond the expected number
-      // of active lineup slots league-wide. Accounts for 40-man rosters without
-      // treating waiver-wire dregs as the replacement.
-      const depth = REPL_DEPTH[pos] || 12;
-      result[pos] = (sorted[depth] || sorted[sorted.length - 1] || { b: null }).b;
-    }
+    // Depth-based replacement for all positions including pitchers.
+    // REPL_DEPTH[pos] = number of active slots league-wide; the (N+1)th player
+    // at that position is the replacement. Works identically for full-season and
+    // RoS projections — no IP-volume bias, no hardcoded season-length budget.
+    const depth = REPL_DEPTH[pos] || 12;
+    result[pos] = (sorted[depth] || sorted[sorted.length - 1] || { b: null }).b;
   });
   return result;
 }

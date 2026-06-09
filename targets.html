@@ -523,7 +523,6 @@
           .slice(0, 4);
 
         // "Their chips": only their players who fill MY weak cats, sorted by fit then surplus
-        if (tc === teamCards[0]) console.log('[targets] theirChipsRaw[0] sample:', tc.theirChipsRaw.slice(0,3).map(function(p){ return p.rawName + ' type=' + p.type + ' ip=' + (p.proj&&p.proj.ip) + ' era=' + (p.proj&&p.proj.era); }));
         var theirChips = tc.theirChipsRaw
           .map(function(p) {
             var helped = helpedCats(p);
@@ -1068,14 +1067,21 @@
 
       if (!myStanding) { showErr('Team "' + myTeam + '" not found — re-select on the', 'Data Hub.', 'index.html'); return; }
 
-      // My weak cats: weight = how far below median (max = floor(N/2))
+      // My weak cats: weight = how far below median (higher = more urgent)
+      var median = Math.ceil(n / 2);
       CATS.forEach(function(cat) {
-        var rank   = myStanding.ranks[cat] || 0;
-        var median = Math.ceil(n / 2);
+        var rank = myStanding.ranks[cat] || 0;
         myWeakCats[cat] = rank < median ? (median - rank) : 0;
       });
-      console.log('[targets] myWeakCats:', JSON.stringify(myWeakCats));
-      console.log('[targets] myStanding.ranks:', JSON.stringify(myStanding.ranks));
+      // If no absolute weak cats (strong team), fall back to 3 relatively weakest
+      var hasWeak = CATS.some(function(cat) { return myWeakCats[cat] > 0; });
+      if (!hasWeak) {
+        CATS.slice().sort(function(a, b) {
+          return (myStanding.ranks[a] || 0) - (myStanding.ranks[b] || 0);
+        }).slice(0, 3).forEach(function(cat, i) {
+          myWeakCats[cat] = 3 - i;
+        });
+      }
 
       renderNeeds(myStanding, n);
 

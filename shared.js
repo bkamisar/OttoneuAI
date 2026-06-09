@@ -402,13 +402,13 @@ function calculateDynastyValues(allRosters, weights, extraPlayers) {
   // Y1 — run only if any player actually has proj_y1 data
   const hasY1 = w1 > 0 && allRosters.flat().some(p => p.proj_y1);
   const vmY1 = hasY1
-    ? calculateAllValues(cloneForYear(allRosters, 'proj_y1'), cloneExtras(extraPlayers, 'proj_y1'))
+    ? calculateAllValues(cloneForYear(allRosters, 'proj_y1'), cloneExtras(extraPlayers, 'proj_y1'), true)
     : null;
 
   // Y2 — run only if any player actually has proj_y2 data
   const hasY2 = w2 > 0 && allRosters.flat().some(p => p.proj_y2);
   const vmY2 = hasY2
-    ? calculateAllValues(cloneForYear(allRosters, 'proj_y2'), cloneExtras(extraPlayers, 'proj_y2'))
+    ? calculateAllValues(cloneForYear(allRosters, 'proj_y2'), cloneExtras(extraPlayers, 'proj_y2'), true)
     : null;
 
   // Dynasty salary cost: apply the same discount weights to salary as to value.
@@ -650,7 +650,7 @@ function buildStandings(teams) {
 
 // extraPlayers: optional array of FA players to value using the same rates.
 // They do NOT affect replacement levels or total SGP — keeping existing values calibrated.
-function calculateAllValues(allTeamRosters, extraPlayers) {
+function calculateAllValues(allTeamRosters, extraPlayers, quiet) {
   // 1. Optimize lineup for each team
   const teamLineups = allTeamRosters.map(roster => {
     const hitters  = roster.filter(p => p.type === 'H');
@@ -695,7 +695,7 @@ function calculateAllValues(allTeamRosters, extraPlayers) {
     const b = player.proj;
 
     if (!b) {
-      console.warn('[Ottoneu] No projection matched for:', player.rawName || player.name,
+      if (!quiet) console.warn('[Ottoneu] No projection matched for:', player.rawName || player.name,
         '(salary $' + (player.salary || 0) + ', pos ' + (player.positions || []).join('/') + ')');
       valueMap[key] = { sgp: 0, noProj: true, actualSalary: player.salary || 0, surplus: -(player.salary || 0) };
       return;

@@ -615,7 +615,7 @@
             chipList.appendChild(row);
           });
         } else {
-          var nm3 = document.createElement('div'); nm3.className = 'none-msg'; nm3.textContent = 'No projection data';
+          var nm3 = document.createElement('div'); nm3.className = 'none-msg'; nm3.textContent = 'No strong trade chips for your needs';
           chipList.appendChild(nm3);
         }
         card.appendChild(chipList);
@@ -997,8 +997,9 @@
       if (!roster)  { showErr('No roster data — upload CSVs on the', 'Data Hub.', 'index.html'); return; }
       if (!myTeam)  { showErr('Set your team on the', 'Data Hub.', 'index.html'); return; }
 
-      var projHit  = loadData('ottoneu_proj_hitting');
+      var projHit   = loadData('ottoneu_proj_hitting');
       var projPitch = loadData('ottoneu_proj_pitching');
+      var currData  = loadData('ottoneu_curr_standings');
       if (!projHit && !projPitch) { showErr('No projection data — upload CSVs on the', 'Data Hub.', 'index.html'); return; }
 
       var hitY1 = loadData('ottoneu_proj_hitting_y1');
@@ -1042,13 +1043,24 @@
         };
       }
 
-      // Standings
-      var teamStatsArr = teamNames.map(function(t) {
+      // Standings — blend with current actuals if available
+      var projStatsArr = teamNames.map(function(t) {
         var players = teamSet[t] ? merged.filter(function(p) { return p.team === t; }) : [];
         var lineup  = optimizeHitterLineup(players.filter(function(p) { return p.type === 'H'; }));
         var pitPool = selectPitchers(players.filter(function(p) { return p.type === 'P'; }));
         return { name: t, stats: computeTeamStats(lineup, pitPool) };
       });
+      var teamStatsArr;
+      if (currData) {
+        var currByName = {};
+        currData.forEach(function(row) { currByName[row.name.trim()] = row; });
+        teamStatsArr = projStatsArr.map(function(t) {
+          var curr = currByName[t.name.trim()];
+          return curr ? { name: t.name, stats: blendStats(curr, t.stats) } : t;
+        });
+      } else {
+        teamStatsArr = projStatsArr;
+      }
       var standings  = buildStandings(teamStatsArr);
       var n          = standings.length;
       var myStanding = standings.find(function(s) { return s.name === myTeam; });
@@ -1080,14 +1092,6 @@
 
       // League averages for precise fit scoring
       lgAvg = computeLgAvg(projHit, projPitch);
-      console.log('[targets] myWeakCats:', JSON.stringify(myWeakCats));
-      console.log('[targets] lgAvg:', JSON.stringify(lgAvg));
-      console.log('[targets] sample playerHelps check:', (function() {
-        var sample = merged.find(function(p) { return p.proj && p.type === 'P' && p.proj.ip > 10; });
-        if (!sample) return 'no pitcher with ip>10';
-        return sample.rawName + ' ERA=' + sample.proj.era + ' lgAvg.ERA=' + lgAvg.ERA + ' helps=' + playerHelps(sample, 'ERA');
-      })());
-
       // All non-my-team players as targets
       allTargets = merged
         .filter(function(p) { return p.team && p.team !== myTeam && p.team !== 'Free Agent'; })

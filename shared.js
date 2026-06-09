@@ -31,7 +31,7 @@ const REPL_DEPTH = {
 const OF_GAME_CAP  = 810;     // 5 OF × 162 games
 const SLOT_CAP     = 162;
 const IP_MAX       = 1500;
-const IP_MIN       = 1250;
+const IP_MIN       = 400;   // RoS projections have lower IP totals; 400 works year-round
 
 // ── PRORATION ────────────────────────────────────────────────────────────────
 // Returns the fraction of the MLB season remaining as of today.
@@ -59,6 +59,7 @@ const REPO_FILES = [
   { file: 'proj_hitting_y2.csv',  key: 'ottoneu_proj_hitting_y2',   parse: parseHittingProjections },
   { file: 'proj_pitching_y2.csv', key: 'ottoneu_proj_pitching_y2',  parse: parsePitchingProjections },
   { file: 'prospects.csv',        key: 'ottoneu_prospects',          parse: parseProspectsCSV },
+  { file: 'standings.csv',        key: 'ottoneu_curr_standings',     parse: parseCurrStandings },
 ];
 
 // Fetches all data/ CSVs from the repo, parses them, and writes to localStorage.
@@ -70,11 +71,14 @@ async function autoLoadFromRepo() {
   await Promise.all(REPO_FILES.map(async function({ file, key, parse }) {
     try {
       const res = await fetch('./data/' + file);
-      if (!res.ok) { status[file] = false; return; }
+      if (!res.ok) { console.warn('[autoLoad] 404:', file); status[file] = false; return; }
       const text = await res.text();
-      saveData(key, parse(text));
+      const parsed = parse(text);
+      console.log('[autoLoad]', file, '→', Array.isArray(parsed) ? parsed.length + ' rows' : typeof parsed);
+      saveData(key, parsed);
       status[file] = true;
-    } catch (_) {
+    } catch (e) {
+      console.error('[autoLoad] ERROR:', file, e);
       status[file] = false;
     }
   }));
@@ -83,22 +87,52 @@ async function autoLoadFromRepo() {
 
 // ── PROSPECT PARSER ──────────────────────────────────────────────────────────
 function parseProspectsCSV(text) {
-  return parseCSV(text).map(function(row) {
-    const fv  = parseInt(row['FV'])      || 0;
-    const name = (row['Name'] || '').trim();
+  // Strip UTF-8 BOM and split into non-empty lines.
+  var lines = text.replace(/^﻿/, '').split(/\r?\n/).filter(function(l) { return l.trim(); });
+
+  // Find the header line by scanning for one that contains both Name and FV columns.
+  // This handles FanGraphs' multi-line quoted first column header gracefully.
+  var headerIdx = -1;
+  for (var i = 0; i < Math.min(6, lines.length); i++) {
+    if (lines[i].indexOf('Name') !== -1 && lines[i].indexOf('FV') !== -1) {
+      headerIdx = i;
+      break;
+    }
+  }
+  if (headerIdx < 0) return [];
+
+  // Detect delimiter from the first data row (not the header) so a manually
+  // edited comma-separated header still works with tab-separated data rows.
+  var firstData = lines[headerIdx + 1] || '';
+  var delim = firstData.includes('\t') ? '\t' : ',';
+
+  function splitLine(line) {
+    return line.split(delim).map(function(c) { return c.trim().replace(/^"|"$/g, ''); });
+  }
+
+  var headers = splitLine(lines[headerIdx]);
+  var idx = {};
+  headers.forEach(function(h, i) { idx[h] = i; });
+
+  if (idx['Name'] === undefined || idx['FV'] === undefined) return [];
+
+  return lines.slice(headerIdx + 1).map(function(line) {
+    var cols = splitLine(line);
+    var name = cols[idx['Name']] || '';
+    var fv   = parseInt(cols[idx['FV']]) || 0;
     if (!name || !fv) return null;
-    const rankRaw = parseInt(row['Top 100']);
+    var rankRaw = idx['Top 100'] !== undefined ? parseInt(cols[idx['Top 100']]) : NaN;
     return {
       name:    normalizeName(name),
       rawName: name,
       rank:    isNaN(rankRaw) ? null : rankRaw,
-      orgRank: parseInt(row['Org Rk']) || null,
-      org:     (row['Org']           || '').trim(),
-      pos:     (row['Pos']           || '').trim(),
-      level:   (row['Current Level'] || '').trim(),
-      eta:     (row['ETA']           || '').trim(),
+      orgRank: idx['Org Rk']       !== undefined ? (parseInt(cols[idx['Org Rk']])       || null) : null,
+      org:     idx['Org']          !== undefined ? (cols[idx['Org']]          || '')              : '',
+      pos:     idx['Pos']          !== undefined ? (cols[idx['Pos']]          || '')              : '',
+      level:   idx['Current Level']!== undefined ? (cols[idx['Current Level']]|| '')              : '',
+      eta:     idx['ETA']          !== undefined ? (cols[idx['ETA']]          || '')              : '',
       fv,
-      age:     parseFloat(row['Age']) || null,
+      age:     idx['Age']          !== undefined ? (parseFloat(cols[idx['Age']]) || null)         : null,
     };
   }).filter(Boolean);
 }
@@ -225,12 +259,14 @@ function inferPlayerType(posStr) {
 // Hitting:  #  Name  Team  G  PA  AB  H  HR  R  BB  HBP  OBP  SLG  wOBA  wRC+  ADP
 // Pitching: #  Name  Team  GS  G  IP  ER  HR  SO  BB  HR/9  WHIP  ERA  ADP
 const HITTING_PROJ_COLS = {
+  fgId: 'fgId',
   name: 'Name', team: 'Team',
   pa: 'PA', ab: 'AB', h: 'H', bb: 'BB', hbp: 'HBP',
   hr: 'HR', r: 'R', obp: 'OBP', slg: 'SLG',
 };
 
 const PITCHING_PROJ_COLS = {
+  fgId: 'fgId',
   name: 'Name', team: 'Team',
   ip: 'IP', bb: 'BB', hr: 'HR', so: 'SO',
   era: 'ERA', whip: 'WHIP', hr9: 'HR/9',
@@ -244,7 +280,7 @@ function parseHittingProjections(text) {
       const pa = n('pa');
       const regW = pa + REGRESS_PA;
       return {
-        fgId:    '',
+        fgId:    (row[HITTING_PROJ_COLS.fgId] || '').trim(),
         name:    normalizeName(row[HITTING_PROJ_COLS.name] || ''),
         rawName: (row[HITTING_PROJ_COLS.name] || '').trim(),
         type:    'H',
@@ -281,7 +317,7 @@ function parsePitchingProjections(text) {
       const hr9  = ip > 0 ? (ip * rawHR9  + REGRESS_IP * LG_MEAN.HR9)  / regW : 0;
 
       return {
-        fgId:    '',
+        fgId:    (row[PITCHING_PROJ_COLS.fgId] || '').trim(),
         name:    normalizeName(row[PITCHING_PROJ_COLS.name] || ''),
         rawName: (row[PITCHING_PROJ_COLS.name] || '').trim(),
         type:    'P',
@@ -305,10 +341,16 @@ function matchPlayers(rosterPlayers, hittingProj, pitchingProj) {
     if (p.name) projByName[p.name] = p;
   });
 
-  return rosterPlayers.map(rp => {
+  const matched = rosterPlayers.map(rp => {
     const projMatch = projById[rp.fgId] || projByName[rp.name] || null;
     return { ...rp, proj: projMatch ? projMatch.proj : null };
   });
+  const hMatched = matched.filter(p => p.type === 'H' && p.proj).length;
+  const pMatched = matched.filter(p => p.type === 'P' && p.proj).length;
+  const hTotal   = matched.filter(p => p.type === 'H').length;
+  const pTotal   = matched.filter(p => p.type === 'P').length;
+  console.log('[matchPlayers] hitters:', hMatched + '/' + hTotal, '| pitchers:', pMatched + '/' + pTotal);
+  return matched;
 }
 
 // Players in projection CSVs not assigned to any rostered team = free agents.
@@ -360,13 +402,13 @@ function calculateDynastyValues(allRosters, weights, extraPlayers) {
   // Y1 — run only if any player actually has proj_y1 data
   const hasY1 = w1 > 0 && allRosters.flat().some(p => p.proj_y1);
   const vmY1 = hasY1
-    ? calculateAllValues(cloneForYear(allRosters, 'proj_y1'), cloneExtras(extraPlayers, 'proj_y1'))
+    ? calculateAllValues(cloneForYear(allRosters, 'proj_y1'), cloneExtras(extraPlayers, 'proj_y1'), true)
     : null;
 
   // Y2 — run only if any player actually has proj_y2 data
   const hasY2 = w2 > 0 && allRosters.flat().some(p => p.proj_y2);
   const vmY2 = hasY2
-    ? calculateAllValues(cloneForYear(allRosters, 'proj_y2'), cloneExtras(extraPlayers, 'proj_y2'))
+    ? calculateAllValues(cloneForYear(allRosters, 'proj_y2'), cloneExtras(extraPlayers, 'proj_y2'), true)
     : null;
 
   // Dynasty salary cost: apply the same discount weights to salary as to value.
@@ -608,7 +650,7 @@ function buildStandings(teams) {
 
 // extraPlayers: optional array of FA players to value using the same rates.
 // They do NOT affect replacement levels or total SGP — keeping existing values calibrated.
-function calculateAllValues(allTeamRosters, extraPlayers) {
+function calculateAllValues(allTeamRosters, extraPlayers, quiet) {
   // 1. Optimize lineup for each team
   const teamLineups = allTeamRosters.map(roster => {
     const hitters  = roster.filter(p => p.type === 'H');
@@ -653,7 +695,7 @@ function calculateAllValues(allTeamRosters, extraPlayers) {
     const b = player.proj;
 
     if (!b) {
-      console.warn('[Ottoneu] No projection matched for:', player.rawName || player.name,
+      if (!quiet) console.warn('[Ottoneu] No projection matched for:', player.rawName || player.name,
         '(salary $' + (player.salary || 0) + ', pos ' + (player.positions || []).join('/') + ')');
       valueMap[key] = { sgp: 0, noProj: true, actualSalary: player.salary || 0, surplus: -(player.salary || 0) };
       return;

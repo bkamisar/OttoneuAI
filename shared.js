@@ -59,6 +59,7 @@ const REPO_FILES = [
   { file: 'proj_hitting_y2.csv',  key: 'ottoneu_proj_hitting_y2',   parse: parseHittingProjections },
   { file: 'proj_pitching_y2.csv', key: 'ottoneu_proj_pitching_y2',  parse: parsePitchingProjections },
   { file: 'prospects.csv',        key: 'ottoneu_prospects',          parse: parseProspectsCSV },
+  { file: 'standings.csv',        key: 'ottoneu_curr_standings',     parse: parseCurrStandings },
 ];
 
 // Fetches all data/ CSVs from the repo, parses them, and writes to localStorage.

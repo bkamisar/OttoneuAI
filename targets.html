@@ -1080,6 +1080,13 @@
 
       // League averages for precise fit scoring
       lgAvg = computeLgAvg(projHit, projPitch);
+      console.log('[targets] myWeakCats:', JSON.stringify(myWeakCats));
+      console.log('[targets] lgAvg:', JSON.stringify(lgAvg));
+      console.log('[targets] sample playerHelps check:', (function() {
+        var sample = merged.find(function(p) { return p.proj && p.type === 'P' && p.proj.ip > 10; });
+        if (!sample) return 'no pitcher with ip>10';
+        return sample.rawName + ' ERA=' + sample.proj.era + ' lgAvg.ERA=' + lgAvg.ERA + ' helps=' + playerHelps(sample, 'ERA');
+      })());
 
       // All non-my-team players as targets
       allTargets = merged

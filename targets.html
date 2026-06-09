@@ -523,6 +523,7 @@
           .slice(0, 4);
 
         // "Their chips": only their players who fill MY weak cats, sorted by fit then surplus
+        if (tc === teamCards[0]) console.log('[targets] theirChipsRaw[0] sample:', tc.theirChipsRaw.slice(0,3).map(function(p){ return p.rawName + ' type=' + p.type + ' ip=' + (p.proj&&p.proj.ip) + ' era=' + (p.proj&&p.proj.era); }));
         var theirChips = tc.theirChipsRaw
           .map(function(p) {
             var helped = helpedCats(p);
@@ -1073,6 +1074,8 @@
         var median = Math.ceil(n / 2);
         myWeakCats[cat] = rank < median ? (median - rank) : 0;
       });
+      console.log('[targets] myWeakCats:', JSON.stringify(myWeakCats));
+      console.log('[targets] myStanding.ranks:', JSON.stringify(myStanding.ranks));
 
       renderNeeds(myStanding, n);
 

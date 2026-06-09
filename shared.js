@@ -695,6 +695,15 @@ function calculateAllValues(allTeamRosters, extraPlayers, quiet) {
     if (valueMap[key]) return;
     const b = player.proj;
 
+    // Temporary debug: log specific players to diagnose $0 values
+    if (!quiet && player.name && (player.name.includes('soto') || player.name.includes('judge') || player.name.includes('ohtani'))) {
+      const eligK = getEligibleReplacementKeys(player);
+      const repl  = replLevels[eligK[0]] || {};
+      console.log('[debug]', player.rawName, 'proj:', b ? 'yes' : 'null',
+        b ? ('PA:'+b.pa+' HR:'+b.hr+' OBP:'+b.obp) : '',
+        'replKey:', eligK[0], 'replHR:', repl.hr, 'replOBP:', repl.obp);
+    }
+
     if (!b) {
       if (!quiet) console.warn('[Ottoneu] No projection matched for:', player.rawName || player.name,
         '(salary $' + (player.salary || 0) + ', pos ' + (player.positions || []).join('/') + ')');
@@ -849,14 +858,20 @@ function calcReplacementLevels(allTeamRosters, startingP) {
 
   const result = {};
   Object.entries(groups).forEach(([pos, players]) => {
-    const sorted = [...players].sort((a, b) => b.v - a.v);
-
-    // Depth-based replacement for all positions including pitchers.
-    // REPL_DEPTH[pos] = number of active slots league-wide; the (N+1)th player
-    // at that position is the replacement. Works identically for full-season and
-    // RoS projections — no IP-volume bias, no hardcoded season-length budget.
     const depth = REPL_DEPTH[pos] || 12;
-    result[pos] = (sorted[depth] || sorted[sorted.length - 1] || { b: null }).b;
+
+    if (pos === 'P') {
+      // Sort pitchers by ERA ascending (best ERA first) so the depth cutoff
+      // lands on a genuine replacement-level ERA, not an IP-volume artifact.
+      // valProxy conflates IP × quality; a low-IP pitcher with 3.67 ERA can
+      // rank at the margin and drag replacement ERA unrealistically low.
+      const byERA = [...players].sort((a, b) => (a.b.era || 99) - (b.b.era || 99));
+      result[pos] = (byERA[depth] || byERA[byERA.length - 1] || { b: null }).b;
+    } else {
+      // Hitters: sort by valProxy descending (PA-weighted OBP+SLG).
+      const sorted = [...players].sort((a, b) => b.v - a.v);
+      result[pos] = (sorted[depth] || sorted[sorted.length - 1] || { b: null }).b;
+    }
   });
   return result;
 }

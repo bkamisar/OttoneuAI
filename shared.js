@@ -701,10 +701,16 @@ function calculateAllValues(allTeamRosters, extraPlayers, quiet) {
   let totalHitSGP = 0;
   let totalPitSGP = 0;
 
+  const DEBUG_NAMES = new Set(['juan soto','corey seager','eury perez','spencer schwellenbach','addison barger','seth lugo']);
   allTeamRosters.flat().forEach(player => {
     const key = player.fgId || player.name;
     if (valueMap[key]) return;
     const b = player.proj;
+
+    if (!quiet && DEBUG_NAMES.has(player.name)) {
+      console.log('[debug2]', player.rawName, '| type:', player.type, '| proj:', b ? 'matched' : 'NULL',
+        b ? '| PA:'+(b.pa||'–')+' HR:'+b.hr+' ERA:'+(b.era||'–') : '');
+    }
 
     if (!b) {
       if (!quiet) console.warn('[Ottoneu] No projection matched for:', player.rawName || player.name,

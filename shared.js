@@ -335,15 +335,26 @@ function parsePitchingProjections(text) {
 // Merges roster players with their projections.
 // Match priority: FanGraphs ID → normalized name.
 function matchPlayers(rosterPlayers, hittingProj, pitchingProj) {
-  const projById   = {};
-  const projByName = {};
+  // ID-based lookup (type-agnostic — fgId is unique per player)
+  const projById = {};
   [...(hittingProj || []), ...(pitchingProj || [])].forEach(p => {
-    if (p.fgId) projById[p.fgId]   = p;
-    if (p.name) projByName[p.name] = p;
+    if (p.fgId) projById[p.fgId] = p;
   });
 
+  // Type-separated name lookups — prevents a minor-league pitcher named
+  // "Juan Soto" from overwriting Juan Soto the outfielder's hitting projection.
+  const projByNameH = {};
+  const projByNameP = {};
+  (hittingProj  || []).forEach(p => { if (p.name) projByNameH[p.name] = p; });
+  (pitchingProj || []).forEach(p => { if (p.name) projByNameP[p.name] = p; });
+
   const matched = rosterPlayers.map(rp => {
-    const projMatch = projById[rp.fgId] || projByName[rp.name] || null;
+    // 1. Try ID match (most reliable)
+    let projMatch = projById[rp.fgId] || null;
+    // 2. Type-aware name match: hitters → hitting proj, pitchers → pitching proj
+    if (!projMatch) {
+      projMatch = rp.type === 'P' ? projByNameP[rp.name] : projByNameH[rp.name];
+    }
     return { ...rp, proj: projMatch ? projMatch.proj : null };
   });
   const hMatched = matched.filter(p => p.type === 'H' && p.proj).length;
@@ -694,15 +705,6 @@ function calculateAllValues(allTeamRosters, extraPlayers, quiet) {
     const key = player.fgId || player.name;
     if (valueMap[key]) return;
     const b = player.proj;
-
-    // Temporary debug: log specific players to diagnose $0 values
-    if (!quiet && player.name && (player.name.includes('soto') || player.name.includes('judge') || player.name.includes('ohtani'))) {
-      const eligK = getEligibleReplacementKeys(player);
-      const repl  = replLevels[eligK[0]] || {};
-      console.log('[debug]', player.rawName, 'proj:', b ? 'yes' : 'null',
-        b ? ('PA:'+b.pa+' HR:'+b.hr+' OBP:'+b.obp) : '',
-        'replKey:', eligK[0], 'replHR:', repl.hr, 'replOBP:', repl.obp);
-    }
 
     if (!b) {
       if (!quiet) console.warn('[Ottoneu] No projection matched for:', player.rawName || player.name,

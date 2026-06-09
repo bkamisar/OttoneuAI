@@ -411,11 +411,25 @@ function getFreeAgents(hittingProj, pitchingProj, rosterPlayers) {
 // (projection CSVs have no player ID column).
 function attachYearProjections(matchedPlayers, hittingProj, pitchingProj, projKey) {
   if (!hittingProj && !pitchingProj) return matchedPlayers;
-  const byName = {};
-  [...(hittingProj || []), ...(pitchingProj || [])].forEach(p => {
-    if (p.name) byName[p.name] = p.proj;
+  // Type-separated lookups — same reason as matchPlayers: prevents Ohtani's
+  // pitching projection from overwriting his hitting projection for the same name.
+  const byNameH = {};
+  const byNameP = {};
+  (hittingProj  || []).forEach(p => { if (p.name) byNameH[p.name] = p.proj; });
+  (pitchingProj || []).forEach(p => { if (p.name) byNameP[p.name] = p.proj; });
+
+  return matchedPlayers.map(p => {
+    const yearProj = p.type === 'P' ? byNameP[p.name] : byNameH[p.name];
+    const result = { ...p, [projKey]: yearProj || null };
+    // Two-way players: also store the year-specific pitching projection so
+    // cloneForYear can set projP correctly for that year's valuation pass.
+    if (p.type === 'H' && p.projP !== undefined) {
+      const yearPitchProj = byNameP[p.name];
+      result[projKey + '_P'] = (yearPitchProj && (yearPitchProj.ip || 0) >= TWO_WAY_IP_MIN)
+        ? yearPitchProj : null;
+    }
+    return result;
   });
-  return matchedPlayers.map(p => ({ ...p, [projKey]: byName[p.name] || null }));
 }
 
 // Computes dynasty value by running the SGP model across up to three projection
@@ -427,11 +441,21 @@ function calculateDynastyValues(allRosters, weights, extraPlayers) {
   const w2 = weights ? (weights.y2 || 0) : 0;
 
   // Helper: clone rosters swapping proj → a different year's projection.
+  // Also forward projP from the year-specific pitching field so two-way players
+  // (Ohtani) get the correct pitching projection for each dynasty year, not Y0's.
   function cloneForYear(rosters, yearKey) {
-    return rosters.map(r => r.map(p => ({ ...p, proj: p[yearKey] || null })));
+    return rosters.map(r => r.map(p => ({
+      ...p,
+      proj:  p[yearKey]          || null,
+      projP: p[yearKey + '_P']   !== undefined ? p[yearKey + '_P'] : p.projP,
+    })));
   }
   function cloneExtras(extras, yearKey) {
-    return extras ? extras.map(p => ({ ...p, proj: p[yearKey] || null })) : null;
+    return extras ? extras.map(p => ({
+      ...p,
+      proj:  p[yearKey]          || null,
+      projP: p[yearKey + '_P']   !== undefined ? p[yearKey + '_P'] : p.projP,
+    })) : null;
   }
 
   // Y0 — always run

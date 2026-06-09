@@ -33,6 +33,7 @@ const OF_GAME_CAP  = 810;     // 5 OF × 162 games
 const SLOT_CAP     = 162;
 const IP_MAX       = 1500;
 const IP_MIN       = 400;   // RoS projections have lower IP totals; 400 works year-round
+const TWO_WAY_IP_MIN = 30; // Min projected IP for a hitter to count as a true two-way pitcher
 
 // ── PRORATION ────────────────────────────────────────────────────────────────
 // Returns the fraction of the MLB season remaining as of today.
@@ -339,27 +340,48 @@ function parsePitchingProjections(text) {
 // Merges roster players with their projections.
 // Match priority: FanGraphs ID → normalized name.
 function matchPlayers(rosterPlayers, hittingProj, pitchingProj) {
-  // ID-based lookup (type-agnostic — fgId is unique per player)
-  const projById = {};
-  [...(hittingProj || []), ...(pitchingProj || [])].forEach(p => {
-    if (p.fgId) projById[p.fgId] = p;
-  });
-
-  // Type-separated name lookups — prevents a minor-league pitcher named
-  // "Juan Soto" from overwriting Juan Soto the outfielder's hitting projection.
+  // Type-separated ID and name lookups.
+  // Keeping hitting and pitching separate prevents two-way players (Ohtani) or
+  // name collisions (minor-league pitcher "Juan Soto") from clobbering the wrong
+  // projection when both files share the same playerid or name.
+  const projByIdH = {};
+  const projByIdP = {};
   const projByNameH = {};
   const projByNameP = {};
-  (hittingProj  || []).forEach(p => { if (p.name) projByNameH[p.name] = p; });
-  (pitchingProj || []).forEach(p => { if (p.name) projByNameP[p.name] = p; });
+  (hittingProj  || []).forEach(p => {
+    if (p.fgId) projByIdH[p.fgId] = p;
+    if (p.name)  projByNameH[p.name]  = p;
+  });
+  (pitchingProj || []).forEach(p => {
+    if (p.fgId) projByIdP[p.fgId] = p;
+    if (p.name)  projByNameP[p.name]  = p;
+  });
 
   const matched = rosterPlayers.map(rp => {
-    // 1. Try ID match (most reliable)
-    let projMatch = projById[rp.fgId] || null;
-    // 2. Type-aware name match: hitters → hitting proj, pitchers → pitching proj
+    // 1. Type-aware ID match (most reliable)
+    const idLookup = rp.type === 'P' ? projByIdP : projByIdH;
+    let projMatch = (rp.fgId && idLookup[rp.fgId]) || null;
+    // 2. Type-aware name match fallback
     if (!projMatch) {
       projMatch = rp.type === 'P' ? projByNameP[rp.name] : projByNameH[rp.name];
     }
-    return { ...rp, proj: projMatch ? projMatch.proj : null };
+
+    // 3. Two-way check: a type='H' player with pitching eligibility (SP/RP) who
+    //    also has a meaningful pitching projection is a genuine two-way player.
+    //    Attach projP so the SGP loop can add their pitching value on top.
+    //    TWO_WAY_IP_MIN filters out position players who pitched once in a blowout.
+    let projP = null;
+    if (rp.type === 'H') {
+      const hasPitchPos = (rp.positions || []).some(p => p === 'sp' || p === 'rp' || p === 'p');
+      if (hasPitchPos) {
+        const ppMatch = (rp.fgId && projByIdP[rp.fgId]) || projByNameP[rp.name] || null;
+        if (ppMatch && ppMatch.proj && (ppMatch.proj.ip || 0) >= TWO_WAY_IP_MIN) {
+          projP = ppMatch.proj;
+        }
+      }
+    }
+
+    return { ...rp, proj: projMatch ? projMatch.proj : null, projP };
   });
   const hMatched = matched.filter(p => p.type === 'H' && p.proj).length;
   const pMatched = matched.filter(p => p.type === 'P' && p.proj).length;
@@ -734,6 +756,17 @@ function calculateAllValues(allTeamRosters, extraPlayers, quiet) {
         if (bestSGP === null || s > bestSGP) bestSGP = s;
       }
       sgp = bestSGP !== null ? bestSGP : 0;
+
+      // Two-way players: add pitching SGP on top of hitting SGP.
+      // Since hitRate === pitRate by construction (both = $4800 / totalSGP),
+      // adding pitching SGP directly to the hitting pool produces the correct value.
+      if (player.projP) {
+        const replP = replLevels['P'];
+        if (replP) {
+          const pitSGP = calcPlayerSGP({ ...player, type: 'P' }, player.projP, replP, sgpDenom, avgPA, avgIP);
+          if (pitSGP > 0) sgp += pitSGP;
+        }
+      }
     }
 
     valueMap[key] = { sgp, actualSalary: player.salary || 0 };
@@ -864,6 +897,10 @@ function calcReplacementLevels(allTeamRosters, startingP) {
       eligKeys.forEach(pk => {
         if (groups[pk]) groups[pk].push({ b, v: valProxy(p, b) });
       });
+      // Two-way players (e.g. Ohtani) also occupy a pitching roster slot.
+      if (p.projP) {
+        groups['P'].push({ b: p.projP, isStart: startingP.has(key), v: valProxy({ type: 'P' }, p.projP) });
+      }
     }
   });
 

@@ -737,6 +737,11 @@ function calculateAllValues(allTeamRosters, extraPlayers, quiet) {
 
   const hitRate = totalHitSGP > 0 ? hitDollars / totalHitSGP : 0;
   const pitRate = totalPitSGP > 0 ? pitDollars / totalPitSGP : 0;
+  if (!quiet) console.log('[values] hitShare:', (dynamicHitShare*100).toFixed(1)+'%',
+    '| hitRate: $'+hitRate.toFixed(2)+'/SGP | pitRate: $'+pitRate.toFixed(2)+'/SGP',
+    '| repl ERA:', (replLevels.P && replLevels.P.era || 0).toFixed(2),
+    'WHIP:', (replLevels.P && replLevels.P.whip || 0).toFixed(3),
+    'SO:', Math.round(replLevels.P && replLevels.P.so || 0));
 
   hitSGPs.forEach(({ key, sgp }) => {
     const val = sgp * hitRate;
@@ -844,10 +849,13 @@ function calcReplacementLevels(allTeamRosters, startingP) {
     const sorted = [...players].sort((a, b) => b.v - a.v);
 
     if (pos === 'P') {
-      // Simulate full-league IP budget to find true replacement pitcher.
-      // Avoids the fallback-to-worst-pitcher bug when all rostered arms fit under
-      // each team's individual cap but collectively exceed the league's budget.
-      const leagueBudget = IP_MAX * NUM_TEAMS;
+      // Simulate full-league IP budget to find the marginal (replacement) pitcher.
+      // Budget = 80% of total rostered pitcher IP, so the bottom ~20% of arms
+      // are below replacement. This self-calibrates for both full-season and RoS
+      // projections — avoids the old hardcoded full-season budget causing all RoS
+      // pitchers to look elite relative to a garbage fallback.
+      const totalRosteredIP = sorted.reduce((s, p) => s + (p.b.ip || 0), 0);
+      const leagueBudget = totalRosteredIP * 0.80;
       let usedIP = 0;
       let replPitcher = null;
       for (const p of sorted) {

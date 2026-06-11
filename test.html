@@ -245,7 +245,7 @@
     section('Repo Auto-Load');
     assert(typeof REPO_FILES !== 'undefined', 'REPO_FILES: defined');
     assert(Array.isArray(REPO_FILES), 'REPO_FILES: is an array');
-    assert(REPO_FILES.length === 7, 'REPO_FILES: has 7 entries');
+    assert(REPO_FILES.length === 9, 'REPO_FILES: has 9 entries');
     REPO_FILES.forEach(function(entry, i) {
       assert(typeof entry.file  === 'string',   'REPO_FILES[' + i + ']: has file string');
       assert(typeof entry.key   === 'string',   'REPO_FILES[' + i + ']: has key string');

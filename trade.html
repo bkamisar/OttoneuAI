@@ -20,11 +20,7 @@
     .col-header .gives-lbl { font-size: 0.82rem; font-weight: 700; color: #555; text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap; }
     .col-header select { flex: 1; padding: 4px 8px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.85rem; font-weight: 600; }
     .search-box { width: 100%; padding: 7px 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.88rem; margin-bottom: 6px; }
-    .player-list { max-height: 375px; overflow-y: auto; border: 1px solid #eee; border-radius: 6px; }
-    .pager { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 4px 0 2px; font-size: 0.78rem; color: #777; min-height: 24px; }
-    .pager button { background: none; border: 1px solid #ddd; border-radius: 4px; padding: 1px 9px; cursor: pointer; font-size: 0.8rem; line-height: 1.5; }
-    .pager button:hover:not(:disabled) { background: #f0f4ff; border-color: #aac; }
-    .pager button:disabled { opacity: 0.3; cursor: default; }
+    .player-list { max-height: 220px; overflow-y: auto; border: 1px solid #eee; border-radius: 6px; }
     .player-opt { padding: 7px 10px; font-size: 0.84rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f5f5f5; }
     .player-opt:last-child { border-bottom: none; }
     .player-opt:hover { background: #f0f4ff; }
@@ -119,7 +115,6 @@
         </div>
         <input class="search-box" id="giveSearch" placeholder="Search players…" autocomplete="off">
         <div class="player-list" id="giveList"></div>
-        <div class="pager" id="givePager"></div>
         <div class="chips" id="giveChips"></div>
       </div>
       <div class="trade-col">
@@ -129,7 +124,6 @@
         </div>
         <input class="search-box" id="recvSearch" placeholder="Search players…" autocomplete="off">
         <div class="player-list" id="recvList"></div>
-        <div class="pager" id="recvPager"></div>
         <div class="chips" id="recvChips"></div>
       </div>
     </div>
@@ -244,76 +238,43 @@
     // ── Picker state ──────────────────────────────────────────────────────────
     var givePlayers = [];
     var recvPlayers = [];
-    var givePage = 0;
-    var recvPage = 0;
-    var PAGE_SIZE = 25;
     function pkey(p) { return p.fgId || p.name; }
     function bysal(a, b) { return (b.salary || 0) - (a.salary || 0); }
 
-    function renderList(listEl, pagerEl, players, selected, opposite, searchEl, page, setPage) {
+    function renderList(listEl, players, selected, opposite, searchEl) {
       var q    = searchEl.value.toLowerCase();
       var excl = new Set(selected.concat(opposite).map(pkey));
-
-      // Filter first, then paginate
-      var filtered = players.filter(function (p) {
-        if (excl.has(pkey(p))) return false;
-        var label = p.rawName || p.name;
-        return !q || label.toLowerCase().includes(q);
-      });
-
-      var totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-      var safePage   = Math.min(page, totalPages - 1);
-      var start      = safePage * PAGE_SIZE;
-      var pageItems  = filtered.slice(start, start + PAGE_SIZE);
-
-      // Render rows
       while (listEl.firstChild) listEl.removeChild(listEl.firstChild);
-      if (!pageItems.length) {
+      var shown = 0;
+      players.forEach(function (p) {
+        if (excl.has(pkey(p))) return;
+        var label = p.rawName || p.name;
+        if (q && !label.toLowerCase().includes(q)) return;
+        if (shown >= 40) return;
+        shown++;
+        var row = document.createElement('div');
+        row.className = 'player-opt';
+        var nameSpan = document.createElement('span');
+        nameSpan.textContent = label;
+        var metaSpan = document.createElement('span');
+        metaSpan.className = 'meta';
+        metaSpan.textContent =
+          p.positions.map(function (x) { return x.toUpperCase(); }).join('/') +
+          (p.salary ? '  $' + p.salary : '');
+        row.appendChild(nameSpan);
+        row.appendChild(metaSpan);
+        row.addEventListener('click', function () {
+          selected.push(p);
+          searchEl.value = '';
+          renderAll();
+        });
+        listEl.appendChild(row);
+      });
+      if (!shown) {
         var msg = document.createElement('div');
         msg.className = 'empty-msg';
         msg.textContent = q ? 'No matches.' : 'No players available.';
         listEl.appendChild(msg);
-      } else {
-        pageItems.forEach(function (p) {
-          var row = document.createElement('div');
-          row.className = 'player-opt';
-          var nameSpan = document.createElement('span');
-          nameSpan.textContent = p.rawName || p.name;
-          var metaSpan = document.createElement('span');
-          metaSpan.className = 'meta';
-          metaSpan.textContent =
-            p.positions.map(function (x) { return x.toUpperCase(); }).join('/') +
-            (p.salary ? '  $' + p.salary : '');
-          row.appendChild(nameSpan);
-          row.appendChild(metaSpan);
-          row.addEventListener('click', function () {
-            selected.push(p);
-            searchEl.value = '';
-            renderAll();
-          });
-          listEl.appendChild(row);
-        });
-      }
-
-      // Pagination controls
-      while (pagerEl.firstChild) pagerEl.removeChild(pagerEl.firstChild);
-      if (totalPages > 1) {
-        var prev = document.createElement('button');
-        prev.textContent = '←';
-        prev.disabled = safePage === 0;
-        prev.addEventListener('click', function () { setPage(safePage - 1); renderAll(); });
-
-        var info = document.createElement('span');
-        info.textContent = (safePage + 1) + ' / ' + totalPages;
-
-        var next = document.createElement('button');
-        next.textContent = '→';
-        next.disabled = safePage >= totalPages - 1;
-        next.addEventListener('click', function () { setPage(safePage + 1); renderAll(); });
-
-        pagerEl.appendChild(prev);
-        pagerEl.appendChild(info);
-        pagerEl.appendChild(next);
       }
     }
 
@@ -343,31 +304,22 @@
     function renderAll() {
       var aR = (teamMap[teamASel.value] || []).slice().sort(bysal);
       var bR = (teamMap[teamBSel.value] || []).slice().sort(bysal);
-      renderList(
-        document.getElementById('giveList'), document.getElementById('givePager'),
-        aR, givePlayers, recvPlayers, document.getElementById('giveSearch'),
-        givePage, function (p) { givePage = p; }
-      );
-      renderList(
-        document.getElementById('recvList'), document.getElementById('recvPager'),
-        bR, recvPlayers, givePlayers, document.getElementById('recvSearch'),
-        recvPage, function (p) { recvPage = p; }
-      );
+      renderList(document.getElementById('giveList'), aR, givePlayers, recvPlayers, document.getElementById('giveSearch'));
+      renderList(document.getElementById('recvList'), bR, recvPlayers, givePlayers, document.getElementById('recvSearch'));
       renderChips(document.getElementById('giveChips'), givePlayers);
       renderChips(document.getElementById('recvChips'), recvPlayers);
     }
 
     function resetTrade() {
       givePlayers = []; recvPlayers = [];
-      givePage = 0; recvPage = 0;
       document.getElementById('giveSearch').value = '';
       document.getElementById('recvSearch').value = '';
       document.getElementById('results').style.display = 'none';
       renderAll();
     }
 
-    document.getElementById('giveSearch').addEventListener('input', function () { givePage = 0; renderAll(); });
-    document.getElementById('recvSearch').addEventListener('input', function () { recvPage = 0; renderAll(); });
+    document.getElementById('giveSearch').addEventListener('input', renderAll);
+    document.getElementById('recvSearch').addEventListener('input', renderAll);
     teamASel.addEventListener('change', resetTrade);
     teamBSel.addEventListener('change', resetTrade);
     renderAll();

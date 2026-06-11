@@ -65,6 +65,19 @@
     .badge-fv-mid    { background: #e0f2f1; color: #00695c; }
     .badge-fv-low    { background: #f5f5f5; color: #666;    }
 
+    /* Team status */
+    .my-status-row { display: flex; align-items: center; gap: 8px; margin: 4px 0 12px; font-size: 0.84rem; color: #555; }
+    .status-chip { display: inline-block; padding: 2px 9px; border-radius: 10px; font-size: 0.72rem; font-weight: 600; }
+    .status-contender { background: #e8f5e9; color: #1e7e34; }
+    .status-fringe    { background: #fff8e1; color: #b07d00; }
+    .status-rebuilder { background: #ede7f6; color: #5e35b1; }
+    .status-select { font-size: 0.74rem; padding: 1px 4px; border: 1px solid #ddd; border-radius: 5px; color: #555; background: #fff; cursor: pointer; }
+
+    /* Trade benefit line */
+    .benefit-line { display: flex; gap: 16px; margin-top: 6px; padding: 5px 8px; background: #f6f9f6; border-radius: 6px; font-size: 0.78rem; }
+    .benefit-me   { color: #1e7e34; font-weight: 600; }
+    .benefit-them { color: #555; }
+
     /* Pagination */
     .pagination { display: flex; align-items: center; gap: 8px; margin: 8px 0 16px; font-size: 0.82rem; }
     .page-btn { padding: 4px 11px; border: 1px solid #ddd; border-radius: 6px; background: #fff; cursor: pointer; font-size: 0.82rem; color: #444; }
@@ -164,6 +177,7 @@
   <div id="content" style="display:none">
 
     <div class="section-title">My Category Needs</div>
+    <div class="my-status-row" id="myStatusRow"></div>
     <div class="needs-grid" id="needsGrid"></div>
 
     <div class="title-row">
@@ -222,14 +236,16 @@
         <div class="val-group">
           <span class="role-lbl">My players:</span>
           <div class="val-toggle">
-            <button class="val-btn active" data-side="my" data-val="current">This year</button>
+            <button class="val-btn active" data-side="my" data-val="auto">Auto</button>
+            <button class="val-btn" data-side="my" data-val="current">This year</button>
             <button class="val-btn" data-side="my" data-val="dynasty">Dynasty</button>
           </div>
         </div>
         <div class="val-group">
           <span class="role-lbl">Their players:</span>
           <div class="val-toggle">
-            <button class="val-btn active" data-side="their" data-val="current">This year</button>
+            <button class="val-btn active" data-side="their" data-val="auto">Auto</button>
+            <button class="val-btn" data-side="their" data-val="current">This year</button>
             <button class="val-btn" data-side="their" data-val="dynasty">Dynasty</button>
           </div>
         </div>
@@ -284,10 +300,32 @@
 
     // Trade Finder
     var tradeMode      = 'offer';
-    var myValuation    = 'current';  // 'current' | 'dynasty'
-    var theirValuation = 'current';  // 'current' | 'dynasty'
+    var myValuation    = 'auto';  // 'auto' | 'current' | 'dynasty'
+    var theirValuation = 'auto';
     var myPackage      = [];   // players I'm offering (full player objects)
     var targetPackage  = [];   // players I want to acquire
+
+    // Team status (contender / fringe / rebuilder) — auto-detected from
+    // standings, user can override per team. Drives valuation lens and the
+    // "would they say yes?" benefit test.
+    var STATUS_KEY      = 'ottoneu_status_overrides';
+    var statusOverrides = loadData(STATUS_KEY) || {};
+    var autoStatus      = {};
+    var CONSOL_PREM     = 0.15;  // extra value owed per additional player on the bulkier side
+    var MIN_PTS_GAIN    = 0.05;  // min continuous standings gain for a contender to accept
+    var MIN_DYN_GAIN    = 2;     // min $ future-value gain for a rebuilder to accept
+
+    function teamStatusOf(name) {
+      return statusOverrides[name] || autoStatus[name] || 'fringe';
+    }
+    function statusLabel(st) {
+      return st === 'contender' ? 'Contender' : st === 'rebuilder' ? 'Rebuilder' : 'In-between';
+    }
+
+    // Simulation context — captured once after standings are built.
+    var simCtx      = null;
+    var mergedByKey = {};   // fgId AND name → full merged player (for sim lookups)
+    var myTeamName  = '';   // set during load; used by lens/sim helpers
 
     function isTradeable(p) {
       return p.hasProj && p.surplus > 0 && (myDepth[p.type] || 0) >= 3;
@@ -499,44 +537,136 @@
       });
     }
 
+    // ── Team status controls ───────────────────────────────────────────────────
+    function makeStatusControl(teamName) {
+      var st = teamStatusOf(teamName);
+      var wrap = document.createElement('span');
+      wrap.style.display = 'inline-flex'; wrap.style.alignItems = 'center'; wrap.style.gap = '6px';
+      var chip = document.createElement('span');
+      chip.className = 'status-chip status-' + st;
+      chip.textContent = statusLabel(st);
+      var sel = document.createElement('select');
+      sel.className = 'status-select';
+      sel.title = 'Override how this team is treated by the trade finder';
+      [['', 'Auto'], ['contender', 'Contender'], ['fringe', 'In-between'], ['rebuilder', 'Rebuilder']]
+        .forEach(function(o) {
+          var opt = document.createElement('option');
+          opt.value = o[0]; opt.textContent = o[1];
+          sel.appendChild(opt);
+        });
+      sel.value = statusOverrides[teamName] || '';
+      sel.addEventListener('change', function() {
+        if (this.value) statusOverrides[teamName] = this.value;
+        else delete statusOverrides[teamName];
+        saveData(STATUS_KEY, statusOverrides);
+        onStatusChange();
+      });
+      wrap.appendChild(chip); wrap.appendChild(sel);
+      return wrap;
+    }
+
+    function onStatusChange() {
+      renderMyStatus();
+      renderCards();
+      clearEl(document.getElementById('finderResults'));
+      document.getElementById('finderHint').textContent = '';
+      renderPkgChips('myPkgChips',     myPackage,     'myPkgTotal',     'offer');
+      renderPkgChips('targetPkgChips', targetPackage, 'targetPkgTotal', 'return');
+    }
+
+    function renderMyStatus() {
+      var row = document.getElementById('myStatusRow');
+      clearEl(row);
+      var lbl = document.createElement('span');
+      lbl.textContent = 'Your team outlook:';
+      row.appendChild(lbl);
+      row.appendChild(makeStatusControl(myTeamName));
+    }
+
     // ── Render team cards ──────────────────────────────────────────────────────
     function renderCards() {
       var grid = document.getElementById('teamGrid');
       while (grid.firstChild) grid.removeChild(grid.firstChild);
 
       teamCards.forEach(function(tc) {
-        // "You can offer": my tradeable players (I have depth) that help their needs
-        var myOffers = myRoster
-          .filter(function(p) {
-            return isTradeable(p) && tc.weakCats.some(function(c) { return playerHelps(p, c); });
-          })
-          .map(function(p) {
-            return Object.assign({}, p, {
-              helpsCats: tc.weakCats.filter(function(c) { return playerHelps(p, c); })
-            });
-          })
-          .sort(function(a, b) {
-            return activeView === 'dynasty'
-              ? b.dynastySurplus - a.dynastySurplus
-              : b.surplus - a.surplus;
-          })
-          .slice(0, 4);
+        // Relationship drives what's shown: against a rebuilder I'm buying
+        // win-now pieces with future value; against a contender we swap cats.
+        var myStatus = teamStatusOf(myTeamName);
+        var thStatus = teamStatusOf(tc.name);
+        var rel = 'swap';
+        if (hasDynasty) {
+          if (thStatus === 'rebuilder' && myStatus !== 'rebuilder') rel = 'buy';
+          else if (myStatus === 'rebuilder' && thStatus !== 'rebuilder') rel = 'sell';
+        }
+        var futureness = function(p) { return (p.dynValue || 0) - (p.projValue || 0); };
 
-        // "Their chips": only their players who fill MY weak cats, sorted by fit then surplus
-        var theirChips = tc.theirChipsRaw
-          .map(function(p) {
-            var helped = helpedCats(p);
-            var fit    = helped.reduce(function(s, c) { return s + (myWeakCats[c] || 0); }, 0);
-            return Object.assign({}, p, { fit: fit, helped: helped });
-          })
-          .filter(function(p) { return p.fit > 0; })
-          .sort(function(a, b) {
-            if (b.fit !== a.fit) return b.fit - a.fit;
-            return activeView === 'dynasty'
-              ? b.dynastySurplus - a.dynastySurplus
-              : b.surplus - a.surplus;
-          })
-          .slice(0, 5);
+        var myOffers, theirChips, offerLabel, chipLabel;
+        if (rel === 'buy') {
+          // I send future value, target their win-now production
+          offerLabel = 'You can offer (future value)';
+          chipLabel  = 'Their chips (win-now)';
+          myOffers = myRoster
+            .filter(function(p) { return p.hasProj && p.dynastySurplus > 0 && futureness(p) > 0; })
+            .map(function(p) { return Object.assign({}, p, { helpsCats: [] }); })
+            .sort(function(a, b) { return futureness(b) - futureness(a); })
+            .slice(0, 4);
+          theirChips = tc.theirChipsRaw
+            .map(function(p) { return Object.assign({}, p, { helped: helpedCats(p) }); })
+            .filter(function(p) { return p.projValue > 5; })
+            .sort(function(a, b) { return b.projValue - a.projValue; })
+            .slice(0, 5);
+        } else if (rel === 'sell') {
+          // I'm rebuilding: send win-now production, target their future value
+          offerLabel = 'You can offer (win-now)';
+          chipLabel  = 'Their chips (future value)';
+          myOffers = myRoster
+            .filter(function(p) { return p.hasProj && p.projValue > 5; })
+            .map(function(p) {
+              return Object.assign({}, p, {
+                helpsCats: tc.weakCats.filter(function(c) { return playerHelps(p, c); })
+              });
+            })
+            .sort(function(a, b) { return b.projValue - a.projValue; })
+            .slice(0, 4);
+          theirChips = tc.theirChipsRaw
+            .filter(function(p) { return (p.dynValue || 0) > 0 && futureness(p) > 0; })
+            .map(function(p) { return Object.assign({}, p, { helped: [] }); })
+            .sort(function(a, b) { return futureness(b) - futureness(a); })
+            .slice(0, 5);
+        } else {
+          // Category swap between comparable teams
+          offerLabel = 'You can offer';
+          chipLabel  = 'Their trade chips';
+          myOffers = myRoster
+            .filter(function(p) {
+              return isTradeable(p) && tc.weakCats.some(function(c) { return playerHelps(p, c); });
+            })
+            .map(function(p) {
+              return Object.assign({}, p, {
+                helpsCats: tc.weakCats.filter(function(c) { return playerHelps(p, c); })
+              });
+            })
+            .sort(function(a, b) {
+              return activeView === 'dynasty'
+                ? b.dynastySurplus - a.dynastySurplus
+                : b.surplus - a.surplus;
+            })
+            .slice(0, 4);
+          theirChips = tc.theirChipsRaw
+            .map(function(p) {
+              var helped = helpedCats(p);
+              var fit    = helped.reduce(function(s, c) { return s + (myWeakCats[c] || 0); }, 0);
+              return Object.assign({}, p, { fit: fit, helped: helped });
+            })
+            .filter(function(p) { return p.fit > 0; })
+            .sort(function(a, b) {
+              if (b.fit !== a.fit) return b.fit - a.fit;
+              return activeView === 'dynasty'
+                ? b.dynastySurplus - a.dynastySurplus
+                : b.surplus - a.surplus;
+            })
+            .slice(0, 5);
+        }
         var card = document.createElement('div');
         card.className = 'team-card';
 
@@ -544,7 +674,9 @@
         header.className = 'team-card-header';
         var nameEl = document.createElement('div'); nameEl.className = 'team-card-name'; nameEl.textContent = tc.name;
         var ptsEl  = document.createElement('div'); ptsEl.className  = 'team-card-pts';  ptsEl.textContent  = tc.points + ' pts';
-        header.appendChild(nameEl); header.appendChild(ptsEl);
+        header.appendChild(nameEl);
+        header.appendChild(makeStatusControl(tc.name));
+        header.appendChild(ptsEl);
         card.appendChild(header);
 
         // Their needs
@@ -563,7 +695,7 @@
         card.appendChild(needRow);
 
         // What you can offer them
-        var offerLbl = document.createElement('div'); offerLbl.className = 'card-section-lbl'; offerLbl.textContent = 'You can offer';
+        var offerLbl = document.createElement('div'); offerLbl.className = 'card-section-lbl'; offerLbl.textContent = offerLabel;
         card.appendChild(offerLbl);
         var offerList = document.createElement('div'); offerList.className = 'chip-list';
         if (myOffers.length) {
@@ -594,7 +726,7 @@
         card.appendChild(offerList);
 
         // Their trade chips
-        var chipLbl = document.createElement('div'); chipLbl.className = 'card-section-lbl'; chipLbl.textContent = 'Their trade chips';
+        var chipLbl = document.createElement('div'); chipLbl.className = 'card-section-lbl'; chipLbl.textContent = chipLabel;
         card.appendChild(chipLbl);
         var chipList = document.createElement('div'); chipList.className = 'chip-list';
         if (theirChips.length) {
@@ -665,12 +797,27 @@
 
     // ── Trade Finder ──────────────────────────────────────────────────────────
 
-    // side = 'offer' (what I give) | 'return' (what I get)
-    // Uses projected value (not surplus) — a $70 star at $72 salary is worth $70 in a trade.
-    // Salary is displayed separately so users see the full picture.
+    // Valuation lens: contenders price players at current-year value, rebuilders
+    // at dynasty value. 'auto' resolves from team status; user can force a lens.
+    function lensFor(side, teamName) {
+      var ov = side === 'my' ? myValuation : theirValuation;
+      if (ov !== 'auto') return ov;
+      if (!hasDynasty) return 'current';
+      return teamStatusOf(teamName) === 'rebuilder' ? 'dynasty' : 'current';
+    }
+    function lensValue(p, lens) {
+      return Math.max(0, lens === 'dynasty' ? (p.dynValue || 0) : (p.projValue || 0));
+    }
+    function pkgLensValue(players, lens) {
+      return players.reduce(function(s, p) { return s + lensValue(p, lens); }, 0);
+    }
+
+    // side = 'offer' (what I give) | 'return' (what I get) — used for display
+    // in the package builder. Uses projected value (not surplus): a $70 star at
+    // $72 salary is worth $70 in a trade; salary is displayed separately.
     function playerSurp(p, side) {
-      var useDynasty = side === 'offer' ? myValuation === 'dynasty' : theirValuation === 'dynasty';
-      return useDynasty ? Math.max(0, p.dynValue || 0) : Math.max(0, p.projValue || 0);
+      var lens = side === 'offer' ? lensFor('my', myTeamName) : lensFor('their', p.teamName || p.team || '');
+      return lensValue(p, lens);
     }
 
     function pkgSurp(players, side) {
@@ -678,6 +825,102 @@
     }
 
     function tradeTol(total) { return Math.max(3, Math.abs(total) * 0.30); }
+
+    // ── Trade simulation: re-run blended standings with the players swapped ──
+    function resolvePlayers(pkg) {
+      return pkg.map(function(p) { return mergedByKey[p.fgId] || mergedByKey[p.name]; })
+                .filter(Boolean);
+    }
+
+    function blendedStatsFor(players, teamName) {
+      var lineup = optimizeHitterLineup(players.filter(function(p) { return p.type === 'H'; }));
+      var pit    = selectPitchers(players.filter(function(p) { return p.type === 'P'; }));
+      var stats  = computeTeamStats(lineup, pit);
+      var curr   = simCtx.currByName ? simCtx.currByName[teamName.trim()] : null;
+      return curr ? blendStats(curr, stats) : stats;
+    }
+
+    // Continuous category-strength delta in stdev units (breaks roto-point ties)
+    function zDelta(oldStats, newStats) {
+      var z = 0;
+      CATS.forEach(function(c) {
+        var d = (newStats[c] || 0) - (oldStats[c] || 0);
+        if (LOWER_BETTER.has(c)) d = -d;
+        z += d / (simCtx.denoms[c] || 1);
+      });
+      return z;
+    }
+
+    // Swap giveA (from teamA) with giveB (from teamB), recompute standings.
+    function simulateTrade(teamA, giveA, teamB, giveB) {
+      var ga = resolvePlayers(giveA), gb = resolvePlayers(giveB);
+      var keyOf = function(p) { return p.fgId || p.name; };
+      var gaSet = new Set(ga.map(keyOf)), gbSet = new Set(gb.map(keyOf));
+      var newA = simCtx.playersByTeam[teamA].filter(function(p) { return !gaSet.has(keyOf(p)); }).concat(gb);
+      var newB = simCtx.playersByTeam[teamB].filter(function(p) { return !gbSet.has(keyOf(p)); }).concat(ga);
+      var statsA = blendedStatsFor(newA, teamA);
+      var statsB = blendedStatsFor(newB, teamB);
+      var arr = simCtx.teamNames.map(function(nm) {
+        return { name: nm, stats: nm === teamA ? statsA : nm === teamB ? statsB : simCtx.baseStats[nm] };
+      });
+      var st = buildStandings(arr);
+      var ptsOf = function(nm) {
+        var s = st.find(function(x) { return x.name === nm; });
+        return s ? s.points : 0;
+      };
+      return {
+        aPts: ptsOf(teamA) - simCtx.basePoints[teamA],
+        bPts: ptsOf(teamB) - simCtx.basePoints[teamB],
+        aZ:   zDelta(simCtx.baseStats[teamA], statsA),
+        bZ:   zDelta(simCtx.baseStats[teamB], statsB),
+      };
+    }
+
+    // Would this team plausibly accept? Contenders need a standings gain;
+    // rebuilders need a future-value gain; in-between teams need either.
+    function benefitFor(status, ptsDelta, zD, dynDelta) {
+      var gain   = ptsDelta + 0.25 * zD;
+      var ptsOk  = gain > MIN_PTS_GAIN;
+      var dynOk  = hasDynasty && dynDelta >= MIN_DYN_GAIN;
+      if (status === 'contender') return { ok: ptsOk,          gain: gain, dyn: dynDelta };
+      if (status === 'rebuilder') return { ok: dynOk || (!hasDynasty && ptsOk), gain: gain, dyn: dynDelta };
+      return { ok: ptsOk || dynOk, gain: gain, dyn: dynDelta };
+    }
+
+    function fmtBenefit(status, ptsDelta, zD, dynDelta) {
+      var parts = [];
+      if (ptsDelta !== 0) parts.push((ptsDelta > 0 ? '+' : '') + ptsDelta.toFixed(1) + ' pts');
+      else parts.push(zD > 0.05 ? 'even pts, stronger cats' : zD < -0.05 ? 'even pts, weaker cats' : 'standings even');
+      if (hasDynasty && Math.abs(dynDelta) >= 1) {
+        parts.push((dynDelta > 0 ? '+' : '−') + '$' + Math.abs(dynDelta).toFixed(0) + ' future value');
+      }
+      return parts.join(' · ');
+    }
+
+    function dynastyDelta(received, given) {
+      var v = function(p) { return Math.max(0, p.dynValue || 0); };
+      return received.reduce(function(s, p) { return s + v(p); }, 0)
+           - given.reduce(function(s, p) { return s + v(p); }, 0);
+    }
+
+    // Fairness pre-filter (cheap, runs before simulation):
+    // what the counterparty receives, in THEIR lens, must cover what they give —
+    // plus a consolidation premium when they're handing back fewer, better players.
+    function fairEnough(myPkg, theirPkg, theirTeam) {
+      var thLens  = lensFor('their', theirTeam);
+      var receive = pkgLensValue(myPkg, thLens);
+      var give    = pkgLensValue(theirPkg, thLens);
+      var premium = 1 + CONSOL_PREM * Math.max(0, myPkg.length - theirPkg.length);
+      var tol     = tradeTol(give);
+      if (receive < give * premium - tol) return false;   // they'd feel underpaid
+      // And I shouldn't wildly overpay in MY lens:
+      var myLens  = lensFor('my', myTeamName);
+      var myGive  = pkgLensValue(myPkg, myLens);
+      var myGet   = pkgLensValue(theirPkg, myLens);
+      var myPrem  = 1 + CONSOL_PREM * Math.max(0, theirPkg.length - myPkg.length);
+      if (myGive > myGet * myPrem + tradeTol(myGet)) return false;
+      return true;
+    }
 
     function combos(arr, k) {
       if (k === 0) return [[]];
@@ -799,7 +1042,7 @@
           if (!myPackage.length) { hintEl.textContent = 'Add at least one player to your package.'; return; }
           var myTotal = pkgSurp(myPackage, 'offer');
           hintEl.textContent = 'Package value: ' + fmt$(myTotal) + ' — searching…';
-          runOfferMode(resultsEl, myTotal);
+          runOfferMode(resultsEl);
           hintEl.textContent = '';
         } else {
           if (!targetPackage.length) { hintEl.textContent = 'Add at least one target player.'; return; }
@@ -817,88 +1060,96 @@
       }
     }
 
-    function buildReturnOptions(tradeablePlayers, myTotal) {
-      var tol  = tradeTol(myTotal);
-      var pool = tradeablePlayers
-        .sort(function(a, b) { return playerSurp(b, 'return') - playerSurp(a, 'return'); })
-        .slice(0, 15);
-      var options = [];
-      [1, 2, 3].forEach(function(k) {
-        combos(pool.slice(0, k === 3 ? 12 : 15), k).forEach(function(combo) {
-          var total = pkgSurp(combo, 'return');
-          if (total >= myTotal - tol && total <= myTotal + tol) {
-            var fit = combo.reduce(function(s, p) {
-              return s + helpedCats(p).reduce(function(ss, c) { return ss + (myWeakCats[c] || 0); }, 0);
-            }, 0);
-            options.push({ players: combo, total: total, fit: fit });
-          }
-        });
-      });
-      options.sort(function(a, b) {
-        if (b.fit !== a.fit) return b.fit - a.fit;
-        return Math.abs(a.total - myTotal) - Math.abs(b.total - myTotal);
-      });
-      return options.slice(0, 4);
+    // Evaluate candidate packages against one team: cheap fairness pre-filter,
+    // then full standings simulation. Keeps only trades BOTH sides would accept.
+    var MAX_SIMS_PER_TEAM = 40;
+
+    function evaluateCandidates(theirTeam, myPkgsOrFixed, theirPkgsOrFixed) {
+      var myStatus = teamStatusOf(myTeamName);
+      var thStatus = teamStatusOf(theirTeam);
+      var accepted = [];
+      var sims = 0;
+      for (var i = 0; i < myPkgsOrFixed.length; i++) {
+        for (var j = 0; j < theirPkgsOrFixed.length; j++) {
+          if (sims >= MAX_SIMS_PER_TEAM) break;
+          var mine = myPkgsOrFixed[i], theirs = theirPkgsOrFixed[j];
+          if (!fairEnough(mine, theirs, theirTeam)) continue;
+          sims++;
+          var sim = simulateTrade(myTeamName, mine, theirTeam, theirs);
+          var myDyn = dynastyDelta(theirs, mine);
+          var myB   = benefitFor(myStatus, sim.aPts, sim.aZ, myDyn);
+          var thB   = benefitFor(thStatus, sim.bPts, sim.bZ, -myDyn);
+          if (!myB.ok || !thB.ok) continue;
+          accepted.push({
+            players:    theirs,
+            myPlayers:  mine,
+            myScore:    myStatus === 'rebuilder' && hasDynasty ? myDyn : sim.aPts + 0.25 * sim.aZ,
+            myLine:     fmtBenefit(myStatus, sim.aPts, sim.aZ, myDyn),
+            theirLine:  fmtBenefit(thStatus, sim.bPts, sim.bZ, -myDyn),
+          });
+        }
+      }
+      accepted.sort(function(a, b) { return b.myScore - a.myScore; });
+      // De-dup near-identical options (same their-side players)
+      var seen = {};
+      return accepted.filter(function(o) {
+        var k = o.players.map(function(p) { return p.fgId || p.name; }).sort().join('|')
+              + '/' + o.myPlayers.map(function(p) { return p.fgId || p.name; }).sort().join('|');
+        if (seen[k]) return false;
+        seen[k] = true;
+        return true;
+      }).slice(0, 3);
     }
 
-    function runOfferMode(resultsEl, myTotal) {
-      myTotal = myTotal !== undefined ? myTotal : pkgSurp(myPackage, 'offer');
+    // Candidate package combos from a pool, sized 1-3, best-first by lens value
+    function candidatePkgs(pool, lens) {
+      var sorted = pool.slice()
+        .sort(function(a, b) { return lensValue(b, lens) - lensValue(a, lens); })
+        .slice(0, 15);
+      var pkgs = [];
+      [1, 2, 3].forEach(function(k) {
+        combos(sorted.slice(0, k === 3 ? 10 : 15), k).forEach(function(c) { pkgs.push(c); });
+      });
+      return pkgs;
+    }
+
+    function runOfferMode(resultsEl) {
       var found = 0;
       teamCards.forEach(function(tc) {
-        var tradeable = tc.theirChipsRaw.filter(function(p) {
-          return p.proj && playerSurp(p, 'return') > 1;
-        });
-        var options = buildReturnOptions(tradeable, myTotal);
+        var thLens = lensFor('their', tc.name);
+        var pool = tc.theirChipsRaw.filter(function(p) { return p.proj && lensValue(p, thLens) > 1; });
+        var options = evaluateCandidates(tc.name, [myPackage], candidatePkgs(pool, thLens));
         if (!options.length) return;
         found++;
         resultsEl.appendChild(makeTradeCard(tc.name, tc.weakCats, options, myPackage, false));
       });
       if (!found) {
         var msg = document.createElement('div'); msg.className = 'no-trades-msg';
-        msg.textContent = 'No fair trades found across other rosters. Try a different package or check that your players have positive surplus.';
+        msg.textContent = 'No mutually beneficial trades found for this package. Try different players — or a smaller ask.';
         resultsEl.appendChild(msg);
       }
     }
 
     function runAcquireMode(resultsEl) {
-      var targetTotal = pkgSurp(targetPackage, 'return');
-      var tol = tradeTol(targetTotal);
-      var myPool = myRoster
-        .filter(function(p) { return p.hasProj && playerSurp(p, 'offer') > 1; })
-        .sort(function(a, b) { return playerSurp(b, 'offer') - playerSurp(a, 'offer'); })
-        .slice(0, 15);
-
       var teamsNeeded = {};
       targetPackage.forEach(function(p) { teamsNeeded[p.teamName || p.team] = true; });
-
-      var options = [];
-      [1, 2, 3].forEach(function(k) {
-        combos(myPool.slice(0, k === 3 ? 12 : 15), k).forEach(function(combo) {
-          var total = pkgSurp(combo, 'offer');
-          if (total >= targetTotal - tol && total <= targetTotal + tol) {
-            var targetTC = teamCards.find(function(tc) { return teamsNeeded[tc.name]; });
-            var myFit = combo.reduce(function(s, p) {
-              if (!targetTC) return s;
-              return s + targetTC.weakCats.filter(function(c) { return playerHelps(p, c); }).length;
-            }, 0);
-            options.push({ players: combo, total: total, fit: myFit });
-          }
-        });
-      });
-      options.sort(function(a, b) {
-        if (b.fit !== a.fit) return b.fit - a.fit;
-        return Math.abs(a.total - targetTotal) - Math.abs(b.total - targetTotal);
-      });
-      options = options.slice(0, 4);
+      var teamList = Object.keys(teamsNeeded);
+      if (teamList.length > 1) {
+        var warn = document.createElement('div'); warn.className = 'no-trades-msg';
+        warn.textContent = 'Pick target players from a single team — trades happen between two teams.';
+        resultsEl.appendChild(warn); return;
+      }
+      var theirTeam = teamList[0];
+      var thLens = lensFor('their', theirTeam);
+      var myPool = myRoster.filter(function(p) { return p.hasProj && lensValue(p, thLens) > 1; });
+      var options = evaluateCandidates(theirTeam, candidatePkgs(myPool, thLens), [targetPackage]);
 
       if (!options.length) {
         var msg = document.createElement('div'); msg.className = 'no-trades-msg';
-        msg.textContent = 'No fair offer found from your roster. The target package value may be out of range.';
+        msg.textContent = 'No package from your roster makes this trade work for both sides. The target may be out of reach right now.';
         resultsEl.appendChild(msg); return;
       }
-
-      var teamNames = Object.keys(teamsNeeded).join(', ');
-      resultsEl.appendChild(makeTradeCard(teamNames, [], options, null, true));
+      resultsEl.appendChild(makeTradeCard(theirTeam, [], options, null, true));
     }
 
     function makeTradeCard(teamName, theirWeakCats, options, fixedMyPkg, acquireMode) {
@@ -946,9 +1197,8 @@
       }
 
       options.forEach(function(opt, idx) {
-        var offerPlayers   = acquireMode ? opt.players    : (fixedMyPkg || []);
-        var receivePlayers = acquireMode ? targetPackage  : opt.players;
-        var totalPlayers   = offerPlayers.length + receivePlayers.length;
+        var offerPlayers   = opt.myPlayers || fixedMyPkg || [];
+        var receivePlayers = opt.players || [];
         var isMulti        = offerPlayers.length > 1 || receivePlayers.length > 1;
 
         var row = document.createElement('div'); row.className = 'trade-option';
@@ -972,6 +1222,17 @@
         legs.appendChild(arrow);
         legs.appendChild(makeSide('You receive', receivePlayers, 'return'));
         row.appendChild(legs);
+
+        // Why both sides say yes — simulated standings / future-value impact
+        if (opt.myLine || opt.theirLine) {
+          var why = document.createElement('div'); why.className = 'benefit-line';
+          var mySpan = document.createElement('span'); mySpan.className = 'benefit-me';
+          mySpan.textContent = 'You: ' + opt.myLine;
+          var thSpan = document.createElement('span'); thSpan.className = 'benefit-them';
+          thSpan.textContent = 'Them: ' + opt.theirLine;
+          why.appendChild(mySpan); why.appendChild(thSpan);
+          row.appendChild(why);
+        }
         card.appendChild(row);
       });
       return card;
@@ -996,6 +1257,7 @@
 
       if (!roster)  { showErr('No roster data — upload CSVs on the', 'Data Hub.', 'index.html'); return; }
       if (!myTeam)  { showErr('Set your team on the', 'Data Hub.', 'index.html'); return; }
+      myTeamName = myTeam;
 
       var projHit   = loadData('ottoneu_proj_hitting');
       var projPitch = loadData('ottoneu_proj_pitching');
@@ -1051,8 +1313,9 @@
         return { name: t, stats: computeTeamStats(lineup, pitPool) };
       });
       var teamStatsArr;
+      var currByName = null;
       if (currData) {
-        var currByName = {};
+        currByName = {};
         currData.forEach(function(row) { currByName[row.name.trim()] = row; });
         teamStatsArr = projStatsArr.map(function(t) {
           var curr = currByName[t.name.trim()];
@@ -1064,6 +1327,33 @@
       var standings  = buildStandings(teamStatsArr);
       var n          = standings.length;
       var myStanding = standings.find(function(s) { return s.name === myTeam; });
+
+      // Capture simulation context for trade-impact analysis
+      simCtx = {
+        teamNames:     teamNames.slice(),
+        playersByTeam: {},
+        currByName:    currByName,
+        baseStats:     {},
+        basePoints:    {},
+        denoms:        calcSGPDenoms(teamStatsArr.map(function(t) { return t.stats; })),
+      };
+      teamNames.forEach(function(t) {
+        simCtx.playersByTeam[t] = merged.filter(function(p) { return p.team === t; });
+      });
+      teamStatsArr.forEach(function(t) { simCtx.baseStats[t.name]  = t.stats; });
+      standings.forEach(function(s)    { simCtx.basePoints[s.name] = s.points; });
+      merged.forEach(function(p) {
+        mergedByKey[p.name] = p;
+        if (p.fgId) mergedByKey[p.fgId] = p;
+      });
+
+      // Auto-detect team statuses: top third = contender, bottom third = rebuilder
+      var byPts = standings.slice().sort(function(a, b) { return b.points - a.points; });
+      byPts.forEach(function(s, i) {
+        autoStatus[s.name] = i < Math.round(n / 3) ? 'contender'
+                           : i >= n - Math.round(n / 3) ? 'rebuilder' : 'fringe';
+      });
+      renderMyStatus();
 
       if (!myStanding) { showErr('Team "' + myTeam + '" not found — re-select on the', 'Data Hub.', 'index.html'); return; }
 

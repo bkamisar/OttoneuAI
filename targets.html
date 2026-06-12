@@ -820,6 +820,24 @@
       return lensValue(p, lens);
     }
 
+    // Dual-value display: "$14 now / $62 dyn", bolding the lens that the trade
+    // math is actually using for this player on this side.
+    function bothValsEl(p, side) {
+      var lens = side === 'offer' ? lensFor('my', myTeamName) : lensFor('their', p.teamName || p.team || '');
+      var el = document.createElement('span');
+      if (!hasDynasty) { el.textContent = fmt$(Math.max(0, p.projValue || 0)); return el; }
+      var nowS = document.createElement('span');
+      nowS.textContent = fmt$(Math.max(0, p.projValue || 0)) + ' now';
+      var dynS = document.createElement('span');
+      dynS.textContent = fmt$(Math.max(0, p.dynValue || 0)) + ' dyn';
+      (lens === 'dynasty' ? dynS : nowS).style.fontWeight = '700';
+      (lens === 'dynasty' ? nowS : dynS).style.opacity = '0.65';
+      el.appendChild(nowS);
+      el.appendChild(document.createTextNode(' / '));
+      el.appendChild(dynS);
+      return el;
+    }
+
     function pkgSurp(players, side) {
       return players.reduce(function(sum, p) { return sum + playerSurp(p, side); }, 0);
     }
@@ -936,14 +954,13 @@
       var chips = document.getElementById(chipsId);
       clearEl(chips);
       pkg.forEach(function(p, i) {
-        var sv = playerSurp(p, side);
         var chip = document.createElement('div'); chip.className = 'pkg-chip';
         var nm = document.createElement('span'); nm.className = 'pkg-chip-name';
         nm.textContent = p.rawName || p.name;
         var meta = document.createElement('span'); meta.className = 'pkg-chip-meta';
         meta.textContent = ' ' + (p.teamName || p.team || '');
         var surpSpan = document.createElement('span'); surpSpan.className = 'pkg-chip-surp';
-        surpSpan.textContent = fmt$(sv);
+        surpSpan.appendChild(bothValsEl(p, side));
         var rm = document.createElement('span'); rm.className = 'pkg-chip-rm'; rm.textContent = '×';
         (function(idx) {
           rm.addEventListener('click', function() { pkg.splice(idx, 1); renderPkgChips(chipsId, pkg, totalId, side); });
@@ -952,7 +969,14 @@
         chips.appendChild(chip);
       });
       var totalEl = document.getElementById(totalId);
-      totalEl.textContent = pkg.length ? 'Package total: ' + fmt$(pkgSurp(pkg, side)) + ' trade value' : '';
+      if (!pkg.length) { totalEl.textContent = ''; }
+      else if (hasDynasty) {
+        var nowT = pkg.reduce(function(s, p) { return s + Math.max(0, p.projValue || 0); }, 0);
+        var dynT = pkg.reduce(function(s, p) { return s + Math.max(0, p.dynValue  || 0); }, 0);
+        totalEl.textContent = 'Package total: ' + fmt$(nowT) + ' now / ' + fmt$(dynT) + ' dynasty';
+      } else {
+        totalEl.textContent = 'Package total: ' + fmt$(pkgSurp(pkg, side)) + ' trade value';
+      }
     }
 
     function makeDropdown(inputId, ddId, getOptions, pkg, chipsId, totalId, side) {
@@ -965,11 +989,11 @@
         var opts = getOptions(q).slice(0, 12);
         if (!opts.length) return;
         opts.forEach(function(p) {
-          var sv   = playerSurp(p, side);
           var item = document.createElement('div'); item.className = 'pkg-dd-item';
           var nm   = document.createElement('span');
           nm.textContent = (p.rawName || p.name) + (p.teamName || p.team ? ' — ' + (p.teamName || p.team) : '');
-          var sp   = document.createElement('span'); sp.className = 'pkg-dd-surp'; sp.textContent = fmt$(sv);
+          var sp   = document.createElement('span'); sp.className = 'pkg-dd-surp';
+          sp.appendChild(bothValsEl(p, side));
           item.appendChild(nm); item.appendChild(sp);
           item.addEventListener('mousedown', function(e) {
             e.preventDefault();
@@ -1169,20 +1193,17 @@
       card.appendChild(hdr);
 
       function makeSide(lbl, players, tradeSide) {
-        var usedDynasty = tradeSide === 'offer' ? myValuation === 'dynasty' : theirValuation === 'dynasty';
         var sideEl = document.createElement('div'); sideEl.className = 'trade-side';
         var lblEl  = document.createElement('div'); lblEl.className = 'trade-side-lbl'; lblEl.textContent = lbl;
-        if (usedDynasty) { lblEl.textContent += ' (dynasty)'; }
         sideEl.appendChild(lblEl);
         players.forEach(function(p) {
-          var tv     = playerSurp(p, tradeSide);  // trade value (projected value)
           var sal    = p.salary || 0;
           var helped = helpedCats(p);
           var pd = document.createElement('div'); pd.className = 'trade-player';
           var nm = document.createElement('span'); nm.className = 'trade-player-name'; nm.textContent = p.rawName || p.name;
           var sp = document.createElement('span');
-          sp.className = 'trade-player-surp ' + (usedDynasty ? 'dynasty-val' : 'surplus-pos');
-          sp.textContent = fmt$(tv);
+          sp.className = 'trade-player-surp surplus-pos';
+          sp.appendChild(bothValsEl(p, tradeSide));
           pd.appendChild(nm); pd.appendChild(sp);
           if (sal > 0) {
             var salSpan = document.createElement('span');

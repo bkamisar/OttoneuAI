@@ -53,12 +53,31 @@ const REPO_FILES = [
 // Fetches all data/ CSVs from the repo, parses them, and writes to localStorage.
 // Returns a status map: { 'roster.csv': true, 'proj_hitting.csv': false, ... }
 // Returns {} immediately on file:// so local dev is unaffected.
+// Fetch with retry on transient failures (network errors, 5xx). A 404 is a
+// genuine "file absent" and returns immediately without retrying. Guards against
+// dropped fetches when many files load in parallel.
+async function fetchWithRetry(url, attempts) {
+  attempts = attempts || 3;
+  let lastErr;
+  for (let i = 0; i < attempts; i++) {
+    try {
+      const res = await fetch(url);
+      if (res.ok || res.status === 404) return res;
+      lastErr = new Error('HTTP ' + res.status);
+    } catch (e) {
+      lastErr = e;
+    }
+    if (i < attempts - 1) await new Promise(r => setTimeout(r, 150 * (i + 1)));
+  }
+  throw lastErr;
+}
+
 async function autoLoadFromRepo() {
   if (window.location.protocol === 'file:') return {};
   const status = {};
   await Promise.all(REPO_FILES.map(async function({ file, key, parse }) {
     try {
-      const res = await fetch('./data/' + file);
+      const res = await fetchWithRetry('./data/' + file);
       if (!res.ok) { console.warn('[autoLoad] 404:', file); status[file] = false; return; }
       const text = await res.text();
       const parsed = parse(text);

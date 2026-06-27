@@ -738,48 +738,38 @@ function parseCurrStandings(text) {
 // ── REST-OF-SEASON BLENDER ────────────────────────────────────────────────────
 // Combines current actual stats with projected remaining stats.
 //
-// curr  — one row from parseCurrStandings
-// proj  — result of computeTeamStats (full-season projection)
+// curr  — one row from parseCurrStandings (season-to-date actuals)
+// proj  — result of computeTeamStats over CURRENT roster
 //
-// Hitting: Games × PA_PER_GAME gives current PA proxy; remainder drawn from proj._totPA.
-// Pitching: curr.ip is the exact denominator; remainder = proj._ip − curr.ip.
-// Rate stats are weighted by their natural denominators (PA for hitting, IP for pitching).
-const PA_PER_GAME = 4.2;
-
+// IMPORTANT: projections are Steamer REST-OF-SEASON (steamerr), so proj.* already
+// represents the *remaining* production, not the full season. Therefore:
+//   - Counting stats (HR, R, SO): full season = current actuals + RoS projection.
+//   - Rate stats (OBP, SLG, ERA, WHIP, HR9): weighted average of current and
+//     remaining, weighted by the fraction of the season elapsed (from games
+//     played) vs remaining. (Earlier code treated proj as full-season and
+//     subtracted current from it, which gutted counting stats — esp. strikeouts.)
 function blendStats(curr, proj) {
-  // ── Hitting ───────────────────────────────────────────────────────────────
-  const currPA    = curr.games * PA_PER_GAME;
-  const projFullPA = proj._totPA || 1;
-  const remPA     = Math.max(0, projFullPA - currPA);
-  const totalPA   = currPA + remPA;
-  const hitFrac   = projFullPA > 0 ? remPA / projFullPA : 0;
+  const f = Math.min(1, Math.max(0, (curr.games || 0) / 162));  // season elapsed
+  const g = 1 - f;                                              // season remaining
 
-  const obp = totalPA > 0
-    ? (curr.obp * currPA + proj.OBP * remPA) / totalPA : proj.OBP;
-  const slg = totalPA > 0
-    ? (curr.slg * currPA + proj.SLG * remPA) / totalPA : proj.SLG;
-  const hr  = curr.hr + proj.HR * hitFrac;
-  const r   = curr.r  + proj.R  * hitFrac;
+  // ── Hitting ───────────────────────────────────────────────────────────────
+  const hr  = curr.hr + proj.HR;
+  const r   = curr.r  + proj.R;
+  const obp = curr.obp * f + proj.OBP * g;
+  const slg = curr.slg * f + proj.SLG * g;
 
   // ── Pitching ──────────────────────────────────────────────────────────────
-  const currIP    = curr.ip;
-  const projFullIP = proj._ip || 1;
-  const remIP     = Math.max(0, projFullIP - currIP);
-  const totalIP   = currIP + remIP;
-  const pitFrac   = projFullIP > 0 ? remIP / projFullIP : 0;
-
-  const era  = totalIP > 0
-    ? (curr.era * currIP / 9 + proj.ERA  * remIP / 9) * 9 / totalIP : proj.ERA;
-  const whip = totalIP > 0
-    ? (curr.whip * currIP    + proj.WHIP * remIP)      / totalIP     : proj.WHIP;
-  const hr9  = totalIP > 0
-    ? (curr.hr9 * currIP / 9 + proj.HR9  * remIP / 9) * 9 / totalIP : proj.HR9;
-  const so   = curr.k + proj.SO * pitFrac;
+  const so   = curr.k + proj.SO;
+  const era  = curr.era  * f + proj.ERA  * g;
+  const whip = curr.whip * f + proj.WHIP * g;
+  const hr9  = curr.hr9  * f + proj.HR9  * g;
 
   return {
     OBP: obp, SLG: slg, HR: hr, R: r,
     ERA: era, WHIP: whip, HR9: hr9, SO: so,
-    _ip: totalIP, _totPA: totalPA, _pitchingValid: proj._pitchingValid,
+    _ip: (curr.ip || 0) + (proj._ip || 0),
+    _totPA: (proj._totPA || 0),
+    _pitchingValid: proj._pitchingValid,
   };
 }
 

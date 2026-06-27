@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Ottoneu Tools — Prospects</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: system-ui, sans-serif; background: #f5f5f5; margin: 0; padding: 20px; color: #222; }
+    h1 { font-size: 1.3rem; margin-bottom: 4px; }
+    .nav { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+    .nav a { padding: 7px 14px; background: #1a73e8; color: #fff; border-radius: 6px; text-decoration: none; font-size: 0.88rem; }
+    .nav a.active { background: #1557b0; }
+    .error { background: #fce8e6; border-left: 4px solid #c62828; padding: 12px 16px; border-radius: 4px; margin-bottom: 16px; }
+    .error a { color: #c62828; }
+
+    .title-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+    .view-toggle { display: inline-flex; border: 1px solid #ddd; border-radius: 6px; overflow: hidden; }
+    .view-toggle button { padding: 4px 13px; border: none; background: #fff; font-size: 0.8rem; cursor: pointer; color: #555; }
+    .view-toggle button.active { background: #1a73e8; color: #fff; }
+
+    .filter-bar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; background: #fff; padding: 10px 14px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+    .filter-bar input { padding: 5px 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.84rem; min-width: 180px; }
+    .type-btns { display: flex; gap: 5px; }
+    .type-btn { padding: 5px 12px; border: 1px solid #ddd; border-radius: 20px; background: #fff; font-size: 0.82rem; cursor: pointer; color: #444; }
+    .type-btn.active { background: #1a73e8; color: #fff; border-color: #1a73e8; }
+    .count-line { font-size: 0.78rem; color: #999; margin-left: auto; }
+
+    .tbl-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 10px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.1); font-size: 0.86rem; }
+    th { background: #1a73e8; color: #fff; padding: 9px 10px; text-align: right; font-weight: 600; white-space: nowrap; cursor: pointer; user-select: none; }
+    th:first-child, th:nth-child(2) { text-align: left; }
+    th:hover { background: #1557b0; }
+    th.sort-asc::after  { content: ' ▲'; font-size: 0.7rem; }
+    th.sort-desc::after { content: ' ▼'; font-size: 0.7rem; }
+    td { padding: 7px 10px; text-align: right; border-bottom: 1px solid #f0f0f0; }
+    td:first-child, td:nth-child(2) { text-align: left; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #f8f8f8; }
+    .dim { color: #bbb; }
+    .surplus-pos { color: #1e7e34; font-weight: 600; }
+    .surplus-neg { color: #c62828; font-weight: 600; }
+    .dynasty-val { color: #6a1b9a; font-weight: 600; }
+    .fa-tag { color: #aaa; }
+
+    .badge-fv        { font-size: 0.68rem; padding: 1px 5px; border-radius: 10px; font-weight: 600; display: inline-block; white-space: nowrap; }
+    .badge-fv-elite  { background: #f3e5f5; color: #6a1b9a; }
+    .badge-fv-high   { background: #e8f0fe; color: #1557b0; }
+    .badge-fv-mid    { background: #e0f2f1; color: #00695c; }
+    .badge-fv-low    { background: #f5f5f5; color: #666;    }
+  </style>
+</head>
+<body>
+  <h1>Prospect List</h1>
+  <nav class="nav">
+    <a href="index.html">Data Hub</a>
+    <a href="standings.html">Standings</a>
+    <a href="roster.html">Roster Analysis</a>
+    <a href="trade.html">Trade Evaluator</a>
+    <a href="fa.html">FA Finder</a>
+    <a href="prospects.html" class="active">Prospects</a>
+    <a href="targets.html">Trade Targets</a>
+  </nav>
+
+  <div id="loading" style="display:none;color:#666;font-size:.88rem;padding:8px 0">Loading data…</div>
+  <div id="error"></div>
+  <div id="content" style="display:none">
+    <div class="title-row">
+      <div class="view-toggle" id="viewToggle" style="display:none">
+        <button id="btnCurrent" class="active" onclick="setView('current')">Current Year</button>
+        <button id="btnDynasty" onclick="setView('dynasty')">Dynasty</button>
+      </div>
+    </div>
+    <div class="filter-bar">
+      <input type="text" id="searchBox" placeholder="Search prospects…" autocomplete="off">
+      <div class="type-btns">
+        <button class="type-btn active" data-type="all">All</button>
+        <button class="type-btn" data-type="H">Hitters</button>
+        <button class="type-btn" data-type="P">Pitchers</button>
+      </div>
+      <label style="font-size:0.8rem;color:#555;display:flex;align-items:center;gap:5px;cursor:pointer">
+        <input type="checkbox" id="faOnlyChk"> Free agents only
+      </label>
+      <div class="count-line" id="countLine"></div>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th data-col="fv">FV</th>
+            <th data-col="name">Name</th>
+            <th data-col="org">Org</th>
+            <th data-col="pos">Pos</th>
+            <th data-col="level">Level</th>
+            <th data-col="eta">ETA</th>
+            <th data-col="age">Age</th>
+            <th data-col="value" id="thValue">Proj $</th>
+            <th data-col="team">Ottoneu Team</th>
+            <th data-col="salary">Salary</th>
+            <th data-col="surplus" id="thSurplus">Surplus</th>
+          </tr>
+        </thead>
+        <tbody id="prospectBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script src="shared.js"></script>
+  <script>
+    var allRows    = [];
+    var sortCol    = 'fv';
+    var sortDir    = -1;
+    var typeFilter = 'all';
+    var activeView = 'current';
+    var hasDynasty = false;
+    var faOnly     = false;
+
+    function setView(v) {
+      activeView = v;
+      document.getElementById('btnCurrent').classList.toggle('active', v === 'current');
+      document.getElementById('btnDynasty').classList.toggle('active', v === 'dynasty');
+      document.getElementById('thValue').textContent   = v === 'dynasty' ? 'Dynasty $'       : 'Proj $';
+      document.getElementById('thSurplus').textContent = v === 'dynasty' ? 'Dynasty Surplus'  : 'Surplus';
+      render();
+    }
+
+    function fvClass(fv) {
+      if (fv >= 70) return 'badge-fv-elite';
+      if (fv >= 60) return 'badge-fv-high';
+      if (fv >= 50) return 'badge-fv-mid';
+      return 'badge-fv-low';
+    }
+
+    function inferType(pos) {
+      pos = (pos || '').toLowerCase().trim();
+      return (pos === 'sp' || pos === 'rp' || pos === 'rhp' || pos === 'lhp' || pos === 'p') ? 'P' : 'H';
+    }
+
+    function inferPositions(pos) {
+      pos = (pos || '').toLowerCase().trim();
+      if (pos === 'rhp' || pos === 'lhp' || pos === 'p') return ['sp'];
+      if (pos === 'lf' || pos === 'cf' || pos === 'rf') return ['of'];
+      return [pos];
+    }
+
+    function fmt$(n) {
+      if (n > 0)  return '$' + n.toFixed(1);
+      if (n < 0)  return '-$' + Math.abs(n).toFixed(1);
+      return '$0';
+    }
+
+    function rowValue(row)   { return activeView === 'dynasty' ? row.dynastyValue   : row.value; }
+    function rowSurplus(row) { return activeView === 'dynasty' ? row.dynastySurplus : row.surplus; }
+
+    function sortValue(row, col) {
+      switch (col) {
+        case 'fv':      return row.prospect.fv;
+        case 'name':    return (row.prospect.rawName || row.prospect.name).toLowerCase();
+        case 'org':     return (row.prospect.org   || '').toLowerCase();
+        case 'pos':     return (row.prospect.pos   || '').toLowerCase();
+        case 'level':   return (row.prospect.level || '').toLowerCase();
+        case 'eta':     return row.prospect.eta || '9999';
+        case 'age':     return row.prospect.age || 99;
+        case 'value':   return rowValue(row);
+        case 'team':    return (row.team || '').toLowerCase();
+        case 'salary':  return row.salary;
+        case 'surplus': return rowSurplus(row);
+        default:        return 0;
+      }
+    }
+
+    function render() {
+      var isDynasty = activeView === 'dynasty';
+      var query     = document.getElementById('searchBox').value.toLowerCase();
+      var filtered  = allRows.filter(function(r) {
+        var t = r.projType || inferType(r.prospect.pos);
+        if (typeFilter !== 'all' && t !== typeFilter) return false;
+        if (faOnly && r.team !== 'FA') return false;
+        if (query) {
+          var name = (r.prospect.rawName || r.prospect.name).toLowerCase();
+          if (name.indexOf(query) === -1) return false;
+        }
+        return true;
+      });
+
+      filtered.sort(function(a, b) {
+        var av = sortValue(a, sortCol), bv = sortValue(b, sortCol);
+        if (av < bv) return sortDir;
+        if (av > bv) return -sortDir;
+        return b.prospect.fv - a.prospect.fv;
+      });
+
+      document.getElementById('countLine').textContent =
+        'Showing ' + filtered.length + ' of ' + allRows.length;
+
+      var tbody = document.getElementById('prospectBody');
+      while (tbody.firstChild) tbody.removeChild(tbody.firstChild);
+
+      filtered.forEach(function(row) {
+        var pr = row.prospect;
+        var tr = document.createElement('tr');
+        var val  = rowValue(row);
+        var surp = rowSurplus(row);
+
+        function td(text, cls) {
+          var cell = document.createElement('td');
+          cell.textContent = text;
+          if (cls) cell.className = cls;
+          return cell;
+        }
+
+        function tdNode(node, cls) {
+          var cell = document.createElement('td');
+          cell.appendChild(node);
+          if (cls) cell.className = cls;
+          return cell;
+        }
+
+        var fvSpan = document.createElement('span');
+        fvSpan.className = 'badge-fv ' + fvClass(pr.fv);
+        fvSpan.textContent = pr.fv;
+        tr.appendChild(tdNode(fvSpan));
+
+        tr.appendChild(td(pr.rawName || pr.name));
+        tr.appendChild(td(pr.org   || '—'));
+        tr.appendChild(td(pr.pos   || '—'));
+        tr.appendChild(td(pr.level || '—'));
+        tr.appendChild(td(pr.eta   || '—'));
+        tr.appendChild(td(pr.age   ? pr.age.toFixed(1) : '—'));
+
+        if (row.hasProj) {
+          var valCls = isDynasty ? 'dynasty-val' : (val >= 10 ? 'surplus-pos' : '');
+          tr.appendChild(td(fmt$(val), valCls));
+        } else {
+          tr.appendChild(td('—', 'dim'));
+        }
+
+        if (row.team && row.team !== 'FA') {
+          tr.appendChild(td(row.team));
+        } else {
+          tr.appendChild(td('FA', 'fa-tag dim'));
+        }
+
+        tr.appendChild(td(row.salary > 0 ? '$' + row.salary : '—', row.salary === 0 ? 'dim' : ''));
+
+        if (row.hasProj) {
+          tr.appendChild(td(fmt$(surp), surp >= 0 ? 'surplus-pos' : 'surplus-neg'));
+        } else {
+          tr.appendChild(td('—', 'dim'));
+        }
+
+        tbody.appendChild(tr);
+      });
+    }
+
+    document.querySelectorAll('th[data-col]').forEach(function(th) {
+      th.addEventListener('click', function() {
+        var col = this.dataset.col;
+        if (sortCol === col) {
+          sortDir = -sortDir;
+        } else {
+          sortCol = col;
+          sortDir = (['name','org','pos','level','eta','team'].indexOf(col) !== -1) ? 1 : -1;
+        }
+        document.querySelectorAll('th').forEach(function(h) { h.className = ''; });
+        this.dataset.col && (this.className = sortDir === -1 ? 'sort-desc' : 'sort-asc');
+        render();
+      });
+    });
+
+    document.querySelectorAll('.type-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        typeFilter = this.dataset.type;
+        document.querySelectorAll('.type-btn').forEach(function(b) { b.classList.remove('active'); });
+        this.classList.add('active');
+        render();
+      });
+    });
+
+    document.getElementById('searchBox').addEventListener('input', render);
+    document.getElementById('faOnlyChk').addEventListener('change', function() {
+      faOnly = this.checked; render();
+    });
+
+    (async function() {
+      document.getElementById('loading').style.display = '';
+      await autoLoadFromRepo();
+      document.getElementById('loading').style.display = 'none';
+
+      var errEl        = document.getElementById('error');
+      var prospectList = loadData('ottoneu_prospects') || [];
+
+      if (!prospectList.length) {
+        var d = document.createElement('div');
+        d.className = 'error';
+        d.textContent = 'No prospect data — upload prospects.csv on the ';
+        var a = document.createElement('a');
+        a.href = 'index.html';
+        a.textContent = 'Data Hub.';
+        d.appendChild(a);
+        errEl.appendChild(d);
+        return;
+      }
+
+      var projHit   = loadData('ottoneu_proj_hitting');
+      var projPitch = loadData('ottoneu_proj_pitching');
+      var hitY1     = loadData('ottoneu_proj_hitting_y1');
+      var pitY1     = loadData('ottoneu_proj_pitching_y1');
+      var hitY2     = loadData('ottoneu_proj_hitting_y2');
+      var pitY2     = loadData('ottoneu_proj_pitching_y2');
+      var roster    = loadData('ottoneu_roster');
+      var weights   = loadData('ottoneu_dynasty_weights') || { y1: 0.90, y2: 0.81 };
+
+      hasDynasty = !!(hitY1 || pitY1 || hitY2 || pitY2);
+      if (hasDynasty) document.getElementById('viewToggle').style.display = '';
+
+      var projByName = {};
+      [...(projHit || []), ...(projPitch || [])].forEach(function(p) {
+        if (p.name) projByName[p.name] = p;
+      });
+
+      var rosterByName = {};
+      if (roster) {
+        roster.forEach(function(p) { if (p.name) rosterByName[p.name] = p; });
+      }
+
+      var valueMap        = {};
+      var dynastyValueMap = {};
+
+      if (roster && projHit && projPitch) {
+        var merged = matchPlayers(roster, projHit, projPitch);
+        if (hitY1 || pitY1) merged = attachYearProjections(merged, hitY1, pitY1, 'proj_y1');
+        if (hitY2 || pitY2) merged = attachYearProjections(merged, hitY2, pitY2, 'proj_y2');
+
+        var teamSet = {};
+        merged.forEach(function(p) { if (p.team && p.team !== 'Free Agent') teamSet[p.team] = true; });
+        var allRosters = Object.keys(teamSet).map(function(t) {
+          return merged.filter(function(p) { return p.team === t; });
+        });
+
+        var rosteredNames = new Set(roster.map(function(p) { return p.name; }));
+
+        // Build extra players for unrostered prospects that have base projections.
+        // For dynasty extras, also attach Y1/Y2 projections by name.
+        var extraPlayers = prospectList
+          .filter(function(pr) { return !rosteredNames.has(pr.name) && projByName[pr.name]; })
+          .map(function(pr) {
+            var pm = projByName[pr.name];
+            var ep = {
+              name:      pr.name,
+              rawName:   pr.rawName,
+              type:      pm.type,
+              positions: inferPositions(pr.pos),
+              salary:    0,
+              proj:      pm.proj,
+              fgId:      '',
+            };
+            // Attach Y1/Y2 if available (attachYearProjections works on arrays)
+            var wrapped = [ep];
+            if (hitY1 || pitY1) wrapped = attachYearProjections(wrapped, hitY1, pitY1, 'proj_y1');
+            if (hitY2 || pitY2) wrapped = attachYearProjections(wrapped, hitY2, pitY2, 'proj_y2');
+            return wrapped[0];
+          });
+
+        valueMap = calculateAllValues(allRosters, extraPlayers);
+        if (hasDynasty) {
+          dynastyValueMap = calculateDynastyValues(allRosters, weights, extraPlayers);
+        }
+      }
+
+      allRows = prospectList.map(function(pr) {
+        var rp  = rosterByName[pr.name] || null;
+        var pm  = projByName[pr.name]   || null;
+        var vm  = valueMap[pr.name]        || {};
+        var dvm = dynastyValueMap[pr.name] || {};
+        var sal = rp ? (rp.salary || 0) : 0;
+        return {
+          prospect:       pr,
+          salary:         sal,
+          team:           rp ? (rp.team || 'FA') : 'FA',
+          value:          vm.projectedValue  || 0,
+          surplus:        vm.surplus  !== undefined ? vm.surplus  : (rp ? -sal : 0),
+          dynastyValue:   dvm.dynastyValue   || 0,
+          dynastySurplus: dvm.dynastySurplus !== undefined ? dvm.dynastySurplus : (rp ? -sal : 0),
+          hasProj:        !!pm,
+          projType:       pm ? pm.type : null,
+        };
+      });
+
+      document.querySelector('th[data-col="fv"]').className = 'sort-desc';
+      document.getElementById('content').style.display = '';
+      render();
+    })();
+  </script>
+</body>
+</html>

@@ -52,17 +52,26 @@
     .status-badge-ok  { background:#e6f4ea; color:#1e7e34; padding:2px 8px; border-radius:12px; font-size:.75rem; font-weight:600; }
     .status-badge-err { background:#fce8e6; color:#c62828; padding:2px 8px; border-radius:12px; font-size:.75rem; font-weight:600; }
     .status-badge-opt { background:#f5f5f5; color:#999;    padding:2px 8px; border-radius:12px; font-size:.75rem; font-weight:600; }
+    .freshness-banner { background:#fff; border-left:4px solid #1a73e8; border-radius:8px; padding:12px 16px; margin-bottom:24px; box-shadow:0 1px 4px rgba(0,0,0,.08); display:flex; flex-wrap:wrap; gap:18px; align-items:center; }
+    .fresh-item { font-size:.85rem; color:#444; }
+    .fresh-item .fresh-lbl { color:#888; margin-right:5px; }
+    .fresh-item .fresh-val { font-weight:600; }
+    .fresh-item.stale .fresh-val { color:#c62828; }
   </style>
 </head>
 <body>
   <h1>Ottoneu 4×4 Tools</h1>
   <p class="subtitle">Upload your data once — all tools share it automatically.</p>
 
+  <div class="freshness-banner" id="freshnessBanner" style="display:none"></div>
+
   <nav class="nav">
     <a href="standings.html">Standings</a>
     <a href="roster.html">Roster Analysis</a>
     <a href="trade.html">Trade Evaluator</a>
     <a href="fa.html">FA Finder</a>
+    <a href="prospects.html">Prospects</a>
+    <a href="targets.html">Trade Targets</a>
   </nav>
 
   <div id="repoLoading" style="display:none;color:#666;font-size:.88rem;padding:4px 0 12px">Loading league data from repo…</div>
@@ -125,6 +134,37 @@
       { file: 'prospects.csv',        required: false },
     ];
 
+    // Top-of-page freshness summary for the data that actually drives the tools.
+    function renderFreshness() {
+      var items = [
+        { key: 'ottoneu_proj_hitting',  label: 'Projections', staleDays: 8  },
+        { key: 'ottoneu_roster',        label: 'Rosters',     staleDays: 21 },
+        { key: 'ottoneu_curr_standings',label: 'Standings',   staleDays: 14 },
+      ];
+      var banner = document.getElementById('freshnessBanner');
+      while (banner.firstChild) banner.removeChild(banner.firstChild);
+      var anyShown = false;
+      items.forEach(function(it) {
+        var stamp = getDataStamp(it.key);
+        if (!stamp && it.key === 'ottoneu_curr_standings') return; // optional, skip if absent
+        anyShown = true;
+        var stale = stamp && (Date.now() - stamp.ts) > it.staleDays * 86400000;
+        var div = document.createElement('div');
+        div.className = 'fresh-item' + (stale ? ' stale' : '');
+        var lbl = document.createElement('span'); lbl.className = 'fresh-lbl'; lbl.textContent = it.label + ':';
+        var val = document.createElement('span'); val.className = 'fresh-val';
+        val.textContent = stamp ? formatDataStamp(it.key) : 'Not loaded';
+        div.appendChild(lbl); div.appendChild(val);
+        if (stale) {
+          var warn = document.createElement('span'); warn.textContent = ' ⚠';
+          warn.title = 'Older than ' + it.staleDays + ' days';
+          div.appendChild(warn);
+        }
+        banner.appendChild(div);
+      });
+      banner.style.display = anyShown ? '' : 'none';
+    }
+
     function renderDataStatus(status) {
       if (!status || Object.keys(status).length === 0) return;
       var section = document.getElementById('repoStatusSection');
@@ -171,10 +211,7 @@
         const count     = stored ? stored.length : 0;
         const statusCls = stored ? 'loaded' : (cfg.required ? 'missing' : 'optional');
         const statusTxt = stored ? '\u2713 ' + count + ' players' : (cfg.required ? 'Required' : 'Optional');
-        const ts        = loadData(cfg.key + '_ts');
-        const metaTxt   = stored && ts
-          ? 'Loaded ' + new Date(ts).toLocaleString()
-          : (stored ? 'Loaded' : 'Not loaded');
+        const metaTxt   = stored ? formatDataStamp(cfg.key) : 'Not loaded';
 
         const card = document.createElement('div');
         card.className = 'card';
@@ -217,8 +254,10 @@
           const parsed = CSV_CONFIGS[cfgIdx].parse(e.target.result);
           saveData(key, parsed);
           saveData(key + '_ts', Date.now());
+          saveData(key + '_src', 'manual');
           showToast('Loaded ' + parsed.length + ' rows from ' + file.name);
           buildGrid();
+          renderFreshness();
           if (key === 'ottoneu_roster') rebuildTeamDropdown(parsed);
         } catch (err) {
           showToast('Error parsing file: ' + err.message);
@@ -257,6 +296,7 @@
       if (!confirm('Clear all loaded data?')) return;
       clearAllData();
       buildGrid();
+      renderFreshness();
       const sel = document.getElementById('teamSelect');
       while (sel.firstChild) sel.removeChild(sel.firstChild);
       const def = document.createElement('option');
@@ -272,9 +312,7 @@
       if (stored) {
         document.getElementById('currBadge').className = 'badge loaded';
         document.getElementById('currBadge').textContent = '✓ ' + stored.length + ' teams';
-        const ts = loadData('ottoneu_curr_standings_ts');
-        document.getElementById('currMeta').textContent = ts
-          ? 'Loaded ' + new Date(ts).toLocaleString() : 'Loaded';
+        document.getElementById('currMeta').textContent = formatDataStamp('ottoneu_curr_standings');
       } else {
         document.getElementById('currBadge').className = 'badge optional';
       }
@@ -290,9 +328,11 @@
           if (!parsed.length) throw new Error('No rows parsed — check column headers.');
           saveData('ottoneu_curr_standings', parsed);
           saveData('ottoneu_curr_standings_ts', Date.now());
+          saveData('ottoneu_curr_standings_src', 'manual');
           document.getElementById('currBadge').className = 'badge loaded';
           document.getElementById('currBadge').textContent = '✓ ' + parsed.length + ' teams';
-          document.getElementById('currMeta').textContent = 'Loaded ' + new Date().toLocaleString();
+          document.getElementById('currMeta').textContent = formatDataStamp('ottoneu_curr_standings');
+          renderFreshness();
           showToast('Current standings loaded: ' + parsed.length + ' teams');
         } catch (err) {
           showToast('Error: ' + err.message);
@@ -332,6 +372,7 @@
       var savedRoster = loadData('ottoneu_roster');
       if (savedRoster) rebuildTeamDropdown(savedRoster);
       renderDataStatus(status);
+      renderFreshness();
     })();
   </script>
 </body>

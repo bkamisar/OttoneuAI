@@ -15,24 +15,11 @@ const REGRESS_PA = 0;
 const REGRESS_IP = 0;
 const LG_MEAN = { OBP: 0.325, SLG: 0.430, ERA: 3.735, WHIP: 1.197, HR9: 1.087 };
 
-// Active lineup slots per position across the 12-team league.
-// Replacement = the (N+1)th best rostered player at that position —
-// represents who you'd realistically plug in from active rosters, not the
-// 40-man bench (too high a bar) and not the waiver wire (too low).
-const REPL_DEPTH = {
-  C:    12,   // 1 per team
-  '1B': 12,
-  '2B': 16,   // 12 dedicated + ~4 for MI slot sharing with SS
-  'SS': 16,   // 12 dedicated + ~4 for MI slot sharing with 2B
-  '3B': 12,
-  OF:   60,   // 5 per team
-  UTIL: 12,   // fallback; not used in eligible-key evaluation
-  P:   156,   // ~13 active pitching spots per team × 12 teams
-};
 const OF_GAME_CAP  = 810;     // 5 OF × 162 games
 const SLOT_CAP     = 162;
 const IP_MAX       = 1500;
 const IP_MIN       = 400;   // RoS projections have lower IP totals; 400 works year-round
+const TWO_WAY_IP_MIN = 30; // Min projected IP for a hitter to count as a true two-way pitcher
 
 // ── PRORATION ────────────────────────────────────────────────────────────────
 // Returns the fraction of the MLB season remaining as of today.
@@ -77,6 +64,13 @@ async function autoLoadFromRepo() {
       const parsed = parse(text);
       console.log('[autoLoad]', file, '→', Array.isArray(parsed) ? parsed.length + ' rows' : typeof parsed);
       saveData(key, parsed);
+      // Record the file's freshness from the server. Last-Modified reflects when
+      // GitHub Pages last deployed the file (≈ when it was committed). Falls back
+      // to fetch time if the header is absent. Marks the source as 'repo' so the
+      // UI can distinguish auto-loaded files from manual browser uploads.
+      const lastMod = res.headers.get('Last-Modified');
+      saveData(key + '_ts',  lastMod ? Date.parse(lastMod) : Date.now());
+      saveData(key + '_src', 'repo');
       status[file] = true;
     } catch (e) {
       console.error('[autoLoad] ERROR:', file, e);
@@ -84,6 +78,43 @@ async function autoLoadFromRepo() {
     }
   }));
   return status;
+}
+
+// ── DATA FRESHNESS STAMPS ────────────────────────────────────────────────────
+// Returns { ts, src } for a data key, or null if no timestamp recorded.
+// src is 'repo' (auto-loaded from GitHub) or 'manual' (uploaded in browser).
+function getDataStamp(key) {
+  const ts = loadData(key + '_ts');
+  if (!ts) return null;
+  return { ts: ts, src: loadData(key + '_src') || 'manual' };
+}
+
+// Human-readable relative age, e.g. "3 days ago", "just now".
+function relativeAge(ts) {
+  const ms = Date.now() - ts;
+  if (ms < 0) return 'just now';
+  const min = Math.floor(ms / 60000);
+  if (min < 1)  return 'just now';
+  if (min < 60) return min + (min === 1 ? ' min ago' : ' mins ago');
+  const hr = Math.floor(min / 60);
+  if (hr < 24)  return hr + (hr === 1 ? ' hour ago' : ' hours ago');
+  const d = Math.floor(hr / 24);
+  if (d < 30)   return d + (d === 1 ? ' day ago' : ' days ago');
+  const mo = Math.floor(d / 30);
+  return mo + (mo === 1 ? ' month ago' : ' months ago');
+}
+
+// Formats a stamp for display: "Jun 27, 2026, 4:02 AM (auto) · 3 days ago".
+// Returns 'Not loaded' when no stamp exists.
+function formatDataStamp(key) {
+  const s = getDataStamp(key);
+  if (!s) return 'Not loaded';
+  const when = new Date(s.ts).toLocaleString([], {
+    year: 'numeric', month: 'short', day: 'numeric',
+    hour: 'numeric', minute: '2-digit',
+  });
+  const tag = s.src === 'repo' ? 'auto' : 'uploaded';
+  return when + ' (' + tag + ') · ' + relativeAge(s.ts);
 }
 
 // ── PROSPECT PARSER ──────────────────────────────────────────────────────────
@@ -161,15 +192,20 @@ function loadData(key) {
 }
 
 function clearAllData() {
-  [
+  const dataKeys = [
     'ottoneu_roster',
     'ottoneu_proj_hitting',  'ottoneu_proj_pitching',
     'ottoneu_proj_hitting_y1', 'ottoneu_proj_pitching_y1',
     'ottoneu_proj_hitting_y2', 'ottoneu_proj_pitching_y2',
-    'ottoneu_dynasty_weights',
-    'ottoneu_my_team',
-    'ottoneu_curr_standings', 'ottoneu_curr_standings_ts',
-  ].forEach(k => localStorage.removeItem(k));
+    'ottoneu_prospects',
+    'ottoneu_curr_standings',
+  ];
+  dataKeys.forEach(k => {
+    localStorage.removeItem(k);
+    localStorage.removeItem(k + '_ts');
+    localStorage.removeItem(k + '_src');
+  });
+  ['ottoneu_dynasty_weights', 'ottoneu_my_team'].forEach(k => localStorage.removeItem(k));
 }
 
 // ── CSV PARSING ──────────────────────────────────────────────────────────────
@@ -251,7 +287,11 @@ function parseSalary(str) {
 
 function inferPlayerType(posStr) {
   const tokens = String(posStr).toLowerCase().split(/[/,]/).map(p => p.trim());
-  return tokens.some(p => p === 'sp' || p === 'rp' || p === 'p') ? 'P' : 'H';
+  const hasPitching = tokens.some(p => p === 'sp' || p === 'rp' || p === 'p');
+  const hasHitting  = tokens.some(p => ['c','1b','2b','ss','3b','of','dh','mi','ci','util'].includes(p));
+  // Only classify as pitcher if there are NO hitting positions.
+  // Players like "1b/of/rp" are hitters who occasionally pitch — treat as 'H'.
+  return hasPitching && !hasHitting ? 'P' : 'H';
 }
 
 // ── PROJECTION PARSERS ───────────────────────────────────────────────────────
@@ -335,33 +375,55 @@ function parsePitchingProjections(text) {
 // Merges roster players with their projections.
 // Match priority: FanGraphs ID → normalized name.
 function matchPlayers(rosterPlayers, hittingProj, pitchingProj) {
-  // ID-based lookup (type-agnostic — fgId is unique per player)
-  const projById = {};
-  [...(hittingProj || []), ...(pitchingProj || [])].forEach(p => {
-    if (p.fgId) projById[p.fgId] = p;
-  });
-
-  // Type-separated name lookups — prevents a minor-league pitcher named
-  // "Juan Soto" from overwriting Juan Soto the outfielder's hitting projection.
+  // Type-separated ID and name lookups.
+  // Keeping hitting and pitching separate prevents two-way players (Ohtani) or
+  // name collisions (minor-league pitcher "Juan Soto") from clobbering the wrong
+  // projection when both files share the same playerid or name.
+  const projByIdH = {};
+  const projByIdP = {};
   const projByNameH = {};
   const projByNameP = {};
-  (hittingProj  || []).forEach(p => { if (p.name) projByNameH[p.name] = p; });
-  (pitchingProj || []).forEach(p => { if (p.name) projByNameP[p.name] = p; });
+  (hittingProj  || []).forEach(p => {
+    if (p.fgId) projByIdH[p.fgId] = p;
+    if (p.name)  projByNameH[p.name]  = p;
+  });
+  (pitchingProj || []).forEach(p => {
+    if (p.fgId) projByIdP[p.fgId] = p;
+    if (p.name)  projByNameP[p.name]  = p;
+  });
 
   const matched = rosterPlayers.map(rp => {
-    // 1. Try ID match (most reliable)
-    let projMatch = projById[rp.fgId] || null;
-    // 2. Type-aware name match: hitters → hitting proj, pitchers → pitching proj
+    // 1. Type-aware ID match (most reliable)
+    const idLookup = rp.type === 'P' ? projByIdP : projByIdH;
+    let projMatch = (rp.fgId && idLookup[rp.fgId]) || null;
+    // 2. Type-aware name match fallback
     if (!projMatch) {
       projMatch = rp.type === 'P' ? projByNameP[rp.name] : projByNameH[rp.name];
     }
-    return { ...rp, proj: projMatch ? projMatch.proj : null };
+
+    // 3. Two-way check: a type='H' player with pitching eligibility (SP/RP) who
+    //    also has a meaningful pitching projection is a genuine two-way player.
+    //    Attach projP so the SGP loop can add their pitching value on top.
+    //    TWO_WAY_IP_MIN filters out position players who pitched once in a blowout.
+    let projP = null;
+    if (rp.type === 'H') {
+      const hasPitchPos = (rp.positions || []).some(p => p === 'sp' || p === 'rp' || p === 'p');
+      if (hasPitchPos) {
+        const ppMatch = (rp.fgId && projByIdP[rp.fgId]) || projByNameP[rp.name] || null;
+        if (ppMatch && ppMatch.proj && (ppMatch.proj.ip || 0) >= TWO_WAY_IP_MIN) {
+          projP = ppMatch.proj;
+        }
+      }
+    }
+
+    return { ...rp, proj: projMatch ? projMatch.proj : null, projP };
   });
   const hMatched = matched.filter(p => p.type === 'H' && p.proj).length;
   const pMatched = matched.filter(p => p.type === 'P' && p.proj).length;
   const hTotal   = matched.filter(p => p.type === 'H').length;
   const pTotal   = matched.filter(p => p.type === 'P').length;
   console.log('[matchPlayers] hitters:', hMatched + '/' + hTotal, '| pitchers:', pMatched + '/' + pTotal);
+  computeFABaselines(hittingProj, pitchingProj, rosterPlayers, 'proj');
   return matched;
 }
 
@@ -380,16 +442,74 @@ function getFreeAgents(hittingProj, pitchingProj, rosterPlayers) {
   }));
 }
 
+// ── FA REPLACEMENT BASELINES ─────────────────────────────────────────────────
+// Replacement level = the best freely available alternative. For each player
+// type we average the stats of the top free-agent cohort (best unrostered
+// players with a real projected MLB role). Stored per projection year
+// ('proj', 'proj_y1', 'proj_y2') so dynasty valuations use that year's FA pool.
+const FA_COHORT_H = 8;    // hitters averaged into the baseline
+const FA_COHORT_P = 10;   // pitchers averaged into the baseline
+const FA_MIN_PA   = 100;  // role floors: excludes stashed prospects / injured
+const FA_MIN_IP   = 30;   // players with elite rates but no MLB playing time
+
+let FA_BASELINES = {};    // { proj: {H,P}, proj_y1: {H,P}, proj_y2: {H,P} }
+
+function computeFABaselines(hittingProj, pitchingProj, rosterPlayers, yearKey) {
+  const rosteredIds   = new Set(rosterPlayers.map(p => p.fgId).filter(Boolean));
+  const rosteredNames = new Set(rosterPlayers.map(p => p.name));
+  const isFA = p => !(p.fgId && rosteredIds.has(p.fgId)) && !rosteredNames.has(p.name);
+
+  const faH = (hittingProj || [])
+    .filter(p => isFA(p) && p.proj && (p.proj.pa || 0) >= FA_MIN_PA)
+    .sort((a, b) => valProxy({ type: 'H' }, b.proj) - valProxy({ type: 'H' }, a.proj))
+    .slice(0, FA_COHORT_H);
+  const faP = (pitchingProj || [])
+    .filter(p => isFA(p) && p.proj && (p.proj.ip || 0) >= FA_MIN_IP)
+    .sort((a, b) => valProxy({ type: 'P' }, b.proj) - valProxy({ type: 'P' }, a.proj))
+    .slice(0, FA_COHORT_P);
+
+  FA_BASELINES[yearKey] = {
+    H: avgCohortStats(faH.map(p => p.proj), ['pa', 'hr', 'r', 'obp', 'slg']),
+    P: avgCohortStats(faP.map(p => p.proj), ['ip', 'so', 'era', 'whip', 'hr9']),
+  };
+}
+
+// Averages each stat across a cohort. Returns null if the cohort is too thin
+// to be a trustworthy baseline (callers fall back to roster-based replacement).
+function avgCohortStats(projs, fields) {
+  if (projs.length < 3) return null;
+  const out = {};
+  fields.forEach(f => {
+    out[f] = projs.reduce((s, b) => s + (b[f] || 0), 0) / projs.length;
+  });
+  return out;
+}
+
 // Attaches a future-year projection to already-matched roster players.
 // projKey: 'proj_y1' or 'proj_y2'. Matched by normalized name only
 // (projection CSVs have no player ID column).
 function attachYearProjections(matchedPlayers, hittingProj, pitchingProj, projKey) {
   if (!hittingProj && !pitchingProj) return matchedPlayers;
-  const byName = {};
-  [...(hittingProj || []), ...(pitchingProj || [])].forEach(p => {
-    if (p.name) byName[p.name] = p.proj;
+  computeFABaselines(hittingProj, pitchingProj, matchedPlayers, projKey);
+  // Type-separated lookups — same reason as matchPlayers: prevents Ohtani's
+  // pitching projection from overwriting his hitting projection for the same name.
+  const byNameH = {};
+  const byNameP = {};
+  (hittingProj  || []).forEach(p => { if (p.name) byNameH[p.name] = p.proj; });
+  (pitchingProj || []).forEach(p => { if (p.name) byNameP[p.name] = p.proj; });
+
+  return matchedPlayers.map(p => {
+    const yearProj = p.type === 'P' ? byNameP[p.name] : byNameH[p.name];
+    const result = { ...p, [projKey]: yearProj || null };
+    // Two-way players: also store the year-specific pitching projection so
+    // cloneForYear can set projP correctly for that year's valuation pass.
+    if (p.type === 'H' && p.projP !== undefined) {
+      const yearPitchProj = byNameP[p.name];
+      result[projKey + '_P'] = (yearPitchProj && (yearPitchProj.ip || 0) >= TWO_WAY_IP_MIN)
+        ? yearPitchProj : null;
+    }
+    return result;
   });
-  return matchedPlayers.map(p => ({ ...p, [projKey]: byName[p.name] || null }));
 }
 
 // Computes dynasty value by running the SGP model across up to three projection
@@ -401,26 +521,37 @@ function calculateDynastyValues(allRosters, weights, extraPlayers) {
   const w2 = weights ? (weights.y2 || 0) : 0;
 
   // Helper: clone rosters swapping proj → a different year's projection.
+  // Also forward projP from the year-specific pitching field so two-way players
+  // (Ohtani) get the correct pitching projection for each dynasty year, not Y0's.
   function cloneForYear(rosters, yearKey) {
-    return rosters.map(r => r.map(p => ({ ...p, proj: p[yearKey] || null })));
+    return rosters.map(r => r.map(p => ({
+      ...p,
+      proj:  p[yearKey]          || null,
+      projP: p[yearKey + '_P']   !== undefined ? p[yearKey + '_P'] : p.projP,
+    })));
   }
   function cloneExtras(extras, yearKey) {
-    return extras ? extras.map(p => ({ ...p, proj: p[yearKey] || null })) : null;
+    return extras ? extras.map(p => ({
+      ...p,
+      proj:  p[yearKey]          || null,
+      projP: p[yearKey + '_P']   !== undefined ? p[yearKey + '_P'] : p.projP,
+    })) : null;
   }
 
   // Y0 — always run
   const vmY0 = calculateAllValues(allRosters, extraPlayers);
 
-  // Y1 — run only if any player actually has proj_y1 data
+  // Y1 — run only if any player actually has proj_y1 data.
+  // Pass the year key so replacement level comes from that year's FA baseline.
   const hasY1 = w1 > 0 && allRosters.flat().some(p => p.proj_y1);
   const vmY1 = hasY1
-    ? calculateAllValues(cloneForYear(allRosters, 'proj_y1'), cloneExtras(extraPlayers, 'proj_y1'), true)
+    ? calculateAllValues(cloneForYear(allRosters, 'proj_y1'), cloneExtras(extraPlayers, 'proj_y1'), true, 'proj_y1')
     : null;
 
   // Y2 — run only if any player actually has proj_y2 data
   const hasY2 = w2 > 0 && allRosters.flat().some(p => p.proj_y2);
   const vmY2 = hasY2
-    ? calculateAllValues(cloneForYear(allRosters, 'proj_y2'), cloneExtras(extraPlayers, 'proj_y2'), true)
+    ? calculateAllValues(cloneForYear(allRosters, 'proj_y2'), cloneExtras(extraPlayers, 'proj_y2'), true, 'proj_y2')
     : null;
 
   // Dynasty salary cost: apply the same discount weights to salary as to value.
@@ -662,7 +793,7 @@ function buildStandings(teams) {
 
 // extraPlayers: optional array of FA players to value using the same rates.
 // They do NOT affect replacement levels or total SGP — keeping existing values calibrated.
-function calculateAllValues(allTeamRosters, extraPlayers, quiet) {
+function calculateAllValues(allTeamRosters, extraPlayers, quiet, yearKey) {
   // 1. Optimize lineup for each team
   const teamLineups = allTeamRosters.map(roster => {
     const hitters  = roster.filter(p => p.type === 'H');
@@ -676,28 +807,19 @@ function calculateAllValues(allTeamRosters, extraPlayers, quiet) {
   // 2. SGP denominators from stdev of each category across all teams
   const sgpDenom = calcSGPDenoms(teamLineups.map(t => t.stats));
 
-  // 3. Track which players are starters (used for hitter replacement level only)
-  const startingH = new Set();
-  const startingP = new Set();
-  teamLineups.forEach(t => {
-    Object.values(t.lineup).filter(Boolean).forEach(p => startingH.add(p.fgId || p.name));
-    t.pitPool.forEach(p => startingP.add(p.fgId || p.name));
-  });
-
-  // Average team PA and IP (for rate-stat normalization)
+  // 3. Average team PA and IP (for rate-stat normalization)
   const avgPA = teamLineups.reduce((s, t) =>
     s + Object.values(t.lineup).filter(Boolean)
       .reduce((sp, p) => sp + ((p._proj && p._proj.pa) || (p.proj && p.proj.pa) || 0), 0), 0) / NUM_TEAMS;
   const avgIP = teamLineups.reduce((s, t) =>
     s + t.pitPool.reduce((sp, p) => sp + ((p._proj && p._proj.ip) || (p.proj && p.proj.ip) || 0), 0), 0) / NUM_TEAMS;
 
-  // 4. Position-specific replacement level
-  const replLevels = calcReplacementLevels(allTeamRosters, startingP);
+  // 4. Replacement level = best freely available alternative (FA baseline)
+  const replLevels = calcReplacementLevels(allTeamRosters, yearKey);
 
   // 5. SGP per player — split into hitting and pitching pools
   const valueMap = {};
-  const hitSGPs  = [];
-  const pitSGPs  = [];
+  const entries  = [];   // every rostered player with a projection
   let totalHitSGP = 0;
   let totalPitSGP = 0;
 
@@ -713,59 +835,56 @@ function calculateAllValues(allTeamRosters, extraPlayers, quiet) {
       return;
     }
 
-    let sgp;
-    if (player.type === 'P') {
-      const repl = replLevels['P'];
-      if (!repl) { valueMap[key] = { sgp: 0, actualSalary: player.salary || 0, surplus: -(player.salary || 0) }; return; }
-      sgp = calcPlayerSGP(player, b, repl, sgpDenom, avgPA, avgIP);
-    } else {
-      // Try every eligible position bucket; use the one that gives the best SGP.
-      // This correctly values multi-position players at their most scarce slot.
-      const eligibleKeys = getEligibleReplacementKeys(player);
-      let bestSGP = null;
-      for (const replKey of eligibleKeys) {
-        const repl = replLevels[replKey];
-        if (!repl) continue;
-        const s = calcPlayerSGP(player, b, repl, sgpDenom, avgPA, avgIP);
-        if (bestSGP === null || s > bestSGP) bestSGP = s;
-      }
-      sgp = bestSGP !== null ? bestSGP : 0;
+    const repl = replLevels[player.type === 'P' ? 'P' : 'H'];
+    if (!repl) {
+      valueMap[key] = { sgp: 0, actualSalary: player.salary || 0, surplus: -(player.salary || 0) };
+      return;
+    }
+    let sgp = calcPlayerSGP(player, b, repl, sgpDenom, avgPA, avgIP);
+
+    // Two-way players: add pitching SGP on top of hitting SGP.
+    // Since hitRate === pitRate by construction (both = distributable / totalSGP),
+    // adding pitching SGP directly to the hitting pool produces the correct value.
+    if (player.type === 'H' && player.projP && replLevels.P) {
+      const pitSGP = calcPlayerSGP({ ...player, type: 'P' }, player.projP, replLevels.P, sgpDenom, avgPA, avgIP);
+      if (pitSGP > 0) sgp += pitSGP;
     }
 
     valueMap[key] = { sgp, actualSalary: player.salary || 0 };
+    entries.push({ key, sgp, type: player.type });
     if (sgp > 0) {
-      if (player.type === 'H') { totalHitSGP += sgp; hitSGPs.push({ key, sgp }); }
-      else                     { totalPitSGP += sgp; pitSGPs.push({ key, sgp }); }
+      if (player.type === 'H') totalHitSGP += sgp;
+      else                     totalPitSGP += sgp;
     }
   });
 
-  // 6. Normalize to $4,800 with a hitting/pitching pool split derived from SGP totals.
-  // Allocating dollars proportional to where scoring opportunity exists avoids
-  // hardcoded assumptions and self-corrects as projections update.
+  // 6. Dollar normalization. Reserve $1 per rostered player (a roster spot is
+  // never worth less than the league-minimum salary), then distribute the rest
+  // proportional to SGP, split between hitting/pitching pools by SGP share.
+  const reserved      = entries.length;            // $1 × rostered players
+  const distributable = Math.max(0, SALARY_POOL - reserved);
   const totalSGP = totalHitSGP + totalPitSGP;
   const dynamicHitShare = totalSGP > 0 ? totalHitSGP / totalSGP : 0.60;
-  const hitDollars = SALARY_POOL * dynamicHitShare;
-  const pitDollars = SALARY_POOL * (1 - dynamicHitShare);
+  const hitDollars = distributable * dynamicHitShare;
+  const pitDollars = distributable * (1 - dynamicHitShare);
 
   const hitRate = totalHitSGP > 0 ? hitDollars / totalHitSGP : 0;
   const pitRate = totalPitSGP > 0 ? pitDollars / totalPitSGP : 0;
   if (!quiet) console.log('[values] hitShare:', (dynamicHitShare*100).toFixed(1)+'%',
     '| hitRate: $'+hitRate.toFixed(2)+'/SGP | pitRate: $'+pitRate.toFixed(2)+'/SGP',
-    '| replP ERA:', (replLevels.P && replLevels.P.era || 0).toFixed(2),
+    '| replH PA:', Math.round(replLevels.H && replLevels.H.pa || 0),
+    'HR:', Math.round(replLevels.H && replLevels.H.hr || 0),
+    'OBP:', (replLevels.H && replLevels.H.obp || 0).toFixed(3),
+    '| replP IP:', Math.round(replLevels.P && replLevels.P.ip || 0),
+    'ERA:', (replLevels.P && replLevels.P.era || 0).toFixed(2),
     'WHIP:', (replLevels.P && replLevels.P.whip || 0).toFixed(3),
-    'SO:', Math.round(replLevels.P && replLevels.P.so || 0),
-    '| replOF HR:', Math.round(replLevels.OF && replLevels.OF.hr || 0),
-    'OBP:', (replLevels.OF && replLevels.OF.obp || 0).toFixed(3));
+    'SO:', Math.round(replLevels.P && replLevels.P.so || 0));
 
-  hitSGPs.forEach(({ key, sgp }) => {
-    const val = sgp * hitRate;
-    valueMap[key].projectedValue = Math.max(0, val);
-    valueMap[key].surplus = valueMap[key].projectedValue - (valueMap[key].actualSalary || 0);
-  });
-  pitSGPs.forEach(({ key, sgp }) => {
-    const val = sgp * pitRate;
-    valueMap[key].projectedValue = Math.max(0, val);
-    valueMap[key].surplus = valueMap[key].projectedValue - (valueMap[key].actualSalary || 0);
+  entries.forEach(({ key, sgp, type }) => {
+    const rate = type === 'P' ? pitRate : hitRate;
+    const val  = 1 + Math.max(0, sgp) * rate;   // $1 floor for every rostered player
+    valueMap[key].projectedValue = val;
+    valueMap[key].surplus = val - (valueMap[key].actualSalary || 0);
   });
 
   // Value extra (FA) players using the same $/SGP rates without affecting denominators.
@@ -778,23 +897,11 @@ function calculateAllValues(allTeamRosters, extraPlayers, quiet) {
         valueMap[key] = { noProj: true, projectedValue: 0, actualSalary: 0, surplus: 0 };
         return;
       }
-      let sgp;
-      if (player.type === 'P') {
-        const repl = replLevels['P'];
-        if (!repl) { valueMap[key] = { projectedValue: 0, sgp: 0, actualSalary: 0, surplus: 0 }; return; }
-        sgp = calcPlayerSGP(player, b, repl, sgpDenom, avgPA, avgIP);
-      } else {
-        const eligibleKeys = getEligibleReplacementKeys(player);
-        let bestSGP = null;
-        for (const rk of eligibleKeys) {
-          const repl = replLevels[rk];
-          if (!repl) continue;
-          const s = calcPlayerSGP(player, b, repl, sgpDenom, avgPA, avgIP);
-          if (bestSGP === null || s > bestSGP) bestSGP = s;
-        }
-        sgp = bestSGP !== null ? bestSGP : 0;
-      }
+      const repl = replLevels[player.type === 'P' ? 'P' : 'H'];
+      if (!repl) { valueMap[key] = { projectedValue: 0, sgp: 0, actualSalary: 0, surplus: 0 }; return; }
+      const sgp  = calcPlayerSGP(player, b, repl, sgpDenom, avgPA, avgIP);
       const rate = player.type === 'P' ? pitRate : hitRate;
+      // No $1 roster floor for free agents — they don't hold a roster spot.
       const projectedValue = Math.max(0, sgp * rate);
       valueMap[key] = { sgp, projectedValue, actualSalary: 0, surplus: projectedValue };
     });
@@ -817,65 +924,37 @@ function stdev(values) {
   return Math.sqrt(values.reduce((s, v) => s + Math.pow(v - mean, 2), 0) / values.length) || 1;
 }
 
-function getReplacementKey(player) {
-  if (player.type === 'P') return 'P';
-  const pos = player.positions || [];
-  if (pos.includes('c'))  return 'C';
-  if (pos.includes('ss')) return 'SS';
-  if (pos.includes('2b')) return '2B';
-  if (pos.includes('3b')) return '3B';
-  if (pos.includes('1b')) return '1B';
-  if (pos.includes('of')) return 'OF';
-  return 'UTIL';
-}
+// Returns { H, P } replacement baselines.
+// Primary source: FA_BASELINES — the averaged top free-agent cohort for this
+// projection year (replacement = the best freely available alternative).
+// Fallback (no FA data, e.g. unit tests or missing projection files): average
+// the weakest quartile of rostered players of that type.
+function calcReplacementLevels(allTeamRosters, yearKey) {
+  const base = FA_BASELINES[yearKey || 'proj'] || {};
+  const result = { H: base.H || null, P: base.P || null };
 
-// Returns all replacement-level buckets a hitter is eligible for.
-// Used to value multi-position players at their most scarce slot.
-function getEligibleReplacementKeys(player) {
-  if (player.type === 'P') return ['P'];
-  const pos = player.positions || [];
-  const keys = [];
-  if (pos.includes('c'))  keys.push('C');
-  if (pos.includes('ss')) keys.push('SS');
-  if (pos.includes('2b')) keys.push('2B');
-  if (pos.includes('3b')) keys.push('3B');
-  if (pos.includes('1b')) keys.push('1B');
-  if (pos.includes('of')) keys.push('OF');
-  return keys.length ? keys : ['UTIL'];
-}
-
-function calcReplacementLevels(allTeamRosters, startingP) {
-  const groups = { C:[], SS:[], '2B':[], '3B':[], '1B':[], OF:[], UTIL:[], P:[] };
-  allTeamRosters.flat().forEach(p => {
-    const b = p.proj;
-    if (!b) return;
-    const pk  = getReplacementKey(p);
-    const key = p.fgId || p.name;
-    if (p.type === 'P') {
-      groups[pk].push({ b, isStart: startingP.has(key), v: valProxy(p, b) });
-    } else {
-      groups[pk].push({ b, v: valProxy(p, b) });
+  if (!result.H || !result.P) {
+    const hitters  = [];
+    const pitchers = [];
+    allTeamRosters.flat().forEach(p => {
+      if (!p.proj) return;
+      (p.type === 'P' ? pitchers : hitters).push(p);
+    });
+    if (!result.H) {
+      result.H = avgCohortStats(weakestQuartile(hitters), ['pa', 'hr', 'r', 'obp', 'slg'])
+        || (hitters.length ? hitters[hitters.length - 1].proj : null);
     }
-  });
-
-  const result = {};
-  Object.entries(groups).forEach(([pos, players]) => {
-    const depth = REPL_DEPTH[pos] || 12;
-
-    if (pos === 'P') {
-      // Sort pitchers by ERA ascending (best ERA first) so the depth cutoff
-      // lands on a genuine replacement-level ERA, not an IP-volume artifact.
-      // valProxy conflates IP × quality; a low-IP pitcher with 3.67 ERA can
-      // rank at the margin and drag replacement ERA unrealistically low.
-      const byERA = [...players].sort((a, b) => (a.b.era || 99) - (b.b.era || 99));
-      result[pos] = (byERA[depth] || byERA[byERA.length - 1] || { b: null }).b;
-    } else {
-      // Hitters: sort by valProxy descending (PA-weighted OBP+SLG).
-      const sorted = [...players].sort((a, b) => b.v - a.v);
-      result[pos] = (sorted[depth] || sorted[sorted.length - 1] || { b: null }).b;
+    if (!result.P) {
+      result.P = avgCohortStats(weakestQuartile(pitchers), ['ip', 'so', 'era', 'whip', 'hr9'])
+        || (pitchers.length ? pitchers[pitchers.length - 1].proj : null);
     }
-  });
+  }
   return result;
+}
+
+function weakestQuartile(players) {
+  const sorted = [...players].sort((a, b) => valProxy(b, b.proj) - valProxy(a, a.proj));
+  return sorted.slice(Math.floor(sorted.length * 0.75)).map(p => p.proj);
 }
 
 function valProxy(player, b) {

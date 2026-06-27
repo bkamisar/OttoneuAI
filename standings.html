@@ -29,6 +29,16 @@
     .pts  { font-weight: 700; color: #1a73e8; }
     .low  { color: #c62828; }
     .cat-pts { font-size: 0.75rem; color: #aaa; display: block; }
+    .cat-gap { font-size: 0.68rem; color: #e65100; display: block; }
+    .mgr-section { margin-top: 32px; }
+    .mgr-section h2 { font-size: 1rem; font-weight: 700; margin: 0 0 4px; }
+    .mgr-section .subtitle { font-size: 0.8rem; color: #888; margin: 0 0 14px; }
+    .score-pos { color: #1e7e34; font-weight: 700; }
+    .score-neg { color: #c62828; font-weight: 700; }
+    .score-neu { color: #666; }
+    .data-stamp { font-size: 0.78rem; color: #888; margin: -6px 0 16px; display: flex; flex-wrap: wrap; gap: 14px; }
+    .data-stamp .ds-val { color: #555; font-weight: 600; }
+    .data-stamp .stale .ds-val { color: #c62828; }
   </style>
 </head>
 <body>
@@ -39,17 +49,55 @@
     <a href="roster.html">Roster Analysis</a>
     <a href="trade.html">Trade Evaluator</a>
     <a href="fa.html">FA Finder</a>
+    <a href="prospects.html">Prospects</a>
+    <a href="targets.html">Trade Targets</a>
   </nav>
 
-  <div class="controls">
-    <span class="mode-label">Mode: FanGraphs Projections</span>
+  <div class="controls" id="controls">
+    <span class="mode-label" id="modeLabel">Mode: Full Season Projections</span>
+    <button class="toggle-btn" id="rosBtn" style="display:none" onclick="setMode('ros')">Rest of Season</button>
+    <button class="toggle-btn" id="projBtn" style="display:none" onclick="setMode('proj')">Full Season</button>
   </div>
 
   <div id="error"></div>
+  <div class="data-stamp" id="dataStamp"></div>
   <div class="tbl-wrap" id="tblWrap"></div>
+  <div id="mgrWrap"></div>
 
   <script src="shared.js"></script>
   <script>
+    var activeMode = 'proj';   // 'proj' | 'ros'
+
+    function setMode(m) {
+      activeMode = m;
+      document.getElementById('modeLabel').textContent =
+        m === 'ros' ? 'Mode: Rest of Season (Current + Projected Remaining)'
+                    : 'Mode: Full Season Projections';
+      document.getElementById('rosBtn').classList.toggle('on',  m === 'ros');
+      document.getElementById('projBtn').classList.toggle('on', m === 'proj');
+      render();
+    }
+
+    // Freshness stamp for the data driving this page.
+    function renderStamp(showStandings) {
+      var el = document.getElementById('dataStamp');
+      while (el.firstChild) el.removeChild(el.firstChild);
+      var parts = [{ key: 'ottoneu_proj_hitting', label: 'Projections', staleDays: 8 }];
+      if (showStandings) parts.push({ key: 'ottoneu_curr_standings', label: 'Current standings', staleDays: 14 });
+      parts.forEach(function(p) {
+        var stamp = getDataStamp(p.key);
+        if (!stamp) return;
+        var stale = (Date.now() - stamp.ts) > p.staleDays * 86400000;
+        var span = document.createElement('span');
+        if (stale) span.className = 'stale';
+        var lbl = document.createTextNode(p.label + ': ');
+        var val = document.createElement('span'); val.className = 'ds-val';
+        val.textContent = formatDataStamp(p.key);
+        span.appendChild(lbl); span.appendChild(val);
+        el.appendChild(span);
+      });
+    }
+
     function render() {
       var errEl   = document.getElementById('error');
       var tblWrap = document.getElementById('tblWrap');
@@ -60,49 +108,77 @@
       var projHit   = loadData('ottoneu_proj_hitting');
       var projPitch = loadData('ottoneu_proj_pitching');
       var myTeam    = loadData('ottoneu_my_team') || '';
+      var currData  = loadData('ottoneu_curr_standings');   // may be null
 
       if (!roster || !projHit || !projPitch) {
         var errDiv = document.createElement('div');
         errDiv.className   = 'error';
         errDiv.textContent = 'Missing data \u2014 please upload the roster and both projection CSVs on the ';
         var link = document.createElement('a');
-        link.href        = 'index.html';
-        link.textContent = 'Data Hub';
+        link.href = 'index.html'; link.textContent = 'Data Hub';
         errDiv.appendChild(link);
         errDiv.appendChild(document.createTextNode('.'));
         errEl.appendChild(errDiv);
         return;
       }
 
+      // Show / hide mode buttons depending on whether current standings are loaded
+      if (!currData && activeMode === 'ros') { activeMode = 'proj'; }
+      document.getElementById('rosBtn').style.display  = currData ? '' : 'none';
+      document.getElementById('projBtn').style.display = currData ? '' : 'none';
+      document.getElementById('rosBtn').classList.toggle('on',  activeMode === 'ros');
+      document.getElementById('projBtn').classList.toggle('on', activeMode === 'proj');
+
+      renderStamp(activeMode === 'ros' && currData);
+
+      // Build projection stats for all teams
       var teamMap = {};
       var merged  = matchPlayers(roster, projHit, projPitch);
       merged.forEach(function(p) {
         if (!teamMap[p.team]) teamMap[p.team] = [];
         teamMap[p.team].push(p);
       });
-
       var teamNames = Object.keys(teamMap).filter(function(t) { return t !== 'Free Agent'; });
 
-      var teamStatsArr = teamNames.map(function(name) {
+      var projStatsArr = teamNames.map(function(name) {
         var players  = teamMap[name];
-        var hitters  = players.filter(function(p) { return p.type === 'H'; });
-        var pitchers = players.filter(function(p) { return p.type === 'P'; });
-        var lineup   = optimizeHitterLineup(hitters);
-        var pitPool  = selectPitchers(pitchers);
-        var stats    = computeTeamStats(lineup, pitPool);
-        return { name: name, stats: stats };
+        var lineup   = optimizeHitterLineup(players.filter(function(p) { return p.type === 'H'; }));
+        var pitPool  = selectPitchers(players.filter(function(p) { return p.type === 'P'; }));
+        return { name: name, stats: computeTeamStats(lineup, pitPool) };
       });
+
+      // In Rest of Season mode, blend current actuals into projected stats
+      var teamStatsArr;
+      if (activeMode === 'ros' && currData) {
+        // Build lookup of current stats by team name (trim to be safe)
+        var currByName = {};
+        currData.forEach(function(row) { currByName[row.name.trim()] = row; });
+
+        teamStatsArr = projStatsArr.map(function(t) {
+          var curr = currByName[t.name.trim()];
+          if (!curr) return t;   // no current data for this team \u2014 use full projection
+          return { name: t.name, stats: blendStats(curr, t.stats) };
+        });
+      } else {
+        teamStatsArr = projStatsArr;
+      }
 
       var standings = buildStandings(teamStatsArr);
 
-      var table = document.createElement('table');
+      // Per-category sorted arrays for gap-to-next-place
+      var catSorted = {};
+      CATS.forEach(function(cat) {
+        catSorted[cat] = standings.slice().sort(function(a, b) {
+          var av = a.stats[cat] || 0, bv = b.stats[cat] || 0;
+          return LOWER_BETTER.has(cat) ? av - bv : bv - av;
+        });
+      });
 
+      var table = document.createElement('table');
       var thead = document.createElement('thead');
       var hrow  = document.createElement('tr');
       ['#', 'Team', 'Pts'].concat(CATS).forEach(function(h) {
-        var th = document.createElement('th');
-        th.textContent = h;
-        hrow.appendChild(th);
+        var th = document.createElement('th'); th.textContent = h; hrow.appendChild(th);
       });
       thead.appendChild(hrow);
       table.appendChild(thead);
@@ -135,6 +211,19 @@
           ptsSpan.className   = 'cat-pts';
           ptsSpan.textContent = pts + 'pts';
           cell.appendChild(ptsSpan);
+
+          // Gap to team ranked directly above in this category
+          var ranked = catSorted[cat];
+          var myIdx  = ranked.indexOf(team);
+          if (myIdx > 0) {
+            var aboveVal = ranked[myIdx - 1].stats[cat] || 0;
+            var gap      = LOWER_BETTER.has(cat) ? val - aboveVal : aboveVal - val;
+            var gapSpan  = document.createElement('span');
+            gapSpan.className   = 'cat-gap';
+            gapSpan.textContent = isRate ? '+' + gap.toFixed(3) : '+' + Math.ceil(gap);
+            cell.appendChild(gapSpan);
+          }
+
           tr.appendChild(cell);
         });
 
@@ -142,9 +231,115 @@
       });
       table.appendChild(tbody);
       tblWrap.appendChild(table);
+
+      renderManagerScores(currData, projStatsArr);
     }
 
-    render();
+    function renderManagerScores(currData, projStatsArr) {
+      var mgrWrap = document.getElementById('mgrWrap');
+      while (mgrWrap.firstChild) mgrWrap.removeChild(mgrWrap.firstChild);
+      if (!currData) return;
+
+      var currByName = {};
+      currData.forEach(function(row) { currByName[row.name.trim()] = row; });
+
+      var currStatsArr  = [];
+      var projTodateArr = [];
+
+      projStatsArr.forEach(function(t) {
+        var curr = currByName[t.name.trim()];
+        if (!curr) return;
+
+        currStatsArr.push({
+          name: t.name,
+          stats: { OBP: curr.obp, SLG: curr.slg, HR: curr.hr, R: curr.r,
+                   ERA: curr.era, WHIP: curr.whip, HR9: curr.hr9, SO: curr.k }
+        });
+
+        var hitFrac = t.stats._totPA > 0
+          ? Math.min(1, (curr.games * PA_PER_GAME) / t.stats._totPA) : 0;
+        var pitFrac = t.stats._ip > 0
+          ? Math.min(1, curr.ip / t.stats._ip) : 0;
+
+        projTodateArr.push({
+          name: t.name,
+          stats: { OBP: t.stats.OBP, SLG: t.stats.SLG,
+                   HR:  t.stats.HR * hitFrac, R: t.stats.R * hitFrac,
+                   ERA: t.stats.ERA, WHIP: t.stats.WHIP, HR9: t.stats.HR9,
+                   SO:  t.stats.SO * pitFrac }
+        });
+      });
+
+      if (!currStatsArr.length) return;
+
+      var currStandings = buildStandings(currStatsArr);
+      var projStandings = buildStandings(projTodateArr);
+
+      var projPts = {};
+      projStandings.forEach(function(t) { projPts[t.name] = t.points; });
+
+      var scores = currStandings.map(function(t) {
+        return { name: t.name, actual: t.points,
+                 proj: projPts[t.name] || 0, score: t.points - (projPts[t.name] || 0) };
+      }).sort(function(a, b) { return b.score - a.score; });
+
+      var myTeam = loadData('ottoneu_my_team') || '';
+
+      var section = document.createElement('div');
+      section.className = 'mgr-section';
+
+      var h2 = document.createElement('h2');
+      h2.textContent = 'Manager Performance vs Projection';
+      var sub = document.createElement('p');
+      sub.className = 'subtitle';
+      sub.textContent = 'Actual current standings points vs projected standings points through the same games played. ' +
+        'Positive score = outperforming projections; negative = underperforming.';
+      section.appendChild(h2);
+      section.appendChild(sub);
+
+      var tbl = document.createElement('table');
+      var thead = document.createElement('thead');
+      var htr = document.createElement('tr');
+      ['Rank', 'Team', 'Actual Pts', 'Proj Pts', 'Score'].forEach(function(h) {
+        var th = document.createElement('th'); th.textContent = h; htr.appendChild(th);
+      });
+      thead.appendChild(htr); tbl.appendChild(thead);
+
+      var tbody = document.createElement('tbody');
+      scores.forEach(function(row, idx) {
+        var tr = document.createElement('tr');
+        if (row.name === myTeam) tr.className = 'mine';
+
+        function td(text, cls) {
+          var c = document.createElement('td');
+          c.textContent = text;
+          if (cls) c.className = cls;
+          return c;
+        }
+
+        var scoreCls = row.score > 0 ? 'score-pos' : (row.score < 0 ? 'score-neg' : 'score-neu');
+        var scoreTxt = (row.score > 0 ? '+' : '') + row.score;
+
+        tr.appendChild(td(String(idx + 1), 'rank'));
+        tr.appendChild(td(row.name));
+        tr.appendChild(td(String(row.actual), 'pts'));
+        tr.appendChild(td(String(row.proj)));
+        tr.appendChild(td(scoreTxt, scoreCls));
+        tbody.appendChild(tr);
+      });
+      tbl.appendChild(tbody);
+
+      var wrap = document.createElement('div');
+      wrap.className = 'tbl-wrap';
+      wrap.appendChild(tbl);
+      section.appendChild(wrap);
+      mgrWrap.appendChild(section);
+    }
+
+    (async function() {
+      await autoLoadFromRepo();
+      render();
+    })();
   </script>
 </body>
 </html>

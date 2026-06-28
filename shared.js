@@ -745,29 +745,40 @@ function parseCurrStandings(text) {
 // represents the *remaining* production, not the full season. Therefore:
 //   - Counting stats (HR, R, SO): full season = current actuals + RoS projection.
 //   - Rate stats (OBP, SLG, ERA, WHIP, HR9): weighted average of current and
-//     remaining, weighted by the fraction of the season elapsed (from games
-//     played) vs remaining. (Earlier code treated proj as full-season and
-//     subtracted current from it, which gutted counting stats — esp. strikeouts.)
+//     remaining. (Earlier code treated proj as full-season and subtracted current
+//     from it, which gutted counting stats — esp. strikeouts.)
+// Pitching also respects the league innings cap: a team rosters more arms than it
+// can use, so only innings up to (IP_MAX − innings already thrown) count toward
+// the rest of season. Hitting has no analogous over-roster problem (one hitter
+// per active slot), so its RoS projection is added directly.
 function blendStats(curr, proj) {
   const f = Math.min(1, Math.max(0, (curr.games || 0) / 162));  // season elapsed
   const g = 1 - f;                                              // season remaining
 
-  // ── Hitting ───────────────────────────────────────────────────────────────
+  // ── Hitting: counting = actual + RoS; rates blended by season fraction ──────
   const hr  = curr.hr + proj.HR;
   const r   = curr.r  + proj.R;
   const obp = curr.obp * f + proj.OBP * g;
   const slg = curr.slg * f + proj.SLG * g;
 
-  // ── Pitching ──────────────────────────────────────────────────────────────
-  const so   = curr.k + proj.SO;
-  const era  = curr.era  * f + proj.ERA  * g;
-  const whip = curr.whip * f + proj.WHIP * g;
-  const hr9  = curr.hr9  * f + proj.HR9  * g;
+  // ── Pitching: cap remaining innings at the league budget (IP_MAX − thrown) ──
+  const currIP  = curr.ip || 0;
+  const projIP  = proj._ip || 0;
+  const remIP   = Math.min(projIP, Math.max(0, IP_MAX - currIP));
+  const ipScale = projIP > 0 ? remIP / projIP : 0;          // throttle RoS counting
+  const totalIP = currIP + remIP;
+  const wCur    = totalIP > 0 ? currIP / totalIP : 0;
+  const wRem    = totalIP > 0 ? remIP  / totalIP : 1;
+
+  const so   = curr.k + proj.SO * ipScale;
+  const era  = curr.era  * wCur + proj.ERA  * wRem;
+  const whip = curr.whip * wCur + proj.WHIP * wRem;
+  const hr9  = curr.hr9  * wCur + proj.HR9  * wRem;
 
   return {
     OBP: obp, SLG: slg, HR: hr, R: r,
     ERA: era, WHIP: whip, HR9: hr9, SO: so,
-    _ip: (curr.ip || 0) + (proj._ip || 0),
+    _ip: totalIP,
     _totPA: (proj._totPA || 0),
     _pitchingValid: proj._pitchingValid,
   };

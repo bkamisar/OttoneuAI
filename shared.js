@@ -72,6 +72,45 @@ async function fetchWithRetry(url, attempts) {
   throw lastErr;
 }
 
+// Files we show freshness stamps for — these get their real last-commit time
+// from the GitHub API (see refineCommitStamps). Others just use fetch time.
+const STAMPED_FILES = ['proj_hitting.csv', 'roster.csv', 'standings.csv'];
+
+// Derive owner/repo from the GitHub Pages URL (e.g. bkamisar.github.io/OttoneuAI),
+// falling back to the known repo for local dev / other hosts.
+function repoSlug() {
+  const host  = window.location.hostname || '';
+  const parts = (window.location.pathname || '').split('/').filter(Boolean);
+  if (host.endsWith('github.io') && parts.length) {
+    return { owner: host.split('.')[0], repo: parts[0] };
+  }
+  return { owner: 'bkamisar', repo: 'OttoneuAI' };
+}
+
+// Real "last changed" time for a repo file = the date of the last commit that
+// touched it (GitHub commits API). Cached ~30 min in localStorage to stay well
+// under the 60/hr unauthenticated rate limit. Returns ms epoch or null.
+const COMMIT_TS_TTL = 30 * 60 * 1000;
+async function fetchLastCommitTs(path, key) {
+  const cacheKey = key + '_commit';
+  const cached = loadData(cacheKey);
+  if (cached && (Date.now() - cached.checkedAt) < COMMIT_TS_TTL) return cached.ts;
+  try {
+    const { owner, repo } = repoSlug();
+    const url = 'https://api.github.com/repos/' + owner + '/' + repo +
+                '/commits?path=' + encodeURIComponent(path) + '&per_page=1';
+    const res = await fetch(url, { headers: { 'Accept': 'application/vnd.github+json' } });
+    if (!res.ok) return cached ? cached.ts : null;
+    const arr = await res.json();
+    if (!Array.isArray(arr) || !arr.length) return cached ? cached.ts : null;
+    const ts = Date.parse(arr[0].commit.committer.date);
+    saveData(cacheKey, { ts: ts, checkedAt: Date.now() });
+    return ts;
+  } catch (e) {
+    return cached ? cached.ts : null;   // offline / rate-limited → keep last known
+  }
+}
+
 async function autoLoadFromRepo() {
   if (window.location.protocol === 'file:') return {};
   const status = {};
@@ -83,10 +122,8 @@ async function autoLoadFromRepo() {
       const parsed = parse(text);
       console.log('[autoLoad]', file, '→', Array.isArray(parsed) ? parsed.length + ' rows' : typeof parsed);
       saveData(key, parsed);
-      // Record the file's freshness from the server. Last-Modified reflects when
-      // GitHub Pages last deployed the file (≈ when it was committed). Falls back
-      // to fetch time if the header is absent. Marks the source as 'repo' so the
-      // UI can distinguish auto-loaded files from manual browser uploads.
+      // Provisional freshness from the fetch (Last-Modified ≈ deploy time, else now).
+      // For stamped files this is refined below to the real commit time.
       const lastMod = res.headers.get('Last-Modified');
       saveData(key + '_ts',  lastMod ? Date.parse(lastMod) : Date.now());
       saveData(key + '_src', 'repo');
@@ -96,6 +133,17 @@ async function autoLoadFromRepo() {
       status[file] = false;
     }
   }));
+
+  // Refine the stamped files' timestamps to the REAL last-commit time so the UI
+  // shows when the data actually changed, not when the tab loaded. Best-effort.
+  await Promise.all(STAMPED_FILES.map(async function(file) {
+    if (!status[file]) return;
+    const entry = REPO_FILES.find(function(f) { return f.file === file; });
+    if (!entry) return;
+    const ts = await fetchLastCommitTs('data/' + file, entry.key);
+    if (ts) saveData(entry.key + '_ts', ts);
+  }));
+
   return status;
 }
 

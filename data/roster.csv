@@ -79,7 +79,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10759,"Operation Epic Eury",38328,27468,sa3014425,"Reid Detmers",LAA,SP/RP,$1
 10759,"Operation Epic Eury",38352,27814,sa3014447,"Shane Drohan",MIL,SP/RP,$1
 10759,"Operation Epic Eury",33672,23550,sa3007225,"Aaron Ashby",MIL,RP,$1
-10759,"Operation Epic Eury",38813,28901,sa3015163,"Wilber Dotel",PIT,SP/RP,$1
+10759,"Operation Epic Eury",38813,28901,sa3015163,"Wilber Dotel","PIT AA",SP/RP,$1
 10759,"Operation Epic Eury",41160,,sa3018409,"Lazaro Montes","SEA AA",OF,$1
 10761,"NBC Andy Pages Program",43894,33677,sa3023079,"Paul Skenes",PIT,SP,$60
 10761,"NBC Andy Pages Program",18284,13510,sa598784,"José Ramírez",CLE,3B,$47
@@ -135,7 +135,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10764,"Wrecking Crews",23810,22201,sa3005068,"MacKenzie Gore",TEX,SP,$15
 10764,"Wrecking Crews",23779,19291,sa857550,"Zac Gallen",ARI,SP,$12
 10764,"Wrecking Crews",22048,17548,sa858832,"Taylor Ward",BAL,OF,$10
-10764,"Wrecking Crews",38389,27790,sa3014490,"Evan Carter",TEX,OF,$10
+10764,"Wrecking Crews",38389,27790,sa3014490,"Evan Carter","TEX AA",OF,$10
 10764,"Wrecking Crews",23793,19627,sa3003172,"Brent Rooker",ATH,OF,$10
 10764,"Wrecking Crews",19904,15541,sa739036,"Tyler Rogers",TOR,RP,$8
 10764,"Wrecking Crews",38327,27769,sa3014458,"Pete Crow-Armstrong",CHC,OF,$7
@@ -184,15 +184,15 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10818,"Bureau of Gleyber Statistics",26134,22664,sa3003226,"Gabriel Moreno",ARI,C,$3
 10818,"Bureau of Gleyber Statistics",40972,30182,sa3018149,"Will Warren",NYY,SP,$3
 10818,"Bureau of Gleyber Statistics",42765,31986,sa3020748,"Parker Messick",CLE,SP,$3
-10818,"Bureau of Gleyber Statistics",31958,20352,sa915732,"Ernie Clement",TOR,1B/2B/SS/3B,$3
 10818,"Bureau of Gleyber Statistics",12379,9777,sa500816,"Nolan Arenado",ARI,3B,$3
+10818,"Bureau of Gleyber Statistics",42754,31959,sa3020737,"Jake Bennett",BOS,SP,$3
+10818,"Bureau of Gleyber Statistics",31958,20352,sa915732,"Ernie Clement",TOR,1B/2B/SS/3B,$3
 10818,"Bureau of Gleyber Statistics",33954,24878,sa3005630,"Heriberto Hernandez",MIA,OF,$2
-10818,"Bureau of Gleyber Statistics",8147,6902,sa455689,"Martin Perez",ATL,SP,$1
-10818,"Bureau of Gleyber Statistics",42582,31680,sa3020459,"Cole Young",SEA,2B/SS,$1
-10818,"Bureau of Gleyber Statistics",39557,29107,sa3016035,"Bradgley Rodriguez",SDP,RP,$1
+10818,"Bureau of Gleyber Statistics",40674,29957,sa3017626,"Edwin Arroyo",CIN,2B/SS,$1
 10818,"Bureau of Gleyber Statistics",38780,24978,sa3015121,"Erik Sabrowski",CLE,RP,$1
 10818,"Bureau of Gleyber Statistics",38325,27555,sa3014438,"Garrett Mitchell",MIL,OF,$1
-10818,"Bureau of Gleyber Statistics",40674,29957,sa3017626,"Edwin Arroyo",CIN,2B/SS,$1
+10818,"Bureau of Gleyber Statistics",8147,6902,sa455689,"Martin Perez",ATL,SP,$1
+10818,"Bureau of Gleyber Statistics",42582,31680,sa3020459,"Cole Young",SEA,2B/SS,$1
 10818,"Bureau of Gleyber Statistics",37202,27691,sa3010572,"Louis Varland",TOR,RP,$1
 10818,"Bureau of Gleyber Statistics",36046,26540,sa3008762,"Angel Martinez",CLE,2B/OF,$1
 10818,"Bureau of Gleyber Statistics",23679,18655,sa659284,"A.J. Minter",NYM,RP,$1
@@ -305,7 +305,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10899,"Prospects R Us",43893,,sa3022683,"Max Clark","DET AAA",OF,$3
 10899,"Prospects R Us",37797,26368,sa3011642,"JJ Bleday",CIN,OF,$3
 10899,"Prospects R Us",45789,35061,sa3025261,"Ryan Waldschmidt","ARI AAA",OF,$3
-10899,"Prospects R Us",41335,,sa3018584,"Josue Briceno","DET AA",C/1B,$3
+10899,"Prospects R Us",41335,,sa3018584,"Josue Briceno","DET CPX",C/1B,$3
 10899,"Prospects R Us",36030,26517,sa3008745,"Noelvi Marte",CIN,3B/OF,$3
 10899,"Prospects R Us",44487,33435,sa3023268,"Thomas White","MIA AAA",SP,$3
 10899,"Prospects R Us",18462,12970,sa597766,"Joe Musgrove",SDP,RP,$3

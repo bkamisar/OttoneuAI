@@ -156,9 +156,9 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10764,"Wrecking Crews",33147,19392,sa918920,"Zach McKinstry",DET,2B/SS/3B/OF,$3
 10764,"Wrecking Crews",40707,29960,sa3017690,"AJ Smith-Shawver",ATL,SP,$3
 10764,"Wrecking Crews",25806,23395,sa3002875,"Eric Wagaman",NYM,1B/OF,$3
-10764,"Wrecking Crews",35548,21267,sa3008097,"Jake Bird","NYY AAA",RP,$3
+10764,"Wrecking Crews",35548,21267,sa3008097,"Jake Bird",NYY,RP,$3
 10764,"Wrecking Crews",35618,21504,sa3008223,"Jake Irvin",WSN,SP,$3
-10764,"Wrecking Crews",26080,21897,sa3003171,"Christopher Morel",FA,1B/OF,$2
+10764,"Wrecking Crews",26080,21897,sa3003171,"Christopher Morel",MIA,1B/OF,$2
 10764,"Wrecking Crews",40301,29630,sa3017050,"Joey Loperfido",HOU,OF,$1
 10764,"Wrecking Crews",42416,31912,sa3020219,"Chandler Simpson",TBR,OF,$1
 10764,"Wrecking Crews",20917,16432,sa828674,"Foster Griffin",WSN,SP,$1
@@ -255,7 +255,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10897,"Five-cent head",23654,19197,sa873265,"Will Smith",LAD,C,$29
 10897,"Five-cent head",18480,17678,sa659419,"Alex Bregman",CHC,3B,$26
 10897,"Five-cent head",31751,19853,sa874220,"Michael King",SDP,SP,$17
-10897,"Five-cent head",23651,13066,sa596861,"Teoscar Hernandez","LAD AAA",OF,$16
+10897,"Five-cent head",23651,13066,sa596861,"Teoscar Hernandez",LAD,OF,$16
 10897,"Five-cent head",38312,27463,,"Garrett Crochet",BOS,SP,$15
 10897,"Five-cent head",40862,31757,sa3017934,"Mason Miller",SDP,RP,$14
 10897,"Five-cent head",18397,16556,sa830219,"Ozzie Albies",ATL,2B,$10
@@ -296,6 +296,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10899,"Prospects R Us",18160,14162,sa657850,"Carlos Correa",HOU,SS/3B,$7
 10899,"Prospects R Us",23790,13649,sa598167,"Clay Holmes",NYM,SP,$7
 10899,"Prospects R Us",37841,26319,sa3011540,"Michael Busch",CHC,1B,$6
+10899,"Prospects R Us",40371,29695,sa3017154,"Matt McLain",CIN,2B/SS,$5
 10899,"Prospects R Us",44003,33266,sa3022538,"Jacob Wilson",ATH,SS,$5
 10899,"Prospects R Us",46310,35466,sa3043900,"Payton Tolle",BOS,SP,$5
 10899,"Prospects R Us",47555,,sa3069247,"Seth Hernandez","PIT A+",SP,$5
@@ -310,44 +311,45 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10899,"Prospects R Us",44487,33435,sa3023268,"Thomas White","MIA AAA",SP,$3
 10899,"Prospects R Us",18462,12970,sa597766,"Joe Musgrove",SDP,RP,$3
 10899,"Prospects R Us",40460,29779,sa3017290,"Max Muncy",ATH,2B/SS/3B,$2
-10899,"Prospects R Us",40541,29844,sa3017400,"Liam Hicks",MIA,C/1B,$2
 10899,"Prospects R Us",42598,31621,sa3020475,"Spencer Miles",TOR,RP,$2
 10899,"Prospects R Us",42794,31857,sa3020808,"Connor Prielipp",MIN,SP,$2
 10899,"Prospects R Us",45947,35177,sa3025452,"Carson Benge",NYM,OF,$2
 10899,"Prospects R Us",44349,33708,sa3023069,"Cooper Ingle",CLE,C,$2
-10899,"Prospects R Us",36539,26944,sa3009613,"Edgardo Henriquez",LAD,RP,$2
-10899,"Prospects R Us",22654,17988,sa874242,"Tyler Stephenson",CIN,C,$2
-10899,"Prospects R Us",45715,,sa3025257,"Charlie Condon","COL AAA",1B/OF,$2
-10899,"Prospects R Us",32576,19955,sa917933,"Gavin Lux",TBR,2B/3B/OF,$2
-10899,"Prospects R Us",35725,23986,sa3008392,"Curtis Mead",WSN,1B/2B/3B,$2
+10899,"Prospects R Us",40541,29844,sa3017400,"Liam Hicks",MIA,C/1B,$2
 10899,"Prospects R Us",37786,26299,sa3011468,"Josh Jung",TEX,3B,$2
-10899,"Prospects R Us",41050,29357,sa3018298,"Walbert Urena",LAA,SP/RP,$1
-10899,"Prospects R Us",18272,15491,sa737507,"J.P. Crawford",SEA,SS/3B,$1
-10899,"Prospects R Us",18300,15653,sa737502,"Dominic Smith",ATL,1B/OF,$1
-10899,"Prospects R Us",45884,35101,sa3025363,"Sam Antonacci",CHW,2B/3B/OF,$1
+10899,"Prospects R Us",45715,,sa3025257,"Charlie Condon","COL AAA",1B/OF,$2
+10899,"Prospects R Us",22654,17988,sa874242,"Tyler Stephenson",CIN,C,$2
+10899,"Prospects R Us",35725,23986,sa3008392,"Curtis Mead",WSN,1B/2B/3B,$2
+10899,"Prospects R Us",36539,26944,sa3009613,"Edgardo Henriquez",LAD,RP,$2
+10899,"Prospects R Us",32576,19955,sa917933,"Gavin Lux",TBR,2B/3B/OF,$2
 10899,"Prospects R Us",45862,,sa3025333,"James Tibbs III","LAD AAA",1B/OF,$1
 10899,"Prospects R Us",21961,17920,sa856266,"Cody Ponce",TOR,SP/RP,$1
+10899,"Prospects R Us",45884,35101,sa3025363,"Sam Antonacci",CHW,2B/3B/OF,$1
 10899,"Prospects R Us",22968,20629,sa875646,"Tyler Phillips",MIA,SP/RP,$1
-10899,"Prospects R Us",40438,29754,sa3017261,"Sam Bachman",LAA,RP,$1
+10899,"Prospects R Us",18300,15653,sa737502,"Dominic Smith",ATL,1B/OF,$1
+10899,"Prospects R Us",18272,15491,sa737507,"J.P. Crawford",SEA,SS/3B,$1
 10899,"Prospects R Us",30833,15130,sa658613,"Drew Anderson",DET,RP,$1
 10899,"Prospects R Us",32492,21924,sa917772,"Juan Morillo",ARI,RP,$1
-10899,"Prospects R Us",37320,26031,sa3010711,"Vaughn Grissom",LAA,1B/2B/SS/3B,$1
 10899,"Prospects R Us",32719,19996,sa918185,"Dylan Lee",ATL,RP,$1
-10899,"Prospects R Us",34389,23974,sa3006366,"Randy Rodriguez",SFG,RP,$1
-10899,"Prospects R Us",35300,23789,sa3007742,"Blaze Alexander",BAL,2B/SS/3B/OF,$1
-10899,"Prospects R Us",42445,31553,sa3020261,"Mason Fluharty",TOR,RP,$1
-10899,"Prospects R Us",42219,31394,sa3019918,"Brooks Baldwin",CHW,2B/SS/3B/OF,$1
+10899,"Prospects R Us",37320,26031,sa3010711,"Vaughn Grissom",LAA,1B/2B/SS/3B,$1
 10899,"Prospects R Us",37171,27552,sa918274,"Graham Ashcraft",CIN,SP/RP,$1
+10899,"Prospects R Us",40438,29754,sa3017261,"Sam Bachman",LAA,RP,$1
+10899,"Prospects R Us",38311,27501,sa3014527,"Justin Foscue",TEX,1B/2B,$1
+10899,"Prospects R Us",41050,29357,sa3018298,"Walbert Urena",LAA,SP/RP,$1
+10899,"Prospects R Us",42219,31394,sa3019918,"Brooks Baldwin",CHW,2B/SS/3B/OF,$1
+10899,"Prospects R Us",42445,31553,sa3020261,"Mason Fluharty",TOR,RP,$1
+10899,"Prospects R Us",35300,23789,sa3007742,"Blaze Alexander",BAL,2B/SS/3B/OF,$1
+10899,"Prospects R Us",34389,23974,sa3006366,"Randy Rodriguez",SFG,RP,$1
 10899,"Prospects R Us",43569,,sa3021845,"Franklin Arias","BOS AA",SS,$1
 10908,"South Side Teardown",37182,25878,sa3010593,"Corbin Carroll",ARI,OF,$54
 10908,"South Side Teardown",18786,17085,sa736473,"Pablo Lopez",MIN,SP,$29
 10908,"South Side Teardown",21052,18525,sa829000,"Dylan Cease",TOR,SP,$24
 10908,"South Side Teardown",6305,10155,sa500736,"Mike Trout",LAA,OF,$22
 10908,"South Side Teardown",42126,31781,sa3020241,"Jackson Holliday",BAL,2B/SS,$18
-10908,"South Side Teardown",48240,37120,sa3063258,"Munetaka Murakami",CHW,1B/3B,$15
 10908,"South Side Teardown",37295,25931,sa3010684,"Michael Harris II",ATL,OF,$15
-10908,"South Side Teardown",33685,24617,sa3006786,"Jarren Duran",BOS,OF,$11
+10908,"South Side Teardown",48240,37120,sa3063258,"Munetaka Murakami",CHW,1B/3B,$15
 10908,"South Side Teardown",9335,9132,sa455169,"Nathan Eovaldi",TEX,SP,$11
+10908,"South Side Teardown",33685,24617,sa3006786,"Jarren Duran",BOS,OF,$11
 10908,"South Side Teardown",42156,31347,sa3019855,"Zach Neto",LAA,SS,$9
 10908,"South Side Teardown",23833,19918,sa3002838,"Daulton Varsho",TOR,OF,$8
 10908,"South Side Teardown",20545,18568,sa828153,"Luis Arraez",SFG,1B/2B,$8
@@ -355,35 +357,38 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10908,"South Side Teardown",38754,27867,sa3015086,"Cade Smith",CLE,RP,$5
 10908,"South Side Teardown",40714,29995,sa3017698,"Daylen Lile",WSN,OF,$4
 10908,"South Side Teardown",43949,33549,sa3022886,"Kyle Teel",CHW,C,$4
-10908,"South Side Teardown",40181,29514,sa3016863,"River Ryan","LAD AAA",SP/RP,$3
-10908,"South Side Teardown",18465,15440,sa621603,"Matthew Boyd",CHC,SP,$3
 10908,"South Side Teardown",42175,,sa3020134,"Jett Williams","MIL AAA",2B/SS/3B/OF,$3
+10908,"South Side Teardown",40181,29514,sa3016863,"River Ryan","LAD AAA",SP/RP,$3
 10908,"South Side Teardown",42266,31532,sa3019969,"Spencer Jones",NYY,OF,$3
-10908,"South Side Teardown",23856,14551,sa659463,"Anthony Santander",TOR,OF,$3
+10908,"South Side Teardown",38374,27899,sa3014474,"Colt Keith",DET,1B/2B/3B,$3
 10908,"South Side Teardown",37469,26197,sa3011226,"Andrew Vaughn",MIL,1B,$3
+10908,"South Side Teardown",18465,15440,sa621603,"Matthew Boyd",CHC,SP,$3
+10908,"South Side Teardown",23856,14551,sa659463,"Anthony Santander",TOR,OF,$3
 10908,"South Side Teardown",33424,22487,sa922365,"Johan Oviedo",BOS,SP,$3
-10908,"South Side Teardown",42279,31695,sa3019983,"Dylan Beavers",BAL,OF,$2
 10908,"South Side Teardown",47533,,sa3030545,"Liam Doyle","STL AA",SP,$2
-10908,"South Side Teardown",42873,32056,sa3020949,"Noah Schultz","CHW AAA",SP,$2
-10908,"South Side Teardown",37234,25756,sa3010616,"Matt Brash",SEA,RP,$2
 10908,"South Side Teardown",37649,26221,sa3011244,"Ryan Pepiot",TBR,SP,$2
+10908,"South Side Teardown",42873,32056,sa3020949,"Noah Schultz","CHW AAA",SP,$2
+10908,"South Side Teardown",42279,31695,sa3019983,"Dylan Beavers",BAL,OF,$2
 10908,"South Side Teardown",27162,23733,sa3005271,"Ezequiel Duran",TEX,1B/2B/SS/3B/OF,$2
-10908,"South Side Teardown",40568,29878,sa3017461,"Sean Burke",CHW,SP/RP,$1
+10908,"South Side Teardown",37234,25756,sa3010616,"Matt Brash",SEA,RP,$2
 10908,"South Side Teardown",33679,19899,sa3007582,"Clarke Schmidt",NYY,SP,$1
 10908,"South Side Teardown",44202,33530,sa3022867,"Cooper Pratt",MIL,SS,$1
+10908,"South Side Teardown",39406,29218,sa3015834,"Pedro Ramirez",CHC,2B/3B,$1
 10908,"South Side Teardown",45881,,sa3025360,"Kaelen Culpepper","MIN AAA",SS,$1
 10908,"South Side Teardown",46397,,sa3067043,"Caleb Bonemer","CHW AA",SS/3B,$1
-10908,"South Side Teardown",18380,16918,sa599729,"Luke Weaver",NYM,RP,$1
+10908,"South Side Teardown",46459,,sa3067261,"Tucker Musgrove","SDP AA",SP/RP,$1
+10908,"South Side Teardown",39283,28816,sa3015711,"Denzer Guzman",LAA,SS/3B,$1
 10908,"South Side Teardown",47552,,sa3069100,"Ethan Holliday","COL A",SS,$1
-10908,"South Side Teardown",36825,25679,sa3009999,"Kevin Kelly",TBR,RP,$1
+10908,"South Side Teardown",18380,16918,sa599729,"Luke Weaver",NYM,RP,$1
+10908,"South Side Teardown",39557,29107,sa3016035,"Bradgley Rodriguez",SDP,RP,$1
 10908,"South Side Teardown",42310,31461,sa3020078,"Ben Joyce",LAA,RP,$1
-10908,"South Side Teardown",39406,29218,sa3015834,"Pedro Ramirez",CHC,2B/3B,$1
-10908,"South Side Teardown",39557,29107,sa3016035,"Bradgley Rodriguez","SDP AA",RP,$1
-10908,"South Side Teardown",40077,29423,sa3016746,"Kendry Rojas","MIN AAA",SP/RP,$1
-10908,"South Side Teardown",42144,31354,sa3019841,"Jimmy Crooks",STL,C,$1
-10908,"South Side Teardown",41265,,sa3018514,"Luis Lara","MIL AAA",OF,$1
 10908,"South Side Teardown",40147,,sa3017022,"Joshua Baez","STL AAA",OF,$1
+10908,"South Side Teardown",36825,25679,sa3009999,"Kevin Kelly",TBR,RP,$1
 10908,"South Side Teardown",40496,29805,sa3017330,"TJ Rumfield",COL,1B,$1
+10908,"South Side Teardown",42144,31354,sa3019841,"Jimmy Crooks",STL,C,$1
+10908,"South Side Teardown",40568,29878,sa3017461,"Sean Burke",CHW,SP/RP,$1
+10908,"South Side Teardown",41265,,sa3018514,"Luis Lara","MIL AAA",OF,$1
+10908,"South Side Teardown",40077,29423,sa3016746,"Kendry Rojas","MIN AAA",SP/RP,$1
 10908,"South Side Teardown",44659,33573,sa3023557,"Travis Sykora","WSN AA",SP,$1
 10925,"Bryce Krispies👨‍🍳",23795,19556,sa943524,"Yordan Alvarez",HOU,OF,$51
 10925,"Bryce Krispies👨‍🍳",35204,22267,sa3007593,"Tarik Skubal",DET,SP,$46

@@ -231,6 +231,7 @@ function parseProspectsCSV(text) {
       level:   idx['Current Level']!== undefined ? (cols[idx['Current Level']]|| '')              : '',
       eta:     idx['ETA']          !== undefined ? (cols[idx['ETA']]          || '')              : '',
       fv,
+      risk:    idx['Risk']         !== undefined ? (cols[idx['Risk']]         || '')              : '',
       age:     idx['Age']          !== undefined ? (parseFloat(cols[idx['Age']]) || null)         : null,
     };
   }).filter(Boolean);
@@ -638,18 +639,19 @@ function calculateDynastyValues(allRosters, weights, extraPlayers) {
   // $27.10 in dynasty terms, not $10.
   const salaryMultiplier = 1 + w1 + w2;
 
-  // FV → minimum dynasty value for prospects. Projection systems can't see
-  // players far from the majors (no Y0/Y1/Y2 lines), so without this an FV-65
-  // teenager values at ~$3 and the trade finder's rebuilder lens treats him as
-  // a throw-in. Floors are market-shaped, tunable.
-  const keyToFv = {};
+  // Prospect dynasty floors. Projection systems can't see players far from the
+  // majors (no Y0/Y1/Y2 lines), so without this an FV-65 teenager values at ~$3
+  // and the trade finder's rebuilder lens treats him as a throw-in. The floor is
+  // computed from scouting data (Top-100 rank, FV, position, risk) — see
+  // prospectDynastyValue.
+  const keyToProspect = {};
   const prospectList = (typeof loadData === 'function' && loadData('ottoneu_prospects')) || [];
   if (prospectList.length) {
-    const fvByName = {};
-    prospectList.forEach(pr => { if (pr.name && pr.fv) fvByName[pr.name] = pr.fv; });
+    const prByName = {};
+    prospectList.forEach(pr => { if (pr.name && pr.fv) prByName[pr.name] = pr; });
     const collect = p => {
-      const fv = fvByName[p.name];
-      if (fv) keyToFv[p.fgId || p.name] = fv;
+      const pr = prByName[p.name];
+      if (pr) keyToProspect[p.fgId || p.name] = pr;
     };
     allRosters.flat().forEach(collect);
     (extraPlayers || []).forEach(collect);
@@ -665,7 +667,7 @@ function calculateDynastyValues(allRosters, weights, extraPlayers) {
     let dynastyValue = currentValue
       + w1 * (v1.projectedValue || 0)
       + w2 * (v2.projectedValue || 0);
-    const floor = fvDynastyFloor(keyToFv[key]);
+    const floor = prospectDynastyValue(keyToProspect[key]);
     if (floor > dynastyValue) dynastyValue = floor;
     const s0 = Math.max(1, v0.actualSalary || 0);
     const dynastyCost = s0 + w1 * Math.max(1, s0 + 2) + w2 * Math.max(1, s0 + 4);
@@ -678,20 +680,50 @@ function calculateDynastyValues(allRosters, weights, extraPlayers) {
   return dynastyMap;
 }
 
-// Market-shaped floors: what an FV-graded prospect is worth in dynasty trade
-// terms even with no usable projections. Linear interpolation between grades.
-const FV_DYNASTY_FLOORS = [[45, 4], [50, 8], [55, 15], [60, 25], [65, 35], [70, 45], [80, 60]];
+// ── PROSPECT DYNASTY VALUATION ───────────────────────────────────────────────
+// Expected dynasty $ for a prospect from scouting data, used as a floor under
+// the projection-based model. Shape follows public surplus-value research
+// (FanGraphs): Top-100 rank is the best granular signal (it already encodes
+// proximity, upside, and risk beyond the coarse FV bucket); same-FV pitching
+// prospects return ~30% less than hitters; the Risk grade tweaks expected value.
+// All anchors tunable. Treat output as EV for trade math, not precision.
+
+// Top-100 rank → $ anchors, interpolated. (#1 elite ≈ what a top rebuilder
+// return actually costs; tail of the 100 ≈ solid-prospect price.)
+const PROSPECT_RANK_CURVE = [[1, 62], [5, 50], [10, 44], [25, 33], [50, 24], [100, 15]];
+// Unranked prospects fall back to their FV grade.
+const FV_DYNASTY_FLOORS = [[45, 4], [50, 8], [55, 14], [60, 22], [65, 32], [70, 42], [80, 55]];
+
+function interpAnchors(x, anchors) {
+  if (x <= anchors[0][0]) return anchors[0][1];
+  for (let i = 0; i < anchors.length - 1; i++) {
+    const [x0, y0] = anchors[i], [x1, y1] = anchors[i + 1];
+    if (x <= x1) return y0 + (y1 - y0) * (x - x0) / (x1 - x0);
+  }
+  return anchors[anchors.length - 1][1];
+}
+
 function fvDynastyFloor(fv) {
   if (!fv || fv < FV_DYNASTY_FLOORS[0][0]) return 0;
-  const t = FV_DYNASTY_FLOORS;
-  for (let i = t.length - 1; i >= 0; i--) {
-    if (fv >= t[i][0]) {
-      if (i === t.length - 1) return t[i][1];
-      const [f0, v0] = t[i], [f1, v1] = t[i + 1];
-      return v0 + (v1 - v0) * (fv - f0) / (f1 - f0);
-    }
-  }
-  return 0;
+  return interpAnchors(fv, FV_DYNASTY_FLOORS);
+}
+
+function prospectDynastyValue(pr) {
+  if (!pr || !pr.fv) return 0;
+  // Base: Top-100 rank curve when ranked, FV grade otherwise. A ranked prospect
+  // never values below his FV floor (guards against a stale rank column).
+  let base = pr.rank
+    ? Math.max(interpAnchors(pr.rank, PROSPECT_RANK_CURVE), fvDynastyFloor(pr.fv) * 0.85)
+    : fvDynastyFloor(pr.fv);
+  // Pitching prospects bust more often (TINSTAAPP): same-FV arms return less.
+  // Every pitcher tag (SP, RP, SIRP, MIRP, LHP, RHP) contains 'P'; no hitter tag does.
+  const pos = String(pr.pos || '').toUpperCase();
+  if (pos.indexOf('P') !== -1) base *= 0.72;
+  // Scout-assigned variance: high risk trims EV, low risk firms it up.
+  const risk = String(pr.risk || '').toLowerCase();
+  if (risk === 'high' || risk === 'extreme') base *= 0.85;
+  else if (risk === 'low') base *= 1.12;
+  return base;
 }
 
 // ── LINEUP OPTIMIZER ────────────────────────────────────────────────────────

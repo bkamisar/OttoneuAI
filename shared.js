@@ -588,20 +588,30 @@ function calculateDynastyValues(allRosters, weights, extraPlayers) {
   const w2 = weights ? (weights.y2 || 0) : 0;
 
   // Helper: clone rosters swapping proj → a different year's projection.
+  // fbKey (optional) is a fallback year used when the primary year is missing:
+  // Y2 projection files cover only ~half the league (almost no pitchers), so a
+  // player with a Y1 line but no Y2 line reuses Y1 — the w2 weight already
+  // discounts it. Without this, every ace contributed $0 for Y2 AND the fixed
+  // pool spread over half as many players, inflating everyone who remained.
   // Also forward projP from the year-specific pitching field so two-way players
   // (Ohtani) get the correct pitching projection for each dynasty year, not Y0's.
-  function cloneForYear(rosters, yearKey) {
+  function yearProjP(p, yearKey, fbKey) {
+    if (p[yearKey + '_P'] != null) return p[yearKey + '_P'];
+    if (fbKey && p[fbKey + '_P'] != null) return p[fbKey + '_P'];
+    return p[yearKey + '_P'] !== undefined ? p[yearKey + '_P'] : p.projP;
+  }
+  function cloneForYear(rosters, yearKey, fbKey) {
     return rosters.map(r => r.map(p => ({
       ...p,
-      proj:  p[yearKey]          || null,
-      projP: p[yearKey + '_P']   !== undefined ? p[yearKey + '_P'] : p.projP,
+      proj:  p[yearKey] || (fbKey ? p[fbKey] : null) || null,
+      projP: yearProjP(p, yearKey, fbKey),
     })));
   }
-  function cloneExtras(extras, yearKey) {
+  function cloneExtras(extras, yearKey, fbKey) {
     return extras ? extras.map(p => ({
       ...p,
-      proj:  p[yearKey]          || null,
-      projP: p[yearKey + '_P']   !== undefined ? p[yearKey + '_P'] : p.projP,
+      proj:  p[yearKey] || (fbKey ? p[fbKey] : null) || null,
+      projP: yearProjP(p, yearKey, fbKey),
     })) : null;
   }
 
@@ -615,10 +625,10 @@ function calculateDynastyValues(allRosters, weights, extraPlayers) {
     ? calculateAllValues(cloneForYear(allRosters, 'proj_y1'), cloneExtras(extraPlayers, 'proj_y1'), true, 'proj_y1')
     : null;
 
-  // Y2 — run only if any player actually has proj_y2 data
-  const hasY2 = w2 > 0 && allRosters.flat().some(p => p.proj_y2);
+  // Y2 — runs whenever Y1 or Y2 data exists (Y1 lines back-fill missing Y2)
+  const hasY2 = w2 > 0 && allRosters.flat().some(p => p.proj_y2 || p.proj_y1);
   const vmY2 = hasY2
-    ? calculateAllValues(cloneForYear(allRosters, 'proj_y2'), cloneExtras(extraPlayers, 'proj_y2'), true, 'proj_y2')
+    ? calculateAllValues(cloneForYear(allRosters, 'proj_y2', 'proj_y1'), cloneExtras(extraPlayers, 'proj_y2', 'proj_y1'), true, 'proj_y2')
     : null;
 
   // Dynasty salary cost: apply the same discount weights to salary as to value.
@@ -628,6 +638,23 @@ function calculateDynastyValues(allRosters, weights, extraPlayers) {
   // $27.10 in dynasty terms, not $10.
   const salaryMultiplier = 1 + w1 + w2;
 
+  // FV → minimum dynasty value for prospects. Projection systems can't see
+  // players far from the majors (no Y0/Y1/Y2 lines), so without this an FV-65
+  // teenager values at ~$3 and the trade finder's rebuilder lens treats him as
+  // a throw-in. Floors are market-shaped, tunable.
+  const keyToFv = {};
+  const prospectList = (typeof loadData === 'function' && loadData('ottoneu_prospects')) || [];
+  if (prospectList.length) {
+    const fvByName = {};
+    prospectList.forEach(pr => { if (pr.name && pr.fv) fvByName[pr.name] = pr.fv; });
+    const collect = p => {
+      const fv = fvByName[p.name];
+      if (fv) keyToFv[p.fgId || p.name] = fv;
+    };
+    allRosters.flat().forEach(collect);
+    (extraPlayers || []).forEach(collect);
+  }
+
   // Merge into a single map: all Y0 keys, enriched with dynasty values.
   const dynastyMap = {};
   Object.keys(vmY0).forEach(key => {
@@ -635,9 +662,11 @@ function calculateDynastyValues(allRosters, weights, extraPlayers) {
     const v1 = vmY1 ? (vmY1[key] || {}) : {};
     const v2 = vmY2 ? (vmY2[key] || {}) : {};
     const currentValue = v0.projectedValue || 0;
-    const dynastyValue = currentValue
+    let dynastyValue = currentValue
       + w1 * (v1.projectedValue || 0)
       + w2 * (v2.projectedValue || 0);
+    const floor = fvDynastyFloor(keyToFv[key]);
+    if (floor > dynastyValue) dynastyValue = floor;
     const s0 = Math.max(1, v0.actualSalary || 0);
     const dynastyCost = s0 + w1 * Math.max(1, s0 + 2) + w2 * Math.max(1, s0 + 4);
     dynastyMap[key] = {
@@ -647,6 +676,22 @@ function calculateDynastyValues(allRosters, weights, extraPlayers) {
     };
   });
   return dynastyMap;
+}
+
+// Market-shaped floors: what an FV-graded prospect is worth in dynasty trade
+// terms even with no usable projections. Linear interpolation between grades.
+const FV_DYNASTY_FLOORS = [[45, 4], [50, 8], [55, 15], [60, 25], [65, 35], [70, 45], [80, 60]];
+function fvDynastyFloor(fv) {
+  if (!fv || fv < FV_DYNASTY_FLOORS[0][0]) return 0;
+  const t = FV_DYNASTY_FLOORS;
+  for (let i = t.length - 1; i >= 0; i--) {
+    if (fv >= t[i][0]) {
+      if (i === t.length - 1) return t[i][1];
+      const [f0, v0] = t[i], [f1, v1] = t[i + 1];
+      return v0 + (v1 - v0) * (fv - f0) / (f1 - f0);
+    }
+  }
+  return 0;
 }
 
 // ── LINEUP OPTIMIZER ────────────────────────────────────────────────────────

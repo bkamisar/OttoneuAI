@@ -77,6 +77,7 @@
     .benefit-line { display: flex; gap: 16px; margin-top: 6px; padding: 5px 8px; background: #f6f9f6; border-radius: 6px; font-size: 0.78rem; }
     .benefit-me   { color: #1e7e34; font-weight: 600; }
     .benefit-them { color: #555; }
+    .cap-note { margin-top: 4px; padding: 4px 8px; background: #fff8e1; border-radius: 6px; font-size: 0.76rem; color: #b07d00; }
 
     /* Pagination */
     .pagination { display: flex; align-items: center; gap: 8px; margin: 8px 0 16px; font-size: 0.82rem; }
@@ -326,6 +327,8 @@
     var simCtx      = null;
     var mergedByKey = {};   // fgId AND name → full merged player (for sim lookups)
     var myTeamName  = '';   // set during load; used by lens/sim helpers
+    var teamSalaries = {};  // teamName → total committed salary (for cap checks)
+    var SALARY_CAP   = 400; // Ottoneu cap; exceeding it requires loans
 
     function isTradeable(p) {
       return p.hasProj && p.surplus > 0 && (myDepth[p.type] || 0) >= 3;
@@ -915,8 +918,11 @@
       return parts.join(' · ');
     }
 
+    // Future-value gain measured in dynasty SURPLUS (value minus escalating
+    // keeper cost), not gross value — a rebuilder acquiring an expensive aging
+    // star with high gross value but negative surplus is making a bad trade.
     function dynastyDelta(received, given) {
-      var v = function(p) { return Math.max(0, p.dynValue || 0); };
+      var v = function(p) { return p.dynastySurplus || 0; };
       return received.reduce(function(s, p) { return s + v(p); }, 0)
            - given.reduce(function(s, p) { return s + v(p); }, 0);
     }
@@ -1104,12 +1110,21 @@
           var myB   = benefitFor(myStatus, sim.aPts, sim.aZ, myDyn);
           var thB   = benefitFor(thStatus, sim.bPts, sim.bZ, -myDyn);
           if (!myB.ok || !thB.ok) continue;
+          // Cap feasibility: does either side end up over the $400 cap?
+          var salOut = mine.reduce(function(s, p) { return s + (p.salary || 0); }, 0);
+          var salIn  = theirs.reduce(function(s, p) { return s + (p.salary || 0); }, 0);
+          var myNewSal = (teamSalaries[myTeamName] || 0) - salOut + salIn;
+          var thNewSal = (teamSalaries[theirTeam]  || 0) - salIn + salOut;
+          var capNote = '';
+          if (myNewSal > SALARY_CAP)      capNote = '⚠ Puts you $' + Math.round(myNewSal - SALARY_CAP) + ' over the $' + SALARY_CAP + ' cap (needs a loan or cuts)';
+          else if (thNewSal > SALARY_CAP) capNote = '⚠ Puts them $' + Math.round(thNewSal - SALARY_CAP) + ' over the $' + SALARY_CAP + ' cap — they may need a loan';
           accepted.push({
             players:    theirs,
             myPlayers:  mine,
             myScore:    myStatus === 'rebuilder' && hasDynasty ? myDyn : sim.aPts + 0.25 * sim.aZ,
             myLine:     fmtBenefit(myStatus, sim.aPts, sim.aZ, myDyn),
             theirLine:  fmtBenefit(thStatus, sim.bPts, sim.bZ, -myDyn),
+            capNote:    capNote,
           });
         }
       }
@@ -1254,6 +1269,11 @@
           why.appendChild(mySpan); why.appendChild(thSpan);
           row.appendChild(why);
         }
+        if (opt.capNote) {
+          var capEl = document.createElement('div'); capEl.className = 'cap-note';
+          capEl.textContent = opt.capNote;
+          row.appendChild(capEl);
+        }
         card.appendChild(row);
       });
       return card;
@@ -1360,6 +1380,7 @@
       };
       teamNames.forEach(function(t) {
         simCtx.playersByTeam[t] = merged.filter(function(p) { return p.team === t; });
+        teamSalaries[t] = simCtx.playersByTeam[t].reduce(function(s, p) { return s + (p.salary || 0); }, 0);
       });
       teamStatsArr.forEach(function(t) { simCtx.baseStats[t.name]  = t.stats; });
       standings.forEach(function(s)    { simCtx.basePoints[s.name] = s.points; });

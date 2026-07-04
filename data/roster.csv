@@ -38,7 +38,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10758,"Misiorowski Index",23818,19574,sa917955,"JoJo Romero",STL,RP,$2
 10758,"Misiorowski Index",27723,11861,sa548332,"Jason Adam",SDP,RP,$2
 10758,"Misiorowski Index",23752,19953,sa917926,"Josh Lowe",LAA,OF,$1
-10758,"Misiorowski Index",32966,21224,sa918555,"Bailey Ober","MIN A+",SP,$1
+10758,"Misiorowski Index",32966,21224,sa918555,"Bailey Ober","MIN AAA",SP,$1
 10759,"Juan Nation UndeGrom 🫡",23717,20123,sa906282,"Juan Soto",NYM,OF,$65
 10759,"Juan Nation UndeGrom 🫡",23682,19709,sa919910,"Fernando Tatis Jr.",SDP,2B/OF,$52
 10759,"Juan Nation UndeGrom 🫡",18546,18345,sa874240,"Kyle Tucker",LAD,OF,$42
@@ -271,7 +271,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10897,"Five-cent head",26154,22715,sa3003246,"Maikel Garcia",KCR,2B/SS/3B/OF,$5
 10897,"Five-cent head",42146,31595,sa3019973,"Brooks Lee",MIN,2B/SS/3B,$4
 10897,"Five-cent head",42712,31807,sa3020652,"Troy Melton",DET,SP/RP,$4
-10897,"Five-cent head",18547,18564,sa874246,"Trent Grisham","NYY AA",OF,$4
+10897,"Five-cent head",18547,18564,sa874246,"Trent Grisham",NYY,OF,$4
 10897,"Five-cent head",40607,29911,sa3017529,"Andrew Abbott",CIN,SP,$4
 10897,"Five-cent head",46221,35418,sa3034986,"Gage Jump",ATH,SP,$3
 10897,"Five-cent head",42312,31475,sa3020080,"Logan Henderson","MIL AAA",SP,$3
@@ -511,7 +511,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10974,"Ketel Corn",42304,31580,sa3020011,"Chase Meidroth",CHW,2B/SS,$3
 10974,"Ketel Corn",40615,29921,sa3017537,"Spencer Arrighetti",HOU,SP,$2
 10974,"Ketel Corn",42308,31468,sa3020076,"Jack Perkins",ATH,SP/RP,$1
-10974,"Ketel Corn",4514,3137,sa326473,"Max Scherzer",TOR,SP,$1
+10974,"Ketel Corn",4514,3137,sa326473,"Max Scherzer","TOR A+",SP,$1
 10974,"Ketel Corn",41865,,sa3019390,"Carlos Lagrange","NYY AAA",SP/RP,$1
 10974,"Ketel Corn",26915,23401,sa3004817,"Jose Caballero",NYY,2B/SS/3B/OF,$1
 10974,"Ketel Corn",18303,15518,sa732115,"Amed Rosario",NYY,2B/3B,$1

@@ -768,8 +768,14 @@ function optimizeHitterLineup(hitters) {
   return assignment;
 }
 
-// Selects pitchers ranked by value up to IP_MAX. Returns [] if projected IP < IP_MIN.
-function selectPitchers(pitchers) {
+// Selects pitchers ranked by value up to an innings budget (default: the full
+// 1500 IP_MAX). Pass a smaller budget for rest-of-season valuation so team SO
+// totals reflect the innings the league cap actually allows — otherwise teams
+// hoarding arms show wildly different IP, inflating the SO stdev and making
+// strikeout production look nearly worthless in SGP terms.
+function selectPitchers(pitchers, ipBudget) {
+  const budget = ipBudget || IP_MAX;
+  const minIP  = Math.min(IP_MIN, budget * 0.5);
   const scored = pitchers
     .filter(p => p.type === 'P')
     .map(p => {
@@ -784,16 +790,19 @@ function selectPitchers(pitchers) {
   let totalIP = 0;
   for (const p of scored) {
     const ip = (p._proj && p._proj.ip) || 0;
-    if (totalIP + ip <= IP_MAX) { selected.push(p); totalIP += ip; }
+    if (totalIP + ip <= budget) { selected.push(p); totalIP += ip; }
   }
-  return totalIP >= IP_MIN ? selected : [];
+  return totalIP >= minIP ? selected : [];
 }
 
 // ── SCORING ENGINE ───────────────────────────────────────────────────────────
 // Computes 8 category totals for one team from their lineup and pitcher pool.
-function computeTeamStats(hitterAssignment, selectedPitchers) {
+// minValidIP (optional) overrides the IP_MIN validity floor — used when the
+// pitcher pool was selected under a prorated rest-of-season innings budget.
+function computeTeamStats(hitterAssignment, selectedPitchers, minValidIP) {
   const hitters  = Object.values(hitterAssignment || {}).filter(Boolean);
   const pitchers = selectedPitchers || [];
+  const ipFloor  = minValidIP || IP_MIN;
 
   let totPA = 0, totAB = 0, totOBPNum = 0, totSLGNum = 0, totHR = 0, totR = 0;
   for (const p of hitters) {
@@ -817,7 +826,7 @@ function computeTeamStats(hitterAssignment, selectedPitchers) {
     totSO      += b.so || 0;
   }
 
-  const pitOk = totIP >= IP_MIN;
+  const pitOk = totIP >= ipFloor;
   return {
     OBP:  totPA > 0 ? totOBPNum / totPA  : 0,
     SLG:  totAB > 0 ? totSLGNum / totAB  : 0,
@@ -939,13 +948,19 @@ function buildStandings(teams) {
 // extraPlayers: optional array of FA players to value using the same rates.
 // They do NOT affect replacement levels or total SGP — keeping existing values calibrated.
 function calculateAllValues(allTeamRosters, extraPlayers, quiet, yearKey) {
+  // Innings budget for team-stat aggregation. Y0 uses rest-of-season
+  // projections, so each team can only add innings up to the league cap's
+  // remaining share (calendar-prorated). Y1/Y2 files are full-season → full cap.
+  const isFutureYear = yearKey && yearKey !== 'proj';
+  const ipBudget = isFutureYear ? IP_MAX : IP_MAX * Math.max(rosProrationFactor(), 0.1);
+
   // 1. Optimize lineup for each team
   const teamLineups = allTeamRosters.map(roster => {
     const hitters  = roster.filter(p => p.type === 'H');
     const pitchers = roster.filter(p => p.type === 'P');
     const lineup   = optimizeHitterLineup(hitters);
-    const pitPool  = selectPitchers(pitchers);
-    const stats    = computeTeamStats(lineup, pitPool);
+    const pitPool  = selectPitchers(pitchers, ipBudget);
+    const stats    = computeTeamStats(lineup, pitPool, Math.min(IP_MIN, ipBudget * 0.5));
     return { lineup, pitPool, stats, roster };
   });
 
@@ -962,11 +977,24 @@ function calculateAllValues(allTeamRosters, extraPlayers, quiet, yearKey) {
   // 4. Replacement level = best freely available alternative (FA baseline)
   const replLevels = calcReplacementLevels(allTeamRosters, yearKey);
 
+  // Starters: players whose production actually reaches the field (active
+  // lineup slots / capped innings). The hit-vs-pitch dollar split is computed
+  // from THEIR SGP only — bench bats and surplus arms are still valued at the
+  // resulting rates, but they don't tilt the split, since rosters hold far more
+  // pitching volume than the innings cap lets teams use.
+  const starterKeys = new Set();
+  teamLineups.forEach(t => {
+    Object.values(t.lineup).filter(Boolean).forEach(p => starterKeys.add(p.fgId || p.name));
+    t.pitPool.forEach(p => starterKeys.add(p.fgId || p.name));
+  });
+
   // 5. SGP per player — split into hitting and pitching pools
   const valueMap = {};
   const entries  = [];   // every rostered player with a projection
-  let totalHitSGP = 0;
+  let totalHitSGP = 0;   // all positive SGP (rate denominators — conserves the pool)
   let totalPitSGP = 0;
+  let starterHitSGP = 0; // starters only (drives the hit/pitch dollar split)
+  let starterPitSGP = 0;
 
   allTeamRosters.flat().forEach(player => {
     const key = player.fgId || player.name;
@@ -1000,6 +1028,10 @@ function calculateAllValues(allTeamRosters, extraPlayers, quiet, yearKey) {
     if (sgp > 0) {
       if (player.type === 'H') totalHitSGP += sgp;
       else                     totalPitSGP += sgp;
+      if (starterKeys.has(key)) {
+        if (player.type === 'H') starterHitSGP += sgp;
+        else                     starterPitSGP += sgp;
+      }
     }
   });
 
@@ -1008,8 +1040,9 @@ function calculateAllValues(allTeamRosters, extraPlayers, quiet, yearKey) {
   // proportional to SGP, split between hitting/pitching pools by SGP share.
   const reserved      = entries.length;            // $1 × rostered players
   const distributable = Math.max(0, SALARY_POOL - reserved);
-  const totalSGP = totalHitSGP + totalPitSGP;
-  const dynamicHitShare = totalSGP > 0 ? totalHitSGP / totalSGP : 0.60;
+  const starterSGP = starterHitSGP + starterPitSGP;
+  const dynamicHitShare = starterSGP > 0 ? starterHitSGP / starterSGP
+    : (totalHitSGP + totalPitSGP > 0 ? totalHitSGP / (totalHitSGP + totalPitSGP) : 0.60);
   const hitDollars = distributable * dynamicHitShare;
   const pitDollars = distributable * (1 - dynamicHitShare);
 
@@ -1109,17 +1142,24 @@ function valProxy(player, b) {
   return (b.ip || 0) * (1 / safeERA + (b.so || 0) / 1000);
 }
 
+// Marginal SGP vs a replacement (FA-baseline) player filling the SAME playing
+// time. Counting stats compare against the replacement's totals PRO-RATED to
+// this player's PA/IP — otherwise a 180-PA catcher eats a full-time FA's HR/R
+// totals as a penalty while his rate impact is separately scaled by PA, and
+// part-time players get incoherently zeroed.
 function calcPlayerSGP(player, b, repl, sgpDenom, avgPA, avgIP) {
   let sgp = 0;
   if (player.type === 'H') {
-    sgp += ((b.hr  || 0) - (repl.hr  || 0)) / (sgpDenom['HR']  || 1);
-    sgp += ((b.r   || 0) - (repl.r   || 0)) / (sgpDenom['R']   || 1);
     const pa = b.pa || 0;
+    const paRatio = (repl.pa || 0) > 0 ? pa / repl.pa : 1;
+    sgp += ((b.hr  || 0) - (repl.hr  || 0) * paRatio) / (sgpDenom['HR']  || 1);
+    sgp += ((b.r   || 0) - (repl.r   || 0) * paRatio) / (sgpDenom['R']   || 1);
     sgp += ((b.obp || 0) - (repl.obp || 0)) * pa / (avgPA || 1) / (sgpDenom['OBP'] || 1);
     sgp += ((b.slg || 0) - (repl.slg || 0)) * pa / (avgPA || 1) / (sgpDenom['SLG'] || 1);
   } else {
-    sgp += ((b.so   || 0) - (repl.so   || 0)) / (sgpDenom['SO']   || 1);
     const ip = b.ip || 0;
+    const ipRatio = (repl.ip || 0) > 0 ? ip / repl.ip : 1;
+    sgp += ((b.so   || 0) - (repl.so   || 0) * ipRatio) / (sgpDenom['SO']   || 1);
     sgp += ((repl.era  || 0) - (b.era  || 0)) * ip / (avgIP || 1) / (sgpDenom['ERA']  || 1);
     sgp += ((repl.whip || 0) - (b.whip || 0)) * ip / (avgIP || 1) / (sgpDenom['WHIP'] || 1);
     sgp += ((repl.hr9  || 0) - (b.hr9  || 0)) * ip / (avgIP || 1) / (sgpDenom['HR9']  || 1);

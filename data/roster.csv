@@ -242,7 +242,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10881,"Look Out Bello",34103,24094,sa3005835,"Ronny Henriquez",MIA,RP,$3
 10881,"Look Out Bello",18459,16943,sa709548,"Sean Newcomb",CHW,SP/RP,$3
 10881,"Look Out Bello",40398,29646,sa3017183,"Caleb Durbin",BOS,2B/3B,$2
-10881,"Look Out Bello",42538,31760,sa3020395,"JR Ritchie","ATL AAA",SP,$2
+10881,"Look Out Bello",42538,31760,sa3020395,"JR Ritchie",ATL,SP,$2
 10881,"Look Out Bello",44039,33253,sa3022596,"Cole Carrigg",COL,OF,$2
 10881,"Look Out Bello",18152,13145,sa597768,"Josh Bell",MIN,1B,$1
 10881,"Look Out Bello",33669,21537,sa3007588,"Daniel Lynch IV",KCR,RP,$1
@@ -404,17 +404,17 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10925,"Bryce Krispies👨‍🍳",33217,21837,sa919293,"Jonathan Aranda",TBR,1B,$5
 10925,"Bryce Krispies👨‍🍳",38781,27914,sa3015122,"Daniel Palencia",CHC,RP,$4
 10925,"Bryce Krispies👨‍🍳",40829,30091,sa3017880,"Andrew Painter","PHI AAA",SP,$4
-10925,"Bryce Krispies👨‍🍳",38317,27562,sa3014440,"Austin Wells",NYY,C,$4
 10925,"Bryce Krispies👨‍🍳",38334,27473,sa3014421,"Cade Cavalli",WSN,SP,$3
 10925,"Bryce Krispies👨‍🍳",21156,16442,sa829141,"Ryan O'Hearn",PIT,1B/OF,$3
 10925,"Bryce Krispies👨‍🍳",45064,,sa3024108,"Jesus Made","MIL AA",SS,$3
-10925,"Bryce Krispies👨‍🍳",38307,27474,sa3014430,"Max Meyer",MIA,SP,$2
-10925,"Bryce Krispies👨‍🍳",26570,19608,sa3004268,"Otto Lopez",MIA,2B/SS,$2
 10925,"Bryce Krispies👨‍🍳",33049,20023,sa918679,"Rico Garcia",BAL,RP,$2
+10925,"Bryce Krispies👨‍🍳",26570,19608,sa3004268,"Otto Lopez",MIA,2B/SS,$2
 10925,"Bryce Krispies👨‍🍳",44052,,sa3022609,"Aidan Miller","PHI AAA",SS,$2
+10925,"Bryce Krispies👨‍🍳",38307,27474,sa3014430,"Max Meyer",MIA,SP,$2
 10925,"Bryce Krispies👨‍🍳",37946,25911,sa3011688,"Yennier Cano",BAL,RP,$1
-10925,"Bryce Krispies👨‍🍳",42110,31843,sa3020827,"Kumar Rocker",TEX,SP,$1
 10925,"Bryce Krispies👨‍🍳",45797,,sa3066592,"Bryce Rainer","DET A+",SS,$1
+10925,"Bryce Krispies👨‍🍳",42110,31843,sa3020827,"Kumar Rocker",TEX,SP,$1
+10925,"Bryce Krispies👨‍🍳",4374,9218,sa501577,"Paul Goldschmidt",NYY,1B,$1
 10925,"Bryce Krispies👨‍🍳",37536,26438,sa1115890,"Dominic Canzone",SEA,OF,$1
 10925,"Bryce Krispies👨‍🍳",37304,25979,sa3010695,"Nasim Nunez",WSN,2B/SS,$1
 10925,"Bryce Krispies👨‍🍳",18162,14221,sa658226,"Jorge Soler",LAA,OF,$1
@@ -426,7 +426,6 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10925,"Bryce Krispies👨‍🍳",23838,13892,sa658150,"Paul Sewald",ARI,RP,$1
 10925,"Bryce Krispies👨‍🍳",23868,20202,sa917944,"Brandon Marsh",PHI,OF,$1
 10925,"Bryce Krispies👨‍🍳",30196,19249,sa657573,"Seranthony Dominguez",CHW,RP,$1
-10925,"Bryce Krispies👨‍🍳",4374,9218,sa501577,"Paul Goldschmidt",NYY,1B,$1
 10925,"Bryce Krispies👨‍🍳",47549,,sa3069164,"Eli Willits","WSN A+",SS,$1
 10944,"Si Se Fuentes",18549,19611,sa920245,"Vladimir Guerrero Jr.",TOR,1B,$53
 10944,"Si Se Fuentes",23625,21846,sa917938,"Cole Ragans",KCR,SP,$22
@@ -480,7 +479,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10974,"Ketel Corn",23825,19326,sa873683,"Bryan Reynolds",PIT,OF,$22
 10974,"Ketel Corn",32291,21711,sa917318,"Oneil Cruz",PIT,OF,$19
 10974,"Ketel Corn",12398,11609,sa508176,"Willson Contreras",BOS,1B,$18
-10974,"Ketel Corn",23824,22182,sa3005315,"Hunter Greene","CIN AAA",SP,$17
+10974,"Ketel Corn",23824,22182,sa3005315,"Hunter Greene",CIN,SP,$17
 10974,"Ketel Corn",18196,14107,sa548347,"Kevin Gausman",TOR,SP,$15
 10974,"Ketel Corn",36686,26378,sa917947,"Nick Lodolo",CIN,SP,$11
 10974,"Ketel Corn",18391,14212,sa658473,"Josh Hader",HOU,RP,$11
@@ -491,7 +490,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10974,"Ketel Corn",44515,33666,sa3023308,"Connelly Early",BOS,SP,$9
 10974,"Ketel Corn",40260,29976,sa3017662,"Jordan Lawlar",ARI,2B/SS/3B/OF,$8
 10974,"Ketel Corn",42719,31872,sa3020860,"Cade Horton",CHC,SP,$8
-10974,"Ketel Corn",33612,24492,sa3008130,"Grayson Rodriguez","LAA CPX",SP,$7
+10974,"Ketel Corn",33612,24492,sa3008130,"Grayson Rodriguez","LAA AAA",SP,$7
 10974,"Ketel Corn",6130,10324,sa503013,"Marcell Ozuna",PIT,Util,$7
 10974,"Ketel Corn",26099,20599,sa3003191,"Ivan Herrera",STL,C,$6
 10974,"Ketel Corn",38388,27467,sa3014489,"Tyler Soderstrom",ATH,1B/OF,$6

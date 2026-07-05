@@ -55,7 +55,8 @@
   </nav>
 
   <div class="controls" id="controls">
-    <span class="mode-label" id="modeLabel">Mode: Full Season Projections</span>
+    <span class="mode-label" id="modeLabel">Mode: Current Standings</span>
+    <button class="toggle-btn" id="currBtn" style="display:none" onclick="setMode('curr')">Current</button>
     <button class="toggle-btn" id="rosBtn" style="display:none" onclick="setMode('ros')">Rest of Season</button>
     <button class="toggle-btn" id="projBtn" style="display:none" onclick="setMode('proj')">Full Season</button>
   </div>
@@ -67,13 +68,19 @@
 
   <script src="shared.js"></script>
   <script>
-    var activeMode = 'proj';   // 'proj' | 'ros'
+    var activeMode = 'curr';   // 'curr' | 'ros' | 'proj'
+    // Rough PA-per-team-game, used only to prorate projections to games played
+    // in the Manager-Performance section. (Was a shared.js const; moved here
+    // when the RoS blend rework removed it from shared.js.)
+    var PA_PER_GAME = 4.2;
 
     function setMode(m) {
       activeMode = m;
       document.getElementById('modeLabel').textContent =
-        m === 'ros' ? 'Mode: Rest of Season (Current + Projected Remaining)'
-                    : 'Mode: Full Season Projections';
+        m === 'curr' ? 'Mode: Current Standings (live from Ottoneu)'
+      : m === 'ros'  ? 'Mode: Rest of Season (Current + Projected Remaining)'
+                     : 'Mode: Full Season Projections';
+      document.getElementById('currBtn').classList.toggle('on', m === 'curr');
       document.getElementById('rosBtn').classList.toggle('on',  m === 'ros');
       document.getElementById('projBtn').classList.toggle('on', m === 'proj');
       render();
@@ -123,14 +130,21 @@
         return;
       }
 
-      // Show / hide mode buttons depending on whether current standings are loaded
-      if (!currData && activeMode === 'ros') { activeMode = 'proj'; }
+      // Current + Rest of Season modes need the pulled standings; fall back to
+      // full-season projections when they aren't loaded.
+      if (!currData && (activeMode === 'curr' || activeMode === 'ros')) { activeMode = 'proj'; }
+      document.getElementById('currBtn').style.display = currData ? '' : 'none';
       document.getElementById('rosBtn').style.display  = currData ? '' : 'none';
       document.getElementById('projBtn').style.display = currData ? '' : 'none';
+      document.getElementById('currBtn').classList.toggle('on', activeMode === 'curr');
       document.getElementById('rosBtn').classList.toggle('on',  activeMode === 'ros');
       document.getElementById('projBtn').classList.toggle('on', activeMode === 'proj');
+      document.getElementById('modeLabel').textContent =
+        activeMode === 'curr' ? 'Mode: Current Standings (live from Ottoneu)'
+      : activeMode === 'ros'  ? 'Mode: Rest of Season (Current + Projected Remaining)'
+                              : 'Mode: Full Season Projections';
 
-      renderStamp(activeMode === 'ros' && currData);
+      renderStamp(activeMode !== 'proj' && currData);
 
       // Build projection stats for all teams
       var teamMap = {};
@@ -148,9 +162,9 @@
         return { name: name, stats: computeTeamStats(lineup, pitPool) };
       });
 
-      // In Rest of Season mode, blend current actuals into projected stats
+      // Build the stats used for standings based on the active mode.
       var teamStatsArr;
-      if (activeMode === 'ros' && currData) {
+      if ((activeMode === 'curr' || activeMode === 'ros') && currData) {
         // Build lookup of current stats by team name (trim to be safe)
         var currByName = {};
         currData.forEach(function(row) { currByName[row.name.trim()] = row; });
@@ -158,6 +172,14 @@
         teamStatsArr = projStatsArr.map(function(t) {
           var curr = currByName[t.name.trim()];
           if (!curr) return t;   // no current data for this team \u2014 use full projection
+          if (activeMode === 'curr') {
+            // Raw actual standings straight from the pulled data (no projection).
+            return { name: t.name, stats: {
+              OBP: curr.obp, SLG: curr.slg, HR: curr.hr, R: curr.r,
+              ERA: curr.era, WHIP: curr.whip, HR9: curr.hr9, SO: curr.k,
+              _ip: curr.ip, _totPA: 0
+            } };
+          }
           return { name: t.name, stats: blendStats(curr, t.stats) };
         });
       } else {

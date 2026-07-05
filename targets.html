@@ -313,8 +313,6 @@
     var statusOverrides = loadData(STATUS_KEY) || {};
     var autoStatus      = {};
     var CONSOL_PREM     = 0.15;  // extra value owed per additional player on the bulkier side
-    var MIN_PTS_GAIN    = 0.05;  // min continuous standings gain for a contender to accept
-    var MIN_DYN_GAIN    = 2;     // min $ future-value gain for a rebuilder to accept
 
     function teamStatusOf(name) {
       return statusOverrides[name] || autoStatus[name] || 'fringe';
@@ -897,15 +895,25 @@
       };
     }
 
-    // Would this team plausibly accept? Contenders need a standings gain;
-    // rebuilders need a future-value gain; in-between teams need either.
+    // Would this team plausibly accept? Every team prices a trade in dollars:
+    //   utility = standings gain × $/point × status weight  +  future-surplus gain × status weight
+    // Contenders weight points heavily but still price the future at 25% —
+    // without that, the finder approves dumping $80 of future value for a
+    // rounding-error category gain. Rebuilders are the mirror image.
+    var PTS_DOLLARS   = 15;   // $ a win-now team pays for one standings point
+    var PTS_WEIGHT    = { contender: 1.0,  fringe: 0.6, rebuilder: 0.15 };
+    var FUTURE_WEIGHT = { contender: 0.25, fringe: 0.6, rebuilder: 1.0  };
+    var MIN_UTILITY   = 1;    // deal must be worth ≥ $1 in that team's terms
+
     function benefitFor(status, ptsDelta, zD, dynDelta) {
-      var gain   = ptsDelta + 0.25 * zD;
-      var ptsOk  = gain > MIN_PTS_GAIN;
-      var dynOk  = hasDynasty && dynDelta >= MIN_DYN_GAIN;
-      if (status === 'contender') return { ok: ptsOk,          gain: gain, dyn: dynDelta };
-      if (status === 'rebuilder') return { ok: dynOk || (!hasDynasty && ptsOk), gain: gain, dyn: dynDelta };
-      return { ok: ptsOk || dynOk, gain: gain, dyn: dynDelta };
+      // zDelta ≈ expected standings points from continuous category movement
+      // (1 stdev of a category ≈ 1 rank in expectation across 12 teams);
+      // it credits real improvement that coarse integer roto points miss.
+      var gain = ptsDelta + zD;
+      var util = hasDynasty
+        ? PTS_DOLLARS * gain * (PTS_WEIGHT[status] || 0.6) + dynDelta * (FUTURE_WEIGHT[status] || 0.6)
+        : PTS_DOLLARS * gain;
+      return { ok: util >= MIN_UTILITY, util: util, gain: gain, dyn: dynDelta };
     }
 
     function fmtBenefit(status, ptsDelta, zD, dynDelta) {
@@ -1121,7 +1129,7 @@
           accepted.push({
             players:    theirs,
             myPlayers:  mine,
-            myScore:    myStatus === 'rebuilder' && hasDynasty ? myDyn : sim.aPts + 0.25 * sim.aZ,
+            myScore:    myB.util,
             myLine:     fmtBenefit(myStatus, sim.aPts, sim.aZ, myDyn),
             theirLine:  fmtBenefit(thStatus, sim.bPts, sim.bZ, -myDyn),
             capNote:    capNote,

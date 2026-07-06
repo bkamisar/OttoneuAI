@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Ottoneu Tools — Bid Advisor</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: system-ui, sans-serif; background: #f5f5f5; margin: 0; padding: 20px; color: #222; }
+    h1 { font-size: 1.3rem; margin-bottom: 4px; }
+    .nav { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+    .nav a { padding: 7px 14px; background: #1a73e8; color: #fff; border-radius: 6px; text-decoration: none; font-size: 0.88rem; }
+    .nav a.active { background: #1557b0; }
+    .section-title { font-size: 1rem; font-weight: 600; margin: 24px 0 12px; }
+    .error { background: #fce8e6; border-left: 4px solid #c62828; padding: 12px 16px; border-radius: 4px; margin-bottom: 16px; }
+    .error a { color: #c62828; }
+
+    /* Cap header */
+    .cap-header { background: #fff; border-radius: 10px; padding: 14px 18px; box-shadow: 0 1px 4px rgba(0,0,0,0.1); display: flex; gap: 28px; flex-wrap: wrap; align-items: center; margin-bottom: 6px; }
+    .cap-item strong { display: block; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; color: #999; margin-bottom: 3px; }
+    .cap-item span { font-size: 1.05rem; font-weight: 700; }
+    .cap-over { color: #c62828; }
+
+    /* Search */
+    .search-wrap { position: relative; max-width: 460px; margin-bottom: 8px; }
+    .bid-search { width: 100%; padding: 9px 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 0.92rem; }
+    .search-dd { position: absolute; left: 0; right: 0; top: 100%; background: #fff; border: 1px solid #ddd; border-radius: 8px; box-shadow: 0 4px 14px rgba(0,0,0,0.15); z-index: 20; max-height: 320px; overflow-y: auto; margin-top: 3px; }
+    .dd-item { padding: 8px 12px; font-size: 0.86rem; cursor: pointer; display: flex; justify-content: space-between; gap: 10px; border-bottom: 1px solid #f5f5f5; }
+    .dd-item:hover { background: #f0f4ff; }
+    .dd-val { color: #888; font-size: 0.8rem; white-space: nowrap; }
+
+    /* Advice card */
+    .advice { background: #fff; border-radius: 12px; padding: 22px 24px; box-shadow: 0 2px 10px rgba(0,0,0,0.12); margin-bottom: 24px; }
+    .advice-name { font-size: 1.15rem; font-weight: 700; margin-bottom: 2px; }
+    .advice-sub { font-size: 0.82rem; color: #888; margin-bottom: 16px; }
+    .rec-big { font-size: 2.4rem; font-weight: 800; color: #1a73e8; line-height: 1; }
+    .rec-lbl { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; color: #999; margin-bottom: 4px; }
+    .band-strip { display: flex; gap: 0; margin: 14px 0 20px; border-radius: 8px; overflow: hidden; font-size: 0.72rem; text-align: center; }
+    .band { padding: 6px 4px; color: #fff; font-weight: 600; }
+    .band small { display: block; font-weight: 400; opacity: 0.9; font-size: 0.68rem; }
+    .band-bargain { background: #1e7e34; }
+    .band-fair    { background: #4a90d9; }
+    .band-stretch { background: #e6941c; }
+    .band-over    { background: #c0552e; }
+
+    .ceil-row { display: flex; align-items: baseline; gap: 10px; padding: 9px 0; border-top: 1px solid #f0f0f0; font-size: 0.9rem; }
+    .ceil-amt { font-weight: 700; min-width: 56px; }
+    .ceil-lbl { font-weight: 600; min-width: 190px; }
+    .ceil-note { color: #888; font-size: 0.82rem; }
+
+    .cap-line { margin-top: 14px; padding: 10px 14px; background: #f8f8f8; border-radius: 8px; font-size: 0.86rem; }
+    .warn-hard { margin-top: 8px; padding: 9px 14px; background: #fce8e6; border-left: 4px solid #c62828; border-radius: 4px; font-size: 0.84rem; color: #c62828; }
+    .warn-soft { margin-top: 8px; padding: 9px 14px; background: #fff4e5; border-left: 4px solid #e6941c; border-radius: 4px; font-size: 0.84rem; color: #a5641a; }
+    .dyn-line { margin-top: 12px; font-size: 0.86rem; color: #444; }
+    .badge-fv { margin-left: 6px; font-size: 0.68rem; padding: 1px 6px; border-radius: 10px; font-weight: 600; }
+    .badge-fv-elite { background: #f3e5f5; color: #6a1b9a; }
+    .badge-fv-high  { background: #e8f0fe; color: #1557b0; }
+    .badge-fv-mid   { background: #e0f2f1; color: #00695c; }
+    .badge-fv-low   { background: #f5f5f5; color: #666; }
+    .keeper-note { font-style: italic; color: #6a1b9a; }
+
+    /* Top targets table */
+    .tbl-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 10px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.1); font-size: 0.86rem; }
+    th { background: #1a73e8; color: #fff; padding: 9px 10px; text-align: right; font-weight: 600; white-space: nowrap; }
+    th:first-child, th:nth-child(2) { text-align: left; }
+    td { padding: 7px 10px; text-align: right; border-bottom: 1px solid #f0f0f0; }
+    td:first-child, td:nth-child(2) { text-align: left; }
+    tr:last-child td { border-bottom: none; }
+    tbody tr { cursor: pointer; }
+    tr:hover td { background: #f8f8f8; }
+    .val-strong { color: #1e7e34; font-weight: 700; }
+    .val-mid    { color: #e65100; }
+    .val-zero   { color: #bbb; }
+  </style>
+  <link rel="stylesheet" href="theme.css">
+</head>
+<body>
+  <h1>Waiver Bid Advisor</h1>
+  <nav class="nav">
+    <a href="index.html">Data Hub</a>
+    <a href="standings.html">Standings</a>
+    <a href="roster.html">Roster Analysis</a>
+    <a href="trade.html">Trade Evaluator</a>
+    <a href="fa.html">FA Finder</a>
+    <a href="bid.html" class="active">Bid Advisor</a>
+    <a href="prospects.html">Prospects</a>
+    <a href="targets.html">Trade Targets</a>
+  </nav>
+
+  <div id="loading" style="display:none;color:#666;font-size:.88rem;padding:8px 0">Loading league data…</div>
+  <div id="error"></div>
+  <div id="content" style="display:none">
+
+    <div class="section-title">My Cap Situation</div>
+    <div class="cap-header" id="capHeader"></div>
+
+    <div class="section-title">What should I bid on…</div>
+    <div class="search-wrap">
+      <input type="text" class="bid-search" id="bidSearch" placeholder="Search a free agent…" autocomplete="off">
+      <div class="search-dd" id="searchDD" style="display:none"></div>
+    </div>
+    <div id="adviceWrap"></div>
+
+    <div class="section-title">Top Targets on the Wire</div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr id="topHead"></tr></thead>
+        <tbody id="topBody"></tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <script src="shared.js"></script>
+  <script>
+  (async function () {
+    document.getElementById('loading').style.display = '';
+    await autoLoadFromRepo();
+    document.getElementById('loading').style.display = 'none';
+
+    var errEl   = document.getElementById('error');
+    var content = document.getElementById('content');
+
+    function showErr(msg, linkText, linkHref) {
+      var d = document.createElement('div'); d.className = 'error';
+      d.textContent = msg + (linkText ? ' ' : '');
+      if (linkText) { var a = document.createElement('a'); a.href = linkHref; a.textContent = linkText; d.appendChild(a); }
+      errEl.appendChild(d);
+    }
+
+    // ── Tunable constants ─────────────────────────────────────────────────────
+    var SALARY_CAP      = 400;
+    var PTS_DOLLARS     = 15;
+    var CAP_SOFT_BUFFER = 10;
+    var REC_KEEPER_LEAN = 0.8;   // higher = lean toward win-now bid, lower = keeper-safe
+    var STRETCH_FACTOR  = 1.15;
+    var TOP_TABLE_N     = 20;
+    var SIM_POOL_N      = 30;
+
+    // ── Load data ─────────────────────────────────────────────────────────────
+    var roster    = loadData('ottoneu_roster');
+    var projHit   = loadData('ottoneu_proj_hitting');
+    var projPitch = loadData('ottoneu_proj_pitching');
+    var myTeam    = loadData('ottoneu_my_team') || '';
+    var currData  = loadData('ottoneu_curr_standings');
+
+    if (!roster || !projHit || !projPitch) { showErr('Missing data — upload CSVs on the', 'Data Hub.', 'index.html'); return; }
+    if (!myTeam) { showErr('Set your team on the', 'Data Hub.', 'index.html'); return; }
+
+    var hitY1 = loadData('ottoneu_proj_hitting_y1');
+    var pitY1 = loadData('ottoneu_proj_pitching_y1');
+    var hitY2 = loadData('ottoneu_proj_hitting_y2');
+    var pitY2 = loadData('ottoneu_proj_pitching_y2');
+    var hasDynasty = !!(hitY1 || pitY1 || hitY2 || pitY2);
+    var weights = loadData('ottoneu_dynasty_weights') || { y1: 0.90, y2: 0.81 };
+    var w1 = hasDynasty ? (weights.y1 || 0) : 0;
+    var w2 = hasDynasty ? (weights.y2 || 0) : 0;
+
+    var prospectList = loadData('ottoneu_prospects') || [];
+    var prospectMap  = {};
+    prospectList.forEach(function (pr) { if (pr.name) prospectMap[pr.name] = pr; });
+
+    // ── Match + attach future years ───────────────────────────────────────────
+    var merged = matchPlayers(roster, projHit, projPitch);
+    if (hitY1 || pitY1) merged = attachYearProjections(merged, hitY1, pitY1, 'proj_y1');
+    if (hitY2 || pitY2) merged = attachYearProjections(merged, hitY2, pitY2, 'proj_y2');
+
+    var teamMap = {};
+    merged.forEach(function (p) { if (!teamMap[p.team]) teamMap[p.team] = []; teamMap[p.team].push(p); });
+    var teamNames = Object.keys(teamMap).filter(function (t) { return t !== 'Free Agent'; });
+    if (!teamMap[myTeam]) { showErr('Team "' + myTeam + '" not found — re-select on the', 'Data Hub.', 'index.html'); return; }
+
+    // ── FA pool (attach future years too) ─────────────────────────────────────
+    var faPool = getFreeAgents(projHit, projPitch, merged);
+    if (hitY1 || pitY1) faPool = attachYearProjections(faPool, hitY1, pitY1, 'proj_y1');
+    if (hitY2 || pitY2) faPool = attachYearProjections(faPool, hitY2, pitY2, 'proj_y2');
+    faPool = faPool.filter(function (p) { return p.proj; });   // drop projection-less FAs
+    if (!faPool.length) { showErr('No free agents found — check that your projection CSVs are loaded.', '', ''); return; }
+
+    content.style.display = '';
+
+    // ── Valuations ────────────────────────────────────────────────────────────
+    var allRosters = teamNames.map(function (t) { return teamMap[t]; });
+    var dynMap = calculateDynastyValues(allRosters, weights, faPool);
+    function keyOf(p) { return p.fgId || p.name; }
+    function valueNowOf(p) { var v = dynMap[keyOf(p)] || {}; return Math.max(0, v.projectedValue || 0); }
+    function dynValueOf(p) { var v = dynMap[keyOf(p)] || {}; return Math.max(0, v.dynastyValue || 0); }
+
+    // ── My cap situation ──────────────────────────────────────────────────────
+    var myPlayers = teamMap[myTeam];
+    var mySalary  = myPlayers.reduce(function (s, p) { return s + (p.salary || 0); }, 0);
+    var capRoom   = SALARY_CAP - mySalary;
+
+    // ── Simulation context (mirrors targets.html) ─────────────────────────────
+    var currByName = null;
+    if (currData) { currByName = {}; currData.forEach(function (r) { currByName[r.name.trim()] = r; }); }
+
+    var simCtx = { teamNames: teamNames.slice(), currByName: currByName, baseStats: {}, basePoints: {}, denoms: null };
+    function blendedStatsFor(players, teamName) {
+      var lineup = optimizeHitterLineup(players.filter(function (p) { return p.type === 'H'; }));
+      var pit    = selectPitchers(players.filter(function (p) { return p.type === 'P'; }));
+      var stats  = computeTeamStats(lineup, pit);
+      var curr   = simCtx.currByName ? simCtx.currByName[teamName.trim()] : null;
+      return curr ? blendStats(curr, stats) : stats;
+    }
+    function zDelta(oldStats, newStats) {
+      var z = 0;
+      CATS.forEach(function (c) {
+        var d = (newStats[c] || 0) - (oldStats[c] || 0);
+        if (LOWER_BETTER.has(c)) d = -d;
+        z += d / (simCtx.denoms[c] || 1);
+      });
+      return z;
+    }
+    var baseArr = teamNames.map(function (t) { return { name: t, stats: blendedStatsFor(teamMap[t], t) }; });
+    simCtx.denoms = calcSGPDenoms(baseArr.map(function (t) { return t.stats; }));
+    baseArr.forEach(function (t) { simCtx.baseStats[t.name] = t.stats; });
+    buildStandings(baseArr).forEach(function (s) { simCtx.basePoints[s.name] = s.points; });
+
+    // ── Displacement: who's in the active lineup before vs after ──────────────
+    var ipBudget = IP_MAX * Math.max(rosProrationFactor(), 0.1);
+    function selectedKeySet(rosterArr) {
+      var set = {};
+      var hs = optimizeHitterLineup(rosterArr.filter(function (p) { return p.type === 'H'; }));
+      Object.keys(hs).forEach(function (slot) { var p = hs[slot]; if (p) set[keyOf(p)] = 1; });
+      selectPitchers(rosterArr.filter(function (p) { return p.type === 'P'; }), ipBudget)
+        .forEach(function (p) { set[keyOf(p)] = 1; });
+      return set;
+    }
+    var baseSel = selectedKeySet(myPlayers);
+    var nameByKey = {};
+    myPlayers.forEach(function (p) { nameByKey[keyOf(p)] = p.rawName || p.name; });
+
+    // ── Core: bid advice ──────────────────────────────────────────────────────
+    function bidAdvice(fa) {
+      var key = keyOf(fa);
+      var newRoster = myPlayers.concat([fa]);
+
+      // Standings impact
+      var newStats = blendedStatsFor(newRoster, myTeam);
+      var arr = teamNames.map(function (nm) {
+        return { name: nm, stats: nm === myTeam ? newStats : simCtx.baseStats[nm] };
+      });
+      var myNew = buildStandings(arr).find(function (s) { return s.name === myTeam; });
+      var ptsDelta = (myNew ? myNew.points : 0) - simCtx.basePoints[myTeam];
+      var zD = zDelta(simCtx.baseStats[myTeam], newStats);
+      var impactPts = ptsDelta + zD;
+
+      // Displacement
+      var newSel = selectedKeySet(newRoster);
+      var faStarts = !!newSel[key];
+      var displaced = null;
+      if (faStarts) {
+        Object.keys(baseSel).forEach(function (k) {
+          if (!newSel[k] && !displaced) displaced = nameByKey[k] || 'a bench player';
+        });
+      }
+      var displaceNote = !faStarts ? 'bench / streaming depth — doesn’t crack your lineup'
+        : (displaced ? 'displaces ' + displaced : 'fills an open lineup slot');
+
+      // Three ceilings
+      var valueNow = valueNowOf(fa);
+      var dynastyValue = dynValueOf(fa);
+      var myImpact$ = Math.max(0, PTS_DOLLARS * impactPts);
+      var keeperBreakEven = Math.max(0, (dynastyValue - 2 * w1 - 4 * w2) / (1 + w1 + w2));
+
+      // Recommendation
+      var winNowMax = Math.max(valueNow, myImpact$);
+      var recommend = Math.round(Math.min(winNowMax, Math.max(keeperBreakEven, REC_KEEPER_LEAN * winNowMax)));
+      recommend = valueNow >= 1 ? Math.max(1, recommend) : 0;
+
+      // Band ceilings (bargain / fair / stretch)
+      var bargainCeil = Math.round(0.7 * recommend);
+      var stretchCeil = Math.round(Math.min(winNowMax, Math.max(keeperBreakEven * STRETCH_FACTOR, recommend)));
+      if (stretchCeil <= recommend) stretchCeil = Math.round(Math.min(winNowMax, recommend * STRETCH_FACTOR));
+
+      // Keeper note
+      var keeperNote = '';
+      if (hasDynasty) {
+        keeperNote = keeperBreakEven < 1
+          ? 'Rental only — don’t plan to keep at any real salary'
+          : 'Keeper-friendly up to $' + Math.round(keeperBreakEven);
+      }
+
+      // Cap guardrails
+      var capAfter = capRoom - recommend;
+      var warnHard = '', warnSoft = '';
+      if (recommend > capRoom) warnHard = 'A $' + recommend + ' bid exceeds your $' + capRoom + ' of cap room — needs a loan or a cut first.';
+      else if (recommend > capRoom - CAP_SOFT_BUFFER) warnSoft = 'Leaves under $' + CAP_SOFT_BUFFER + ' of season flexibility.';
+
+      return {
+        key: key, valueNow: valueNow, dynastyValue: dynastyValue, myImpact$: myImpact$,
+        impactPts: impactPts, displaceNote: displaceNote, keeperBreakEven: keeperBreakEven,
+        recommend: recommend, bargainCeil: bargainCeil, stretchCeil: stretchCeil,
+        capRoom: capRoom, capAfter: capAfter, keeperNote: keeperNote,
+        warnHard: warnHard, warnSoft: warnSoft
+      };
+    }
+
+    // ── Cap header render ─────────────────────────────────────────────────────
+    (function renderCapHeader() {
+      var h = document.getElementById('capHeader');
+      function item(lbl, val, cls) {
+        var d = document.createElement('div'); d.className = 'cap-item';
+        var s = document.createElement('strong'); s.textContent = lbl;
+        var v = document.createElement('span'); v.textContent = val; if (cls) v.className = cls;
+        d.appendChild(s); d.appendChild(v); return d;
+      }
+      h.appendChild(item('Committed salary', '$' + mySalary));
+      h.appendChild(item('Cap room', (capRoom < 0 ? '-$' + Math.abs(capRoom) : '$' + capRoom), capRoom <= 0 ? 'cap-over' : ''));
+      h.appendChild(item('Roster size', String(myPlayers.length)));
+      if (capRoom <= 0) {
+        var w = document.createElement('div'); w.className = 'warn-hard'; w.style.marginTop = '0';
+        w.textContent = 'You are at or over the cap — any bid requires a loan or a cut first.';
+        h.appendChild(w);
+      }
+    })();
+
+    // ── Advice card render ────────────────────────────────────────────────────
+    function fvClass(fv) { return fv >= 65 ? 'badge-fv-elite' : fv >= 55 ? 'badge-fv-high' : fv >= 45 ? 'badge-fv-mid' : 'badge-fv-low'; }
+
+    function renderAdvice(fa) {
+      var a = bidAdvice(fa);
+      var wrap = document.getElementById('adviceWrap');
+      while (wrap.firstChild) wrap.removeChild(wrap.firstChild);
+
+      var card = document.createElement('div'); card.className = 'advice';
+
+      var nm = document.createElement('div'); nm.className = 'advice-name';
+      nm.textContent = (fa.rawName || fa.name) + ' (' + fa.type + ')';
+      var pr = prospectMap[fa.name];
+      if (pr && pr.fv) {
+        var b = document.createElement('span'); b.className = 'badge-fv ' + fvClass(pr.fv); b.textContent = 'FV ' + pr.fv;
+        nm.appendChild(b);
+      }
+      card.appendChild(nm);
+      var sub = document.createElement('div'); sub.className = 'advice-sub';
+      sub.textContent = 'Winning bid becomes salary permanently (+$2/yr if kept).';
+      card.appendChild(sub);
+
+      if (a.recommend <= 0) {
+        var none = document.createElement('div'); none.className = 'rec-big'; none.style.fontSize = '1.4rem';
+        none.textContent = 'Don’t bid';
+        card.appendChild(none);
+        var why = document.createElement('div'); why.className = 'advice-sub'; why.style.marginTop = '6px';
+        why.textContent = 'Below replacement value for your roster.';
+        card.appendChild(why);
+        wrap.appendChild(card);
+        return;
+      }
+
+      var recLbl = document.createElement('div'); recLbl.className = 'rec-lbl'; recLbl.textContent = 'Recommended bid';
+      var recBig = document.createElement('div'); recBig.className = 'rec-big'; recBig.textContent = '$' + a.recommend;
+      card.appendChild(recLbl); card.appendChild(recBig);
+
+      // Band strip
+      var strip = document.createElement('div'); strip.className = 'band-strip';
+      function band(cls, label, sub) {
+        var d = document.createElement('div'); d.className = 'band ' + cls; d.style.flex = '1';
+        d.appendChild(document.createTextNode(label));
+        if (sub) { var s = document.createElement('small'); s.textContent = sub; d.appendChild(s); }
+        return d;
+      }
+      strip.appendChild(band('band-bargain', 'Bargain', '≤ $' + a.bargainCeil));
+      strip.appendChild(band('band-fair',    'Fair',    '≤ $' + a.recommend));
+      strip.appendChild(band('band-stretch', 'Stretch', '≤ $' + a.stretchCeil));
+      strip.appendChild(band('band-over',    'Overpay', '> $' + a.stretchCeil));
+      card.appendChild(strip);
+
+      // Three ceilings
+      function ceil(amt, lbl, note) {
+        var row = document.createElement('div'); row.className = 'ceil-row';
+        var av = document.createElement('span'); av.className = 'ceil-amt'; av.textContent = '$' + Math.round(amt);
+        var lv = document.createElement('span'); lv.className = 'ceil-lbl'; lv.textContent = lbl;
+        var nv = document.createElement('span'); nv.className = 'ceil-note'; nv.textContent = note;
+        row.appendChild(av); row.appendChild(lv); row.appendChild(nv);
+        return row;
+      }
+      card.appendChild(ceil(a.valueNow, 'This year (league-wide)', 'generic rest-of-season value'));
+      card.appendChild(ceil(a.myImpact$, 'This year (your lineup)',
+        (a.impactPts >= 0.05 ? '+' + a.impactPts.toFixed(1) + ' pts, ' : 'minimal impact, ') + a.displaceNote));
+      if (hasDynasty) card.appendChild(ceil(a.keeperBreakEven, 'Keeper break-even', 'bid above this and he costs more than he’s worth to keep'));
+
+      // Cap line
+      var cap = document.createElement('div'); cap.className = 'cap-line';
+      cap.textContent = 'After a $' + a.recommend + ' bid: $' + a.capAfter + ' of cap room left (from $' + a.capRoom + ').';
+      card.appendChild(cap);
+      if (a.warnHard) { var wh = document.createElement('div'); wh.className = 'warn-hard'; wh.textContent = a.warnHard; card.appendChild(wh); }
+      else if (a.warnSoft) { var ws = document.createElement('div'); ws.className = 'warn-soft'; ws.textContent = a.warnSoft; card.appendChild(ws); }
+
+      // Dynasty line
+      if (hasDynasty) {
+        var dl = document.createElement('div'); dl.className = 'dyn-line';
+        dl.appendChild(document.createTextNode('Dynasty value: $' + Math.round(a.dynastyValue) + '. '));
+        var kn = document.createElement('span'); kn.className = 'keeper-note'; kn.textContent = a.keeperNote;
+        dl.appendChild(kn);
+        card.appendChild(dl);
+      }
+
+      wrap.appendChild(card);
+    }
+
+    // ── Search dropdown ───────────────────────────────────────────────────────
+    var faByValue = faPool.slice().sort(function (a, b) { return valueNowOf(b) - valueNowOf(a); });
+    var searchEl = document.getElementById('bidSearch');
+    var ddEl     = document.getElementById('searchDD');
+
+    function closeDD() { ddEl.style.display = 'none'; while (ddEl.firstChild) ddEl.removeChild(ddEl.firstChild); }
+    searchEl.addEventListener('input', function () {
+      var q = this.value.toLowerCase().trim();
+      closeDD();
+      if (!q) return;
+      var hits = faByValue.filter(function (p) { return (p.rawName || p.name).toLowerCase().indexOf(q) !== -1; }).slice(0, 12);
+      if (!hits.length) return;
+      hits.forEach(function (p) {
+        var item = document.createElement('div'); item.className = 'dd-item';
+        var nm = document.createElement('span'); nm.textContent = (p.rawName || p.name) + ' (' + p.type + ')';
+        var vl = document.createElement('span'); vl.className = 'dd-val';
+        vl.textContent = '$' + Math.round(valueNowOf(p)) + ' now' + (hasDynasty ? ' / $' + Math.round(dynValueOf(p)) + ' dyn' : '');
+        item.appendChild(nm); item.appendChild(vl);
+        item.addEventListener('mousedown', function (e) {
+          e.preventDefault();
+          searchEl.value = p.rawName || p.name;
+          closeDD();
+          renderAdvice(p);
+        });
+        ddEl.appendChild(item);
+      });
+      ddEl.style.display = '';
+    });
+    searchEl.addEventListener('blur', function () { setTimeout(closeDD, 150); });
+
+    // ── Top targets table ─────────────────────────────────────────────────────
+    var simPool = faByValue.slice(0, SIM_POOL_N);
+    var adviceByKey = {};
+    simPool.forEach(function (fa) { adviceByKey[keyOf(fa)] = bidAdvice(fa); });
+
+    var tableRows = simPool.map(function (fa) {
+        var a = adviceByKey[keyOf(fa)];
+        return { fa: fa, a: a, rank: Math.max(a.valueNow, PTS_DOLLARS * a.impactPts) };
+      })
+      .sort(function (x, y) { return y.rank - x.rank; })
+      .slice(0, TOP_TABLE_N);
+
+    (function renderTopTable() {
+      var head = document.getElementById('topHead');
+      var cols = ['Name', 'Pos', '$ Now'].concat(hasDynasty ? ['$ Dyn'] : []).concat(['Your Impact', 'Rec Bid']);
+      cols.forEach(function (c) { var th = document.createElement('th'); th.textContent = c; head.appendChild(th); });
+
+      var body = document.getElementById('topBody');
+      tableRows.forEach(function (row) {
+        var fa = row.fa, a = row.a;
+        var tr = document.createElement('tr');
+        function td(txt, cls) { var c = document.createElement('td'); c.textContent = txt; if (cls) c.className = cls; return c; }
+        var vNow = a.valueNow;
+        var vCls = vNow >= 15 ? 'val-strong' : vNow >= 4 ? 'val-mid' : 'val-zero';
+        tr.appendChild(td(fa.rawName || fa.name));
+        tr.appendChild(td(fa.type));
+        tr.appendChild(td('$' + Math.round(vNow), vCls));
+        if (hasDynasty) tr.appendChild(td('$' + Math.round(a.dynastyValue)));
+        tr.appendChild(td((a.impactPts >= 0.05 ? '+' : '') + a.impactPts.toFixed(1) + ' pts'));
+        tr.appendChild(td(a.recommend > 0 ? '$' + a.recommend : '—', a.recommend > 0 ? 'val-strong' : 'val-zero'));
+        tr.addEventListener('click', function () { searchEl.value = fa.rawName || fa.name; renderAdvice(fa); window.scrollTo({ top: 0, behavior: 'smooth' }); });
+        body.appendChild(tr);
+      });
+    })();
+
+  })();
+  </script>
+</body>
+</html>

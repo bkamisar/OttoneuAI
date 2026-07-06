@@ -133,6 +133,7 @@
     var PTS_DOLLARS     = 15;
     var CAP_SOFT_BUFFER = 10;
     var REC_KEEPER_LEAN = 0.8;   // higher = lean toward win-now bid, lower = keeper-safe
+    var FIT_FLOOR       = 0.45;  // worst-fit FA still worth this fraction of market (depth/keeper)
     var STRETCH_FACTOR  = 1.15;
     var TOP_TABLE_N     = 20;
     var SIM_POOL_N      = 30;
@@ -218,7 +219,59 @@
     var baseArr = teamNames.map(function (t) { return { name: t, stats: blendedStatsFor(teamMap[t], t) }; });
     simCtx.denoms = calcSGPDenoms(baseArr.map(function (t) { return t.stats; }));
     baseArr.forEach(function (t) { simCtx.baseStats[t.name] = t.stats; });
-    buildStandings(baseArr).forEach(function (s) { simCtx.basePoints[s.name] = s.points; });
+    var baseStandings = buildStandings(baseArr);
+    baseStandings.forEach(function (s) { simCtx.basePoints[s.name] = s.points; });
+    var myStanding = baseStandings.find(function (s) { return s.name === myTeam; }) || { ranks: {} };
+    var nTeams = teamNames.length;
+
+    // ── Team category need (0 = I'm best in league, 1 = I'm worst) ─────────────
+    // Drives the fit adjustment: a free agent is worth more to me if his
+    // strengths land in categories where I rank low.
+    var HIT_CATS = ['HR', 'R', 'OBP', 'SLG'];
+    var PIT_CATS = ['SO', 'ERA', 'WHIP', 'HR9'];
+    var need = {};
+    CATS.forEach(function (cat) {
+      var pts = myStanding.ranks[cat] || 0;   // buildStandings: higher = better
+      need[cat] = nTeams > 1 ? (nTeams - pts) / (nTeams - 1) : 0.5;
+    });
+
+    // Does a free agent project above the FA-pool median in a category?
+    // (Same "helps" logic as fa.html — a proxy for meaningfully contributing.)
+    function median(arr) {
+      if (!arr.length) return 0;
+      var s = arr.slice().sort(function (a, b) { return a - b; });
+      var m = Math.floor(s.length / 2);
+      return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;
+    }
+    var hitFAs = faPool.filter(function (p) { return p.type === 'H'; });
+    var pitFAs = faPool.filter(function (p) { return p.type === 'P'; });
+    var thresh = {
+      HR:  median(hitFAs.map(function (p) { return p.proj.hr  || 0; })),
+      R:   median(hitFAs.map(function (p) { return p.proj.r   || 0; })),
+      OBP: median(hitFAs.map(function (p) { return p.proj.obp || 0; })),
+      SLG: median(hitFAs.map(function (p) { return p.proj.slg || 0; })),
+      SO:  median(pitFAs.map(function (p) { return p.proj.so   || 0; })),
+      ERA: median(pitFAs.map(function (p) { return p.proj.era  || 99; })),
+      WHIP:median(pitFAs.map(function (p) { return p.proj.whip || 99; })),
+      HR9: median(pitFAs.map(function (p) { return p.proj.hr9  || 99; })),
+    };
+    function helpsCat(p, cat) {
+      var pr = p.proj; if (!pr) return false;
+      if (cat === 'HR')  return (pr.hr  || 0)  > thresh.HR;
+      if (cat === 'R')   return (pr.r   || 0)  > thresh.R;
+      if (cat === 'OBP') return (pr.obp || 0)  > thresh.OBP;
+      if (cat === 'SLG') return (pr.slg || 0)  > thresh.SLG;
+      if (cat === 'SO')  return (pr.so   || 0) > thresh.SO;
+      if (cat === 'ERA') return (pr.era  || 99) < thresh.ERA;
+      if (cat === 'WHIP')return (pr.whip || 99) < thresh.WHIP;
+      if (cat === 'HR9') return (pr.hr9  || 99) < thresh.HR9;
+      return false;
+    }
+    // My 2 relatively-softest categories per side (highest need). Used to frame
+    // the fit explanation — even a first-place team has *relatively* weaker spots.
+    function softCats(cats) { return cats.slice().sort(function (a, b) { return need[b] - need[a]; }).slice(0, 2); }
+    var softHit = softCats(HIT_CATS);
+    var softPit = softCats(PIT_CATS);
 
     // ── Displacement: who's in the active lineup before vs after ──────────────
     var ipBudget = IP_MAX * Math.max(rosProrationFactor(), 0.1);
@@ -261,21 +314,46 @@
       var displaceNote = !faStarts ? 'bench / streaming depth — doesn’t crack your lineup'
         : (displaced ? 'displaces ' + displaced : 'fills an open lineup slot');
 
-      // Three ceilings
+      // Three reference ceilings
       var valueNow = valueNowOf(fa);
       var dynastyValue = dynValueOf(fa);
       var myImpact$ = Math.max(0, PTS_DOLLARS * impactPts);
       var keeperBreakEven = Math.max(0, (dynastyValue - 2 * w1 - 4 * w2) / (1 + w1 + w2));
 
-      // Recommendation
-      var winNowMax = Math.max(valueNow, myImpact$);
-      var recommend = Math.round(Math.min(winNowMax, Math.max(keeperBreakEven, REC_KEEPER_LEAN * winNowMax)));
-      recommend = valueNow >= 1 ? Math.max(1, recommend) : 0;
+      // ── Team fit ────────────────────────────────────────────────────────────
+      // How much of his category strength lands in MY needs (need-weighted share
+      // of the categories he helps), plus a bump if he actually cracks my lineup.
+      // catNeedFit = need-weighted count of the categories he helps, as a share
+      // of ALL his categories (absolute, NOT normalized to his own total — so a
+      // team strong everywhere gets a low fit even from a broadly-good player,
+      // and the score still rises when his help lands on my neediest cats).
+      var hisCats = fa.type === 'H' ? HIT_CATS : PIT_CATS;
+      var helpedNeedCats = hisCats.filter(function (c) { return helpsCat(fa, c); });
+      var helpedNeed = helpedNeedCats.reduce(function (s, c) { return s + need[c]; }, 0);
+      var catNeedFit = helpedNeed / hisCats.length;
+      var fit = Math.min(1, catNeedFit + (faStarts ? 0.25 : 0));
+      var fitMultiplier = FIT_FLOOR + (1 - FIT_FLOOR) * fit;
 
-      // Band ceilings (bargain / fair / stretch)
+      // Recommendation = market value scaled by team fit, never above market.
+      // Keeper value is shown as its own row rather than propping up the bid,
+      // since the headline is explicitly "for your team" (win-now fit).
+      var teamValue = valueNow * fitMultiplier;
+      var recommend = valueNow >= 1 ? Math.max(1, Math.round(teamValue)) : 0;
+
+      // Band ceilings (bargain / fair / stretch → up to full market value)
       var bargainCeil = Math.round(0.7 * recommend);
-      var stretchCeil = Math.round(Math.min(winNowMax, Math.max(keeperBreakEven * STRETCH_FACTOR, recommend)));
-      if (stretchCeil <= recommend) stretchCeil = Math.round(Math.min(winNowMax, recommend * STRETCH_FACTOR));
+      var stretchCeil = Math.round(Math.min(valueNow, Math.max(recommend * STRETCH_FACTOR, keeperBreakEven)));
+      if (stretchCeil <= recommend) stretchCeil = Math.round(Math.min(valueNow, recommend * STRETCH_FACTOR));
+
+      // Fit explanation — framed around MY relatively-soft categories
+      var fitLabel = fit >= 0.6 ? 'Strong fit for your team'
+        : fit >= 0.33 ? 'Moderate fit for your team' : 'Limited fit for your team';
+      var mySoft = fa.type === 'H' ? softHit : softPit;
+      var softHelped = helpedNeedCats.filter(function (c) { return mySoft.indexOf(c) >= 0; });
+      var fitDetail = softHelped.length
+        ? 'helps your softer spots (' + softHelped.join('/') + ')' + (faStarts ? ', cracks your lineup' : '')
+        : (faStarts ? 'cracks your lineup, but mostly where you’re set'
+                    : 'only adds where you’re already strong');
 
       // Keeper note
       var keeperNote = '';
@@ -296,7 +374,8 @@
         impactPts: impactPts, displaceNote: displaceNote, keeperBreakEven: keeperBreakEven,
         recommend: recommend, bargainCeil: bargainCeil, stretchCeil: stretchCeil,
         capRoom: capRoom, capAfter: capAfter, keeperNote: keeperNote,
-        warnHard: warnHard, warnSoft: warnSoft
+        warnHard: warnHard, warnSoft: warnSoft,
+        fit: fit, fitMultiplier: fitMultiplier, fitLabel: fitLabel, fitDetail: fitDetail
       };
     }
 
@@ -379,9 +458,16 @@
         return;
       }
 
-      var recLbl = document.createElement('div'); recLbl.className = 'rec-lbl'; recLbl.textContent = 'Recommended bid';
+      var recLbl = document.createElement('div'); recLbl.className = 'rec-lbl'; recLbl.textContent = 'Recommended bid — for your team';
       var recBig = document.createElement('div'); recBig.className = 'rec-big'; recBig.textContent = '$' + a.recommend;
       card.appendChild(recLbl); card.appendChild(recBig);
+
+      // Fit line — why the bid is adjusted up/down from market value
+      var fitLine = document.createElement('div'); fitLine.className = 'advice-sub';
+      fitLine.style.marginTop = '4px';
+      fitLine.textContent = a.fitLabel + ' — ' + a.fitDetail
+        + ' (' + Math.round(a.fitMultiplier * 100) + '% of $' + Math.round(a.valueNow) + ' market value).';
+      card.appendChild(fitLine);
 
       // Band strip
       var strip = document.createElement('div'); strip.className = 'band-strip';
@@ -467,7 +553,9 @@
 
     var tableRows = simPool.map(function (fa) {
         var a = adviceByKey[keyOf(fa)];
-        return { fa: fa, a: a, rank: Math.max(a.valueNow, PTS_DOLLARS * a.impactPts) };
+        // Rank by the fit-adjusted recommendation (best targets for MY team),
+        // with market value as a tiebreaker.
+        return { fa: fa, a: a, rank: a.recommend * 1000 + a.valueNow };
       })
       .sort(function (x, y) { return y.rank - x.rank; })
       .slice(0, TOP_TABLE_N);

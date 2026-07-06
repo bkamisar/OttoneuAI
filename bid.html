@@ -187,9 +187,12 @@
     function dynValueOf(p) { var v = dynMap[keyOf(p)] || {}; return Math.max(0, v.dynastyValue || 0); }
 
     // ── My cap situation ──────────────────────────────────────────────────────
+    // Ottoneu loans raise a team's effective cap; the roster export doesn't
+    // include them, so the user enters the loan total and we persist it.
     var myPlayers = teamMap[myTeam];
     var mySalary  = myPlayers.reduce(function (s, p) { return s + (p.salary || 0); }, 0);
-    var capRoom   = SALARY_CAP - mySalary;
+    var loans     = loadData('ottoneu_cap_loans') || 0;
+    var capRoom   = SALARY_CAP + loans - mySalary;
 
     // ── Simulation context (mirrors targets.html) ─────────────────────────────
     var currByName = null;
@@ -298,8 +301,10 @@
     }
 
     // ── Cap header render ─────────────────────────────────────────────────────
-    (function renderCapHeader() {
+    var currentFa = null;   // last FA shown, so loan edits re-render its advice
+    function renderCapHeader() {
       var h = document.getElementById('capHeader');
+      while (h.firstChild) h.removeChild(h.firstChild);
       function item(lbl, val, cls) {
         var d = document.createElement('div'); d.className = 'cap-item';
         var s = document.createElement('strong'); s.textContent = lbl;
@@ -307,19 +312,44 @@
         d.appendChild(s); d.appendChild(v); return d;
       }
       h.appendChild(item('Committed salary', '$' + mySalary));
+
+      // Editable loans / cap adjustment
+      var loanItem = document.createElement('div'); loanItem.className = 'cap-item';
+      var loanLbl = document.createElement('strong'); loanLbl.textContent = 'Loans (extra cap)';
+      var loanInWrap = document.createElement('span');
+      loanInWrap.appendChild(document.createTextNode('$'));
+      var loanIn = document.createElement('input');
+      loanIn.type = 'number'; loanIn.value = String(loans); loanIn.min = '0'; loanIn.step = '1';
+      loanIn.style.cssText = 'width:64px;padding:2px 6px;border:1px solid #ccc;border-radius:5px;font-size:0.95rem;font-weight:700';
+      loanIn.addEventListener('change', function () {
+        loans = Math.max(0, Math.round(parseFloat(this.value) || 0));
+        saveData('ottoneu_cap_loans', loans);
+        capRoom = SALARY_CAP + loans - mySalary;
+        renderCapHeader();
+        if (currentFa) renderAdvice(currentFa);
+      });
+      loanInWrap.appendChild(loanIn);
+      loanItem.appendChild(loanLbl); loanItem.appendChild(loanInWrap);
+      h.appendChild(loanItem);
+
+      h.appendChild(item('Effective cap', '$' + (SALARY_CAP + loans)));
       h.appendChild(item('Cap room', (capRoom < 0 ? '-$' + Math.abs(capRoom) : '$' + capRoom), capRoom <= 0 ? 'cap-over' : ''));
       h.appendChild(item('Roster size', String(myPlayers.length)));
       if (capRoom <= 0) {
         var w = document.createElement('div'); w.className = 'warn-hard'; w.style.marginTop = '0';
-        w.textContent = 'You are at or over the cap — any bid requires a loan or a cut first.';
+        w.textContent = loans > 0
+          ? 'At or over your effective cap ($' + (SALARY_CAP + loans) + ') — any bid needs a cut first.'
+          : 'You are over the $400 cap. If you hold loans, enter them above to reflect your real room.';
         h.appendChild(w);
       }
-    })();
+    }
+    renderCapHeader();
 
     // ── Advice card render ────────────────────────────────────────────────────
     function fvClass(fv) { return fv >= 65 ? 'badge-fv-elite' : fv >= 55 ? 'badge-fv-high' : fv >= 45 ? 'badge-fv-mid' : 'badge-fv-low'; }
 
     function renderAdvice(fa) {
+      currentFa = fa;
       var a = bidAdvice(fa);
       var wrap = document.getElementById('adviceWrap');
       while (wrap.firstChild) wrap.removeChild(wrap.firstChild);

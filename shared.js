@@ -491,6 +491,11 @@ function matchPlayers(rosterPlayers, hittingProj, pitchingProj) {
   const hTotal   = matched.filter(p => p.type === 'H').length;
   const pTotal   = matched.filter(p => p.type === 'P').length;
   console.log('[matchPlayers] hitters:', hMatched + '/' + hTotal, '| pitchers:', pMatched + '/' + pTotal);
+  // Snapshot rostered identity for all future baseline computations (see
+  // ROSTERED_IDS comment). Captured here because matchPlayers is the one
+  // place every page passes the true league roster.
+  ROSTERED_IDS   = new Set(rosterPlayers.map(p => p.fgId).filter(Boolean));
+  ROSTERED_NAMES = new Set(rosterPlayers.map(p => p.name));
   computeFABaselines(hittingProj, pitchingProj, rosterPlayers, 'proj');
   return matched;
 }
@@ -522,9 +527,20 @@ const FA_MIN_IP   = 30;   // players with elite rates but no MLB playing time
 
 let FA_BASELINES = {};    // { proj: {H,P}, proj_y1: {H,P}, proj_y2: {H,P} }
 
+// Rostered-identity snapshot, captured ONCE by matchPlayers. Baselines must
+// always be computed against the league's actual rosters — NOT against
+// whatever array happens to be passed to attachYearProjections. Without this,
+// attaching year projections to a FREE-AGENT pool (bid.html) redefined "the
+// roster" as the FA pool, making the "FA baseline" the league's rostered
+// stars: replacement ERA 4.12 → 3.18, which collapsed most pitchers' SGP and
+// concentrated the entire Y1/Y2 pitching pool on a few elite relievers
+// (Muñoz dynasty $236 instead of ~$70).
+let ROSTERED_IDS   = null;   // Set of fgIds
+let ROSTERED_NAMES = null;   // Set of normalized names
+
 function computeFABaselines(hittingProj, pitchingProj, rosterPlayers, yearKey) {
-  const rosteredIds   = new Set(rosterPlayers.map(p => p.fgId).filter(Boolean));
-  const rosteredNames = new Set(rosterPlayers.map(p => p.name));
+  const rosteredIds   = ROSTERED_IDS   || new Set(rosterPlayers.map(p => p.fgId).filter(Boolean));
+  const rosteredNames = ROSTERED_NAMES || new Set(rosterPlayers.map(p => p.name));
   const isFA = p => !(p.fgId && rosteredIds.has(p.fgId)) && !rosteredNames.has(p.name);
 
   const faH = (hittingProj || [])

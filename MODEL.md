@@ -159,6 +159,13 @@ simulation, status auto-detect).
    a better projection-based value.
 7. Browser caching: shared.js changes may not appear until a hard refresh;
    verify with an isolated fetch-eval before debugging "unchanged" behavior.
+8. FA baselines derive from the ROSTERED_IDS/ROSTERED_NAMES snapshot captured
+   by `matchPlayers` — never from the array passed to `attachYearProjections`.
+   It is safe to attach year projections to any player array (FA pools,
+   prospects); before this rule, attaching to the FA pool redefined "the
+   roster" as the FA pool, turning the Y1/Y2 replacement baseline into the
+   league's rostered stars (ERA 3.18) and inflating elite FA relievers to
+   $200+ dynasty while zeroing FA hitters' future value.
 
 ## 8. Known limitations (accepted, documented)
 

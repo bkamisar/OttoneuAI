@@ -176,8 +176,13 @@ simulation, status auto-detect).
 ## 8. Known limitations (accepted, documented)
 
 - Arbitration not modeled beyond +$2/+$4 (star keeper costs slightly light).
-- No catcher scarcity premium (position-agnostic FA baseline; projections
-  carry no position data). Catchers may read $2-4 light vs market.
+- Positional scarcity IS modeled for hitters now (`computePositionalOffsets` /
+  `hitterSGP`): per-position HR/SLG/OBP offsets vs the slot-weighted average,
+  each hitter graded at his best eligible position; nets ~0 on the pool
+  (redistribution only). FAs carry no position data → general baseline, so the
+  bid advisor / FA finder aren't position-adjusted. In THIS league catchers are
+  OBP-rich, so the effect is a power-scarcity credit (C/2B/SS up on HR/SLG,
+  1B/corners down), not on-base.
 - Games/IP in standings.csv uniform across teams (source has no better data).
 - SGP denominators from a 12-team stdev are noisy year to year.
 - Prospect floors are expected values; the true outcome distribution is huge.

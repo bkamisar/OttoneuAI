@@ -150,8 +150,14 @@ simulation, status auto-detect).
    respect which one it's handling (`yearKey`).
 2. The 1,500 IP cap must be honored anywhere team pitching totals are
    aggregated (valuation budget AND standings blend — two separate sites).
-3. Counting-stat margins and rate-stat weights must use the same playing-time
-   basis (the pro-rated baseline in `calcPlayerSGP`).
+3. Counting-stat handling in `calcPlayerSGP` is asymmetric ON PURPOSE:
+   HITTER HR/R pro-rate the replacement to the player's PA (part-time bats are
+   a fixed role; don't penalize them vs a full-time total — the Will Smith fix).
+   PITCHER strikeouts do NOT pro-rate — SO is pure volume, so a low-inning
+   reliever is correctly docked for contributing fewer raw K's. Do not
+   "unify" these; pro-rating pitcher SO re-inflates relievers to ~47% of
+   pitching value. Rate stats (OBP/SLG, ERA/WHIP/HR9) are IP/PA-weighted, so
+   low-volume arms' good ratios already earn proportionally less.
 4. Name matching is type-separated everywhere (hitter names look up hitting
    projections only) — prevents Ohtani/name-collision clobbering.
 5. ~50% hitShare is CORRECT for 4×4. Don't tune toward 5×5 intuition.

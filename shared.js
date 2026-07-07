@@ -1158,11 +1158,22 @@ function valProxy(player, b) {
   return (b.ip || 0) * (1 / safeERA + (b.so || 0) / 1000);
 }
 
-// Marginal SGP vs a replacement (FA-baseline) player filling the SAME playing
-// time. Counting stats compare against the replacement's totals PRO-RATED to
-// this player's PA/IP — otherwise a 180-PA catcher eats a full-time FA's HR/R
-// totals as a penalty while his rate impact is separately scaled by PA, and
-// part-time players get incoherently zeroed.
+// Marginal SGP vs a replacement (FA-baseline) player.
+//
+// HITTER counting stats (HR/R) pro-rate the replacement to the player's PA:
+// a part-time bat's low PA is a fixed role constraint, so he shouldn't eat a
+// full-time replacement's HR total as a penalty (the Will Smith fix).
+//
+// PITCHER strikeouts do NOT pro-rate: SO is a pure counting category, so raw
+// volume is what helps your team, and a 30-inning reliever genuinely
+// contributes fewer strikeouts than a full-inning replacement — he should be
+// docked for it. Pro-rating the replacement down to his innings (the old
+// behavior) rewarded K-*rate* and hid the volume deficit, inflating relievers
+// to ~47% of all pitching value. Raw comparison drops them to a realistic
+// share and correctly credits starters for their strikeout volume.
+//
+// Rate stats (OBP/SLG, ERA/WHIP/HR9) are already scaled by PA/IP, so a low
+// innings arm's great ratio moves team stats — and earns SGP — proportionally.
 function calcPlayerSGP(player, b, repl, sgpDenom, avgPA, avgIP) {
   let sgp = 0;
   if (player.type === 'H') {
@@ -1174,8 +1185,7 @@ function calcPlayerSGP(player, b, repl, sgpDenom, avgPA, avgIP) {
     sgp += ((b.slg || 0) - (repl.slg || 0)) * pa / (avgPA || 1) / (sgpDenom['SLG'] || 1);
   } else {
     const ip = b.ip || 0;
-    const ipRatio = (repl.ip || 0) > 0 ? ip / repl.ip : 1;
-    sgp += ((b.so   || 0) - (repl.so   || 0) * ipRatio) / (sgpDenom['SO']   || 1);
+    sgp += ((b.so   || 0) - (repl.so   || 0)) / (sgpDenom['SO']   || 1);
     sgp += ((repl.era  || 0) - (b.era  || 0)) * ip / (avgIP || 1) / (sgpDenom['ERA']  || 1);
     sgp += ((repl.whip || 0) - (b.whip || 0)) * ip / (avgIP || 1) / (sgpDenom['WHIP'] || 1);
     sgp += ((repl.hr9  || 0) - (b.hr9  || 0)) * ip / (avgIP || 1) / (sgpDenom['HR9']  || 1);

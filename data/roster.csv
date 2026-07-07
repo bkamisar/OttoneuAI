@@ -48,8 +48,8 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10759,"Juan Nation UndeGrom 🫡",39108,28163,sa3015532,"Junior Caminero",TBR,3B,$20
 10759,"Juan Nation UndeGrom 🫡",43896,33333,sa3022654,"Wyatt Langford",TEX,OF,$16
 10759,"Juan Nation UndeGrom 🫡",37201,25880,sa3010571,"Hunter Brown",HOU,SP,$14
-10759,"Juan Nation UndeGrom 🫡",41042,30279,sa3018290,"Bryan Woo",SEA,SP,$12
 10759,"Juan Nation UndeGrom 🫡",14294,10954,sa548447,"Jacob DeGrom",TEX,SP,$12
+10759,"Juan Nation UndeGrom 🫡",41042,30279,sa3018290,"Bryan Woo",SEA,SP,$12
 10759,"Juan Nation UndeGrom 🫡",45716,35110,sa3025385,"Nick Kurtz",ATH,1B,$12
 10759,"Juan Nation UndeGrom 🫡",19398,15454,sa737889,"Nick Pivetta",SDP,SP,$8
 10759,"Juan Nation UndeGrom 🫡",18506,18314,sa659260,"Dansby Swanson",CHC,SS,$7
@@ -58,29 +58,28 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10759,"Juan Nation UndeGrom 🫡",44003,33266,sa3022538,"Jacob Wilson",ATH,SS,$5
 10759,"Juan Nation UndeGrom 🫡",23833,19918,sa3002838,"Daulton Varsho",TOR,OF,$5
 10759,"Juan Nation UndeGrom 🫡",42737,31846,sa3020703,"Spencer Schwellenbach",ATL,SP,$5
-10759,"Juan Nation UndeGrom 🫡",39288,28824,sa3015716,"Samuel Basallo",BAL,C/1B,$4
-10759,"Juan Nation UndeGrom 🫡",34396,24017,sa3006373,"Jose A. Ferrer",SEA,RP,$4
 10759,"Juan Nation UndeGrom 🫡",27148,23335,sa3005246,"Joey Cantillo",CLE,SP/RP,$4
 10759,"Juan Nation UndeGrom 🫡",38367,27496,sa3014465,"Owen Caissie",MIA,OF,$4
-10759,"Juan Nation UndeGrom 🫡",23672,20039,sa969093,"Adrian Morejon",SDP,RP,$3
-10759,"Juan Nation UndeGrom 🫡",44057,33321,sa3022614,"Luke Keaschall",MIN,2B/OF,$3
+10759,"Juan Nation UndeGrom 🫡",34396,24017,sa3006373,"Jose A. Ferrer",SEA,RP,$4
+10759,"Juan Nation UndeGrom 🫡",39288,28824,sa3015716,"Samuel Basallo",BAL,C/1B,$4
+10759,"Juan Nation UndeGrom 🫡",35874,24586,sa3008605,"Kyle Bradish",BAL,SP,$3
+10759,"Juan Nation UndeGrom 🫡",26198,22799,sa3003290,"Geraldo Perdomo",ARI,SS,$3
 10759,"Juan Nation UndeGrom 🫡",20920,17479,sa828681,"Jack Flaherty",DET,SP,$3
-10759,"Juan Nation UndeGrom 🫡",44544,33927,sa3023634,"Grant Taylor",CHW,SP/RP,$3
-10759,"Juan Nation UndeGrom 🫡",42221,31539,sa3019920,"Drake Baldwin",ATL,C,$3
 10759,"Juan Nation UndeGrom 🫡",23701,12447,sa599698,"Seth Lugo",KCR,SP,$3
+10759,"Juan Nation UndeGrom 🫡",23672,20039,sa969093,"Adrian Morejon",SDP,RP,$3
+10759,"Juan Nation UndeGrom 🫡",44544,33927,sa3023634,"Grant Taylor",CHW,SP/RP,$3
+10759,"Juan Nation UndeGrom 🫡",44057,33321,sa3022614,"Luke Keaschall",MIN,2B/OF,$3
+10759,"Juan Nation UndeGrom 🫡",42221,31539,sa3019920,"Drake Baldwin",ATL,C,$3
 10759,"Juan Nation UndeGrom 🫡",35602,25327,sa3008177,"Abner Uribe",MIL,RP,$3
 10759,"Juan Nation UndeGrom 🫡",40552,29839,sa3017416,"Emmet Sheehan",LAD,SP,$3
-10759,"Juan Nation UndeGrom 🫡",26198,22799,sa3003290,"Geraldo Perdomo",ARI,SS,$3
-10759,"Juan Nation UndeGrom 🫡",35874,24586,sa3008605,"Kyle Bradish",BAL,SP,$3
+10759,"Juan Nation UndeGrom 🫡",44248,33575,sa3022923,"Colt Emerson",SEA,SS/3B,$2
 10759,"Juan Nation UndeGrom 🫡",33607,22286,sa3005423,"Trevor Rogers",BAL,SP,$2
 10759,"Juan Nation UndeGrom 🫡",35541,21842,sa3008079,"Carlos Cortes",ATH,OF,$2
-10759,"Juan Nation UndeGrom 🫡",44248,33575,sa3022923,"Colt Emerson",SEA,SS/3B,$2
-10759,"Juan Nation UndeGrom 🫡",45708,34979,sa3025168,"Christian Moore","LAA AAA",2B/3B,$1
-10759,"Juan Nation UndeGrom 🫡",18383,14854,sa503161,"Mike Yastrzemski",ATL,OF,$1
-10759,"Juan Nation UndeGrom 🫡",41160,,sa3018409,"Lazaro Montes","SEA AA",OF,$1
-10759,"Juan Nation UndeGrom 🫡",38328,27468,sa3014425,"Reid Detmers",LAA,SP/RP,$1
-10759,"Juan Nation UndeGrom 🫡",38813,28901,sa3015163,"Wilber Dotel","PIT AA",SP/RP,$1
 10759,"Juan Nation UndeGrom 🫡",33672,23550,sa3007225,"Aaron Ashby",MIL,RP,$1
+10759,"Juan Nation UndeGrom 🫡",38328,27468,sa3014425,"Reid Detmers",LAA,SP/RP,$1
+10759,"Juan Nation UndeGrom 🫡",41160,,sa3018409,"Lazaro Montes","SEA AA",OF,$1
+10759,"Juan Nation UndeGrom 🫡",45708,34979,sa3025168,"Christian Moore","LAA AAA",2B/3B,$1
+10759,"Juan Nation UndeGrom 🫡",38813,28901,sa3015163,"Wilber Dotel","PIT AA",SP/RP,$1
 10761,"NBC Andy Pages Program",43894,33677,sa3023079,"Paul Skenes",PIT,SP,$60
 10761,"NBC Andy Pages Program",18284,13510,sa598784,"José Ramírez",CLE,3B,$47
 10761,"NBC Andy Pages Program",18122,12916,sa597754,"Francisco Lindor",NYM,SS,$43
@@ -94,36 +93,35 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10761,"NBC Andy Pages Program",40508,29794,sa3017342,"Kyle Manzardo",CLE,1B,$7
 10761,"NBC Andy Pages Program",33949,24816,sa3005625,"Andy Pages",LAD,OF,$6
 10761,"NBC Andy Pages Program",38320,27465,sa3014504,"Spencer Torkelson",DET,1B,$6
-10761,"NBC Andy Pages Program",31951,19569,sa915715,"David Bednar",NYY,RP,$5
 10761,"NBC Andy Pages Program",38361,27863,sa3014459,"Jared Jones",PIT,SP,$5
 10761,"NBC Andy Pages Program",47553,,sa3026056,"Kade Anderson","SEA AA",SP,$5
 10761,"NBC Andy Pages Program",37091,26477,sa1115496,"Spencer Horwitz",PIT,1B,$5
+10761,"NBC Andy Pages Program",31951,19569,sa915715,"David Bednar",NYY,RP,$5
 10761,"NBC Andy Pages Program",45720,35041,sa3025245,"Jac Caglianone",KCR,1B/OF,$4
-10761,"NBC Andy Pages Program",45706,35333,sa3028086,"Chase Burns",CIN,SP/RP,$4
 10761,"NBC Andy Pages Program",40564,29868,sa3017428,"Bubba Chandler",PIT,SP,$4
+10761,"NBC Andy Pages Program",45706,35333,sa3028086,"Chase Burns",CIN,SP/RP,$4
 10761,"NBC Andy Pages Program",45769,35376,sa3065496,"Konnor Griffin",PIT,SS,$3
-10761,"NBC Andy Pages Program",31438,20253,sa738570,"Griffin Jax",TBR,SP/RP,$3
 10761,"NBC Andy Pages Program",43879,33527,sa3022942,"Hurston Waldrep",ATL,SP,$3
 10761,"NBC Andy Pages Program",5644,10233,sa523977,"Aroldis Chapman",BOS,RP,$3
+10761,"NBC Andy Pages Program",31438,20253,sa738570,"Griffin Jax",TBR,SP/RP,$3
 10761,"NBC Andy Pages Program",33616,20492,sa3008444,"Casey Mize",DET,SP,$3
 10761,"NBC Andy Pages Program",35566,21455,sa3008128,"Kris Bubic",KCR,SP,$3
 10761,"NBC Andy Pages Program",35776,23793,sa3008470,"Braxton Ashcraft",PIT,SP/RP,$3
 10761,"NBC Andy Pages Program",38308,27464,sa3014528,"Dillon Dingler",DET,C,$3
 10761,"NBC Andy Pages Program",38314,27490,sa3014510,"Nick Gonzales",PIT,2B/SS/3B,$3
-10761,"NBC Andy Pages Program",38316,28199,sa3014537,"Blaze Jordan",STL,1B/3B,$2
 10761,"NBC Andy Pages Program",20989,17722,sa828803,"Trevor Megill",MIL,RP,$2
 10761,"NBC Andy Pages Program",21075,17586,sa829027,"Tanner Scott",LAD,RP,$2
+10761,"NBC Andy Pages Program",38383,27577,sa3014484,"Casey Schmitt",SFG,1B/2B/3B/OF,$2
+10761,"NBC Andy Pages Program",38316,28199,sa3014537,"Blaze Jordan",STL,1B/3B,$2
 10761,"NBC Andy Pages Program",42716,,sa3020659,"Karson Milbrandt","MIA AAA",SP,$2
 10761,"NBC Andy Pages Program",42299,31448,sa3020006,"Henry Bolte",ATH,OF,$2
-10761,"NBC Andy Pages Program",38383,27577,sa3014484,"Casey Schmitt",SFG,1B/2B/3B/OF,$2
 10761,"NBC Andy Pages Program",40456,29766,sa3017286,"Zack Gelof",ATH,2B/3B/OF,$2
 10761,"NBC Andy Pages Program",35532,25007,sa3008070,"Alex Vesia",LAD,RP,$1
 10761,"NBC Andy Pages Program",38403,27572,sa3014505,"Carmen Mlodzinski",PIT,SP/RP,$1
-10761,"NBC Andy Pages Program",40472,29770,sa3017306,"Mason Montgomery",PIT,RP,$1
-10761,"NBC Andy Pages Program",18504,19374,sa658292,"Walker Buehler",SDP,SP,$1
-10761,"NBC Andy Pages Program",39340,29005,sa3015768,"Esmerlyn Valdez",PIT,OF,$1
-10761,"NBC Andy Pages Program",18522,15194,sa737848,"Jake Bauers",MIL,1B/OF/RP,$1
 10761,"NBC Andy Pages Program",38410,27758,sa3014513,"Kyle Harrison",MIL,SP/RP,$1
+10761,"NBC Andy Pages Program",18522,15194,sa737848,"Jake Bauers",MIL,1B/OF/RP,$1
+10761,"NBC Andy Pages Program",40472,29770,sa3017306,"Mason Montgomery",PIT,RP,$1
+10761,"NBC Andy Pages Program",39340,29005,sa3015768,"Esmerlyn Valdez",PIT,OF,$1
 10764,"Wrecking Crews",18164,13743,sa657860,"Max Fried",NYY,SP,$39
 10764,"Wrecking Crews",22426,17295,sa873146,"Framber Valdez",DET,SP,$34
 10764,"Wrecking Crews",23762,20454,sa919327,"Jazz Chisholm Jr.",NYY,2B/3B,$27

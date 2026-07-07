@@ -990,8 +990,10 @@ function calculateAllValues(allTeamRosters, extraPlayers, quiet, yearKey) {
   const avgIP = teamLineups.reduce((s, t) =>
     s + t.pitPool.reduce((sp, p) => sp + ((p._proj && p._proj.ip) || (p.proj && p.proj.ip) || 0), 0), 0) / NUM_TEAMS;
 
-  // 4. Replacement level = best freely available alternative (FA baseline)
+  // 4. Replacement level = best freely available alternative (FA baseline),
+  //    plus per-position scarcity offsets for hitters.
   const replLevels = calcReplacementLevels(allTeamRosters, yearKey);
+  const posOffsets = computePositionalOffsets(allTeamRosters);
 
   // Starters: players whose production actually reaches the field (active
   // lineup slots / capped innings). The hit-vs-pitch dollar split is computed
@@ -1029,7 +1031,9 @@ function calculateAllValues(allTeamRosters, extraPlayers, quiet, yearKey) {
       valueMap[key] = { sgp: 0, actualSalary: player.salary || 0, surplus: -(player.salary || 0) };
       return;
     }
-    let sgp = calcPlayerSGP(player, b, repl, sgpDenom, avgPA, avgIP);
+    let sgp = player.type === 'P'
+      ? calcPlayerSGP(player, b, repl, sgpDenom, avgPA, avgIP)
+      : hitterSGP(player, b, repl, posOffsets, sgpDenom, avgPA, avgIP);
 
     // Two-way players: add pitching SGP on top of hitting SGP.
     // Since hitRate === pitRate by construction (both = distributable / totalSGP),
@@ -1093,7 +1097,9 @@ function calculateAllValues(allTeamRosters, extraPlayers, quiet, yearKey) {
       }
       const repl = replLevels[player.type === 'P' ? 'P' : 'H'];
       if (!repl) { valueMap[key] = { projectedValue: 0, sgp: 0, actualSalary: 0, surplus: 0 }; return; }
-      const sgp  = calcPlayerSGP(player, b, repl, sgpDenom, avgPA, avgIP);
+      const sgp  = player.type === 'P'
+        ? calcPlayerSGP(player, b, repl, sgpDenom, avgPA, avgIP)
+        : hitterSGP(player, b, repl, posOffsets, sgpDenom, avgPA, avgIP);
       const rate = player.type === 'P' ? pitRate : hitRate;
       // No $1 roster floor for free agents — they don't hold a roster spot.
       const projectedValue = Math.max(0, sgp * rate);
@@ -1149,6 +1155,61 @@ function calcReplacementLevels(allTeamRosters, yearKey) {
 function weakestQuartile(players) {
   const sorted = [...players].sort((a, b) => valProxy(b, b.proj) - valProxy(a, a.proj));
   return sorted.slice(Math.floor(sorted.length * 0.75)).map(p => p.proj);
+}
+
+// ── POSITIONAL SCARCITY ──────────────────────────────────────────────────────
+// The single hitter FA baseline ignores that power is scarce at C/2B/SS and
+// deep at 1B/corner OF, so scarce-position bats are undervalued and corner
+// sluggers overvalued (on HR/SLG especially). For each position we take the
+// replacement-level cohort of ROSTERED players eligible there — cohort-averaged
+// to avoid the single-player coupling that sank the old depth buckets — and
+// express it as an OFFSET from the slot-weighted average position. Offsets net
+// ~0 across the league, so this redistributes value among hitters by position
+// WITHOUT shifting the hit/pitch pool. (Free agents carry no position data, so
+// they fall back to the general baseline — see hitterSGP.)
+const HIT_POS_DEPTH = { c: 12, '1b': 12, '2b': 16, ss: 16, '3b': 12, of: 60 };
+function computePositionalOffsets(allTeamRosters) {
+  const hitters = allTeamRosters.flat().filter(p => p.type === 'H' && p.proj && (p.proj.pa || 0) > 50);
+  const raw = {};
+  Object.keys(HIT_POS_DEPTH).forEach(pos => {
+    const elig = hitters.filter(p => (p.positions || []).includes(pos))
+      .sort((a, b) => valProxy(b, b.proj) - valProxy(a, a.proj));
+    const d = HIT_POS_DEPTH[pos];
+    let cohort = elig.slice(d, d + 8);
+    if (cohort.length < 3) cohort = elig.slice(-6);   // thin position fallback
+    raw[pos] = avgCohortStats(cohort.map(p => p.proj), ['obp', 'slg', 'hr', 'r']);
+  });
+  const present = Object.keys(raw).filter(p => raw[p]);
+  if (!present.length) return {};
+  const totW = present.reduce((s, p) => s + HIT_POS_DEPTH[p], 0);
+  const avg = {};
+  ['obp', 'slg', 'hr', 'r'].forEach(k => {
+    avg[k] = present.reduce((s, p) => s + raw[p][k] * HIT_POS_DEPTH[p], 0) / totW;
+  });
+  const offsets = {};
+  present.forEach(p => {
+    offsets[p] = {};
+    ['obp', 'slg', 'hr', 'r'].forEach(k => { offsets[p][k] = raw[p][k] - avg[k]; });
+  });
+  return offsets;
+}
+
+// Best hitter SGP across eligible positions, grading against the general FA
+// baseline shifted by each position's scarcity offset. A player is valued at
+// his most favorable (scarcest) eligible position — this is what rewards
+// positional flexibility and restores the catcher/middle-infield premium.
+// No mapped position (DH/UTIL-only, or FAs) → general baseline.
+function hitterSGP(player, b, replH, posOffsets, sgpDenom, avgPA, avgIP) {
+  const positions = (player.positions || []).filter(pos => posOffsets && posOffsets[pos]);
+  if (!positions.length) return calcPlayerSGP(player, b, replH, sgpDenom, avgPA, avgIP);
+  let best = -Infinity;
+  for (const pos of positions) {
+    const o = posOffsets[pos];
+    const adj = { ...replH, obp: replH.obp + o.obp, slg: replH.slg + o.slg, hr: replH.hr + o.hr, r: replH.r + o.r };
+    const s = calcPlayerSGP(player, b, adj, sgpDenom, avgPA, avgIP);
+    if (s > best) best = s;
+  }
+  return best;
 }
 
 function valProxy(player, b) {

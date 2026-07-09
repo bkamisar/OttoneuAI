@@ -20,8 +20,14 @@ var BRIEFING_CONFIG = {
 };
 
 // Ottoneu -> MLB StatsAPI team abbreviations (only the ones that differ).
-var BF_TEAM_ALIAS = { CHW: 'CWS', KCR: 'KC', SDP: 'SD', SFG: 'SF', TBR: 'TB', WSN: 'WSH' };
+// Verified against /api/v1/teams: Arizona is AZ (not ARI), etc.
+var BF_TEAM_ALIAS = { ARI: 'AZ', CHW: 'CWS', KCR: 'KC', SDP: 'SD', SFG: 'SF', TBR: 'TB', WSN: 'WSH' };
 var BF_UA = { 'User-Agent': 'Mozilla/5.0' };
+var BF_NEWS_PER_PLAYER = 6;   // headlines kept per flagged player (was 2 — user wanted more)
+
+// Sentences from a game recap only become a blurb if they mention a real
+// baseball action — filters out trivia ("...was born before that day...").
+var BF_ACTION = /(home run|homer|homered|grand slam|\brbi\b|\bdoubl|\btripl|\bsingl|\bhit\b|\bhits\b|struck out|strikeout|scoreless|\bscored\b|\bruns?\b|walk|stole|\bsteal|\bsave[ds]?\b|innings?|pitch|allowed|earned|\bwin\b|victory|blast|launch|drove in|plated|fanned|crushed|slam)/i;
 
 function dailyBriefing() { bfRun_(false); }
 function briefingTest()  { bfRun_(true); }
@@ -88,6 +94,29 @@ function bfNorm_(s) {
 
 function bfAlias_(o) { return BF_TEAM_ALIAS[o] || o; }
 
+// Canonical MLB team map (fetched once). The schedule endpoint's team objects
+// only carry {id, name, link} — NOT abbreviation — so all team matching is done
+// by ID. This maps StatsAPI abbreviation <-> team id.
+var BF_TEAMS_CACHE = null;
+function bfTeams_() {
+  if (BF_TEAMS_CACHE) return BF_TEAMS_CACHE;
+  var idByAbbr = {}, abbrById = {};
+  var r = bfGet_('https://statsapi.mlb.com/api/v1/teams?sportId=1');
+  if (r.code === 200) {
+    (JSON.parse(r.text).teams || []).forEach(function (t) {
+      if (!t.abbreviation || !t.id) return;
+      idByAbbr[t.abbreviation] = t.id;
+      abbrById[t.id] = t.abbreviation;
+    });
+  }
+  BF_TEAMS_CACHE = { idByAbbr: idByAbbr, abbrById: abbrById };
+  return BF_TEAMS_CACHE;
+}
+// Ottoneu roster abbrev -> StatsAPI team id (null if unresolved).
+function bfTeamId_(ottoneuAbbr) {
+  return bfTeams_().idByAbbr[bfAlias_(ottoneuAbbr)] || null;
+}
+
 function bfParseCsvLine_(line) {
   var out = [], cur = '', q = false;
   for (var i = 0; i < line.length; i++) {
@@ -151,8 +180,8 @@ function bfGetYesterdayBox_(my, yesterday, out) {
 
   games.forEach(function (g) {
     try {
-      box.teamsPlayed[g.teams.home.team.abbreviation] = 1;
-      box.teamsPlayed[g.teams.away.team.abbreviation] = 1;
+      box.teamsPlayed[g.teams.home.team.id] = 1;   // keyed by team ID (schedule has no abbrev)
+      box.teamsPlayed[g.teams.away.team.id] = 1;
     } catch (e) {}
   });
 
@@ -163,7 +192,8 @@ function bfGetYesterdayBox_(my, yesterday, out) {
     ['home', 'away'].forEach(function (side) {
       var tm = bx.teams && bx.teams[side];
       if (!tm || !tm.players) return;
-      var abbr = (tm.team && tm.team.abbreviation) || '';
+      var abbr   = (tm.team && tm.team.abbreviation) || '';
+      var teamId = (tm.team && tm.team.id) || null;
       Object.keys(tm.players).forEach(function (pid) {
         var pl = tm.players[pid];
         var full = pl.person && pl.person.fullName;
@@ -171,9 +201,10 @@ function bfGetYesterdayBox_(my, yesterday, out) {
         var nm = bfNorm_(full);
         var mine = my.byNorm[nm];
         if (!mine) return;
-        // Collision guard: same normalized name, different team → not my guy.
-        if (mine.mlbBase && abbr && bfAlias_(mine.mlbBase) !== abbr) {
-          Logger.log('Name/team mismatch, skipped: ' + full + ' (box ' + abbr + ' vs roster ' + mine.mlbBase + ')');
+        // Collision guard by team ID: same normalized name, different team → not mine.
+        var myId = bfTeamId_(mine.mlbBase);
+        if (myId && teamId && myId !== teamId) {
+          Logger.log('Name/team mismatch, skipped: ' + full + ' (box team ' + teamId + ' vs roster ' + mine.mlbBase + ')');
           return;
         }
         box.appeared[nm] = 1;
@@ -220,6 +251,7 @@ function bfGetRecaps_(box, my, out) {
     var text = body.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
     var sentences = text.split(/(?<=[.!?])\s+/);
     sentences.forEach(function (sen) {
+      if (!BF_ACTION.test(sen)) return;   // keep only performance sentences, not trivia
       var low = bfNorm_(sen);
       my.list.forEach(function (p) {
         if (low.indexOf(p.norm) === -1) return;

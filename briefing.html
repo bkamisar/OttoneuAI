@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Ottoneu Tools — Daily Briefing</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: system-ui, sans-serif; background: #f5f5f5; margin: 0; padding: 20px; color: #222; }
+    h1 { font-size: 1.3rem; margin-bottom: 4px; }
+    .nav { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+    .nav a { padding: 7px 14px; background: #1a73e8; color: #fff; border-radius: 6px; text-decoration: none; font-size: 0.88rem; }
+    .nav a.active { background: #1557b0; }
+    .section-title { font-size: 1.05rem; font-weight: 700; margin: 26px 0 10px; }
+    .error { background: #fce8e6; border-left: 4px solid #c62828; padding: 12px 16px; border-radius: 4px; margin-bottom: 16px; }
+    .error a { color: #c62828; }
+    .stamp { font-size: 0.82rem; color: #888; margin-bottom: 4px; }
+    .stale { background: #fff4e5; border-left: 4px solid #e6941c; padding: 10px 14px; border-radius: 4px; color: #a5641a; font-size: 0.86rem; margin: 8px 0 16px; }
+    .note { color: #888; font-style: italic; font-size: 0.88rem; }
+
+    table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 10px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.1); font-size: 0.88rem; margin-bottom: 8px; }
+    th { background: #1a73e8; color: #fff; padding: 8px 10px; text-align: left; font-weight: 600; }
+    td { padding: 7px 10px; border-bottom: 1px solid #f0f0f0; vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+    .pname { font-weight: 600; }
+    .pteam { color: #999; font-size: 0.78rem; }
+    .blurb td { padding-top: 0; }
+    .blurb span { color: #666; font-style: italic; font-size: 0.83rem; }
+
+    .card { background: #fff; border-radius: 10px; padding: 14px 18px; box-shadow: 0 1px 4px rgba(0,0,0,0.1); margin-bottom: 8px; }
+    .txn { font-size: 0.88rem; padding: 3px 0; }
+    .flag-player { margin: 10px 0; }
+    .flag-name { font-weight: 600; }
+    .flag-reason { font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.04em; color: #b07d00; background: #fff8e1; padding: 1px 7px; border-radius: 10px; margin-left: 6px; }
+    .newsitem { display: block; font-size: 0.86rem; margin: 3px 0 3px 14px; color: #1557b0; text-decoration: none; }
+    .newsitem:hover { text-decoration: underline; }
+
+    .matchup { display: flex; gap: 10px; align-items: baseline; padding: 7px 0; border-bottom: 1px solid #f0f0f0; font-size: 0.9rem; flex-wrap: wrap; }
+    .matchup:last-child { border-bottom: none; }
+    .m-players { font-weight: 600; min-width: 180px; }
+    .m-opp { color: #444; }
+    .m-flag { font-size: 0.72rem; font-weight: 700; padding: 1px 7px; border-radius: 10px; }
+    .m-tough  { background: #fce8e6; color: #c62828; }
+    .m-target { background: #e6f4ea; color: #1e7e34; }
+    .starter-line { font-size: 0.9rem; padding: 4px 0; }
+  </style>
+  <link rel="stylesheet" href="theme.css">
+</head>
+<body>
+  <h1>Daily Briefing</h1>
+  <nav class="nav">
+    <a href="index.html">Data Hub</a>
+    <a href="standings.html">Standings</a>
+    <a href="roster.html">Roster Analysis</a>
+    <a href="trade.html">Trade Evaluator</a>
+    <a href="fa.html">FA Finder</a>
+    <a href="bid.html">Bid Advisor</a>
+    <a href="briefing.html" class="active">Daily Briefing</a>
+    <a href="prospects.html">Prospects</a>
+    <a href="targets.html">Trade Targets</a>
+  </nav>
+
+  <div id="stamp" class="stamp"></div>
+  <div id="root"></div>
+
+  <script src="shared.js"></script>
+  <script>
+  (function () {
+    var root  = document.getElementById('root');
+    var stamp = document.getElementById('stamp');
+
+    function el(tag, cls, text) {
+      var e = document.createElement(tag);
+      if (cls) e.className = cls;
+      if (text != null) e.textContent = text;   // textContent — never innerHTML with fetched data
+      return e;
+    }
+    function sectionTitle(t) { return el('div', 'section-title', t); }
+    function safeLink(text, href) {
+      var a = el('a', 'newsitem', text || href || 'link');
+      if (href) { a.href = href; a.target = '_blank'; a.rel = 'noopener noreferrer'; }
+      return a;
+    }
+    function ago(iso) {
+      var ts = Date.parse(iso);
+      if (isNaN(ts)) return '';
+      if (typeof relativeAge === 'function') return relativeAge(ts);
+      var h = Math.round((Date.now() - ts) / 3600000);
+      return h < 1 ? 'just now' : h + ' hour' + (h === 1 ? '' : 's') + ' ago';
+    }
+
+    function showSetup() {
+      var d = el('div', 'error');
+      d.appendChild(document.createTextNode('No briefing published yet. Set up '));
+      var code = el('code', null, 'scripts/briefing.gs'); d.appendChild(code);
+      d.appendChild(document.createTextNode(' in your Apps Script project (see scripts/README-briefing.md), set MY_TEAM_ID, and run briefingTest().'));
+      root.appendChild(d);
+    }
+
+    function render(b) {
+      stamp.textContent = (b.dateLabel || '') + ' · generated ' + ago(b.generatedAt);
+
+      var ts = Date.parse(b.generatedAt);
+      if (!isNaN(ts) && (Date.now() - ts) > 30 * 3600 * 1000) {
+        root.appendChild(el('div', 'stale', '⚠ This briefing is over 30 hours old — the daily generator may have stopped running.'));
+      }
+
+      // ── Yesterday ────────────────────────────────────────────────────────
+      root.appendChild(sectionTitle('Yesterday'));
+      var y = b.yesterday || {};
+      if (y.note) {
+        root.appendChild(el('div', 'note', y.note));
+      }
+      if ((y.hitters || []).length) root.appendChild(statTable('Hitters', y.hitters));
+      if ((y.pitchers || []).length) root.appendChild(statTable('Pitchers', y.pitchers));
+      if (!y.note && !(y.hitters || []).length && !(y.pitchers || []).length) {
+        root.appendChild(el('div', 'note', 'None of your players appeared.'));
+      }
+
+      // ── News ─────────────────────────────────────────────────────────────
+      root.appendChild(sectionTitle('News'));
+      var n = b.news || {};
+      var anyNews = (n.transactions || []).length || (n.flagged || []).length || (n.league || []).length;
+      if (!anyNews) {
+        root.appendChild(el('div', 'note', 'No roster news.'));
+      } else {
+        var card = el('div', 'card');
+        (n.transactions || []).forEach(function (t) { card.appendChild(el('div', 'txn', '• ' + t)); });
+        (n.flagged || []).forEach(function (f) {
+          var wrap = el('div', 'flag-player');
+          var head = el('div');
+          head.appendChild(el('span', 'flag-name', f.name));
+          if (f.reason) head.appendChild(el('span', 'flag-reason', f.reason));
+          wrap.appendChild(head);
+          (f.items || []).forEach(function (it) { wrap.appendChild(safeLink(it.title, it.link)); });
+          if (!(f.items || []).length) wrap.appendChild(el('div', 'note', '(no headlines found)'));
+          card.appendChild(wrap);
+        });
+        if ((n.league || []).length) {
+          card.appendChild(el('div', 'txn', 'Around the league:'));
+          (n.league || []).forEach(function (it) { card.appendChild(safeLink(it.title, it.link)); });
+        }
+        root.appendChild(card);
+      }
+
+      // ── Today's matchups ─────────────────────────────────────────────────
+      root.appendChild(sectionTitle("Today's Matchups"));
+      var m = b.matchups || {};
+      if (m.note) root.appendChild(el('div', 'note', m.note));
+      if ((m.hitters || []).length) {
+        var mc = el('div', 'card');
+        m.hitters.forEach(function (h) {
+          var row = el('div', 'matchup');
+          row.appendChild(el('span', 'm-players', (h.players || []).join(', ')));
+          var opp = el('span', 'm-opp', h.game + ' — ' + h.opp + (h.era != null ? ' (' + h.era + ' ERA)' : ''));
+          row.appendChild(opp);
+          if (h.flag === 'tough')  row.appendChild(el('span', 'm-flag m-tough', '⚠ tough'));
+          if (h.flag === 'target') row.appendChild(el('span', 'm-flag m-target', '🔥 target'));
+          mc.appendChild(row);
+        });
+        root.appendChild(mc);
+      }
+      if ((m.myStarters || []).length) {
+        root.appendChild(el('div', 'section-title', 'Your starters today'));
+        var sc = el('div', 'card');
+        m.myStarters.forEach(function (s) { sc.appendChild(el('div', 'starter-line', '⚾ ' + s.name + ' — ' + s.game)); });
+        root.appendChild(sc);
+      }
+
+      // ── Errors ───────────────────────────────────────────────────────────
+      (b.errors || []).forEach(function (e) {
+        root.appendChild(el('div', 'stale', 'Data note: ' + e));
+      });
+    }
+
+    function statTable(label, rows) {
+      var table = el('table');
+      var thead = el('thead'); var htr = el('tr');
+      htr.appendChild(el('th', null, label));
+      htr.appendChild(el('th', null, 'Line'));
+      thead.appendChild(htr); table.appendChild(thead);
+      var tb = el('tbody');
+      rows.forEach(function (p) {
+        var tr = el('tr');
+        var nameTd = el('td');
+        nameTd.appendChild(el('span', 'pname', p.name));
+        if (p.mlb) { nameTd.appendChild(document.createTextNode(' ')); nameTd.appendChild(el('span', 'pteam', p.mlb)); }
+        tr.appendChild(nameTd);
+        tr.appendChild(el('td', null, p.line || ''));
+        tb.appendChild(tr);
+        if (p.blurb) {
+          var btr = el('tr', 'blurb');
+          var btd = el('td'); btd.colSpan = 2;
+          btd.appendChild(el('span', null, p.blurb));
+          btr.appendChild(btd); tb.appendChild(btr);
+        }
+      });
+      table.appendChild(tb);
+      return table;
+    }
+
+    fetch('./data/briefing.json?t=' + Date.now())
+      .then(function (r) { if (!r.ok) throw new Error(String(r.status)); return r.json(); })
+      .then(render)
+      .catch(function () { showSetup(); });
+  })();
+  </script>
+</body>
+</html>

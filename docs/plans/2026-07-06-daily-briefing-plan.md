@@ -15,9 +15,28 @@ test function the user runs (verification section at bottom).
    hitters `Name — 2-4, HR, 2 RBI, R, BB` · pitchers `Name — 6.0 IP, 2 ER,
    7 K (W)`. Players who didn't play are omitted. If no games (off-day),
    section says "No games yesterday."
-3. **News** — MLB transactions from the last 48h involving MY players (IL
-   placement/activation, recall, option, trade, DFA). Plus OPTIONAL Rotowire
-   RSS items matching my players (see Data Sources). Empty → "No roster news."
+3. **News** — three layers, all verified reachable (curl-tested 200s):
+   a. MLB transactions from the last 48h involving MY players (IL moves,
+      recall, option, trade, DFA) — structured facts.
+   b. **Recap excerpts**: for each game a MY player appeared in yesterday
+      (already known from the boxscore step), fetch
+      `GET /api/v1/game/{gamePk}/content` and extract from the editorial
+      recap (`editorial.recap.mlb.body` — strip HTML tags) the sentences
+      that mention my players by (normalized) name. ≤2 sentences per player,
+      shown under his box line in section 2 as an italic blurb.
+   c. **Care-worthy headlines**: build a flagged-player list = players with a
+      transaction in (a) + players who appeared in NO boxscore for the last
+      3 straight days despite their team playing (track nothing — compute
+      "team played yesterday but player absent" for yesterday only; 3-day
+      streak tracking is out of scope v1) + players with a monster line
+      (HR≥2 or RBI≥5 or pitcher ≥10 K). For each flagged player (cap 5):
+      `GET https://news.google.com/rss/search?q="{Player Name}"+mlb&hl=en-US&gl=US&ceid=US:en`,
+      parse top 2 `<item><title>` + `<link>`, include as "In the news:"
+      bullets with links. Plus ONE call to
+      `https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/news?limit=25`
+      filtered by my players' names as a league-wide catch-all.
+   Empty → "No roster news." (Rotowire RSS: DROPPED — the three layers above
+   cover the same job from free, stable sources.)
 4. **Today's matchups** —
    - Hitters, grouped by MLB team: "NYY @ BOS 7:05 — vs LHP Crochet (2.95 ERA) ⚠"
      (⚠ opposing starter ERA < 3.30 · 🔥 ERA > 4.60 · nothing between;
@@ -51,15 +70,22 @@ test function the user runs (verification section at bottom).
      baseOnBalls>0. Pitchers: `stats.pitching` (inningsPitched, earnedRuns,
      strikeOuts, note W/L/SV from `stats.pitching.note` if present). A player
      can appear in 2 games (DH) — emit one line per game.
-  3. `getNews_(mySet)` — StatsAPI:
-     `GET /api/v1/transactions?startDate={2 days ago}&endDate={today}`;
-     filter `person.fullName` via norm() ∈ mySet; use `typeDesc` +
-     `description`. THEN optional Rotowire: try
-     `https://www.rotowire.com/rss/news.php?sport=MLB` inside try/catch with
-     `muteHttpExceptions:true`; if HTTP 200 and body contains `<item>`, parse
-     titles/descriptions with regex (`<title>...<\/title>`), match my players
-     by norm() substring, take ≤5. ANY failure → skip silently (comment why:
-     Cloudflare/licensing makes this best-effort only).
+  3. `getNews_(mySet, boxResults)` — three layers per email section 3:
+     (a) StatsAPI `GET /api/v1/transactions?startDate={2 days ago}&endDate={today}`;
+     filter `person.fullName` via norm() ∈ mySet; use `typeDesc`+`description`.
+     (b) Recap excerpts: boxResults already carries the set of gamePks where my
+     players appeared; for each (≤ ~10), `GET /api/v1/game/{gamePk}/content`,
+     take `editorial.recap.mlb.body` (fall back to `.headline` if body
+     missing), strip tags (`.replace(/<[^>]+>/g,' ')`), split on sentence
+     boundaries, keep sentences containing a my-player norm()-name, ≤2 per
+     player. Attach to that player's box line.
+     (c) Flagged-player headlines: flags = transaction players ∪ monster lines
+     (HR≥2 | RBI≥5 | K≥10) ∪ "team played yesterday, player absent from box".
+     Cap 5 players; per player fetch Google News RSS
+     (`news.google.com/rss/search?q="{name}"+mlb`), regex top 2
+     `<item>…<title>…<link>`; also one ESPN news call
+     (`site.api.espn.com/.../news?limit=25`) filtered by mySet. All three
+     layers individually try/caught; each degrades to nothing on failure.
   4. `getTodayMatchups_(myPlayers)` — StatsAPI:
      `GET /api/v1/schedule?sportId=1&date={today}&hydrate=probablePitcher`.
      Build map MLB-team-abbrev → {opp, home/away, gameTime local,

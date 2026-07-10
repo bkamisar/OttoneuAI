@@ -23,11 +23,8 @@ var BRIEFING_CONFIG = {
 // Verified against /api/v1/teams: Arizona is AZ (not ARI), etc.
 var BF_TEAM_ALIAS = { ARI: 'AZ', CHW: 'CWS', KCR: 'KC', SDP: 'SD', SFG: 'SF', TBR: 'TB', WSN: 'WSH' };
 var BF_UA = { 'User-Agent': 'Mozilla/5.0' };
-var BF_NEWS_PER_PLAYER = 6;   // headlines kept per flagged player (was 2 — user wanted more)
-
-// Sentences from a game recap only become a blurb if they mention a real
-// baseball action — filters out trivia ("...was born before that day...").
-var BF_ACTION = /(home run|homer|homered|grand slam|\brbi\b|\bdoubl|\btripl|\bsingl|\bhit\b|\bhits\b|struck out|strikeout|scoreless|\bscored\b|\bruns?\b|walk|stole|\bsteal|\bsave[ds]?\b|innings?|pitch|allowed|earned|\bwin\b|victory|blast|launch|drove in|plated|fanned|crushed|slam)/i;
+var BF_NEWS_PER_PLAYER   = 6;   // headlines kept per flagged player
+var BF_NEWS_MAX_AGE_DAYS = 5;   // drop headlines/articles older than this
 
 function dailyBriefing() { bfRun_(false); }
 function briefingTest()  { bfRun_(true); }
@@ -49,9 +46,6 @@ function bfRun_(isTest) {
   var box  = { appeared: {}, gamePksWithMine: {}, teamsPlayed: {} };
   try { box = bfGetYesterdayBox_(my, yesterday, yObj); }
   catch (e) { errors.push('Yesterday box failed: ' + e); yObj.note = 'Yesterday’s box unavailable.'; }
-
-  try { bfGetRecaps_(box, my, yObj); }
-  catch (e) { errors.push('Recaps failed: ' + e); }
 
   var news = { transactions: [], flagged: [], league: [] };
   try { bfGetNews_(my, box, yObj, news, today, tz, now); }
@@ -236,36 +230,6 @@ function bfPitLine_(p) {
   var line = [(p.inningsPitched || '0.0') + ' IP', (p.earnedRuns || 0) + ' ER', (p.strikeOuts || 0) + ' K'].join(', ');
   if (p.note) line += ' ' + p.note;   // note already looks like "(W, 8-3)"
   return line;
-}
-
-function bfGetRecaps_(box, my, out) {
-  var byNorm = {};   // norm -> [sentences]
-  Object.keys(box.gamePksWithMine || {}).forEach(function (gpk) {
-    var r = bfGet_('https://statsapi.mlb.com/api/v1/game/' + gpk + '/content');
-    if (r.code !== 200) return;
-    var c = JSON.parse(r.text);
-    var body = '';
-    try { body = c.editorial.recap.mlb.body || ''; } catch (e) {}
-    if (!body) { try { body = c.editorial.recap.mlb.headline || ''; } catch (e) {} }
-    if (!body) return;
-    var text = body.replace(/<[^>]+>/g, ' ').replace(/[*_#]+/g, ' ').replace(/\s+/g, ' ').trim();
-    var sentences = text.split(/(?<=[.!?])\s+/);
-    sentences.forEach(function (raw) {
-      var sen = raw.trim();
-      if (/^\d+\s*:/.test(sen)) return;   // skip "by the numbers" list fragments ("2: Homers ...")
-      if (!BF_ACTION.test(sen)) return;   // keep only performance sentences, not trivia
-      var low = bfNorm_(sen);
-      my.list.forEach(function (p) {
-        if (low.indexOf(p.norm) === -1) return;
-        if (!byNorm[p.norm]) byNorm[p.norm] = [];
-        if (byNorm[p.norm].length < 2 && byNorm[p.norm].indexOf(sen.trim()) === -1) byNorm[p.norm].push(sen.trim());
-      });
-    });
-  });
-  out.hitters.concat(out.pitchers).forEach(function (row) {
-    var s = byNorm[row.norm];
-    if (s && s.length) row.blurb = s.join(' ');
-  });
 }
 
 function bfGetNews_(my, box, yObj, news, today, tz, now) {

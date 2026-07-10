@@ -248,9 +248,11 @@ function bfGetRecaps_(box, my, out) {
     try { body = c.editorial.recap.mlb.body || ''; } catch (e) {}
     if (!body) { try { body = c.editorial.recap.mlb.headline || ''; } catch (e) {} }
     if (!body) return;
-    var text = body.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+    var text = body.replace(/<[^>]+>/g, ' ').replace(/[*_#]+/g, ' ').replace(/\s+/g, ' ').trim();
     var sentences = text.split(/(?<=[.!?])\s+/);
-    sentences.forEach(function (sen) {
+    sentences.forEach(function (raw) {
+      var sen = raw.trim();
+      if (/^\d+\s*:/.test(sen)) return;   // skip "by the numbers" list fragments ("2: Homers ...")
       if (!BF_ACTION.test(sen)) return;   // keep only performance sentences, not trivia
       var low = bfNorm_(sen);
       my.list.forEach(function (p) {

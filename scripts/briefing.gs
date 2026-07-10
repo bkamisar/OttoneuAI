@@ -280,18 +280,22 @@ function bfGetNews_(my, box, yObj, news, today, tz, now) {
       var q = encodeURIComponent('"' + p.name + '" mlb');
       var gr = bfGet_('https://news.google.com/rss/search?q=' + q + '&hl=en-US&gl=US&ceid=US:en',
                       { headers: BF_UA, muteHttpExceptions: true });
-      if (gr.code === 200) items = bfParseRss_(gr.text, BF_NEWS_PER_PLAYER);
+      var cutoff = now.getTime() - BF_NEWS_MAX_AGE_DAYS * 24 * 3600 * 1000;
+      if (gr.code === 200) items = bfParseRss_(gr.text, BF_NEWS_PER_PLAYER, cutoff);
     } catch (e) {}
     news.flagged.push({ name: p.name, reason: flagged[nm], items: items });
   });
 
-  // (c) ESPN league-wide catch-all
+  // (c) ESPN league-wide catch-all (recent only)
   try {
+    var cut = now.getTime() - BF_NEWS_MAX_AGE_DAYS * 24 * 3600 * 1000;
     var er = bfGet_('https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/news?limit=25');
     if (er.code === 200) {
       var ej = JSON.parse(er.text);
       var seen = {};
       (ej.articles || []).forEach(function (a) {
+        var pub = Date.parse(a.published || '');
+        if (!isNaN(pub) && pub < cut) return;                 // older than the window
         var hay = bfNorm_((a.headline || '') + ' ' + (a.description || ''));
         if (!my.list.some(function (p) { return hay.indexOf(p.norm) !== -1; })) return;
         if (seen[a.headline]) return;
@@ -303,12 +307,15 @@ function bfGetNews_(my, box, yObj, news, today, tz, now) {
   } catch (e) {}
 }
 
-// Extract the first n <item> title/link pairs from an RSS feed. Uses split+match
-// (no RegExp.exec) so it stays a plain string parse.
-function bfParseRss_(xml, n) {
+// Extract up to n recent <item> title/link pairs from an RSS feed. Skips items
+// whose <pubDate> is older than cutoffMs (kept if pubDate is missing/unparseable).
+// Uses split+match (no RegExp.exec) so it stays a plain string parse.
+function bfParseRss_(xml, n, cutoffMs) {
   var items = [];
   var chunks = String(xml).split('<item>').slice(1);
   for (var i = 0; i < chunks.length && items.length < n; i++) {
+    var d = chunks[i].match(/<pubDate>([\s\S]*?)<\/pubDate>/);
+    if (cutoffMs && d) { var ts = Date.parse(d[1].trim()); if (!isNaN(ts) && ts < cutoffMs) continue; }
     var t = chunks[i].match(/<title>([\s\S]*?)<\/title>/);
     var l = chunks[i].match(/<link>([\s\S]*?)<\/link>/);
     var title = t ? bfDecode_(t[1].replace(/<!\[CDATA\[|\]\]>/g, '')).trim() : '';
@@ -351,12 +358,35 @@ function bfPitcherInfo_(id) {
   return out;
 }
 
+// Season team-offense ranks (1 = best offense), one API call, cached. Used to
+// judge whether starting one of my pitchers is favorable (weak opposing bats).
+var BF_OFFENSE_CACHE = null;
+function bfTeamOffense_() {
+  if (BF_OFFENSE_CACHE) return BF_OFFENSE_CACHE;
+  var rankById = {}, opsById = {};
+  try {
+    var yr = Utilities.formatDate(new Date(), BRIEFING_CONFIG.TIMEZONE, 'yyyy');
+    var r = bfGet_('https://statsapi.mlb.com/api/v1/teams/stats?season=' + yr + '&sportIds=1&group=hitting&stats=season');
+    if (r.code === 200) {
+      var splits = ((JSON.parse(r.text).stats || [])[0] || {}).splits || [];
+      splits.map(function (s) { return { id: s.team && s.team.id, ops: parseFloat(s.stat && s.stat.ops) || 0 }; })
+        .filter(function (x) { return x.id; })
+        .sort(function (a, b) { return b.ops - a.ops; })
+        .forEach(function (x, i) { rankById[x.id] = i + 1; opsById[x.id] = x.ops; });
+    }
+  } catch (e) {}
+  BF_OFFENSE_CACHE = { rankById: rankById, opsById: opsById, count: Object.keys(rankById).length };
+  return BF_OFFENSE_CACHE;
+}
+
 function bfGetMatchups_(my, today, tz, out) {
   var games = bfScheduleGames_('https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=' + today + '&hydrate=probablePitcher');
   if (!games.length) { out.note = 'No games today.'; return; }
 
   // Schedule team objects only have ids — resolve abbrevs from the canonical map.
   var abbrById = bfTeams_().abbrById;
+  var off = bfTeamOffense_();
+  var pitcherCache = {};
   var byTeamId = {};   // team id -> game context
   games.forEach(function (g) {
     var home = g.teams.home, away = g.teams.away;
@@ -366,17 +396,31 @@ function bfGetMatchups_(my, today, tz, out) {
     var time = bfGameTime_(g, tz);
     byTeamId[hId] = { oppProbable: away.probablePitcher || null, gameStr: hAbbr + ' vs ' + aAbbr + (time ? ' ' + time : '') };
     byTeamId[aId] = { oppProbable: home.probablePitcher || null, gameStr: aAbbr + ' @ ' + hAbbr + (time ? ' ' + time : '') };
-    // My probable starters today
-    [{ pp: home.probablePitcher, team: hAbbr, opp: aAbbr, home: true },
-     { pp: away.probablePitcher, team: aAbbr, opp: hAbbr, home: false }].forEach(function (x) {
+    // My probable starters today — with own ERA and opposing-offense strength
+    [{ pp: home.probablePitcher, team: hAbbr, opp: aAbbr, oppId: aId, home: true },
+     { pp: away.probablePitcher, team: aAbbr, opp: hAbbr, oppId: hId, home: false }].forEach(function (x) {
       if (!x.pp || !x.pp.fullName) return;
       var mine = my.byNorm[bfNorm_(x.pp.fullName)];
-      if (mine) out.myStarters.push({ name: mine.name, game: x.team + (x.home ? ' vs ' : ' @ ') + x.opp + ' (' + (x.home ? 'home' : 'away') + ')' });
+      if (!mine) return;
+      var info = pitcherCache[x.pp.id] || (pitcherCache[x.pp.id] = bfPitcherInfo_(x.pp.id));
+      var oppRank = off.rankById[x.oppId] || null;   // 1 = strongest offense
+      var total = off.count || 30;
+      var flag = '';
+      if (oppRank) flag = oppRank >= total - 9 ? 'good' : (oppRank <= 10 ? 'tough' : '');
+      out.myStarters.push({
+        name: mine.name,
+        era: info.era,
+        game: x.team + (x.home ? ' vs ' : ' @ ') + x.opp + ' (' + (x.home ? 'home' : 'away') + ')',
+        oppTeam: x.opp,
+        oppOffRank: oppRank,
+        oppOffTotal: total,
+        flag: flag
+      });
     });
   });
 
   // Group my hitters by their game (by team id)
-  var groups = {}, pitcherCache = {};
+  var groups = {};
   my.list.forEach(function (p) {
     if (p.mlb.indexOf(' ') !== -1) return;        // minor leaguer
     if (bfIsPitcherOnly_(p.pos)) return;          // pitchers handled via myStarters

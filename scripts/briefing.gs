@@ -299,7 +299,8 @@ function bfGetNews_(my, box, yObj, news, today, tz, now) {
   // Absence: MLB player whose team played yesterday but who never appeared
   my.list.forEach(function (p) {
     if (p.mlb.indexOf(' ') !== -1) return;   // minor leaguer
-    if (box.teamsPlayed[bfAlias_(p.mlbBase)] && !box.appeared[p.norm]) {
+    var id = bfTeamId_(p.mlbBase);
+    if (id && box.teamsPlayed[id] && !box.appeared[p.norm]) {
       flagged[p.norm] = flagged[p.norm] || 'absent from box';
     }
   });
@@ -313,7 +314,7 @@ function bfGetNews_(my, box, yObj, news, today, tz, now) {
       var q = encodeURIComponent('"' + p.name + '" mlb');
       var gr = bfGet_('https://news.google.com/rss/search?q=' + q + '&hl=en-US&gl=US&ceid=US:en',
                       { headers: BF_UA, muteHttpExceptions: true });
-      if (gr.code === 200) items = bfParseRss_(gr.text, 2);
+      if (gr.code === 200) items = bfParseRss_(gr.text, BF_NEWS_PER_PLAYER);
     } catch (e) {}
     news.flagged.push({ name: p.name, reason: flagged[nm], items: items });
   });
@@ -388,13 +389,17 @@ function bfGetMatchups_(my, today, tz, out) {
   var games = bfScheduleGames_('https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=' + today + '&hydrate=probablePitcher');
   if (!games.length) { out.note = 'No games today.'; return; }
 
-  var byTeam = {};   // abbrev -> game context
+  // Schedule team objects only have ids — resolve abbrevs from the canonical map.
+  var abbrById = bfTeams_().abbrById;
+  var byTeamId = {};   // team id -> game context
   games.forEach(function (g) {
     var home = g.teams.home, away = g.teams.away;
-    var hAbbr = home.team.abbreviation, aAbbr = away.team.abbreviation;
+    var hId = home.team.id, aId = away.team.id;
+    var hAbbr = abbrById[hId] || home.team.name || ('#' + hId);
+    var aAbbr = abbrById[aId] || away.team.name || ('#' + aId);
     var time = bfGameTime_(g, tz);
-    byTeam[hAbbr] = { opp: aAbbr, oppProbable: away.probablePitcher || null, gameStr: hAbbr + ' vs ' + aAbbr + (time ? ' ' + time : '') };
-    byTeam[aAbbr] = { opp: hAbbr, oppProbable: home.probablePitcher || null, gameStr: aAbbr + ' @ ' + hAbbr + (time ? ' ' + time : '') };
+    byTeamId[hId] = { oppProbable: away.probablePitcher || null, gameStr: hAbbr + ' vs ' + aAbbr + (time ? ' ' + time : '') };
+    byTeamId[aId] = { oppProbable: home.probablePitcher || null, gameStr: aAbbr + ' @ ' + hAbbr + (time ? ' ' + time : '') };
     // My probable starters today
     [{ pp: home.probablePitcher, team: hAbbr, opp: aAbbr, home: true },
      { pp: away.probablePitcher, team: aAbbr, opp: hAbbr, home: false }].forEach(function (x) {
@@ -404,20 +409,21 @@ function bfGetMatchups_(my, today, tz, out) {
     });
   });
 
-  // Group my hitters by their game
+  // Group my hitters by their game (by team id)
   var groups = {}, pitcherCache = {};
   my.list.forEach(function (p) {
     if (p.mlb.indexOf(' ') !== -1) return;        // minor leaguer
     if (bfIsPitcherOnly_(p.pos)) return;          // pitchers handled via myStarters
-    var abbr = bfAlias_(p.mlbBase);
-    var ctx = byTeam[abbr];
-    if (!ctx) { Logger.log('No game today / unresolved abbrev for ' + p.name + ' (' + p.mlb + ' -> ' + abbr + ')'); return; }
-    if (!groups[abbr]) groups[abbr] = { players: [], ctx: ctx };
-    groups[abbr].players.push(p.name);
+    var id = bfTeamId_(p.mlbBase);
+    if (!id) { Logger.log('Unresolved team abbrev: ' + p.name + ' (' + p.mlb + ')'); return; }
+    var ctx = byTeamId[id];
+    if (!ctx) return;                             // team is simply off today — normal, no log spam
+    if (!groups[id]) groups[id] = { abbr: abbrById[id] || p.mlbBase, players: [], ctx: ctx };
+    groups[id].players.push(p.name);
   });
 
-  Object.keys(groups).forEach(function (abbr) {
-    var grp = groups[abbr], ctx = grp.ctx, pp = ctx.oppProbable;
+  Object.keys(groups).forEach(function (id) {
+    var grp = groups[id], ctx = grp.ctx, pp = ctx.oppProbable;
     var oppName = 'TBD', era = null, flag = '';
     if (pp && pp.id) {
       var info = pitcherCache[pp.id] || (pitcherCache[pp.id] = bfPitcherInfo_(pp.id));
@@ -425,6 +431,6 @@ function bfGetMatchups_(my, today, tz, out) {
       era = info.era;
       if (era !== null) flag = era < 3.30 ? 'tough' : (era > 4.60 ? 'target' : '');
     }
-    out.hitters.push({ mlb: abbr, players: grp.players, game: ctx.gameStr, opp: 'vs ' + oppName, era: era, flag: flag });
+    out.hitters.push({ mlb: grp.abbr, players: grp.players, game: ctx.gameStr, opp: 'vs ' + oppName, era: era, flag: flag });
   });
 }

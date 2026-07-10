@@ -1,21 +1,27 @@
 {
- "generatedAt": "2026-07-10T00:14:14.295Z",
- "dateLabel": "Thursday, July 9",
+ "generatedAt": "2026-07-10T12:42:20.901Z",
+ "dateLabel": "Friday, July 10",
  "teamId": "10759",
  "yesterday": {
   "note": "",
   "hitters": [
    {
-    "name": "Daulton Varsho",
-    "mlb": "TOR",
-    "line": "2-4, 1 RBI, 2 R, 1 BB, 1 SB",
-    "blurb": "When Daulton Varsho slammed into the wall to make a spectacular catch in the eighth, everyone started to have the same thought."
+    "name": "Drake Baldwin",
+    "mlb": "ATL",
+    "line": "2-4, 1 RBI, 1 R, 1 BB",
+    "blurb": ""
    },
    {
-    "name": "George Springer",
-    "mlb": "TOR",
-    "line": "1-4, 1 HR, 1 RBI, 2 R, 1 BB",
+    "name": "Juan Soto",
+    "mlb": "NYM",
+    "line": "1-2, 1 HR, 1 RBI, 2 R, 2 BB",
     "blurb": ""
+   },
+   {
+    "name": "Junior Caminero",
+    "mlb": "TB",
+    "line": "1-4, 1 HR, 1 RBI, 1 R",
+    "blurb": "Junior Caminero hit a first-inning homer off the right-hander, who said the pitching staff “did a great job.” “It definitely helps when we hang out a six-spot in the third,” Blackburn said."
    },
    {
     "name": "Samuel Basallo",
@@ -26,180 +32,136 @@
    {
     "name": "Dansby Swanson",
     "mlb": "CHC",
-    "line": "1-4, 1 R",
+    "line": "1-4, 2 SB",
+    "blurb": ""
+   },
+   {
+    "name": "Luke Keaschall",
+    "mlb": "MIN",
+    "line": "0-2",
     "blurb": ""
    },
    {
     "name": "Riley Greene",
     "mlb": "DET",
-    "line": "2-3, 1 RBI, 1 BB",
-    "blurb": ""
-   },
-   {
-    "name": "Carlos Cortes",
-    "mlb": "ATH",
-    "line": "1-4",
+    "line": "0-4",
     "blurb": ""
    },
    {
     "name": "Nick Kurtz",
     "mlb": "ATH",
-    "line": "0-1",
+    "line": "0-4",
     "blurb": ""
    },
    {
     "name": "Jacob Wilson",
     "mlb": "ATH",
-    "line": "0-3, 1 BB",
-    "blurb": ""
-   },
-   {
-    "name": "Drake Baldwin",
-    "mlb": "ATL",
-    "line": "1-4, 1 RBI",
+    "line": "2-4, 1 R",
     "blurb": ""
    },
    {
     "name": "Colt Emerson",
     "mlb": "SEA",
-    "line": "0-3",
-    "blurb": ""
-   },
-   {
-    "name": "Junior Caminero",
-    "mlb": "TB",
-    "line": "0-4",
-    "blurb": ""
-   },
-   {
-    "name": "Juan Soto",
-    "mlb": "NYM",
-    "line": "0-3, 2 BB",
+    "line": "1-3, 1 BB, 1 SB",
     "blurb": ""
    },
    {
     "name": "Sal Stewart",
     "mlb": "CIN",
-    "line": "2-4, 2 HR, 3 RBI, 2 R, 1 BB",
-    "blurb": "**2:** Homers provided by Sal Stewart during another big game for the rookie."
-   },
-   {
-    "name": "Luke Keaschall",
-    "mlb": "MIN",
-    "line": "1-2, 1 RBI, 1 R, 2 BB",
+    "line": "0-4",
     "blurb": ""
    },
    {
-    "name": "Kyle Tucker",
-    "mlb": "LAD",
-    "line": "1-3, 2 RBI",
-    "blurb": "On Wednesday, the Dodgers struck for three runs off Hughes in the first inning, capped by a two-run single from Kyle Tucker."
+    "name": "Wyatt Langford",
+    "mlb": "TEX",
+    "line": "1-5, 1 RBI",
+    "blurb": "Obviously, we don't win that game without Wyatt Langford, but there were great at-bats all day long."
    },
    {
     "name": "Fernando Tatis Jr.",
     "mlb": "SD",
-    "line": "2-4, 1 RBI, 2 R, 2 SB",
-    "blurb": ""
+    "line": "1-4",
+    "blurb": "Kelly set the tone, and the defense played clean baseball, turning a pair of double plays and getting a nice play from catcher Gabriel Moreno, who back picked Padres right fielder Fernando Tatis Jr."
+   },
+   {
+    "name": "Geraldo Perdomo",
+    "mlb": "AZ",
+    "line": "2-4, 1 RBI",
+    "blurb": "The offense was opportunistic and did just enough to win with the Diamondbacks scoring a run on a wild pitch to tie the game at 1-1 in the fourth and getting an RBI single from Geraldo Perdomo in the fifth and a solo homer from Nolan Arenado in the sixth."
    }
   ],
-  "pitchers": []
+  "pitchers": [
+   {
+    "name": "Trevor Rogers",
+    "mlb": "BAL",
+    "line": "6.0 IP, 1 ER, 4 K",
+    "blurb": ""
+   },
+   {
+    "name": "Grant Taylor",
+    "mlb": "CWS",
+    "line": "1.0 IP, 0 ER, 0 K",
+    "blurb": ""
+   },
+   {
+    "name": "Abner Uribe",
+    "mlb": "MIL",
+    "line": "1.0 IP, 0 ER, 0 K",
+    "blurb": ""
+   },
+   {
+    "name": "Aaron Ashby",
+    "mlb": "MIL",
+    "line": "1.0 IP, 0 ER, 1 K (H, 7)",
+    "blurb": ""
+   },
+   {
+    "name": "Reid Detmers",
+    "mlb": "LAA",
+    "line": "4.0 IP, 5 ER, 6 K",
+    "blurb": ""
+   },
+   {
+    "name": "Adrian Morejon",
+    "mlb": "SD",
+    "line": "1.0 IP, 0 ER, 2 K",
+    "blurb": ""
+   }
+  ]
  },
  "news": {
   "transactions": [
-   "07/07 — Pittsburgh Pirates sent RHP Wilber Dotel on a rehab assignment to Altoona Curve.",
-   "07/07 — Athletics activated SS Jacob Wilson from the 10-day injured list.",
-   "07/07 — OF Lazaro Montes assigned to Tacoma Rainiers from Arkansas Travelers.",
-   "07/09 — Miami Marlins placed RF Owen Caissie on the 10-day injured list. Right calf strain.",
-   "07/09 — Texas Rangers activated LF Wyatt Langford from the 10-day injured list."
+   "07/09 — Texas Rangers activated LF Wyatt Langford from the 10-day injured list.",
+   "07/09 — Miami Marlins placed RF Owen Caissie on the 10-day injured list. Right calf strain."
   ],
   "flagged": [
    {
-    "name": "Wilber Dotel",
+    "name": "Wyatt Langford",
     "reason": "transaction",
     "items": [
      {
-      "title": "2026 Wilber Dotel Preseason Full FULL GAME LOG - FOX Sports",
-      "link": "https://news.google.com/rss/articles/CBMijgFBVV95cUxPcjhuU2NYcEg1dk1Za0I4d2FDY3hLdmdJRmNQMG9NQWVXWEI0XzY5bG9uUGhYTEpRRjlHYjVWSkJpTTd3dEFYNnE3M3JwX2Z1MUxTd3loYmVnZm11Ni1Rc0dOcFlTcWpKd2oyZzc5MDdVSjVpVjJZSU5rY0VQMEZQeXRWcTFBUk54ODNZMWVB?oc=5"
+      "title": "Langford's early return saves Rangers with walk-off winner - MLB.com",
+      "link": "https://news.google.com/rss/articles/CBMimgFBVV95cUxNQXlMOEFxYjJJZmt6bWFGYkE2NWZ0di05cDRQamhPazlkMGxsNV9RRnlMU3ZoTUZXZ3VmbFdRbWlLWVpvc0FOS21KUzBVZ2FsZnNuaTh6RGJkN08zcWs3SkV4NTc3STlTSjQwamhCSzNGM3JaY01OWE5tY24yQ0JLSnlLMFR5SFY5NlJyVEIybnI5blg3YkIwZ2tR?oc=5"
      },
      {
-      "title": "Wilber Dotel strikes out four - MLB.com",
-      "link": "https://news.google.com/rss/articles/CBMiZkFVX3lxTE1YaXhTc3VYSnBMd3R1dXJDcGs1eTdwVWFJaV80M0VjR1k2czA1TlBXQUloZE5fNVM3dHNBbXBaWGRqczN0ZjBzTE96cnRvQWppWXZHaFRlbENySmRpbDBtdVZpMkxSdw?oc=5"
+      "title": "Wyatt Langford rips a walk-off single for the Rangers - ESPN",
+      "link": "https://news.google.com/rss/articles/CBMijgFBVV95cUxNT1JudWt4TjdjNmdIY3gzdHR2NHo5NE52RlZkdS1BZjQ2QzJBa0VoZ3hBSzBGVGs5TFVzZ3dacXZYb3VVN2ZRUEh2WFgxYlNCOXBEc3dpUFBJdkQxOERRZ2JqM0VialYyQUEzQlJtWE9SbVl3blhWZzZPQ2dUcDBnaWpQWXJRNXVtM29VUUNn?oc=5"
      },
      {
-      "title": "Pirates' Wilber Dotel Making Bounceback in Injury Rehab - Sports Illustrated",
-      "link": "https://news.google.com/rss/articles/CBMinwFBVV95cUxOazJqNnhMWmNsWl9QbXh1VWdOS3JjLUV5SzZlLW41RHlZTVAzcUxTQjlFeEtaT1F3a05yaTRGb2UwWExTYXdBMGpRMkhNUFZJOHhJU3dfWFFiTDRFVkxWT2p6RFltMlEyY09TMC1VLVUyWGYyQ2NZNWdaUzAxbldwRzMteGVoc3BkOVAzWlRNRmVoX2Q3cTFXMlR5bmJYSWc?oc=5"
+      "title": "Wyatt Langford Activated and Starting on Thursday - MLB News | Fantasy Baseball - RotoBaller",
+      "link": "https://news.google.com/rss/articles/CBMinAFBVV95cUxQRVlHRFFsMVpLX3B4T0dPSDlpN3pTcm0yamNmVVR5Sko3Z1RnT3JtalhYbjZ6TFh0WE9HZjVSdHRpMmJtdFNlc2pyUDA5YXplTlI2NTlUVVRDcEJSaEpSVHk3bzVBeUZaQTJaWGMwaVpFX083NW5MNW1hdzMzOEtjR3BkWk0tQU1XdmRiV2J1b096SjYzdGhxcE01MDI?oc=5"
      },
      {
-      "title": "Pirates' Wilber Dotel: Another rehab outing awaits - CBS Sports",
-      "link": "https://news.google.com/rss/articles/CBMingFBVV95cUxQOXBoWUdYUXNHbjFRa2dFdEhhSGlTU2NNSXJQeFdFcmtrYzJyOUxFTTQzVENxbm5OOWZhV3NQVnN4bmpkb2o5bUNJbUw0bFJRd3FYNGREUDlJd3Q1QmZUXzVIZVV5WXlSVW9XZUpIeDlEcU9pYWstdGJNLXEzYlFXWEhkY0hSOG5DZGp0ajZjWF9WU2NuLUJoTmpnQmV6QQ?oc=5"
+      "title": "Rangers Can’t Make This Mistake with Wyatt Langford’s Injury Recovery - Sports Illustrated",
+      "link": "https://news.google.com/rss/articles/CBMinwFBVV95cUxPMEdLMm9WSk5uZVFqZkhlNW5fY19zVW5FSlF5V3gyVWprV2JsNk1rVThjT2NaVm9jaW9lWTJuM21VVTEtYW5sOUhpZmY4Z2daczBMMzJBeEFaZHNKX2RsM0FVRkNhZG9qdXpqdGVTc21YT2RYdHZYcFhnV1BGZlVBV0k0TTA2WDM1dVVnM3JlN0Voa212UnhVN3pNVWljMkE?oc=5"
      },
      {
-      "title": "Wilber Dotel - ESPN",
-      "link": "https://news.google.com/rss/articles/CBMiaEFVX3lxTFBmZU9heC1fZTR5UzU0elVxcUdZc1h5cG9qVlY5cExwckVwb1owQ28tekp3UXpFMS1NMlZDRlMtVV85dXVKM0w0U1hVRll4Z2FnRmpOOUswX1ozS3hXUlZTNDBOdldtQWl3?oc=5"
+      "title": "Los Angeles Angels at Texas Rangers Game Story, Scores/Highlights - 07/09/2026 - MLB.com",
+      "link": "https://news.google.com/rss/articles/CBMiUEFVX3lxTE12enlDUHBIMzc3RUNLZFFrSmZSLUdJN1NCZFZKeE9RTS1OTjVsZnE2NmdadVRYa1ZvUlU1cjZzWUN0WHR6bDE5Q0Q0T2dMMm9x0gFQQVVfeXFMTXZ6eUNQcEgzNzdFQ0tkUWtKZlItR0k3U0JkVkp4T1FNLU5ONWxmcTY2Z1p1VFhrVm9SVTVyNnNZQ3RYdHpsMTlDRDRPZ0wyb3E?oc=5"
      },
      {
-      "title": "Could the Pirates use Wilber Dotel as a starter? ‘Certainly would not close the door on that' - Pittsburgh Post-Gazette",
-      "link": "https://news.google.com/rss/articles/CBMiuAFBVV95cUxPb0ZtWHB5RnpSVVRFTWwxRUJidDhRZFVLTGtnZXFOUURoVDVsc25MWHJhaFd2RFExYWhkMXlTelNsbXdLUlpyRjZBNjZOZ1FEMFNWRFI0djM1eDV4MEhPSGNIY0FKQTNreTYwVnc5LUJVRDNIdmF5RnVMSXRVM1N2Z3VIdTdDbEZtN19PVWJkU05IMTdOZHU1UHVVOW1JbnN3cW1xckZPQ0xaaW5TMmplUEliaGhKSHYx?oc=5"
-     }
-    ]
-   },
-   {
-    "name": "Jacob Wilson",
-    "reason": "transaction",
-    "items": [
-     {
-      "title": "Can getting healthy jump-start the A's for strong second half? - MLB.com",
-      "link": "https://news.google.com/rss/articles/CBMibkFVX3lxTE1WNVdVVEY3anRWLWl3QzAyTlVVYUNoel81LVJveUIyWDFMVTdjVklGU25IRlpRQVh6ZmNER2t1SXBIVXBMc2dkblhOdk5EVk9nblprVHNDTGxFazRXdUoxby13aS1HWFB0NU56SzdB?oc=5"
-     },
-     {
-      "title": "Athletics activate SS Jacob Wilson from IL - Reuters",
-      "link": "https://news.google.com/rss/articles/CBMijgFBVV95cUxQZlhtWnl3ZTlGRXo3WHNraXl4aTZfLW56Y3FqMVVFenF2d0tWZ2MtMVloSUpzUHM1Sm8wQ05LQ3ljR25WR1hBek0yeUZRbkd2d2JWOEZ0RnZKRm9KTUNEbDlCQU5qSFdLS3hwVjZ3OXptaHEzSHVBbVVTRjRDMERfSERUSmlUd1FLbGx2dTJB?oc=5"
-     },
-     {
-      "title": "All-Star shortstop Jacob Wilson returns from IL to help injury-plagued A’s - Sacramento Bee",
-      "link": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE9BT1RmRnAzclp3YUtQcmZyQ0t1bWFCeGoxc3Z4eERueXZEWndoZUZTRm41Z2lVMS1tTFhTUVN4OVFxamZXQm4wN0JjaUdTRUh0Y1drbTkzRG9DNWhjN1RxNNIBYEFVX3lxTE5fT2paejUyTy1EM2drLXBVYjRVR3g4ZDJiSk9EZGdjS1lmSWo4US1fZkZ0TF8tNlBqcC1MM1BzVG5lTmhkb1Y5b2NrYUJsRUwtcncwS1NSOFpVZ09XMEdEVg?oc=5"
-     },
-     {
-      "title": "Athletics' Jacob Wilson: Not hitting since landing on shelf - CBS Sports",
-      "link": "https://news.google.com/rss/articles/CBMiqgFBVV95cUxNNk1fanRVUTVjdVcyRko3TXRDNTBpQ2xfYjRkMDVHSlVsRG05bktMZ0prcHVBMWVUWWlpQVdjcHB0SmVEMnc5VmhhcUdqNEJLamJCZGdxVTlkQ1gycVd2cXVlRWlnMDhETVE2QlFOZGhWbkZmaDd0RC1rRW9hOHdsT0FSMFYxam1VbDJTWVA1Vml1em5JWXVqeDFLN2M5Y1hGa1hlYnpDQlR1Zw?oc=5"
-     },
-     {
-      "title": "Jacob Wilson Injury: Not hitting since landing on shelf - RotoWire",
-      "link": "https://news.google.com/rss/articles/CBMiqgFBVV95cUxOWTVtQ0JXZmFvalV2cUZmSDNjSmNQN0pYNWpqLU5tOWpXaUlMOU45M28tZmFpTWFjay1ZenFKQ1ZkZzIyeGZhQVJRQjVDN0NQdEdVQjMyLWFTRjJKUWhacFpoNlU3MVZqTS1HUnI0WnN3UUJEVHJyNVhRWnM0ZTBRajd2blRzbE9qZVNoUExibXJUMmUzZ3RJM0FpRjZPMUktdllxb2E3dVhYZw?oc=5"
-     },
-     {
-      "title": "A's Reinstate Jacob Wilson, Recall Jacob Lopez in Flurry of Roster Moves - Yahoo Sports",
-      "link": "https://news.google.com/rss/articles/CBMijAFBVV95cUxQYUlrcjhJV0R0UEp5cnJMRHNzOHFsUUZuaENNd3N2Z0FBSVJRQnZmWGN0WGttQThwdmRBZjBNZ3N6YS1KZDluYV9PLUl2ZFcxd2dyYVl5ajdZUDhJVTFBYXZQODN0MXhsRUU5NkhmVVRDS0x3UUx3b2M2VGdCaGlUWHB1ZDlwcDc2aFZOMA?oc=5"
-     }
-    ]
-   },
-   {
-    "name": "Lazaro Montes",
-    "reason": "transaction",
-    "items": [
-     {
-      "title": "Mariners prospect Lazaro Montes makes 2 web gems in Tacoma - Seattle Sports",
-      "link": "https://news.google.com/rss/articles/CBMirgFBVV95cUxOdXFLYU9oVUw3cEJxaGdKWFR6T0NqSG5mXzUyR3QyYWc3WUQ5aVA5YUVOeEU4dkhBLS1rbzViQVN1X25OMmZ2cXoyQzJRZERwcmpITFVGbnZheUdXaVM4d3IwWW95azM0cklqUndMV1BlUU0zNHhlNDVvOXVJdVFPbW9CNDJuWXNtTS1yRi1KMGNyYm4yeVJVRnBXNDJ1NkgtMVE3RE9IdmhxQ3JCc3c?oc=5"
-     },
-     {
-      "title": "Mariners promote prospects Montes, Arroyo to Triple-A (sources) - MLB.com",
-      "link": "https://news.google.com/rss/articles/CBMiigFBVV95cUxPQlNJb3BVQU8xanA1ZTFzYkxVQmRZd2hnNlNHNFAxbFpoVTcxRHpPblpteE5nMmV6OTdqRk4tejA5S1ZWT3JJZVVvSXUxYmlVWUhLdnd3Q0F5eXNPZGFBeE5tTWlYRnhBanU1U2lQNnN3NFUyTGNLTlpNS0tCS2U1ZWU1VWx1Y1JQZlHSAZYBQVVfeXFMTW4wN1l6cG5nUTFBX3hxamJOcUdxbjBwQkJYQ3p1RE1rNlJLc2J0VjJOMzh0dTlpMVpJYWpJWUdNRUpDaGh3OF9SUkRsX0N0aGFHcUFXeUhBMGhvNDFVUXQxbENUTUZQYVhjelVsenU1QmY5UkpZUEVlbTA1Z2U3VGNrc3Rpd1VKX0dFRTJ6OEpvY3R4VDFB?oc=5"
-     },
-     {
-      "title": "Mariners Prospects Lazaro Montes, Michael Arroyo Move One Step Closer to Majors - Sports Illustrated",
-      "link": "https://news.google.com/rss/articles/CBMi0wFBVV95cUxNUlBiRGExNTRJTlFYOGRlcDR0ek5lRWVGa0FrVEVCRDc2U1NUQlVBMXF5NUdfS19ieHotMk9tWk1RLVdxWXV5bkZoNWQ5QTl6TjQ5cGtpdlhZTVBjb3hFQy1NMkd2N3kzN2NoQUFYNkpJZXowRFlvVnoxRWlXSTlIN1B4Sk9CWlh6Q1hLVGtNMzk3Z0xvcURLTXlycVlvaWN6NlFjX2dId1RmcUlaNjhBVWhQb0pwU3dMWlByTHMzWjYxZ2pZX2l3RGdxWjVINzNteDRR?oc=5"
-     },
-     {
-      "title": "Mariners promoting top prospect Lazaro Montes to Triple-A Tacoma - Seattle Sports",
-      "link": "https://news.google.com/rss/articles/CBMiuAFBVV95cUxNamxqdGt4SURpYTdYaUhueWRQelF3RVlORmdOT01FVkFtamVsdVFDcFV6aHFRYmZtd092UVBNU05mSnhEZWJYdVExU0pIOHhYVldnc3RJQWQwSThKdEVXTE5Ibm1ITEtZNzlTMzl3QnlOZEhjd05OdURKb1hEMGMzbnpQb25mRVVXWERNNVkyTzNYdDhIcjc3MUFYWUJ6TE1DeF9ZaGdCdF9FSFJpNS1fMWV4b3I1ZXIx?oc=5"
-     },
-     {
-      "title": "Lazaro Montes News: Moving up to Triple-A - RotoWire",
-      "link": "https://news.google.com/rss/articles/CBMilwFBVV95cUxNWmE5cFFyaEVXVXVpSzlWZXZFc1pWbnJWYWVGVHd1eDJuY2x0M3hPbVpEbjR6SXZGNFI4R004SHI5VFdJT3A0NG8xOXlyT2d3bDEzbWFDRGVLNHk1YTJYbHE0RGlBMWtTOGpxeEg2N3VCRUJ5MG8zZWRBX3dRX2Y0Y2pNVm5lY19CWGFRYTVsVTI1ZkpuWmV3?oc=5"
-     },
-     {
-      "title": "Mariners just put a potential offensive savior on their front doorstep - Sodo Mojo",
-      "link": "https://news.google.com/rss/articles/CBMilgFBVV95cUxObGR5WXhSTTZ0QWxDTmEzampRU0d1NTh6ZWJNbWo5b1NQNEFFLWxJN3RXU3BIWWJkeTk4YzNRblNSdXVkZzlha1hhek42a0xHY1hWamowb3lpaEJ6elRWWFp2dE9fUzZZOEdYTVl2bTFyY0U2cU1LaU5uZG9BbW04XzBvbTNrNGRvdW8zMHh3NEE1RHpLRFE?oc=5"
+      "title": "Wyatt Langford wins game in 9th in return from IL as Rangers beat Angels after blowing 5-run lead - FOX Sports",
+      "link": "https://news.google.com/rss/articles/CBMi0AFBVV95cUxPSjRiUWxlM29QOEZQUXNWelZCaTFTeWxnUkRmdlVtVThOZ2otYWZ3N1cwQTgzbTBfT1RfMkhybUYxMHI0ZW90OWhieW5DUWtYY3A5RkNHdTBKdFExUHYxakJqU2hFeDFSVElHZzNqTHo5bXNuNW5RWWdCekVqdzJPT3lzX0ZoZUxlYUJTcWlUQXpHS2RrX0NBX0hMYU1ScnFsc2dHZG9HbFJkekk1TERyNDViWUNXWkRYSy1LMW9jTVJXUTd6N0JCaDg0RGdXNDg5?oc=5"
      }
     ]
    },
@@ -216,80 +178,20 @@
       "link": "https://news.google.com/rss/articles/CBMinAFBVV95cUxQZ19Nbzc0Q1JFSFpiYWZSRjJMaEVDSXd2ZzJBdWZkdllCbWdxZkhQNF96LXVDeDdBLVB5MWttaHRnT2lqbHlqS2gzaGs5TlRwSzEteGRHYUhmbkYwWkFoWk9WbEgyWmZ2TFpfNFpSVE1nT1RaOFRQb2lCN2JRY21NU1FRTmpzamdGNjkyczNIeDBDNFppamdMYU9MWDI?oc=5"
      },
      {
+      "title": "Owen Caissie Injury: Expected to miss 2-to-4 weeks - RotoWire",
+      "link": "https://news.google.com/rss/articles/CBMiowFBVV95cUxPRVhiMWwxWGxfYlZ2WXpRTFRWOVd1X2pDcHI3VWZ0RXhubDlsVDRkNHotSW1DS3d5SEhwamxXa0V4NWd0b3FndjFacDI2RE1aNEZKNmIzeDlwenZSSmx6X2hZbVlCcHRISHdNRlhXeF92bC1ETEFFc2U0Y2h6RkR1RWkwX0tOVC1zdFZGR3FUZDU4Um45R3hwVUppUkNrYVJXME1j?oc=5"
+     },
+     {
       "title": "Owen Caissie Injury: Likely headed to injured list - RotoWire",
       "link": "https://news.google.com/rss/articles/CBMiowFBVV95cUxOWHp3Q2Zyb1J1SWJPX2FWMzZLSDJYTGhCNThfMHZZWE5EaXlWSEljU3luVGMtckRnZVpVeTZoWTNsalBQM3dxN1Y0bGsxZ3JjM1otUmFVOWVmT2ZkdmgzejAteGRWcDFlLWFsWTQtbFR1NmhDanNYcFh1dndzakMtSk1XbWRENmJURHVZbHQ3Vk9KWnpGZTJpZDdVQS1ZWkRSeG5R?oc=5"
      },
      {
-      "title": "Owen Caissie Departs Early with Calf Tightness - MLB News | Fantasy Baseball - RotoBaller",
-      "link": "https://news.google.com/rss/articles/CBMimAFBVV95cUxOS3JQa2xsN0Q4MFl4Rkd2Y3VTdmljX2RDcWl0cTVGWjFaVXdNNldzd2Q0VEVTU2RrWlJHMUMyNGV4MlV6WHdrNVZrWVhkeWRWcUdadHpTaFlwMkZZTmJTQmhtXzkySEprWEdiZHplTlRMcVk4V0tFMk9UTGJUUFZaeUg3dVpTWFktSEhEQUk0emFPU0x3TWkyMQ?oc=5"
+      "title": "Owen Caissie leaves the game early - MLB.com",
+      "link": "https://news.google.com/rss/articles/CBMid0FVX3lxTE1Jbm96ZGdkRzBTc0hBTDVLTmxqcTV1RHh3OHhSWDFxa01WNHM4UnJtSkt3UVhrcUpsQ3RsNzNXNzNUV013UUpsY3BPc1RjZ1hRVmk1Ti1KdzBEY001UkxYS2tkRXIwRDRMczIyOVdZOG1UcU4xY0tB?oc=5"
      },
      {
       "title": "Owen Caissie Injury: Lands on IL with strained calf - RotoWire",
       "link": "https://news.google.com/rss/articles/CBMipAFBVV95cUxQdGdIcUctLURaM2ZJaXNsSmw4WG5jekFuN2I4d2JRdXI1WjhrcXhxaTkxdV9ONU91VldsRnlNZ3Qwa3FkNUZPQVBPRHBuVDJfaUVkaFN0STZmZFpxdEZRS0Y3YTdDc2Z4QV85RlZlTjZtTUFVVXg4NVhLck5wbDNmT0s3ZTZTYWIxLUdLTml4eFF2NGk0RGhPa1dQSS00SUxEV19wbQ?oc=5"
-     },
-     {
-      "title": "Owen Caissie leaves the game early - MLB.com",
-      "link": "https://news.google.com/rss/articles/CBMid0FVX3lxTE1Jbm96ZGdkRzBTc0hBTDVLTmxqcTV1RHh3OHhSWDFxa01WNHM4UnJtSkt3UVhrcUpsQ3RsNzNXNzNUV013UUpsY3BPc1RjZ1hRVmk1Ti1KdzBEY001UkxYS2tkRXIwRDRMczIyOVdZOG1UcU4xY0tB?oc=5"
-     }
-    ]
-   },
-   {
-    "name": "Wyatt Langford",
-    "reason": "transaction",
-    "items": [
-     {
-      "title": "Rangers Activate Outfielder Wyatt Langford, Option Infielder Josh Smith to Triple-A Round Rock - MLB.com",
-      "link": "https://news.google.com/rss/articles/CBMi2AFBVV95cUxONklHanlxRU5FcDl0MnVuUWdfTU56bFMtb2FVWjlTV1pwblRENkstdFE0UE1KQ2JNNVlxVU5lN0FOUEJzWHEwWElnUXFWVlc3VTB3eU1ob3k0Yld3djdVMnYtZFJFYk9kVHF0elAtYklYMHJTTE9YUHBfTVVrcEg0YXJhMURDMDE4dnRKa3B2cXQ3X1J3bG4wa2stekZ6ZkNFUHcxUGUxM04xTXItZmtOblZHdVdOUV94SWNhb0xzQVpGYXVBLWJNQ1o3UlN6UkJZcUNSRnJsVzfSAeQBQVVfeXFMTUFMSlZMRlBPY1BlcVFNbnhvczN3UkZZai05REZUbXVrTk1zYWhTZ2RwMUlWVzNySWZJeFRuLVgzY3Z3R251dExyR0FXcUZjVDBOZUtOVTRRczcwaVN0OV9qZjVVSjh3TWhkci16N2ZMLXc1SFZ2UFh3QWVZVkI3WWx4c2JiT2daLU40SllpSTZvRUxQWC1VMmZfd2lDTnlKM0dxcTVGa1FidDRpaHQ1NS1seWtoZ1Nnb3VtaVhNMHZwM0tpUmtSMHRUOFBVdXpMbkVyQ0xlamhwRGVLczZ2UnhoVTdj?oc=5"
-     },
-     {
-      "title": "Wyatt Langford News: Activated from injured list - RotoWire",
-      "link": "https://news.google.com/rss/articles/CBMioAFBVV95cUxQb2dFQmJ6eXpvYllvSFBET0pKeVVDaF9MUkRwdGY1NG95ZEQ0VjFjQjFlcGhFNm5zWVF0UDFKX2UzOWo0RVZyMGFUMy1jYV9tVkU3cERWUThFLVNKbDRqbDNmRkhaVVVuWGxDOGQ2OTZoOWNxMWhwcDdxV0lXUVZEU3lkdHY3S1VWSFI2TmRUZ3lzZ0ZvcHhkeDFNODBvX1BP?oc=5"
-     },
-     {
-      "title": "Rangers Manager Delivers Wyatt Langford, Josh Jung Injury Updates - Yahoo Sports",
-      "link": "https://news.google.com/rss/articles/CBMikgFBVV95cUxPSzVhSS1SbVBGWU5BalRJQVNOVmN0TDhGZWtSYXZTYnBGY1N3UUdKOEh4ME8wbEFVZ1NRSzVtWDdFMXJkQXlxcWpuRk9yb2UwOTA2Y2Z3MVNiQzhhc1ZJNHhTV3BJcUVkVEdTc095YmVFeDRyZTNPMjAtMExRd0lIVnVMSXJUMUtoSXBEdzNQR3c5UQ?oc=5"
-     },
-     {
-      "title": "Rangers Can’t Make This Mistake with Wyatt Langford’s Injury Recovery - Sports Illustrated",
-      "link": "https://news.google.com/rss/articles/CBMinwFBVV95cUxPMEdLMm9WSk5uZVFqZkhlNW5fY19zVW5FSlF5V3gyVWprV2JsNk1rVThjT2NaVm9jaW9lWTJuM21VVTEtYW5sOUhpZmY4Z2daczBMMzJBeEFaZHNKX2RsM0FVRkNhZG9qdXpqdGVTc21YT2RYdHZYcFhnV1BGZlVBV0k0TTA2WDM1dVVnM3JlN0Voa212UnhVN3pNVWljMkE?oc=5"
-     },
-     {
-      "title": "Wyatt Langford Hoping to Return Before the All-Star Break - MLB News | Fantasy Baseball - RotoBaller",
-      "link": "https://news.google.com/rss/articles/CBMipwFBVV95cUxNazJ3UGhReGVFbUsxQmg1aEptRy1PSzNwU2h0cUZNWXhHVDlkUl9TVk1pd1NyblJ1YzlZdnRHYmxQZndMbnlqNlQzdjd6SEhTdkV5NjV4MkplOVNoVUgxWFptMV9SWS1ZMWpRbXJoVTNtd3UyZEJDZXozdEdmSmVqdFVRbWpNcVNKb1VSd2hkMS02VFJmcE1EVnpQS3p0N3dLb0M1ZGpxWQ?oc=5"
-     },
-     {
-      "title": "Rangers Place Wyatt Langford On IL, Activate Evan Carter - MLB Trade Rumors",
-      "link": "https://news.google.com/rss/articles/CBMioAFBVV95cUxOSXd3dFNoRlYxN3lVc2Y4SzAzMGdZNkFkclZsRG52RkR0ZnBRR1Nuam5BYkw1WW0yQnJCVkF4S3ZtdW9fTWlEaGF6TlF6dzByUHphbzRwd3ZVelNGTF9xeEVRcnlVNktIYXhNNllBUW5fR1dQanBReGF5SEpOUkhJWklaUF9ITFZfOFEwVWZtMUNzSDNleUh5WGd6QXpkdHRX?oc=5"
-     }
-    ]
-   },
-   {
-    "name": "Sal Stewart",
-    "reason": "monster game",
-    "items": [
-     {
-      "title": "Reds beat Phillies as Sal Stewart makes history with homers - Cincinnati Enquirer",
-      "link": "https://news.google.com/rss/articles/CBMiswFBVV95cUxNOFJQZGVlODhuVjZmTkhxaTcxMnhHT3p4eU5RMWxscmlRYmtMNWlQUUhvY0czRVJ6ekJuS1ZZRG16d0hGVkpOc2tqMHpGa2N0MjJNOHhWcndrQmFLMzZBbWpiZXpFWTdRMG5Gb1cyTWJDOTN5RGlvOTZFTlRfek9kSFNPT3gyMVdEMzY4ZFpEUEtEc0ZBVDJsOXh4T25VWDJzZFNrM3FmazRKQ3NYUV9ZVVlfNA?oc=5"
-     },
-     {
-      "title": "Resumen Filis @ Rojos, Resultados/Jugadas destacadas - 08/07/2026 - MLB.com",
-      "link": "https://news.google.com/rss/articles/CBMiVEFVX3lxTFBGbm04SmNxMGRDb2NjUHB3ZGZpTlI0SzNjem5NVTBMRk1CNUlsYThZSUYyc3lIeWItX2VmeHdzb051aWg4NjJGSEZEMEd0MEpid2hMWtIBVEFVX3lxTFBGbm04SmNxMGRDb2NjUHB3ZGZpTlI0SzNjem5NVTBMRk1CNUlsYThZSUYyc3lIeWItX2VmeHdzb051aWg4NjJGSEZEMEd0MEpid2hMWg?oc=5"
-     },
-     {
-      "title": "Sal Stewart Heating Up Again, Clubs Two Homers on Wednesday - MLB News | Fantasy Baseball - RotoBaller",
-      "link": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxQcE05NDRzWWh4Y3lVSDhlX2x6aXk4Q2NMZjh4YjA1NnpLTlV1b2lqMVR1LThwTGxyWGtWekM2amVXbzc0dTk1YlNGdklsMDFGMUdBSEVmX1NTTGUydEROZFN4b2FzZUU3US1ERUhCdjJ2SjdBelJCRjFMMUE1ZkZlTkxLcWlTWHVNcWlxdF8weGJxOURlSUo1SUplWDNfWVByLVVkTVozelo?oc=5"
-     },
-     {
-      "title": "Reds become first team to homer 4 times in an inning this season - Times Union",
-      "link": "https://news.google.com/rss/articles/CBMiogFBVV95cUxQLU9Cdkw4T1I4aWVBaVQzRFRyOEItbXVacU83YmFzdThiRkRZQlphb1dOWmNLbThoRW5wekRUUnZJSENRa2puUXRiWFRCT2lfck1UbTBLc0RvWVVtTVY1YVB0WGdtb29RNlU0dVV5UTVyb0JieFJMM0FkaUpHNFpCbWxXb1RmSlM4SmhPSnYwckI2TUVXeFJpMENJNUZKYl9WNlE?oc=5"
-     },
-     {
-      "title": "Reds' Sal Stewart: Goes yard twice in rout - CBS Sports",
-      "link": "https://news.google.com/rss/articles/CBMikwFBVV95cUxOVENFSlZpOGRfU2d3dW1ydURjSjlPNmw3dWo5ZW5peVk4SFZyOXpLdzFjZWo0aXF6UVRsYzZESTE3bG1Oc3p2RGhWcVRwWXhuZXBrd3pPbmsyaHJNNURYV1RWUXRCNGl2Q2x1TVFnLWVaSDlwdGdvdXBiXzRsN2pfVndLWkZnQVJoTE9BQXM4R29Qdlk?oc=5"
-     },
-     {
-      "title": "Philadelphia Phillies at Cincinnati Reds Game Story, Scores/Highlights - 07/08/2026 - MLB.com",
-      "link": "https://news.google.com/rss/articles/CBMiUEFVX3lxTE1IMlhDUURJYkdXNzhxdEVrV2M3ZDNsYVhkRjNuRUZ1ZUNMMkZPazlPSEJZWV82VTVkS0lJZGR6MXllSFl0MThpR1FpSlRsMFNB0gFQQVVfeXFMTUgyWENRREliR1c3OHF0RWtXYzdkM2xhWGRGM25FRnVlQ0wyRk9rOU9IQllZXzZVNWRLSUlkZHoxeWVIWXQxOGlHUWlKVGwwU0E?oc=5"
      }
     ]
    },
@@ -310,16 +212,16 @@
       "link": "https://news.google.com/rss/articles/CBMilwFBVV95cUxPaUg5TXRVdTljTGFGcTNyLWRwUkVVaF82S0MzT3FDVHZSQWY0SGlFbV9HNE9PUFRFcWxSQV9MMzd1dldmTlpNc3Q1OFIxcE9Ec3pMWF9fY1hrUl9nQUE3STR3ZFhLTlI2UHB2Q2lmWk44bFpLYjBqQTBJcERvMFgwdE1xcko5MUx4RVA5NjdubnBfVXJCN1Fr?oc=5"
      },
      {
-      "title": "Padres' Nick Pivetta Has Positive Injury Update as Return Timeline Gets Clearer - Sports Illustrated",
-      "link": "https://news.google.com/rss/articles/CBMiowFBVV95cUxPSDVMY21yOXN1VDE2R21zZUNzdXd4dngyanpYUmh4N3RMT3pzVHVFZFdXUXkyV3hXaEZCRXFzNVFFYklSMXo1U2hQdlphVU5WRWg5aWVYeG5NNVU2ODB0aFhVaUh6Qkx4N0pfZzFPb3NEcXUxOXdjZmx5Ymx0a2o1OF9PcXNQcVVUcE9aMHJ6WlljdGJwLTlHVDRCRXN0bzVXZW84?oc=5"
-     },
-     {
       "title": "Nick Pivetta Injury: Completes light bullpen session - RotoWire",
       "link": "https://news.google.com/rss/articles/CBMipgFBVV95cUxQVWhVN0hGZUhvMl9wRGlqQzIzYlhTRXZVcEVHUW5UekFkbnJUbTYtRVJLZklKV1EzVXA2X2swTUNVMVh3ZUdaQ0NmRTBMSFhaU0VKZ0V3UkpqZGJTYUg4bkk5Q1pOZFpPNDFtdU5MRDd2WGJSbGFpOVRpaTlwRFo0a1dNWWYwVGxKLWNqVGdYV3NrT3JocmtabnBmRUVnRkEyLXNwTVl3?oc=5"
      },
      {
-      "title": "Nick Pivetta Exits Start Due To Elbow Stiffness - MLB Trade Rumors",
-      "link": "https://news.google.com/rss/articles/CBMilgFBVV95cUxNZnRITF8xZWZiRk5rbUxpTGVST0FnQmktTFpOVU5TeWhUN2c0Y00tVlUyTlJDaGxTQXVvRGU4ZlphT2wxamF0VmI5TlZ2WEY0MV91VExfWFViQnJkRVpyaXAwWGVhOTNxckp4djBySGtWZ1hWR3NTSHROQzdkbE84cFlCLVlQQTY1YWtLdUg0dDA5Rm1jRWc?oc=5"
+      "title": "Padres' sweep of Rockies tempered by Pivetta's early exit - MLB.com",
+      "link": "https://news.google.com/rss/articles/CBMihwFBVV95cUxPYTBHMDJuZU5RM0NSb2JRWElBaGtLUlBqTW9zdVV2TlhsMU1Zc1pWNVpSNmM4dXAtTDcxNXBxNW9YYzlEZ1M1WFY3cnM4VEU5bTRIT042V1lmRlpjdDZ1SmYyLVliVTRESzE5cGdqaC02M3NfRXFjTy1uVzlmR3RvdFFoTUI3X2c?oc=5"
+     },
+     {
+      "title": "Padres right-hander Nick Pivetta exits with elbow stiffness - ESPN",
+      "link": "https://news.google.com/rss/articles/CBMioAFBVV95cUxQNDJCRWJOZVlSM05jenprbWhPckhVY0ZRVFF2Zzc0MGllNzFmZVA5OVZrdDBhVUdydGNMUFNGeFA2T0x0b0NWLXpheU5melJmLUpGb2JZVVFyMVRlUUtMOXdzZmNNMm84eTZ5ZFV5U2pmbXlMVXBvTzl6WmRqemlxR1B0Y2VCNE5pSjl6RUN4TE5XS3FQMmpKb19yMERkU3cy?oc=5"
      }
     ]
    },
@@ -344,12 +246,12 @@
       "link": "https://news.google.com/rss/articles/CBMimwFBVV95cUxQb0phMnlXRF8xZ1hmbE9XRTVIczYzOGliUUExd24zMi1uNUEwVmUzYlVNZ0NLb1BPVHhGSWotUkhDODc4b3NQdUNnaXdIVzY1RzVBcjB4OHlHVTBMZVVZQnh5TWFrbk5zbXBGS2dIUnV2UG5QUF9jellRZ3dELTJrTm5yYWVUWnhFeXRQdkJMREZWWmdCcnJWTjIwdw?oc=5"
      },
      {
-      "title": "Braves Place Spencer Schwellenbach On 60-Day Injured List - MLB Trade Rumors",
-      "link": "https://news.google.com/rss/articles/CBMinwFBVV95cUxQNi1HTFVuWHR1cUJfNVQwV0VKSnFxOTVMQ01ZTGhKQ3RIX1ktbmczNGlmUWVxRUFYMktvaEdZMm9SNmhWTmNDa2tkZEk2ME94VGFTODlqQkhGT3VBZ1ZxU0oyU25EekFJR1R1a1JKenpSeXVSN3Jtc3VlNGQ0bEZGY1pGd1pkQTh0enFaLVF4SzZCM3U1b1ptUlVjVnNfM2M?oc=5"
+      "title": "Atlanta Braves Receive Injury Update on Pitcher Who Is Suddenly Incredibly Important Again - heavy.com",
+      "link": "https://news.google.com/rss/articles/CBMikgFBVV95cUxOSkZpbWhsa0lsdEFROXdRN1RUS0hUdTB0Zl8tYmhTRzhvNGk4LS1lMWk2UnpNaFpzOXg4cW9MWWVGQnlxeHlhSERtNEpPQW9rLUNLR2FNbFEwLWpmSnRwckRnaTJmZmY3SGVQZlEybnpCSnB0ckxwUkpPdkV2Y3ZmdUJ6QjltcHlCcFdoSXBYVUtDZw?oc=5"
      },
      {
-      "title": "Braves Choosing Patient Route with Spencer Schwellenbach - Sports Illustrated",
-      "link": "https://news.google.com/rss/articles/CBMilgFBVV95cUxQR1pnMWF1cEh6YWNHVGNLREI3MUFfT2JTQXJrWVc2aWQ1SXpoakJ6X2NjWVVOQ2Z0M2hqVmV2S2k0eXM0WTM5UU51cU9lOGFNcHo3bWUzdHNzNXVpQldIMmVlRUVxZHJSR3NWMWppOW1uOVlQUlJMR3IyWnRfN096a1lFcjFid0ZTeG5SVkRCNFRVZ0dnWFE?oc=5"
+      "title": "Braves Place Spencer Schwellenbach On 60-Day Injured List - MLB Trade Rumors",
+      "link": "https://news.google.com/rss/articles/CBMinwFBVV95cUxQNi1HTFVuWHR1cUJfNVQwV0VKSnFxOTVMQ01ZTGhKQ3RIX1ktbmczNGlmUWVxRUFYMktvaEdZMm9SNmhWTmNDa2tkZEk2ME94VGFTODlqQkhGT3VBZ1ZxU0oyU25EekFJR1R1a1JKenpSeXVSN3Jtc3VlNGQ0bEZGY1pGd1pkQTh0enFaLVF4SzZCM3U1b1ptUlVjVnNfM2M?oc=5"
      }
     ]
    }
@@ -363,19 +265,19 @@
     "players": [
      "Geraldo Perdomo"
     ],
-    "game": "AZ @ SD 9:40 PM",
-    "opp": "vs RP Griffin Canning",
-    "era": 6.71,
-    "flag": "target"
+    "game": "AZ @ LAD 10:10 PM",
+    "opp": "vs RP Shohei Ohtani",
+    "era": 1.79,
+    "flag": "tough"
    },
    {
     "mlb": "BAL",
     "players": [
      "Samuel Basallo"
     ],
-    "game": "BAL vs CHC 1:35 PM",
-    "opp": "vs LP David Peterson",
-    "era": 6.09,
+    "game": "BAL vs KC 7:05 PM",
+    "opp": "vs RP Luinder Avila",
+    "era": 5.05,
     "flag": "target"
    },
    {
@@ -383,19 +285,19 @@
     "players": [
      "Dansby Swanson"
     ],
-    "game": "CHC @ BAL 1:35 PM",
-    "opp": "vs LP Trevor Rogers",
-    "era": 4.48,
-    "flag": ""
+    "game": "CHC @ CIN 7:10 PM",
+    "opp": "vs RP Hunter Greene",
+    "era": 21.6,
+    "flag": "target"
    },
    {
     "mlb": "CIN",
     "players": [
      "Sal Stewart"
     ],
-    "game": "CIN vs PHI 7:10 PM",
-    "opp": "vs LP Jesús Luzardo",
-    "era": 3.57,
+    "game": "CIN vs CHC 7:10 PM",
+    "opp": "vs LP Shota Imanaga",
+    "era": 4.28,
     "flag": ""
    },
    {
@@ -403,20 +305,30 @@
     "players": [
      "Riley Greene"
     ],
-    "game": "DET vs ATH 6:40 PM",
-    "opp": "vs LP José Suarez",
-    "era": 6.61,
+    "game": "DET vs PHI 6:40 PM",
+    "opp": "vs RP Aaron Nola",
+    "era": 5.87,
     "flag": "target"
+   },
+   {
+    "mlb": "LAD",
+    "players": [
+     "Kyle Tucker"
+    ],
+    "game": "LAD vs AZ 10:10 PM",
+    "opp": "vs LP Eduardo Rodriguez",
+    "era": 2.25,
+    "flag": "tough"
    },
    {
     "mlb": "NYM",
     "players": [
      "Juan Soto"
     ],
-    "game": "NYM vs KC 1:10 PM",
-    "opp": "vs RP Michael Wacha",
-    "era": 3.77,
-    "flag": ""
+    "game": "NYM vs BOS 7:15 PM",
+    "opp": "vs RP Sonny Gray",
+    "era": 2.61,
+    "flag": "tough"
    },
    {
     "mlb": "ATH",
@@ -425,9 +337,9 @@
      "Jacob Wilson",
      "Carlos Cortes"
     ],
-    "game": "ATH @ DET 6:40 PM",
-    "opp": "vs LP Framber Valdez",
-    "era": 4.16,
+    "game": "ATH @ CWS 7:40 PM",
+    "opp": "vs RP Sean Burke",
+    "era": 3.56,
     "flag": ""
    },
    {
@@ -435,9 +347,9 @@
     "players": [
      "Fernando Tatis Jr."
     ],
-    "game": "SD vs AZ 9:40 PM",
-    "opp": "vs RP Merrill Kelly",
-    "era": 5.71,
+    "game": "SD vs TOR 9:40 PM",
+    "opp": "vs RP Shane Bieber",
+    "era": 9,
     "flag": "target"
    },
    {
@@ -445,70 +357,81 @@
     "players": [
      "Colt Emerson"
     ],
-    "game": "SEA @ MIA 6:40 PM",
-    "opp": "vs RP Janson Junk",
-    "era": 4.57,
-    "flag": ""
+    "game": "SEA @ TB 7:10 PM",
+    "opp": "vs RP Nick Martinez",
+    "era": 2.61,
+    "flag": "tough"
    },
    {
     "mlb": "TB",
     "players": [
      "Junior Caminero"
     ],
-    "game": "TB vs NYY 1:10 PM",
-    "opp": "vs RP Paul Blackburn",
-    "era": 2.31,
-    "flag": "tough"
+    "game": "TB vs SEA 7:10 PM",
+    "opp": "vs RP Luis Castillo",
+    "era": 4.79,
+    "flag": "target"
    },
    {
     "mlb": "TEX",
     "players": [
      "Wyatt Langford"
     ],
-    "game": "TEX vs LAA 8:05 PM",
-    "opp": "vs LP Reid Detmers",
-    "era": 4.13,
+    "game": "TEX vs HOU 8:05 PM",
+    "opp": "vs RP Hunter Brown",
+    "era": 3.38,
     "flag": ""
+   },
+   {
+    "mlb": "TOR",
+    "players": [
+     "George Springer",
+     "Daulton Varsho"
+    ],
+    "game": "TOR @ SD 9:40 PM",
+    "opp": "vs LP JP Sears",
+    "era": 4.7,
+    "flag": "target"
    },
    {
     "mlb": "MIN",
     "players": [
      "Luke Keaschall"
     ],
-    "game": "MIN vs CLE 1:40 PM",
-    "opp": "vs RP Gavin Williams",
-    "era": 3.81,
-    "flag": ""
+    "game": "MIN vs LAA 8:10 PM",
+    "opp": "vs RP Grayson Rodriguez",
+    "era": 8.06,
+    "flag": "target"
    },
    {
     "mlb": "ATL",
     "players": [
      "Drake Baldwin"
     ],
-    "game": "ATL @ PIT 12:35 PM",
-    "opp": "vs RP Mitch Keller",
-    "era": 5.14,
-    "flag": "target"
+    "game": "ATL @ STL 8:15 PM",
+    "opp": "vs RP Kyle Leahy",
+    "era": 3.86,
+    "flag": ""
    },
    {
     "mlb": "MIA",
     "players": [
      "Owen Caissie"
     ],
-    "game": "MIA vs SEA 6:40 PM",
-    "opp": "vs RP Bryce Miller",
-    "era": 2.22,
+    "game": "MIA vs CLE 7:10 PM",
+    "opp": "vs LP Parker Messick",
+    "era": 2.8,
     "flag": "tough"
    }
   ],
   "myStarters": [
    {
-    "name": "Trevor Rogers",
-    "game": "BAL vs CHC (home)"
+    "name": "Jack Flaherty",
+    "game": "DET vs PHI (home)"
    },
    {
-    "name": "Reid Detmers",
-    "game": "LAA @ TEX (away)"
+    "name": "Hunter Brown",
+    "game": "HOU @ TEX (away)"
    }
   ],
   "note": ""

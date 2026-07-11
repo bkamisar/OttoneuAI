@@ -1,24 +1,395 @@
 {
- "generatedAt": "2026-07-11T00:37:51.691Z",
+ "generatedAt": "2026-07-11T00:38:12.401Z",
  "dateLabel": "Friday, July 10",
- "teamId": "10749",
+ "teamId": "10759",
  "yesterday": {
   "note": "",
-  "hitters": [],
-  "pitchers": []
+  "hitters": [
+   {
+    "name": "Drake Baldwin",
+    "mlb": "ATL",
+    "line": "2-4, 1 RBI, 1 R, 1 BB",
+    "blurb": ""
+   },
+   {
+    "name": "Juan Soto",
+    "mlb": "NYM",
+    "line": "1-2, 1 HR, 1 RBI, 2 R, 2 BB",
+    "blurb": ""
+   },
+   {
+    "name": "Junior Caminero",
+    "mlb": "TB",
+    "line": "1-4, 1 HR, 1 RBI, 1 R",
+    "blurb": ""
+   },
+   {
+    "name": "Samuel Basallo",
+    "mlb": "BAL",
+    "line": "0-4",
+    "blurb": ""
+   },
+   {
+    "name": "Dansby Swanson",
+    "mlb": "CHC",
+    "line": "1-4, 2 SB",
+    "blurb": ""
+   },
+   {
+    "name": "Luke Keaschall",
+    "mlb": "MIN",
+    "line": "0-2",
+    "blurb": ""
+   },
+   {
+    "name": "Riley Greene",
+    "mlb": "DET",
+    "line": "0-4",
+    "blurb": ""
+   },
+   {
+    "name": "Nick Kurtz",
+    "mlb": "ATH",
+    "line": "0-4",
+    "blurb": ""
+   },
+   {
+    "name": "Jacob Wilson",
+    "mlb": "ATH",
+    "line": "2-4, 1 R",
+    "blurb": ""
+   },
+   {
+    "name": "Colt Emerson",
+    "mlb": "SEA",
+    "line": "1-3, 1 BB, 1 SB",
+    "blurb": ""
+   },
+   {
+    "name": "Sal Stewart",
+    "mlb": "CIN",
+    "line": "0-4",
+    "blurb": ""
+   },
+   {
+    "name": "Wyatt Langford",
+    "mlb": "TEX",
+    "line": "1-5, 1 RBI",
+    "blurb": ""
+   },
+   {
+    "name": "Fernando Tatis Jr.",
+    "mlb": "SD",
+    "line": "1-4",
+    "blurb": ""
+   },
+   {
+    "name": "Geraldo Perdomo",
+    "mlb": "AZ",
+    "line": "2-4, 1 RBI",
+    "blurb": ""
+   }
+  ],
+  "pitchers": [
+   {
+    "name": "Trevor Rogers",
+    "mlb": "BAL",
+    "line": "6.0 IP, 1 ER, 4 K",
+    "blurb": ""
+   },
+   {
+    "name": "Grant Taylor",
+    "mlb": "CWS",
+    "line": "1.0 IP, 0 ER, 0 K",
+    "blurb": ""
+   },
+   {
+    "name": "Abner Uribe",
+    "mlb": "MIL",
+    "line": "1.0 IP, 0 ER, 0 K",
+    "blurb": ""
+   },
+   {
+    "name": "Aaron Ashby",
+    "mlb": "MIL",
+    "line": "1.0 IP, 0 ER, 1 K (H, 7)",
+    "blurb": ""
+   },
+   {
+    "name": "Reid Detmers",
+    "mlb": "LAA",
+    "line": "4.0 IP, 5 ER, 6 K",
+    "blurb": ""
+   },
+   {
+    "name": "Adrian Morejon",
+    "mlb": "SD",
+    "line": "1.0 IP, 0 ER, 2 K",
+    "blurb": ""
+   }
+  ]
  },
  "news": {
-  "transactions": [],
-  "flagged": [],
-  "league": []
+  "transactions": [
+   "07/09 — Texas Rangers activated LF Wyatt Langford from the 10-day injured list.",
+   "07/09 — Miami Marlins placed RF Owen Caissie on the 10-day injured list. Right calf strain."
+  ],
+  "flagged": [
+   {
+    "name": "Wyatt Langford",
+    "reason": "transaction",
+    "items": [
+     {
+      "title": "Langford's early return saves Rangers with walk-off winner - MLB.com",
+      "link": "https://news.google.com/rss/articles/CBMimgFBVV95cUxNQXlMOEFxYjJJZmt6bWFGYkE2NWZ0di05cDRQamhPazlkMGxsNV9RRnlMU3ZoTUZXZ3VmbFdRbWlLWVpvc0FOS21KUzBVZ2FsZnNuaTh6RGJkN08zcWs3SkV4NTc3STlTSjQwamhCSzNGM3JaY01OWE5tY24yQ0JLSnlLMFR5SFY5NlJyVEIybnI5blg3YkIwZ2tR?oc=5"
+     },
+     {
+      "title": "Fantasy baseball: White Sox welcome back Murakami and other Friday news - ESPN",
+      "link": "https://news.google.com/rss/articles/CBMi_gFBVV95cUxOcmhENTBqWjVVZldCUHJxaVNxU3ptVWEwQUtNQjJsNENfOENodU95Z3JSVWhxZ2xSTFlfU0dtYTQxQnNSZEhSZXBUa2JPWnRUb0pVUWxmVjlDMlhJaF92TURfOXRqWHFpQ0ROTVRkc19yY0c4V2JFQjhuRHJCUnhndENwVzVZcEZ6dGNvZDloYWxicWs2TzBITDVlS05BZ1A4QjJRRXVmamtBNkxCd1M3bDU4MDg0ZUx0U29pMTJmY2t4OUZUV0s4WDRHakdJYnRqQ0FPUzhuaHlXSHVVMFVLbkJleHI2NE9fbjVwd01iYlZRTTluTzE2NEZkMTRzQQ?oc=5"
+     },
+     {
+      "title": "Rangers Feature Wyatt Langford To Dismantle Astros Before All-Star Break - Sports Illustrated",
+      "link": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxPNUphME02cEw4dkloWmE1bWVZMGRoZjgxZ3BtSUFUZlNaM1NSdU8yQUpUcG5JOEtmbVdpNUVLZ0FFY0ZkR1B6VFB4WnBRMU01ME90RWtRNjh3TmxrYkJTUkJGQVVTMFRBLUh3cHZqNTJkZkltSmpTRGVURmwxb2ZLWFdJWkRNQlVqcmRrLTc5MlhoTGtmNUZRa2dfZEFTM2w3U2Z4YWcwS2E?oc=5"
+     },
+     {
+      "title": "Rangers Manager Delivers Wyatt Langford, Josh Jung Injury Updates - Yahoo Sports",
+      "link": "https://news.google.com/rss/articles/CBMikgFBVV95cUxPSzVhSS1SbVBGWU5BalRJQVNOVmN0TDhGZWtSYXZTYnBGY1N3UUdKOEh4ME8wbEFVZ1NRSzVtWDdFMXJkQXlxcWpuRk9yb2UwOTA2Y2Z3MVNiQzhhc1ZJNHhTV3BJcUVkVEdTc095YmVFeDRyZTNPMjAtMExRd0lIVnVMSXJUMUtoSXBEdzNQR3c5UQ?oc=5"
+     },
+     {
+      "title": "Wyatt Langford on his walk-off hit - MLB.com",
+      "link": "https://news.google.com/rss/articles/CBMibEFVX3lxTFBHdXNKSC1EbHFiblNFQUNZUGNGMl8wVGhRSWZhcFpQVkhwcnlqOFpGVnFVMG1pTTZRd1JCT1BwTlp2dHJzQ1BqeU9WTThrbU9KRTF3c3BWT21XdDVtaFI2cEtpY2JkSS1SV3JieA?oc=5"
+     },
+     {
+      "title": "Wyatt Langford Activated and Starting on Thursday - MLB News | Fantasy Baseball - RotoBaller",
+      "link": "https://news.google.com/rss/articles/CBMinAFBVV95cUxQRVlHRFFsMVpLX3B4T0dPSDlpN3pTcm0yamNmVVR5Sko3Z1RnT3JtalhYbjZ6TFh0WE9HZjVSdHRpMmJtdFNlc2pyUDA5YXplTlI2NTlUVVRDcEJSaEpSVHk3bzVBeUZaQTJaWGMwaVpFX083NW5MNW1hdzMzOEtjR3BkWk0tQU1XdmRiV2J1b096SjYzdGhxcE01MDI?oc=5"
+     }
+    ]
+   },
+   {
+    "name": "Owen Caissie",
+    "reason": "transaction",
+    "items": [
+     {
+      "title": "Caissie (right calf strain), King (left ankle sprain) to IL - MLB.com",
+      "link": "https://news.google.com/rss/articles/CBMifEFVX3lxTE53Q3pYRnR2b0FtWmdCOEo5dm5jUmo1S0pfNGhwMmdPVTZEeUpoYkZOcnYtTVBINlVhQnJhYWcxUHlQSVdQVGY3ZTFKWEJGQUVwZWtmbk1hQWVWMlZxc3lwVjhaOW14YUtJcmRCMjhudWxacUlqb0tfLXZvY07SAYgBQVVfeXFMT1AzWU5xZURLcU9NOW5XQ1plZWpKRDVCV0xocUgwNlY3T2pzQjNidUJlNHE0ZEJ6OG45emVXY284QXdNVVBLXzdnTUNXcmtpSURjTkZuMkMwX0dOU19KOXdRSDVrcF9JdzJyN1hqdzhoeGZzaVN2cnIzREhVTmZId1YtMHJkbFEtOA?oc=5"
+     },
+     {
+      "title": "Marlins Place Owen Caissie, John King On Injured List - MLB Trade Rumors",
+      "link": "https://news.google.com/rss/articles/CBMinAFBVV95cUxQZ19Nbzc0Q1JFSFpiYWZSRjJMaEVDSXd2ZzJBdWZkdllCbWdxZkhQNF96LXVDeDdBLVB5MWttaHRnT2lqbHlqS2gzaGs5TlRwSzEteGRHYUhmbkYwWkFoWk9WbEgyWmZ2TFpfNFpSVE1nT1RaOFRQb2lCN2JRY21NU1FRTmpzamdGNjkyczNIeDBDNFppamdMYU9MWDI?oc=5"
+     },
+     {
+      "title": "Owen Caissie leaves the game early - MLB.com",
+      "link": "https://news.google.com/rss/articles/CBMid0FVX3lxTE1Jbm96ZGdkRzBTc0hBTDVLTmxqcTV1RHh3OHhSWDFxa01WNHM4UnJtSkt3UVhrcUpsQ3RsNzNXNzNUV013UUpsY3BPc1RjZ1hRVmk1Ti1KdzBEY001UkxYS2tkRXIwRDRMczIyOVdZOG1UcU4xY0tB?oc=5"
+     },
+     {
+      "title": "Owen Caissie News: Goes deep against Seattle - RotoWire",
+      "link": "https://news.google.com/rss/articles/CBMimwFBVV95cUxNYlNnUHpHTTVrTndoOWJ6R3V6N1RtRDFDUXd2dFh2WWpmT0UydUp0M0lOc3VWT2Jxam80b3gwVHJMdHAxcDdnOXlYajJFc1A1OWxyMVVZVHVoMHZ6eXp0Q25rT1dPZWdMb0JFcnlKM0o3ZENoWHVqYTNCVDRtVk16ZUVYMWttYUdyV0NnZjZNTi00eWJBZkd3UEJGZw?oc=5"
+     },
+     {
+      "title": "Owen Caissie Injury: Pulled early Wednesday - RotoWire",
+      "link": "https://news.google.com/rss/articles/CBMimgFBVV95cUxQU1d1RWg0VFBhUExWU1ZMeXZIUkh0R3h6TlZyV2EwSThtMUV5SHFzaGZtd3FmdWxPMjJUc3NBbzlaQzBZREVpSy1fWWtlSmg1VGdZa3pmUWhzVGN1QVlFM3lvWGFWRnJEQ3o5TGxMalI5MmM3cXFQclg2eEZXcnMwdmdpTVpDZ2l2RnN5dl9mT0pRM0RTUmY4Q1pn?oc=5"
+     },
+     {
+      "title": "Jack Perkins strikes out Owen Caissie - Baseball Savant",
+      "link": "https://news.google.com/rss/articles/CBMikgFBVV95cUxOX1FZSTJHUTJQekIyb1hmV25jcnlYOEJuRzhWczV1N0tMY3dFWjZ1ZUJZV2Zhc2ZRcW9UajFuZktQVkpxVG16S1R4MWJHUjVjZ1U2Xy1xU0xYaHhmd2R2c3ZNSm90cDVVNXRqOWIyZnV0TDJRYkdHdXVIT3EtTEZTT2s5SkFQeW95cDR3M1JtLW50UQ?oc=5"
+     }
+    ]
+   }
+  ],
+  "league": [
+   {
+    "title": "DeGrom to skip next start; Rangers hope time off means no IL",
+    "link": "https://www.espn.com/mlb/story/_/id/49328446/degrom-skip-next-start-rangers-hope-means-no-il"
+   }
+  ]
  },
  "matchups": {
-  "hitters": [],
-  "myStarters": [],
+  "hitters": [
+   {
+    "mlb": "AZ",
+    "players": [
+     "Geraldo Perdomo"
+    ],
+    "game": "AZ @ LAD 10:10 PM",
+    "opp": "vs RP Kyle Hurt",
+    "era": 4.55,
+    "flag": ""
+   },
+   {
+    "mlb": "BAL",
+    "players": [
+     "Samuel Basallo"
+    ],
+    "game": "BAL vs KC 7:05 PM",
+    "opp": "vs RP Luinder Avila",
+    "era": 5.08,
+    "flag": "target"
+   },
+   {
+    "mlb": "CHC",
+    "players": [
+     "Dansby Swanson"
+    ],
+    "game": "CHC @ CIN 7:10 PM",
+    "opp": "vs RP Hunter Greene",
+    "era": 8.64,
+    "flag": "target"
+   },
+   {
+    "mlb": "CIN",
+    "players": [
+     "Sal Stewart"
+    ],
+    "game": "CIN vs CHC 7:10 PM",
+    "opp": "vs LP Shota Imanaga",
+    "era": 4.18,
+    "flag": ""
+   },
+   {
+    "mlb": "DET",
+    "players": [
+     "Riley Greene"
+    ],
+    "game": "DET vs PHI 6:40 PM",
+    "opp": "vs RP Aaron Nola",
+    "era": 5.75,
+    "flag": "target"
+   },
+   {
+    "mlb": "LAD",
+    "players": [
+     "Kyle Tucker"
+    ],
+    "game": "LAD vs AZ 10:10 PM",
+    "opp": "vs LP Eduardo Rodriguez",
+    "era": 2.25,
+    "flag": "tough"
+   },
+   {
+    "mlb": "NYM",
+    "players": [
+     "Juan Soto"
+    ],
+    "game": "NYM vs BOS 7:15 PM",
+    "opp": "vs RP Sonny Gray",
+    "era": 2.55,
+    "flag": "tough"
+   },
+   {
+    "mlb": "ATH",
+    "players": [
+     "Nick Kurtz",
+     "Jacob Wilson",
+     "Carlos Cortes"
+    ],
+    "game": "ATH @ CWS 7:40 PM",
+    "opp": "vs RP Sean Burke",
+    "era": 3.42,
+    "flag": ""
+   },
+   {
+    "mlb": "SD",
+    "players": [
+     "Fernando Tatis Jr."
+    ],
+    "game": "SD vs TOR 9:40 PM",
+    "opp": "vs RP Shane Bieber",
+    "era": 9,
+    "flag": "target"
+   },
+   {
+    "mlb": "SEA",
+    "players": [
+     "Colt Emerson"
+    ],
+    "game": "SEA @ TB 7:10 PM",
+    "opp": "vs RP Nick Martinez",
+    "era": 2.56,
+    "flag": "tough"
+   },
+   {
+    "mlb": "TB",
+    "players": [
+     "Junior Caminero"
+    ],
+    "game": "TB vs SEA 7:10 PM",
+    "opp": "vs RP Luis Castillo",
+    "era": 4.93,
+    "flag": "target"
+   },
+   {
+    "mlb": "TEX",
+    "players": [
+     "Wyatt Langford"
+    ],
+    "game": "TEX vs HOU 8:05 PM",
+    "opp": "vs RP Hunter Brown",
+    "era": 3.86,
+    "flag": ""
+   },
+   {
+    "mlb": "TOR",
+    "players": [
+     "George Springer",
+     "Daulton Varsho"
+    ],
+    "game": "TOR @ SD 9:40 PM",
+    "opp": "vs LP JP Sears",
+    "era": 4.7,
+    "flag": "target"
+   },
+   {
+    "mlb": "MIN",
+    "players": [
+     "Luke Keaschall"
+    ],
+    "game": "MIN vs LAA 8:10 PM",
+    "opp": "vs RP Grayson Rodriguez",
+    "era": 8.1,
+    "flag": "target"
+   },
+   {
+    "mlb": "ATL",
+    "players": [
+     "Drake Baldwin"
+    ],
+    "game": "ATL @ STL 8:15 PM",
+    "opp": "vs RP Kyle Leahy",
+    "era": 3.77,
+    "flag": ""
+   },
+   {
+    "mlb": "MIA",
+    "players": [
+     "Owen Caissie"
+    ],
+    "game": "MIA vs CLE 7:10 PM",
+    "opp": "vs LP Parker Messick",
+    "era": 2.67,
+    "flag": "tough"
+   }
+  ],
+  "myStarters": [
+   {
+    "name": "Jack Flaherty",
+    "era": 4.48,
+    "game": "DET vs PHI (home)",
+    "oppTeam": "PHI",
+    "oppOffRank": 22,
+    "oppOffTotal": 30,
+    "flag": "good"
+   },
+   {
+    "name": "Hunter Brown",
+    "era": 3.86,
+    "game": "HOU @ TEX (away)",
+    "oppTeam": "TEX",
+    "oppOffRank": 18,
+    "oppOffTotal": 30,
+    "flag": ""
+   }
+  ],
   "note": ""
  },
- "errors": [
-  "Roster fetch failed: Error: No players found for TeamID \"10749\"",
-  "No roster — set MY_TEAM_ID and check the export."
- ]
+ "errors": []
 }

@@ -222,7 +222,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10881,"Look Out Bello",33767,23920,sa3005436,"Brayan Bello","BOS AAA",SP,$8
 10881,"Look Out Bello",31687,19352,sa873680,"Sean Murphy",ATL,C,$8
 10881,"Look Out Bello",33656,20633,,"Yusei Kikuchi",LAA,SP,$7
-10881,"Look Out Bello",37960,26396,sa3011703,"Josh Smith",TEX,1B/2B/SS/3B/OF,$6
+10881,"Look Out Bello",37960,26396,sa3011703,"Josh Smith","TEX AAA",1B/2B/SS/3B/OF,$6
 10881,"Look Out Bello",33627,21479,sa3007867,"Nico Hoerner",CHC,2B/SS,$6
 10881,"Look Out Bello",23809,22275,sa915698,"Jake Burger",TEX,1B,$5
 10881,"Look Out Bello",27058,23772,sa3005082,"Wilyer Abreu",BOS,OF,$5
@@ -234,7 +234,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10881,"Look Out Bello",23788,19522,sa943754,"TJ Friedl",CIN,OF,$4
 10881,"Look Out Bello",32009,22100,sa916702,"Jose Soriano",LAA,SP,$4
 10881,"Look Out Bello",27185,20191,sa3005306,"Garrett Whitlock",BOS,RP,$4
-10881,"Look Out Bello",38330,27756,sa3014534,"Mick Abel","MIN AAA",SP,$3
+10881,"Look Out Bello",38330,27756,sa3014534,"Mick Abel","MIN ST",SP,$3
 10881,"Look Out Bello",37181,26123,sa3010869,"Brett Baty",NYM,1B/2B/3B/OF,$3
 10881,"Look Out Bello",31572,19901,sa829797,"Gavin Sheets",SDP,1B/OF,$3
 10881,"Look Out Bello",23639,19956,sa917920,"Mickey Moniak",COL,OF,$3
@@ -267,7 +267,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10897,"Five-cent head",18171,14078,sa621625,"Michael Wacha",KCR,SP,$6
 10897,"Five-cent head",26154,22715,sa3003246,"Maikel Garcia",KCR,2B/SS/3B/OF,$5
 10897,"Five-cent head",45790,35456,sa3045705,"Trey Yesavage",TOR,SP,$5
-10897,"Five-cent head",33652,24618,sa3007051,"Ryan Jeffers","MIN AAA",C,$5
+10897,"Five-cent head",33652,24618,sa3007051,"Ryan Jeffers",MIN,C,$5
 10897,"Five-cent head",38368,27615,sa3014466,"Alec Burleson",STL,1B/OF,$5
 10897,"Five-cent head",22331,19913,sa872787,"Jesus Sanchez",TOR,OF,$5
 10897,"Five-cent head",40607,29911,sa3017529,"Andrew Abbott",CIN,SP,$4
@@ -310,7 +310,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10899,"Prospects R Us",18462,12970,sa597766,"Joe Musgrove",SDP,RP,$3
 10899,"Prospects R Us",37797,26368,sa3011642,"JJ Bleday",CIN,OF,$3
 10899,"Prospects R Us",41335,,sa3018584,"Josue Briceno","DET A",C/1B,$3
-10899,"Prospects R Us",45789,35061,sa3025261,"Ryan Waldschmidt","ARI AAA",OF,$3
+10899,"Prospects R Us",45789,35061,sa3025261,"Ryan Waldschmidt",ARI,OF,$3
 10899,"Prospects R Us",36030,26517,sa3008745,"Noelvi Marte",CIN,3B/OF,$3
 10899,"Prospects R Us",43893,,sa3022683,"Max Clark","DET AAA",OF,$3
 10899,"Prospects R Us",38409,27932,sa3014512,"Ian Seymour",TBR,SP/RP,$3
@@ -320,7 +320,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10899,"Prospects R Us",42598,31621,sa3020475,"Spencer Miles",TOR,RP,$2
 10899,"Prospects R Us",45947,35177,sa3025452,"Carson Benge",NYM,OF,$2
 10899,"Prospects R Us",42794,31857,sa3020808,"Connor Prielipp",MIN,SP,$2
-10899,"Prospects R Us",44349,33708,sa3023069,"Cooper Ingle",CLE,C,$2
+10899,"Prospects R Us",44349,33708,sa3023069,"Cooper Ingle","CLE AAA",C,$2
 10899,"Prospects R Us",36539,26944,sa3009613,"Edgardo Henriquez",LAD,RP,$2
 10899,"Prospects R Us",37786,26299,sa3011468,"Josh Jung",TEX,3B,$2
 10899,"Prospects R Us",22654,17988,sa874242,"Tyler Stephenson",CIN,C,$2
@@ -348,7 +348,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10908,"South Side Shitshow",6305,10155,sa500736,"Mike Trout",LAA,OF,$22
 10908,"South Side Shitshow",42126,31781,sa3020241,"Jackson Holliday",BAL,2B/SS,$18
 10908,"South Side Shitshow",37295,25931,sa3010684,"Michael Harris II",ATL,OF,$15
-10908,"South Side Shitshow",48240,37120,sa3063258,"Munetaka Murakami","CHW AAA",1B/3B,$15
+10908,"South Side Shitshow",48240,37120,sa3063258,"Munetaka Murakami",CHW,1B/3B,$15
 10908,"South Side Shitshow",9335,9132,sa455169,"Nathan Eovaldi",TEX,SP,$11
 10908,"South Side Shitshow",33685,24617,sa3006786,"Jarren Duran",BOS,OF,$11
 10908,"South Side Shitshow",42156,31347,sa3019855,"Zach Neto",LAA,SS,$9
@@ -397,7 +397,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10925,"Bryce Krispies👨‍🍳",19328,15998,sa737794,"Cody Bellinger",NYY,OF,$25
 10925,"Bryce Krispies👨‍🍳",35196,21390,sa3007584,"Joe Ryan",MIN,SP,$19
 10925,"Bryce Krispies👨‍🍳",15962,10310,sa500722,"Zack Wheeler",PHI,SP,$18
-10925,"Bryce Krispies👨‍🍳",35939,21636,sa876320,"Jeremy Pena","HOU AAA",SS,$13
+10925,"Bryce Krispies👨‍🍳",35939,21636,sa876320,"Jeremy Pena",HOU,SS,$13
 10925,"Bryce Krispies👨‍🍳",20975,20778,sa828749,"Cristopher Sanchez",PHI,SP,$8
 10925,"Bryce Krispies👨‍🍳",26292,23003,sa3003386,"Yainer Diaz",HOU,C,$7
 10925,"Bryce Krispies👨‍🍳",27207,22581,sa3005337,"Alejandro Kirk",TOR,C,$6
@@ -431,7 +431,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10944,"Si Se Fuentes",23625,21846,sa917938,"Cole Ragans",KCR,SP,$22
 10944,"Si Se Fuentes",18216,13624,sa657913,"Corey Seager",TEX,SS,$19
 10944,"Si Se Fuentes",22674,18360,sa874756,"Austin Riley",ATL,3B,$16
-10944,"Si Se Fuentes",37094,27676,sa1115762,"Vinnie Pasquantino","KCR AAA",1B,$16
+10944,"Si Se Fuentes",37094,27676,sa1115762,"Vinnie Pasquantino","KCR ST",1B,$16
 10944,"Si Se Fuentes",23831,20036,sa920275,"Isaac Paredes",HOU,1B/3B,$16
 10944,"Si Se Fuentes",37257,26288,sa3011643,"Adley Rutschman",BAL,C,$16
 10944,"Si Se Fuentes",21039,17312,sa828960,"Justin Steele",CHC,RP,$12
@@ -490,7 +490,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10974,"Ketel Corn",44515,33666,sa3023308,"Connelly Early",BOS,SP,$9
 10974,"Ketel Corn",40260,29976,sa3017662,"Jordan Lawlar",ARI,2B/SS/3B/OF,$8
 10974,"Ketel Corn",42719,31872,sa3020860,"Cade Horton",CHC,SP,$8
-10974,"Ketel Corn",33612,24492,sa3008130,"Grayson Rodriguez","LAA AAA",SP,$7
+10974,"Ketel Corn",33612,24492,sa3008130,"Grayson Rodriguez",LAA,SP,$7
 10974,"Ketel Corn",6130,10324,sa503013,"Marcell Ozuna",PIT,Util,$7
 10974,"Ketel Corn",26099,20599,sa3003191,"Ivan Herrera",STL,C,$6
 10974,"Ketel Corn",38388,27467,sa3014489,"Tyler Soderstrom",ATH,1B/OF,$6

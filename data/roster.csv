@@ -80,7 +80,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10759,"Juan Nation UndeGrom 🫡",33672,23550,sa3007225,"Aaron Ashby",MIL,RP,$1
 10759,"Juan Nation UndeGrom 🫡",41160,,sa3018409,"Lazaro Montes","SEA AAA",OF,$1
 10759,"Juan Nation UndeGrom 🫡",45708,34979,sa3025168,"Christian Moore","LAA AAA",2B/3B,$1
-10759,"Juan Nation UndeGrom 🫡",38813,28901,sa3015163,"Wilber Dotel","PIT AA",SP/RP,$1
+10759,"Juan Nation UndeGrom 🫡",38813,28901,sa3015163,"Wilber Dotel","PIT AAA",SP/RP,$1
 10759,"Juan Nation UndeGrom 🫡",38328,27468,sa3014425,"Reid Detmers",LAA,SP/RP,$1
 10761,"NBC Andy Pages Program",43894,33677,sa3023079,"Paul Skenes",PIT,SP,$60
 10761,"NBC Andy Pages Program",18284,13510,sa598784,"José Ramírez",CLE,3B,$47
@@ -319,7 +319,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10899,"Prospects R Us",38409,27932,sa3014512,"Ian Seymour",TBR,SP/RP,$3
 10899,"Prospects R Us",45715,,sa3025257,"Charlie Condon","COL AAA",1B/OF,$2
 10899,"Prospects R Us",40541,29844,sa3017400,"Liam Hicks",MIA,C/1B,$2
-10899,"Prospects R Us",40460,29779,sa3017290,"Max Muncy",ATH,2B/SS/3B,$2
+10899,"Prospects R Us",40460,29779,sa3017290,"Max Muncy","ATH AAA",2B/SS/3B,$2
 10899,"Prospects R Us",42598,31621,sa3020475,"Spencer Miles",TOR,RP,$2
 10899,"Prospects R Us",45947,35177,sa3025452,"Carson Benge",NYM,OF,$2
 10899,"Prospects R Us",42794,31857,sa3020808,"Connor Prielipp",MIN,SP,$2
@@ -434,7 +434,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10944,"Si Se Fuentes",23625,21846,sa917938,"Cole Ragans",KCR,SP,$22
 10944,"Si Se Fuentes",18216,13624,sa657913,"Corey Seager",TEX,SS,$19
 10944,"Si Se Fuentes",22674,18360,sa874756,"Austin Riley",ATL,3B,$16
-10944,"Si Se Fuentes",37094,27676,sa1115762,"Vinnie Pasquantino","KCR ST",1B,$16
+10944,"Si Se Fuentes",37094,27676,sa1115762,"Vinnie Pasquantino",KCR,1B,$16
 10944,"Si Se Fuentes",23831,20036,sa920275,"Isaac Paredes",HOU,1B/3B,$16
 10944,"Si Se Fuentes",37257,26288,sa3011643,"Adley Rutschman",BAL,C,$16
 10944,"Si Se Fuentes",21039,17312,sa828960,"Justin Steele",CHC,RP,$12

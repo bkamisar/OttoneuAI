@@ -31,7 +31,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10758,"Misiorowski Index",38404,27479,sa3014506,"Masyn Winn",STL,SS,$3
 10758,"Misiorowski Index",37239,25636,sa3010621,"Hunter Gaddis",CLE,RP,$3
 10758,"Misiorowski Index",35487,20572,sa3008002,"Kody Clemens",MIN,1B/2B/OF,$3
-10758,"Misiorowski Index",35205,20423,sa3007594,"Ryan Walker",SFG,RP,$3
+10758,"Misiorowski Index",35205,20423,sa3007594,"Ryan Walker","SFG AAA",RP,$3
 10758,"Misiorowski Index",35181,24729,sa3007519,"Logan O'Hoppe",LAA,C,$3
 10758,"Misiorowski Index",44539,,sa3023363,"Leo De Vries","ATH AA",SS,$3
 10758,"Misiorowski Index",19296,15711,sa737633,"Tyler O'Neill",BAL,OF,$2
@@ -222,7 +222,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10881,"Look Out Bello",22559,21029,sa873347,"Jhoan Duran",PHI,RP,$10
 10881,"Look Out Bello",23613,14542,sa598491,"Carlos Estevez",KCR,RP,$9
 10881,"Look Out Bello",18378,16505,sa828672,"Matt Chapman",SFG,3B,$8
-10881,"Look Out Bello",33767,23920,sa3005436,"Brayan Bello","BOS AAA",SP,$8
+10881,"Look Out Bello",33767,23920,sa3005436,"Brayan Bello",BOS,SP/RP,$8
 10881,"Look Out Bello",31687,19352,sa873680,"Sean Murphy",ATL,C,$8
 10881,"Look Out Bello",33656,20633,,"Yusei Kikuchi",LAA,SP,$7
 10881,"Look Out Bello",37960,26396,sa3011703,"Josh Smith","TEX AAA",1B/2B/SS/3B/OF,$6
@@ -410,25 +410,23 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10925,"Bryce Krispies👨‍🍳",38334,27473,sa3014421,"Cade Cavalli",WSN,SP,$3
 10925,"Bryce Krispies👨‍🍳",21156,16442,sa829141,"Ryan O'Hearn",PIT,1B/OF,$3
 10925,"Bryce Krispies👨‍🍳",45064,,sa3024108,"Jesus Made","MIL AA",SS,$3
-10925,"Bryce Krispies👨‍🍳",33049,20023,sa918679,"Rico Garcia",BAL,RP,$2
-10925,"Bryce Krispies👨‍🍳",26570,19608,sa3004268,"Otto Lopez",MIA,2B/SS,$2
-10925,"Bryce Krispies👨‍🍳",44052,,sa3022609,"Aidan Miller","PHI AAA",SS,$2
 10925,"Bryce Krispies👨‍🍳",38307,27474,sa3014430,"Max Meyer",MIA,SP,$2
+10925,"Bryce Krispies👨‍🍳",26570,19608,sa3004268,"Otto Lopez",MIA,2B/SS,$2
+10925,"Bryce Krispies👨‍🍳",33049,20023,sa918679,"Rico Garcia",BAL,RP,$2
+10925,"Bryce Krispies👨‍🍳",44052,,sa3022609,"Aidan Miller","PHI AAA",SS,$2
+10925,"Bryce Krispies👨‍🍳",42110,31843,sa3020827,"Kumar Rocker",TEX,SP,$1
 10925,"Bryce Krispies👨‍🍳",37946,25911,sa3011688,"Yennier Cano",BAL,RP,$1
 10925,"Bryce Krispies👨‍🍳",45797,,sa3066592,"Bryce Rainer","DET A+",SS,$1
-10925,"Bryce Krispies👨‍🍳",42110,31843,sa3020827,"Kumar Rocker",TEX,SP,$1
-10925,"Bryce Krispies👨‍🍳",4374,9218,sa501577,"Paul Goldschmidt",NYY,1B,$1
 10925,"Bryce Krispies👨‍🍳",37536,26438,sa1115890,"Dominic Canzone",SEA,OF,$1
-10925,"Bryce Krispies👨‍🍳",37304,25979,sa3010695,"Nasim Nunez",WSN,2B/SS,$1
 10925,"Bryce Krispies👨‍🍳",18162,14221,sa658226,"Jorge Soler",LAA,OF,$1
 10925,"Bryce Krispies👨‍🍳",18449,12730,sa599574,"Nick Martinez",TBR,SP/RP,$1
 10925,"Bryce Krispies👨‍🍳",18491,17901,sa738659,"Andrew Benintendi",CHW,OF,$1
 10925,"Bryce Krispies👨‍🍳",19649,16530,sa738378,"Mauricio Dubon",ATL,2B/SS/3B/OF,$1
 10925,"Bryce Krispies👨‍🍳",22219,19610,sa872528,"Keibert Ruiz",WSN,C,$1
 10925,"Bryce Krispies👨‍🍳",23714,13620,sa657963,"Carson Kelly",CHC,C,$1
-10925,"Bryce Krispies👨‍🍳",23838,13892,sa658150,"Paul Sewald",ARI,RP,$1
 10925,"Bryce Krispies👨‍🍳",23868,20202,sa917944,"Brandon Marsh",PHI,OF,$1
-10925,"Bryce Krispies👨‍🍳",30196,19249,sa657573,"Seranthony Dominguez",CHW,RP,$1
+10925,"Bryce Krispies👨‍🍳",4374,9218,sa501577,"Paul Goldschmidt",NYY,1B,$1
+10925,"Bryce Krispies👨‍🍳",37304,25979,sa3010695,"Nasim Nunez",WSN,2B/SS,$1
 10925,"Bryce Krispies👨‍🍳",47549,,sa3069164,"Eli Willits","WSN A+",SS,$1
 10944,"Si Se Fuentes",18549,19611,sa920245,"Vladimir Guerrero Jr.",TOR,1B,$53
 10944,"Si Se Fuentes",23625,21846,sa917938,"Cole Ragans",KCR,SP,$22

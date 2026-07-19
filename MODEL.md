@@ -61,7 +61,10 @@ SGP model: a player's value = standings-gain-points above replacement × $/SGP.
    SGP only (lineup + capped pitcher pool) — rosters hold more pitching volume
    than the cap allows on the field, and using all rostered SGP tilted the
    split. **Rates** still divide by all positive SGP so the pool is conserved.
-   Every rostered player gets a $1 floor; FAs don't (no roster spot).
+   Every rostered player WITH a matched projection gets a $1 floor; FAs don't
+   (no roster spot), and unmatched (`noProj`) rostered players get no entry at
+   all — they are also excluded from the $1 reserve, which is what keeps the
+   pool conserved (2026-07-19 audit, finding 3).
 6. **Two-way players** (type `H` with `projP` ≥ 30 IP): pitching SGP added on
    top of hitting SGP. Valid because hit/pit $-rates are close by construction.
 
@@ -188,3 +191,13 @@ simulation, status auto-detect).
 - Prospect floors are expected values; the true outcome distribution is huge.
 - Roki Sasaki-type cases: the model reflects pessimistic projections, not
   market hype — divergence there is an input opinion, not a bug.
+- **Seasonal edges (2026-07-19 audit, finding 2)**: after Sept 28
+  `rosProrationFactor()` = 0, so Y0 runs at a 150-IP budget on stale RoS
+  files — Y0 values are unreliable ALL OFFSEASON (use dynasty/Y1/Y2). In
+  September the `FA_MIN_PA=100` role floor exceeds max RoS PA, so the FA
+  hitter baseline silently flips to the weakest-quartile fallback (arms
+  follow via `FA_MIN_IP=30`). Queued fix: prorate the floors.
+- **Two-way FREE AGENTS lose pitching value** (2026-07-19 audit, finding 1):
+  the `extraPlayers` path has no projP block and `getFreeAgents` dedupe
+  keeps only the hitting entry. No live case today; fix before an Ohtani-
+  type reaches waivers. Full audit: docs/2026-07-19-shared-js-math-audit.md.

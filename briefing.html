@@ -31,6 +31,7 @@
     .flag-player { margin: 10px 0; }
     .flag-name { font-weight: 600; }
     .flag-reason { font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.04em; color: #b07d00; background: #fff8e1; padding: 1px 7px; border-radius: 10px; margin-left: 6px; }
+    .roster-news-head { font-weight: 700; font-size: 0.9rem; color: #555; margin: 14px 0 4px; padding-top: 10px; border-top: 1px solid #eee; }
     .newsitem { display: block; font-size: 0.86rem; margin: 3px 0 3px 14px; color: #1557b0; text-decoration: none; }
     .newsitem:hover { text-decoration: underline; }
 
@@ -56,6 +57,7 @@
     <a href="fa.html">FA Finder</a>
     <a href="bid.html">Bid Advisor</a>
     <a href="briefing.html" class="active">Daily Briefing</a>
+    <a href="hot.html">Hot FAs</a>
     <a href="prospects.html">Prospects</a>
     <a href="targets.html">Trade Targets</a>
   </nav>
@@ -130,7 +132,12 @@
       } else {
         var card = el('div', 'card');
         (n.transactions || []).forEach(function (t) { card.appendChild(el('div', 'txn', '• ' + t)); });
+        var rosterDivider = false;
         (n.flagged || []).forEach(function (f) {
+          if (!f.reason && !rosterDivider) {
+            card.appendChild(el('div', 'roster-news-head', 'More around your roster'));
+            rosterDivider = true;
+          }
           var wrap = el('div', 'flag-player');
           var head = el('div');
           head.appendChild(el('span', 'flag-name', f.name));

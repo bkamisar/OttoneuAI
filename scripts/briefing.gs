@@ -23,8 +23,9 @@ var BRIEFING_CONFIG = {
 // Verified against /api/v1/teams: Arizona is AZ (not ARI), etc.
 var BF_TEAM_ALIAS = { ARI: 'AZ', CHW: 'CWS', KCR: 'KC', SDP: 'SD', SFG: 'SF', TBR: 'TB', WSN: 'WSH' };
 var BF_UA = { 'User-Agent': 'Mozilla/5.0' };
-var BF_NEWS_PER_PLAYER   = 6;   // headlines kept per flagged player
-var BF_NEWS_MAX_AGE_DAYS = 5;   // drop headlines/articles older than this
+var BF_NEWS_PER_PLAYER        = 4;   // headlines kept per flagged player
+var BF_NEWS_ROSTER_PER_PLAYER = 2;   // headlines kept per other rostered player
+var BF_NEWS_MAX_AGE_DAYS      = 5;   // drop headlines/articles older than this
 
 function dailyBriefing() { bfRun_(false); }
 function briefingTest()  { bfRun_(true); }
@@ -262,28 +263,51 @@ function bfGetNews_(my, box, yObj, news, today, tz, now) {
     if (k && +k[1] >= 10) flagged[p.norm] = flagged[p.norm] || 'monster game';
   });
 
-  // Absence: MLB player whose team played yesterday but who never appeared
+  // Absence: MLB HITTER whose team played yesterday but who never appeared.
+  // Pitchers are excluded — a starter is "absent" from the box on ~4 of every
+  // 5 days by design, and an injured pitcher trips this EVERY day, which is how
+  // weeks-old IL coverage kept resurfacing for the same arms (Pivetta, etc.).
   my.list.forEach(function (p) {
     if (p.mlb.indexOf(' ') !== -1) return;   // minor leaguer
+    if (bfIsPitcherOnly_(p.pos)) return;     // pitcher absence from a daily box is meaningless
     var id = bfTeamId_(p.mlbBase);
     if (id && box.teamsPlayed[id] && !box.appeared[p.norm]) {
       flagged[p.norm] = flagged[p.norm] || 'absent from box';
     }
   });
 
-  // (b) Per-flagged-player Google News (no cap on players)
-  Object.keys(flagged).forEach(function (nm) {
+  // (b) Per-player Google News. Flagged players (transaction / monster game /
+  // hitter absence) come first, keep their reason badge, and get a full set of
+  // headlines. Every other rostered player follows with a smaller cap so there's
+  // always more to read — but only when they actually have recent headlines.
+  var cutoff = now.getTime() - BF_NEWS_MAX_AGE_DAYS * 24 * 3600 * 1000;
+  var ordered = [], seenNorm = {}, seenTitle = {};
+  Object.keys(flagged).forEach(function (nm) { if (!seenNorm[nm]) { seenNorm[nm] = 1; ordered.push(nm); } });
+  my.list.forEach(function (p) { if (!seenNorm[p.norm]) { seenNorm[p.norm] = 1; ordered.push(p.norm); } });
+
+  ordered.forEach(function (nm) {
     var p = my.byNorm[nm];
     if (!p) return;
+    var reason = flagged[nm] || '';
+    var cap = reason ? BF_NEWS_PER_PLAYER : BF_NEWS_ROSTER_PER_PLAYER;
     var items = [];
     try {
       var q = encodeURIComponent('"' + p.name + '" mlb');
       var gr = bfGet_('https://news.google.com/rss/search?q=' + q + '&hl=en-US&gl=US&ceid=US:en',
                       { headers: BF_UA, muteHttpExceptions: true });
-      var cutoff = now.getTime() - BF_NEWS_MAX_AGE_DAYS * 24 * 3600 * 1000;
-      if (gr.code === 200) items = bfParseRss_(gr.text, BF_NEWS_PER_PLAYER, cutoff);
+      if (gr.code === 200) items = bfParseRss_(gr.text, cap, cutoff);
     } catch (e) {}
-    news.flagged.push({ name: p.name, reason: flagged[nm], items: items });
+    // Drop any headline already shown under an earlier (higher-priority) player.
+    items = items.filter(function (it) {
+      var key = bfNorm_(it.title);
+      if (!key || seenTitle[key]) return false;
+      seenTitle[key] = 1;
+      return true;
+    });
+    // Flagged players always appear (the reason is the point); other players
+    // only when they have recent headlines worth reading.
+    if (!reason && !items.length) return;
+    news.flagged.push({ name: p.name, reason: reason, items: items });
   });
 
   // (c) ESPN league-wide catch-all (recent only)

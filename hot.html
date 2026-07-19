@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Ottoneu Tools — Hot FAs</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: system-ui, sans-serif; background: #f5f5f5; margin: 0; padding: 20px; color: #222; }
+    h1 { font-size: 1.3rem; margin-bottom: 4px; }
+    .nav { display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+    .nav a { padding: 7px 14px; background: #1a73e8; color: #fff; border-radius: 6px; text-decoration: none; font-size: 0.88rem; }
+    .nav a.active { background: #1557b0; }
+    .stamp { font-size: 0.82rem; color: #888; margin-bottom: 12px; }
+    .error { background: #fce8e6; border-left: 4px solid #c62828; padding: 12px 16px; border-radius: 4px; margin-bottom: 16px; }
+    .note { color: #888; font-style: italic; font-size: 0.88rem; margin: 8px 0; }
+
+    .filter-bar { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-bottom: 16px; background: #fff; padding: 12px 14px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .filter-bar label { font-size: 0.8rem; color: #888; white-space: nowrap; }
+    .btns { display: flex; gap: 5px; flex-wrap: wrap; }
+    .btn { padding: 5px 11px; border: 1px solid #ddd; border-radius: 20px; background: #fff; font-size: 0.82rem; cursor: pointer; color: #444; }
+    .btn.active { background: #1a73e8; color: #fff; border-color: #1a73e8; }
+    .filter-bar input[type=text] { padding: 5px 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.84rem; min-width: 150px; }
+    .toggle { display: flex; align-items: center; gap: 5px; font-size: 0.84rem; color: #444; cursor: pointer; }
+
+    .subsection-title { font-size: 1rem; font-weight: 700; color: #333; margin: 22px 0 8px; }
+    .tbl-wrap { overflow-x: auto; margin-bottom: 12px; }
+    table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 10px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.1); font-size: 0.86rem; }
+    th { background: #1a73e8; color: #fff; padding: 8px 10px; text-align: right; font-weight: 600; white-space: nowrap; cursor: pointer; user-select: none; }
+    th:first-child, th:nth-child(2) { text-align: left; }
+    th.sorted::after { content: ' ▾'; }
+    td { padding: 7px 10px; text-align: right; border-bottom: 1px solid #f0f0f0; }
+    td:first-child, td:nth-child(2) { text-align: left; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #f8f8f8; }
+    .pname { font-weight: 600; }
+    .chip { font-size: 0.68rem; padding: 1px 6px; border-radius: 8px; background: #eee; color: #888; margin-left: 6px; }
+    .hotscore { font-weight: 700; }
+    .empty-notice { background: #fff; border-radius: 8px; padding: 18px; text-align: center; color: #bbb; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin-bottom: 12px; }
+  </style>
+  <link rel="stylesheet" href="theme.css">
+</head>
+<body>
+  <h1>Hot FAs</h1>
+  <nav class="nav">
+    <a href="index.html">Data Hub</a>
+    <a href="standings.html">Standings</a>
+    <a href="roster.html">Roster Analysis</a>
+    <a href="trade.html">Trade Evaluator</a>
+    <a href="fa.html">FA Finder</a>
+    <a href="bid.html">Bid Advisor</a>
+    <a href="briefing.html">Daily Briefing</a>
+    <a href="hot.html" class="active">Hot FAs</a>
+    <a href="prospects.html">Prospects</a>
+    <a href="targets.html">Trade Targets</a>
+  </nav>
+
+  <div id="stamp" class="stamp"></div>
+  <div id="err"></div>
+  <div id="controls" style="display:none">
+    <div class="filter-bar">
+      <div><label>Window</label>
+        <div class="btns" id="winBtns">
+          <button class="btn" data-win="7">7d</button>
+          <button class="btn" data-win="15">15d</button>
+          <button class="btn" data-win="30">30d</button>
+        </div>
+      </div>
+      <div><label>Position</label>
+        <div class="btns" id="posBtns"></div>
+      </div>
+      <input type="text" id="search" placeholder="Search name…">
+      <label class="toggle"><input type="checkbox" id="faOnly" checked> Free agents only</label>
+      <label class="toggle"><input type="checkbox" id="marginal"> Show marginal (below threshold)</label>
+    </div>
+  </div>
+  <div id="root"></div>
+
+  <script src="shared.js"></script>
+  <script src="hotboard.js"></script>
+  <script>
+  (function () {
+    var root  = document.getElementById('root');
+    var stamp = document.getElementById('stamp');
+    var errEl = document.getElementById('err');
+    var controls = document.getElementById('controls');
+
+    // View state
+    var state = { win: 15, faOnly: true, marginal: false, pos: 'ALL', search: '' };
+    var sortState = { H: { col: 'hotScore', dir: -1 }, SP: { col: 'hotScore', dir: -1 }, RP: { col: 'hotScore', dir: -1 } };
+
+    var POS_BUTTONS = ['ALL', 'C', '1B', '2B', '3B', 'SS', 'OF', 'DH'];
+    var OF_SET = { LF: 1, CF: 1, RF: 1, OF: 1 };
+
+    var hot = null, rosteredSet = {}, projHitMap = {}, projPitMap = {};
+
+    function el(tag, cls, text) {
+      var e = document.createElement(tag);
+      if (cls) e.className = cls;
+      if (text != null) e.textContent = text;
+      return e;
+    }
+    function clear(node) { while (node.firstChild) node.removeChild(node.firstChild); }
+    function showErr(msg) { errEl.appendChild(el('div', 'error', msg)); }
+    function ago(iso) {
+      var ts = Date.parse(iso); if (isNaN(ts)) return '';
+      if (typeof relativeAge === 'function') return relativeAge(ts);
+      var h = Math.round((Date.now() - ts) / 3600000);
+      return h < 1 ? 'just now' : h + 'h ago';
+    }
+    function fmt(v, d) { return (v == null || v === '') ? '' : (+v).toFixed(d); }
+
+    function buildProjMap(rows) {
+      var m = {};
+      (rows || []).forEach(function (p) { if (p && p.name && p.proj) m[normalizeName(p.name)] = p.proj; });
+      return m;
+    }
+
+    function posMatches(pos) {
+      if (state.pos === 'ALL') return true;
+      if (state.pos === 'OF') return !!OF_SET[pos];
+      return pos === state.pos;
+    }
+
+    // Build display rows for a group ('H' | 'SP' | 'RP') for the active window.
+    function buildRows(kind) {
+      var win = state.win;
+      var isHit = kind === 'H';
+      var src = isHit ? hot.hitters : hot.pitchers;
+      var cats = isHit ? ['obp', 'slg', 'hr', 'r'] : ['so', 'hr9', 'era', 'whip'];
+
+      // League-wide qualified pool for this group/window → stable z-scores.
+      var pool = [];
+      src.forEach(function (p) {
+        var w = p.w && p.w[win]; if (!w) return;
+        if (!isHit && w.role !== kind) return;
+        if (hotMeetsThreshold(kind, win, w)) pool.push(w);
+      });
+      var poolStats = hotPoolStats(pool, cats);
+
+      var rows = [];
+      src.forEach(function (p) {
+        var w = p.w && p.w[win]; if (!w) return;
+        if (!isHit && w.role !== kind) return;
+        var meets = hotMeetsThreshold(kind, win, w);
+        if (!meets && !state.marginal) return;
+        var isFA = hotIsFreeAgent(p.name, rosteredSet);
+        if (state.faOnly && !isFA) return;
+        if (isHit && !posMatches(p.pos || '')) return;
+        if (state.search && normalizeName(p.name).indexOf(normalizeName(state.search)) === -1) return;
+
+        var proj = isHit ? projHitMap[normalizeName(p.name)] : projPitMap[normalizeName(p.name)];
+        var row = {
+          name: p.name, team: p.team || '', pos: p.pos || '', isFA: isFA, marginal: !meets,
+          hotScore: hotScoreFor(w, poolStats, isHit ? 'H' : 'P'),
+          badge: hotBreakoutBadge(isHit ? 'H' : 'P', w, proj)
+        };
+        if (isHit) {
+          row.pa = w.pa; row.hr = w.hr; row.r = w.r; row.obp = w.obp; row.slg = w.slg;
+          row.ops = (+w.obp || 0) + (+w.slg || 0);
+        } else {
+          row.g = w.g; row.gs = w.gs; row.ip = w.ip; row.so = w.so; row.era = w.era;
+          row.whip = w.whip; row.hr9 = w.hr9; row.kpct = w.bf ? (w.so / w.bf) : 0;
+        }
+        rows.push(row);
+      });
+      return rows;
+    }
+
+    // Column definitions per group.
+    function columns(kind) {
+      var hot3 = { key: 'hotScore', label: 'Hot', num: true, cell: function (r) { return r.hotScore.toFixed(1); }, cls: 'hotscore' };
+      var badge = { key: 'badge', label: '🔥', num: true, val: function (r) { return r.badge ? 1 : 0; }, cell: function (r) { return r.badge ? '🔥' : ''; } };
+      if (kind === 'H') return [
+        { key: 'name', label: 'Name' }, { key: 'pos', label: 'Pos' }, { key: 'team', label: 'Team' },
+        { key: 'pa', label: 'PA', num: true }, { key: 'hr', label: 'HR', num: true }, { key: 'r', label: 'R', num: true },
+        { key: 'obp', label: 'OBP', num: true, cell: function (r) { return fmt(r.obp, 3); } },
+        { key: 'slg', label: 'SLG', num: true, cell: function (r) { return fmt(r.slg, 3); } },
+        { key: 'ops', label: 'OPS', num: true, cell: function (r) { return fmt(r.ops, 3); } },
+        badge, hot3
+      ];
+      var gcol = kind === 'SP'
+        ? { key: 'gs', label: 'GS', num: true }
+        : { key: 'g', label: 'G', num: true };
+      return [
+        { key: 'name', label: 'Name' }, { key: 'team', label: 'Team' }, gcol,
+        { key: 'ip', label: 'IP', num: true, cell: function (r) { return fmt(r.ip, 1); } },
+        { key: 'so', label: 'K', num: true },
+        { key: 'era', label: 'ERA', num: true, cell: function (r) { return fmt(r.era, 2); } },
+        { key: 'whip', label: 'WHIP', num: true, cell: function (r) { return fmt(r.whip, 2); } },
+        { key: 'hr9', label: 'HR9', num: true, cell: function (r) { return fmt(r.hr9, 2); } },
+        { key: 'kpct', label: 'K%', num: true, cell: function (r) { return (r.kpct * 100).toFixed(1); } },
+        badge, hot3
+      ];
+    }
+
+    function sortRows(rows, cols, ss) {
+      var col = cols.filter(function (c) { return c.key === ss.col; })[0] || cols[0];
+      var getv = col.val || function (r) { return r[col.key]; };
+      rows.sort(function (a, b) {
+        var av = getv(a), bv = getv(b);
+        if (col.num) return (av - bv) * ss.dir;
+        return String(av).localeCompare(String(bv)) * ss.dir;
+      });
+      return rows;
+    }
+
+    function renderTable(title, kind) {
+      var rows = buildRows(kind);
+      var cols = columns(kind);
+      var ss = sortState[kind];
+      sortRows(rows, cols, ss);
+
+      root.appendChild(el('div', 'subsection-title', title + ' (' + rows.length + ')'));
+      if (!rows.length) { root.appendChild(el('div', 'empty-notice', 'None match the current filters.')); return; }
+
+      var wrap = el('div', 'tbl-wrap');
+      var table = el('table');
+      var thead = el('thead'), htr = el('tr');
+      cols.forEach(function (c) {
+        var th = el('th', c.key === ss.col ? 'sorted' : null, c.label);
+        th.addEventListener('click', function () {
+          if (ss.col === c.key) ss.dir = -ss.dir; else { ss.col = c.key; ss.dir = c.num === false ? 1 : -1; }
+          render();
+        });
+        htr.appendChild(th);
+      });
+      thead.appendChild(htr); table.appendChild(thead);
+
+      var tb = el('tbody');
+      rows.forEach(function (r) {
+        var tr = el('tr');
+        cols.forEach(function (c) {
+          var td = el('td');
+          if (c.cls) td.className = c.cls;
+          if (c.key === 'name') {
+            td.appendChild(el('span', 'pname', r.name));
+            if (r.marginal) td.appendChild(el('span', 'chip', 'thin'));
+            if (!r.isFA) td.appendChild(el('span', 'chip', 'rostered'));
+          } else {
+            td.textContent = c.cell ? c.cell(r) : (r[c.key] == null ? '' : String(r[c.key]));
+          }
+          tr.appendChild(td);
+        });
+        tb.appendChild(tr);
+      });
+      table.appendChild(tb);
+      wrap.appendChild(table);
+      root.appendChild(wrap);
+    }
+
+    function render() {
+      clear(root);
+      renderTable('Hitters', 'H');
+      renderTable('Starting Pitchers', 'SP');
+      renderTable('Relief Pitchers', 'RP');
+      [].forEach.call(document.querySelectorAll('#winBtns .btn'), function (b) {
+        b.classList.toggle('active', +b.dataset.win === state.win);
+      });
+      [].forEach.call(document.querySelectorAll('#posBtns .btn'), function (b) {
+        b.classList.toggle('active', b.dataset.pos === state.pos);
+      });
+    }
+
+    function wireControls() {
+      controls.style.display = '';
+      var posBtns = document.getElementById('posBtns');
+      POS_BUTTONS.forEach(function (p) {
+        var b = el('button', 'btn', p === 'ALL' ? 'All' : p);
+        b.dataset.pos = p;
+        b.addEventListener('click', function () { state.pos = p; render(); });
+        posBtns.appendChild(b);
+      });
+      [].forEach.call(document.querySelectorAll('#winBtns .btn'), function (b) {
+        b.addEventListener('click', function () { state.win = +b.dataset.win; render(); });
+      });
+      document.getElementById('faOnly').addEventListener('change', function (e) { state.faOnly = e.target.checked; render(); });
+      document.getElementById('marginal').addEventListener('change', function (e) { state.marginal = e.target.checked; render(); });
+      document.getElementById('search').addEventListener('input', function (e) { state.search = e.target.value; render(); });
+    }
+
+    (async function () {
+      try { await autoLoadFromRepo(); } catch (e) {}
+      var roster  = loadData('ottoneu_roster') || [];
+      rosteredSet = hotRosteredSet(roster);
+      projHitMap  = buildProjMap(loadData('ottoneu_proj_hitting'));
+      projPitMap  = buildProjMap(loadData('ottoneu_proj_pitching'));
+
+      try {
+        var resp = await fetch('./data/hot.json?t=' + Date.now());
+        if (!resp.ok) throw new Error(String(resp.status));
+        hot = await resp.json();
+      } catch (e) {
+        showErr('No hot-stats data yet. Deploy scripts/hotstats.gs in your Apps Script project and run hotStats() to publish data/hot.json.');
+        return;
+      }
+      var r15 = (hot.ranges && hot.ranges['15']) || {};
+      stamp.textContent = 'Recent form · generated ' + ago(hot.generatedAt) +
+        (r15.start ? ' · 15d window ' + r15.start + ' → ' + r15.end : '') +
+        (Object.keys(rosteredSet).length ? '' : ' · (roster not loaded — FA filter disabled)');
+      wireControls();
+      render();
+    })();
+  })();
+  </script>
+</body>
+</html>

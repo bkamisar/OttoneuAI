@@ -16,6 +16,7 @@
   <div id="output"></div>
   <div id="summary"></div>
   <script src="shared.js"></script>
+  <script src="hotboard.js"></script>
   <script>
     let passed = 0, failed = 0;
     const out = document.getElementById('output');
@@ -258,6 +259,59 @@
     assert(REPO_FILES[1].file === 'proj_hitting.csv',     'REPO_FILES[1]: proj_hitting.csv');
     assert(REPO_FILES[2].file === 'proj_pitching.csv',    'REPO_FILES[2]: proj_pitching.csv');
     assert(REPO_FILES[3].file === 'proj_hitting_y1.csv',  'REPO_FILES[3]: proj_hitting_y1.csv');
+
+    // ── hotboard: role + thresholds ──────────────────────────────────────────
+    section('Hot Board — thresholds & role');
+    assertEqual(hotClassifyRole(4, 4), 'SP', 'hotClassifyRole: all starts → SP');
+    assertEqual(hotClassifyRole(5, 2), 'RP', 'hotClassifyRole: mostly relief → RP');
+    assertEqual(hotClassifyRole(4, 2), 'SP', 'hotClassifyRole: half starts → SP');
+    assertEqual(hotClassifyRole(6, 0), 'RP', 'hotClassifyRole: no starts → RP');
+    assert(hotMeetsThreshold('H', 15, { pa: 25 }), 'hotMeetsThreshold: hitter at PA gate passes');
+    assert(!hotMeetsThreshold('H', 15, { pa: 24 }), 'hotMeetsThreshold: hitter under PA gate fails');
+    assert(hotMeetsThreshold('SP', 7, { gs: 1 }), 'hotMeetsThreshold: SP at start gate passes');
+    assert(!hotMeetsThreshold('RP', 30, { g: 7 }), 'hotMeetsThreshold: RP under appearance gate fails');
+    assert(!hotMeetsThreshold('H', 15, null), 'hotMeetsThreshold: null line fails');
+
+    // ── hotboard: HotScore ───────────────────────────────────────────────────
+    section('Hot Board — HotScore');
+    var hpool = [
+      { obp: 0.330, slg: 0.430, hr: 4, r: 11 },
+      { obp: 0.290, slg: 0.370, hr: 2, r: 7 },
+      { obp: 0.370, slg: 0.490, hr: 6, r: 15 }
+    ];
+    var hstats = hotPoolStats(hpool, ['obp', 'slg', 'hr', 'r']);
+    assert(Math.abs(hstats.obp.mean - 0.330) < 1e-9, 'hotPoolStats: mean OBP');
+    var hot = hotScoreFor({ obp: 0.400, slg: 0.620, hr: 7, r: 15 }, hstats, 'H');
+    var avg = hotScoreFor({ obp: 0.330, slg: 0.430, hr: 4, r: 11 }, hstats, 'H');
+    assert(hot > avg, 'hotScoreFor: hot hitter beats average hitter');
+    assert(Math.abs(avg) < 0.5, 'hotScoreFor: average-ish line near zero');
+    var ppool = [
+      { so: 20, hr9: 1.0, era: 3.50, whip: 1.10 },
+      { so: 10, hr9: 1.5, era: 5.00, whip: 1.40 }
+    ];
+    var pstats = hotPoolStats(ppool, ['so', 'hr9', 'era', 'whip']);
+    var goodP = hotScoreFor({ so: 20, hr9: 1.0, era: 3.50, whip: 1.10 }, pstats, 'P');
+    var badP  = hotScoreFor({ so: 10, hr9: 1.5, era: 5.00, whip: 1.40 }, pstats, 'P');
+    assert(goodP > badP, 'hotScoreFor: strong pitcher beats weak pitcher');
+    var flat = hotPoolStats([{ hr: 3 }, { hr: 3 }], ['hr']);
+    assert(isFinite(hotScoreFor({ hr: 3 }, flat, 'H')), 'hotScoreFor: no NaN on flat category');
+
+    // ── hotboard: breakout + FA matching ─────────────────────────────────────
+    section('Hot Board — breakout & FA matching');
+    assert(hotBreakoutBadge('H', { obp: 0.400, slg: 0.560 }, { obp: 0.340, slg: 0.470 }),
+      'hotBreakoutBadge: hitter well over proj → true');
+    assert(!hotBreakoutBadge('H', { obp: 0.330, slg: 0.440 }, { obp: 0.340, slg: 0.470 }),
+      'hotBreakoutBadge: hitter under proj → false');
+    assert(!hotBreakoutBadge('H', { obp: 0.400, slg: 0.560 }, null),
+      'hotBreakoutBadge: no projection → false');
+    assert(hotBreakoutBadge('P', { era: 2.10, whip: 0.90 }, { era: 3.80, whip: 1.25 }),
+      'hotBreakoutBadge: pitcher ERA+WHIP both better → true');
+    assert(!hotBreakoutBadge('P', { era: 2.10, whip: 1.40 }, { era: 3.80, whip: 1.25 }),
+      'hotBreakoutBadge: pitcher WHIP worse → false (ERA-only not enough)');
+    var rset = hotRosteredSet([{ name: 'Aaron Judge' }, { name: 'José Ramírez' }]);
+    assert(!hotIsFreeAgent('Aaron Judge', rset), 'hotIsFreeAgent: rostered → false');
+    assert(hotIsFreeAgent('Some Prospect', rset), 'hotIsFreeAgent: unrostered → true');
+    assert(!hotIsFreeAgent('Jose Ramirez', rset), 'hotIsFreeAgent: accent-insensitive match');
 
     // ── Summary ──────────────────────────────────────────────────────────────
     const sumEl = document.getElementById('summary');

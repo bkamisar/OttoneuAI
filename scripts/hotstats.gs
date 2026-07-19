@@ -19,10 +19,11 @@ function hotStatsTest() { hotRun_(true); }
 
 // One-time probe: confirms byDateRange returns per-player splits, whether the
 // response is capped by `limit` (→ pagination needed), and whether position is
-// populated (feeds the hitter position filter).
-function hotSpike_() {
+// populated (feeds the hitter position filter). No trailing underscore so it
+// shows in the Apps Script Run dropdown.
+function hotSpike() {
   var url = 'https://statsapi.mlb.com/api/v1/stats?stats=byDateRange&group=hitting' +
-            '&startDate=2026-07-05&endDate=2026-07-19&sportId=1&gameType=R&limit=50&offset=0';
+            '&startDate=2026-07-05&endDate=2026-07-19&sportId=1&gameType=R&playerPool=all&limit=50&offset=0';
   var r = UrlFetchApp.fetch(url, { muteHttpExceptions: true });
   var splits = ((JSON.parse(r.getContentText()).stats || [])[0] || {}).splits || [];
   var p0 = splits[0] && splits[0].player;
@@ -62,7 +63,7 @@ function hotFetch_(group, start, end) {
   var out = [], offset = 0, page = 250;
   for (var guard = 0; guard < 20; guard++) {
     var url = 'https://statsapi.mlb.com/api/v1/stats?stats=byDateRange&group=' + group +
-              '&startDate=' + start + '&endDate=' + end + '&sportId=1&gameType=R' +
+              '&startDate=' + start + '&endDate=' + end + '&sportId=1&gameType=R&playerPool=all' +
               '&limit=' + page + '&offset=' + offset;
     var r = UrlFetchApp.fetch(url, { muteHttpExceptions: true });
     if (r.getResponseCode() !== 200) break;

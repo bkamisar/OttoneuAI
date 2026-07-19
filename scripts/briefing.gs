@@ -14,7 +14,7 @@
  */
 
 var BRIEFING_CONFIG = {
-  MY_TEAM_ID: '',                    // <-- SET THIS: first column (TeamID) of your rows in data/roster.csv
+  MY_TEAM_ID: '10759',               // <-- SET THIS: first column (TeamID) of your rows in data/roster.csv
   LEAGUE_ID:  '1648',
   TIMEZONE:   'America/New_York'
 };

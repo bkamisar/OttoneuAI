@@ -93,6 +93,8 @@
     // View state
     var state = { win: 15, faOnly: true, marginal: false, pos: 'ALL', search: '' };
     var sortState = { H: { col: 'hotScore', dir: -1 }, SP: { col: 'hotScore', dir: -1 }, RP: { col: 'hotScore', dir: -1 } };
+    var HOT_LIMIT = 25;                                   // rows per section before "Show all"
+    var expanded = { H: false, SP: false, RP: false };   // per-section expand state
 
     var POS_BUTTONS = ['ALL', 'C', '1B', '2B', '3B', 'SS', 'OF', 'DH'];
     var OF_SET = { LF: 1, CF: 1, RF: 1, OF: 1 };
@@ -216,7 +218,12 @@
       var ss = sortState[kind];
       sortRows(rows, cols, ss);
 
-      root.appendChild(el('div', 'subsection-title', title + ' (' + rows.length + ')'));
+      var total = rows.length;
+      var capped = !expanded[kind] && total > HOT_LIMIT;
+      var displayRows = capped ? rows.slice(0, HOT_LIMIT) : rows;
+
+      root.appendChild(el('div', 'subsection-title',
+        title + ' (' + (capped ? 'top ' + HOT_LIMIT + ' of ' + total : total) + ')'));
       if (!rows.length) { root.appendChild(el('div', 'empty-notice', 'None match the current filters.')); return; }
 
       var wrap = el('div', 'tbl-wrap');
@@ -233,7 +240,7 @@
       thead.appendChild(htr); table.appendChild(thead);
 
       var tb = el('tbody');
-      rows.forEach(function (r) {
+      displayRows.forEach(function (r) {
         var tr = el('tr');
         cols.forEach(function (c) {
           var td = el('td');
@@ -252,6 +259,13 @@
       table.appendChild(tb);
       wrap.appendChild(table);
       root.appendChild(wrap);
+
+      if (total > HOT_LIMIT) {
+        var more = el('button', 'btn', capped ? 'Show all ' + total + ' ▾' : 'Show top ' + HOT_LIMIT + ' ▴');
+        more.style.margin = '2px 0 6px';
+        more.addEventListener('click', function () { expanded[kind] = !expanded[kind]; render(); });
+        root.appendChild(more);
+      }
     }
 
     function render() {

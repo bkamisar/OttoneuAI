@@ -76,17 +76,50 @@ function hotFetch_(group, start, end) {
 }
 
 function hotKey_(s)  { return (s.player && s.player.id) || (s.player && s.player.fullName) || Math.random(); }
-function hotTeam_(s) { return (s.team && s.team.abbreviation) || ''; }
 function hotNum_(v)  { var n = parseFloat(v); return isNaN(n) ? 0 : n; }
 function hotRound_(v, d) { var p = Math.pow(10, d); return Math.round(hotNum_(v) * p) / p; }
 
+// byDateRange splits carry no team/position, so hydrate them once from the
+// season player list (id -> {team abbrev, primary position}). Cached per run.
+var HOT_TEAMS = null;
+function hotTeamAbbr_(teamId) {
+  if (!HOT_TEAMS) {
+    HOT_TEAMS = {};
+    var r = UrlFetchApp.fetch('https://statsapi.mlb.com/api/v1/teams?sportId=1', { muteHttpExceptions: true });
+    if (r.getResponseCode() === 200)
+      (JSON.parse(r.getContentText()).teams || []).forEach(function (t) {
+        if (t.id && t.abbreviation) HOT_TEAMS[t.id] = t.abbreviation;
+      });
+  }
+  return HOT_TEAMS[teamId] || '';
+}
+var HOT_PLAYERS = null;
+function hotPlayerInfo_(id) {
+  if (!HOT_PLAYERS) {
+    HOT_PLAYERS = {};
+    var yr = Utilities.formatDate(new Date(), HOT_TZ, 'yyyy');
+    var r = UrlFetchApp.fetch('https://statsapi.mlb.com/api/v1/sports/1/players?season=' + yr, { muteHttpExceptions: true });
+    if (r.getResponseCode() === 200)
+      (JSON.parse(r.getContentText()).people || []).forEach(function (p) {
+        HOT_PLAYERS[p.id] = {
+          team: (p.currentTeam && hotTeamAbbr_(p.currentTeam.id)) || '',
+          pos:  (p.primaryPosition && p.primaryPosition.abbreviation) || ''
+        };
+      });
+  }
+  return HOT_PLAYERS[id] || { team: '', pos: '' };
+}
+
 function hotAddHit_(map, w, s) {
-  var id = hotKey_(s), st = s.stat || {};
-  var pos = (s.player && s.player.primaryPosition && s.player.primaryPosition.abbreviation) || '';
+  var st = s.stat || {};
+  var pa = hotNum_(st.plateAppearances);
+  if (pa <= 0) return;                     // no real activity this window (e.g. a pitcher) — skip
+  var id = hotKey_(s);
+  var info = hotPlayerInfo_((s.player && s.player.id) || 0);
   var rec = map[id] || (map[id] = { id: (s.player && s.player.id) || null,
-    name: (s.player && s.player.fullName) || '', team: hotTeam_(s), pos: pos, w: {} });
+    name: (s.player && s.player.fullName) || '', team: info.team, pos: info.pos, w: {} });
   rec.w[w] = {
-    pa:  hotNum_(st.plateAppearances),
+    pa:  pa,
     hr:  hotNum_(st.homeRuns),
     r:   hotNum_(st.runs),
     obp: hotRound_(st.obp, 3),
@@ -95,13 +128,16 @@ function hotAddHit_(map, w, s) {
 }
 
 function hotAddPit_(map, w, s) {
-  var id = hotKey_(s), st = s.stat || {};
+  var st = s.stat || {};
   var ip = hotNum_(st.inningsPitched);
   var g  = hotNum_(st.gamesPlayed) || hotNum_(st.gamesPitched);
+  if (g <= 0 && ip <= 0) return;           // no real activity this window — skip
   var gs = hotNum_(st.gamesStarted);
   var hr = hotNum_(st.homeRuns);
+  var id = hotKey_(s);
+  var info = hotPlayerInfo_((s.player && s.player.id) || 0);
   var rec = map[id] || (map[id] = { id: (s.player && s.player.id) || null,
-    name: (s.player && s.player.fullName) || '', team: hotTeam_(s), w: {} });
+    name: (s.player && s.player.fullName) || '', team: info.team, w: {} });
   rec.w[w] = {
     g: g, gs: gs, ip: hotRound_(ip, 1),
     so:   hotNum_(st.strikeOuts),

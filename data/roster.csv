@@ -103,7 +103,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10761,"NBC Andy Pages Program",45720,35041,sa3025245,"Jac Caglianone",KCR,1B/OF,$4
 10761,"NBC Andy Pages Program",40564,29868,sa3017428,"Bubba Chandler",PIT,SP,$4
 10761,"NBC Andy Pages Program",45706,35333,sa3028086,"Chase Burns",CIN,SP/RP,$4
-10761,"NBC Andy Pages Program",43879,33527,sa3022942,"Hurston Waldrep",ATL,SP,$3
+10761,"NBC Andy Pages Program",43879,33527,sa3022942,"Hurston Waldrep","ATL AAA",SP,$3
 10761,"NBC Andy Pages Program",5644,10233,sa523977,"Aroldis Chapman",BOS,RP,$3
 10761,"NBC Andy Pages Program",45769,35376,sa3065496,"Konnor Griffin",PIT,SS,$3
 10761,"NBC Andy Pages Program",35776,23793,sa3008470,"Braxton Ashcraft",PIT,SP/RP,$3
@@ -319,7 +319,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10899,"Prospects R Us",37531,26294,sa3011443,"Bryson Stott",PHI,2B/SS,$3
 10899,"Prospects R Us",18462,12970,sa597766,"Joe Musgrove",SDP,RP,$3
 10899,"Prospects R Us",36030,26517,sa3008745,"Noelvi Marte",CIN,3B/OF,$3
-10899,"Prospects R Us",42794,31857,sa3020808,"Connor Prielipp",MIN,SP,$2
+10899,"Prospects R Us",42794,31857,sa3020808,"Connor Prielipp","MIN AAA",SP,$2
 10899,"Prospects R Us",44349,33708,sa3023069,"Cooper Ingle","CLE AAA",C,$2
 10899,"Prospects R Us",42598,31621,sa3020475,"Spencer Miles",TOR,RP,$2
 10899,"Prospects R Us",45715,,sa3025257,"Charlie Condon","COL AAA",1B/OF,$2
@@ -465,7 +465,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10944,"Si Se Fuentes",37174,26466,sa918808,"Matt Wallner","MIN AAA",OF,$2
 10944,"Si Se Fuentes",45739,35423,sa3038253,"Braden Montgomery",CHW,OF,$2
 10944,"Si Se Fuentes",41342,,sa3018591,"Josue De Paula","LAD AA",OF,$2
-10944,"Si Se Fuentes",45901,,sa3025383,"Tommy White","ATH ST",1B/3B,$1
+10944,"Si Se Fuentes",45901,,sa3025383,"Tommy White","ATH AAA",1B/3B,$1
 10944,"Si Se Fuentes",46358,,sa3067131,"Ryan Sloan","SEA AA",SP,$1
 10944,"Si Se Fuentes",19520,17170,sa738213,"Gabe Speier",SEA,RP,$1
 10944,"Si Se Fuentes",47653,,sa3031104,"Anthony Eyanson","BOS AA",SP,$1

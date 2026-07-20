@@ -1,28 +1,10 @@
 {
- "generatedAt": "2026-07-19T19:42:04.148Z",
- "dateLabel": "Sunday, July 19",
+ "generatedAt": "2026-07-20T09:09:02.076Z",
+ "dateLabel": "Monday, July 20",
  "teamId": "10759",
  "yesterday": {
   "note": "",
   "hitters": [
-   {
-    "name": "Dansby Swanson",
-    "mlb": "CHC",
-    "line": "1-4, 1 R, 1 SB",
-    "blurb": ""
-   },
-   {
-    "name": "Luke Keaschall",
-    "mlb": "MIN",
-    "line": "1-3",
-    "blurb": ""
-   },
-   {
-    "name": "Juan Soto",
-    "mlb": "NYM",
-    "line": "0-4",
-    "blurb": ""
-   },
    {
     "name": "Daulton Varsho",
     "mlb": "TOR",
@@ -30,107 +12,107 @@
     "blurb": ""
    },
    {
-    "name": "George Springer",
-    "mlb": "TOR",
-    "line": "1-4, 1 RBI",
-    "blurb": ""
-   },
-   {
-    "name": "Sal Stewart",
-    "mlb": "CIN",
-    "line": "0-4",
-    "blurb": ""
-   },
-   {
-    "name": "Samuel Basallo",
-    "mlb": "BAL",
-    "line": "0-3, 1 BB",
-    "blurb": ""
-   },
-   {
-    "name": "Fernando Tatis Jr.",
-    "mlb": "SD",
-    "line": "1-2, 1 HR, 1 RBI, 1 R, 2 BB, 1 SB",
-    "blurb": ""
-   },
-   {
-    "name": "Geraldo Perdomo",
-    "mlb": "AZ",
-    "line": "0-3, 1 BB",
-    "blurb": ""
-   },
-   {
-    "name": "Junior Caminero",
-    "mlb": "TB",
-    "line": "1-4",
-    "blurb": ""
-   },
-   {
-    "name": "Drake Baldwin",
-    "mlb": "ATL",
-    "line": "2-5, 1 RBI",
-    "blurb": ""
-   },
-   {
-    "name": "Wyatt Langford",
-    "mlb": "TEX",
-    "line": "2-5, 1 RBI, 1 R",
-    "blurb": ""
-   },
-   {
-    "name": "Colt Emerson",
-    "mlb": "SEA",
-    "line": "0-3",
-    "blurb": ""
-   },
-   {
-    "name": "Carlos Cortes",
-    "mlb": "ATH",
-    "line": "2-4, 1 HR, 2 RBI, 2 R",
-    "blurb": ""
-   },
-   {
-    "name": "Jacob Wilson",
-    "mlb": "ATH",
-    "line": "3-6, 1 HR, 2 RBI, 3 R",
-    "blurb": ""
-   },
-   {
-    "name": "Riley Greene",
-    "mlb": "DET",
-    "line": "0-3, 1 RBI",
+    "name": "Kyle Tucker",
+    "mlb": "LAD",
+    "line": "1-5, 1 R",
     "blurb": ""
    },
    {
     "name": "Kyle Tucker",
     "mlb": "LAD",
-    "line": "1-5, 1 R",
+    "line": "0-4",
+    "blurb": ""
+   },
+   {
+    "name": "Junior Caminero",
+    "mlb": "TB",
+    "line": "1-5",
+    "blurb": ""
+   },
+   {
+    "name": "Juan Soto",
+    "mlb": "NYM",
+    "line": "2-5, 1 RBI, 1 R, 1 BB",
+    "blurb": ""
+   },
+   {
+    "name": "Drake Baldwin",
+    "mlb": "ATL",
+    "line": "5-5, 2 HR, 2 RBI, 3 R, 1 SB",
+    "blurb": ""
+   },
+   {
+    "name": "Wyatt Langford",
+    "mlb": "TEX",
+    "line": "3-5, 1 HR, 2 RBI, 2 R",
+    "blurb": ""
+   },
+   {
+    "name": "Samuel Basallo",
+    "mlb": "BAL",
+    "line": "0-1",
+    "blurb": ""
+   },
+   {
+    "name": "Fernando Tatis Jr.",
+    "mlb": "SD",
+    "line": "2-5, 1 HR, 4 RBI, 3 R, 1 SB",
+    "blurb": ""
+   },
+   {
+    "name": "Dansby Swanson",
+    "mlb": "CHC",
+    "line": "0-4",
+    "blurb": ""
+   },
+   {
+    "name": "Luke Keaschall",
+    "mlb": "MIN",
+    "line": "1-3, 1 BB",
+    "blurb": ""
+   },
+   {
+    "name": "Sal Stewart",
+    "mlb": "CIN",
+    "line": "1-5, 1 HR, 3 RBI, 1 R",
+    "blurb": ""
+   },
+   {
+    "name": "Carlos Cortes",
+    "mlb": "ATH",
+    "line": "0-1",
+    "blurb": ""
+   },
+   {
+    "name": "Jacob Wilson",
+    "mlb": "ATH",
+    "line": "2-5, 1 RBI",
+    "blurb": ""
+   },
+   {
+    "name": "Riley Greene",
+    "mlb": "DET",
+    "line": "1-3, 1 HR, 1 RBI, 1 R, 1 BB",
+    "blurb": ""
+   },
+   {
+    "name": "Colt Emerson",
+    "mlb": "SEA",
+    "line": "1-4",
+    "blurb": ""
+   },
+   {
+    "name": "Geraldo Perdomo",
+    "mlb": "AZ",
+    "line": "1-4, 1 HR, 2 RBI, 1 R, 1 BB",
     "blurb": ""
    }
   ],
   "pitchers": [
    {
-    "name": "Trevor Rogers",
-    "mlb": "BAL",
-    "line": "6.1 IP, 1 ER, 8 K",
-    "blurb": ""
-   },
-   {
-    "name": "Abner Uribe",
-    "mlb": "MIL",
-    "line": "1.0 IP, 0 ER, 3 K (H, 14)",
-    "blurb": ""
-   },
-   {
-    "name": "Jose A. Ferrer",
-    "mlb": "SEA",
-    "line": "1.0 IP, 0 ER, 1 K (W, 3-1)",
-    "blurb": ""
-   },
-   {
-    "name": "Bryan Woo",
-    "mlb": "SEA",
-    "line": "6.0 IP, 2 ER, 7 K",
+    "name": "Grant Taylor",
+    "mlb": "CWS",
+    "line": "1.0 IP, 0 ER, 0 K (S, 5)",
     "blurb": ""
    },
    {
@@ -144,35 +126,34 @@
     "mlb": "LAD",
     "line": "9.0 IP, 2 ER, 7 K (W, 10-6)",
     "blurb": ""
+   },
+   {
+    "name": "Joey Cantillo",
+    "mlb": "CLE",
+    "line": "5.0 IP, 4 ER, 7 K (L, 8-5)",
+    "blurb": ""
+   },
+   {
+    "name": "Hunter Brown",
+    "mlb": "HOU",
+    "line": "4.2 IP, 4 ER, 4 K (L, 1-1)",
+    "blurb": ""
+   },
+   {
+    "name": "Aaron Ashby",
+    "mlb": "MIL",
+    "line": "1.0 IP, 0 ER, 1 K",
+    "blurb": ""
    }
   ]
  },
  "news": {
-  "transactions": [
-   "07/17 — Los Angeles Dodgers sent RHP Edwin Díaz on a rehab assignment to Ontario Tower Buzzers."
-  ],
+  "transactions": [],
   "flagged": [
    {
-    "name": "Edwin Diaz",
-    "reason": "transaction",
-    "items": [
-     {
-      "title": "Díaz still unscored upon, fires 2 K's in latest rehab outing - MLB.com",
-      "link": "https://news.google.com/rss/articles/CBMia0FVX3lxTFBmV2tBSVVUR0p1RkFtRkJGQUtDTWI0WVZ1YnVHUVpNLXYxR0NnYTRkNnFITnVZR3FxQnFjSkwwRVEtcGtLUUdSMGJvZ1dzbzYwZzl5a19WejJod3NZS1h2WUZ6UGNVVkpzZEtj?oc=5"
-     },
-     {
-      "title": "Dodgers Make Big Announcement on Star Pitcher Edwin Diaz - Yahoo Sports",
-      "link": "https://news.google.com/rss/articles/CBMijwFBVV95cUxPcmkwUVE0LTBZY0JINUNFRi1LRUd3RDBFZVNnVmxuVk1HQzFoRVE0TVZMM1UzVTc2RU13SmdZaWpDUlVpclZFWUdBRVRJR1JhUzE2OEhEcXdEdFlVV3BvcjlpbXpTUDVSeTBlbW9YQmhVaWlGbWFaU2hCNVFIY2kzcXJjOXhaN0pqTEFCdlEzRQ?oc=5"
-     },
-     {
-      "title": "Edwin Diaz addresses cockfighting as he works toward Dodgers return - USA Today",
-      "link": "https://news.google.com/rss/articles/CBMixwFBVV95cUxPRVg2NWRNNmtwby1fNnpsRlEtNmVfb1VQS3VOaTBLVEh0a2g2Q3RfWHRrOUFMcjJnQjNZOXFBQjBGYnhvWE9fTjliZmdqR0w0SzdMOVJaRW13c3ZwSzRZRkpORm5NTHNscmdPQk8ycTUzNEJSX1BvOUFLeFdSU3R6dG1HZ2pLdm95NTNQMllheGFtUWtKbHFKZk5LZnE4STBRREpnbFNFa29QM1FueHNvdVJyd0JDYmlRWWtTZE1RcDJCWFQyNnZJ?oc=5"
-     },
-     {
-      "title": "Edwin Diaz (elbow) to make rehab appearance Friday - FantasyPros",
-      "link": "https://news.google.com/rss/articles/CBMingFBVV95cUxNZHlQWXhkaXNiOUlaWW8xdGJSMk8wMERfUWlpS2dDc1plOEdZVGlmM1ppREtCNWEzVS1Ib1o1ZW9GRDhkTFVqdEtoWGVVamJnWDVual91czlkdjRfcFN3UmZJTE01ckJ3cm5ncGZUd19VbTZlNUZURlFsSVR5MW5fU0ZkQnBCSU9xenluRUxQSjNjSzdPOUR4YlJQelBmd9IBowFBVV95cUxNRWRKZTdTY0RFMWJ5Rm1oRTJFaFFKdnNfSFJURGdDaEcybmNGNTFySVIxRk05Q0toSjl4LWhJWFpjdDJFbDJzZ0lpYlZsV0RQUVJrazdPQ2Z3VmJrNXBwMFhxelFxNG5KdmJOdGZBSWNRTndaRWk1em9nR1hDOWpyU0pzN1oyaWpqX0QyYWh2Z2NRMlRQY25vNXpwS2NRc183cGpN?oc=5"
-     }
-    ]
+    "name": "Drake Baldwin",
+    "reason": "monster game",
+    "items": []
    },
    {
     "name": "Nick Kurtz",
@@ -183,16 +164,16 @@
       "link": "https://news.google.com/rss/articles/CBMipgFBVV95cUxQckFFem5nQjN3c0FGY0I5bndDT1JkelpDTWM0ZXhQS09GOHkwTXlINlNNc2lCR201enFIT1Zocl84N2RxalBPSEthQmROYUlNUHZFZTgxbTZCTzJjbzNILVhUbDZwUjhiT1ZHbFdnNUp3NHpaV3FSMmctNDlYSWxQa0JWemJKcUVBMUxiTXZJVGhlV2YySjdTSm9VM2FtWFF4WUNUNmp3?oc=5"
      },
      {
+      "title": "Luke Weaver Ball to Nick Kurtz - Baseball Savant",
+      "link": "https://news.google.com/rss/articles/CBMikgFBVV95cUxQWi1Sak5vM21rZE1lbjlJR2staUJLWjY0UmZTdkhyaWx0Q05OazU3MlFINlhqRl90VFFCdGNOR3FVdjJmQ1pFWHplYmtyUFVKejQ0ZHVJY1piTVczcnhtZW5GUFBqVGdUejBieUtJQ0xzNlc4YS1kdkdMUXo1RHBPMFJGcTVPNlIybUxfMHdKQWhxdw?oc=5"
+     },
+     {
       "title": "Nick Kurtz Injury: Not ready for baseball activities - RotoWire",
       "link": "https://news.google.com/rss/articles/CBMipgFBVV95cUxPS1c5XzFTNXI2ZzhSOWN6ay04ckZBT0N0bmNXR0s3R1NaLTlnNlZzVmhyazVFRGVRZW9BOVprbzA2eGlFT0g0dE1BUDdJYWEzRTc1NE1mWEEzWF9hTU9qNHJqT2paREhPd2R0c3M4SXNiTzJaNHRpeWI2ekh1LWNoZ2ZDcFZRbDdhX3kyWWItdHhqLXRPYkVmRHVScFUzU3h1c0p0clRn?oc=5"
      },
      {
-      "title": "Forst addresses state of A's, possible Deadline approach ahead of second half - MLB.com",
-      "link": "https://news.google.com/rss/articles/CBMijAFBVV95cUxPX1NPeVB6Ykl2Z3JmVm5iY2pzdG9nNG5BRWxDbjFQN0dIdkJjZGhKakVCLURQM1VUVUlTNG9DdVVWUU52a2xoSVRJLTUzblhLUDh1Q1cyc3V1YVJDd2liVzduNXBuaFhMaENXN085eC1VN1Y5aDU5VzI3Ri00TmVfMXNLNXh5TDlxT05WNQ?oc=5"
-     },
-     {
-      "title": "Luke Weaver Ball to Nick Kurtz - Baseball Savant",
-      "link": "https://news.google.com/rss/articles/CBMikgFBVV95cUxQWi1Sak5vM21rZE1lbjlJR2staUJLWjY0UmZTdkhyaWx0Q05OazU3MlFINlhqRl90VFFCdGNOR3FVdjJmQ1pFWHplYmtyUFVKejQ0ZHVJY1piTVczcnhtZW5GUFBqVGdUejBieUtJQ0xzNlc4YS1kdkdMUXo1RHBPMFJGcTVPNlIybUxfMHdKQWhxdw?oc=5"
+      "title": "AL West Injury Notes: Pena, Walker, Kurtz, Eovaldi - MLB Trade Rumors",
+      "link": "https://news.google.com/rss/articles/CBMilAFBVV95cUxPSFVzMmxONXl0eGZ6a1R3SnJZT2owS1FIRlQ5bGM5V0V5WWF2bFJ0LVJmWXEzaDRCdWhZTnBiS1ZyWU9EQktzdnpVeTRvalRpSk9Cd1lyX2hoYjlkdUsyZnZrWTRCdzAxSkgtSWNkcHgtZ2YyVmJNMkNqS0ppX01aV0dPaGdIeDA2ZlhlX3pLX3ZBUUxx?oc=5"
      }
     ]
    },
@@ -201,26 +182,8 @@
     "reason": "absent from box",
     "items": [
      {
-      "title": "Fantasy baseball second half breakthrough hitters: Owen Caissie, Lawrence Butler, more - NBC Sports",
-      "link": "https://news.google.com/rss/articles/CBMiywFBVV95cUxOa0tHa2hHWlp3QVpCMVVLQ3hJS2d6TVFMcG4yMmJKNkZoZzRkNUxJci14UU02QnN0eUpmRVlacjgwZWZLV1BNR1RBN2U1Qk93SC1jc2VIR1lmUGkzQjMtYkN1akNJb3FWc180ektDY1RCZnE5d3U3OUx4R2ZKQnpKM0lBTGd0VVR4WkFWb2h6WF9yMmhqVHVLSjdpYm92SjFKXy1zQ0ZUWTV0QmJybjBCZ2VPLUZKdHRJWm4zSkYtWnFKTVFSamZtRjBtNA?oc=5"
-     },
-     {
-      "title": "Randy Arozarena singles on a line drive to right fielder Owen Caissie. - Baseball Savant",
-      "link": "https://news.google.com/rss/articles/CBMikgFBVV95cUxNekNsejZFS1RaTl9BTzhVLTZRTzU2cHBzZWxxQWZlWUNJb0cxUGpwRGp1TzJLVzAzaTZGdDNTMElhY2NYYVNrRUJEdUFHV3dzNXh1ZzFTbE54SGRQM0xqSXc1eWJOQjU1T1pHelJzamsxOHpRbGotSTBtOEFFejFlVlE4Wm9IYUpmQjZmY1RzLUN0dw?oc=5"
-     }
-    ]
-   },
-   {
-    "name": "Juan Soto",
-    "reason": "",
-    "items": [
-     {
-      "title": "Mets To Begin Fielding Offers For Deadline Sell-Off - MLB Trade Rumors",
-      "link": "https://news.google.com/rss/articles/CBMimwFBVV95cUxQR19EYzUzQ1hId3dBaTlwR2VFY1VwTUtNN2E0M3FETDhUR1dmS3hZTFoyZ3pRM1NhUzRxQkNsV2p2SkFRNHZ0NGx5YnloVEMyT1NMamRRUWs3c3JGXzFZbzZEMXFaS3ZWRDZpTldQb21mZEZmRDdWck0wUjBkREIzdmZHUHNHTFE2azlzelpENlF5b1FxZEZSeUZnbw?oc=5"
-     },
-     {
-      "title": "Soto not expected to miss time after exiting with calf soreness - MLB.com",
-      "link": "https://news.google.com/rss/articles/CBMickFVX3lxTE1UMnpfNHd5M3psdkpoQVJBeWNCUFh3dHJYcWZyVDFGYlhrZUNBWWl4NFJMdDZxRVp3V2JYNGlwZU8wNzRHVGFUYkFneUFQeVc1eGtzNHdFZHU1TXFHQXlLTEI3MzkzcDJrQzFfU2RBUXE2QQ?oc=5"
+      "title": "Owen Caissie strikes out swinging. - Baseball Savant",
+      "link": "https://news.google.com/rss/articles/CBMikgFBVV95cUxPaVctLUxVYUIwSlFsQXp2MEtPWGh5bkkycndOZnVfVFZpWVlfdVFrY0ZnU1hYdGY1aURua0MwVHhXR1ZlWGlOMUpIZlVpaVNjNU5HRU9yZ21fb1gtc1QwaDgtS0xSWWFMNDlkaXVhY0ZjWmIwTF92Ylk0VEdUUjNiRl8xU0NjbWR0dDE3dm1Wa0J5Zw?oc=5"
      }
     ]
    },
@@ -229,12 +192,12 @@
     "reason": "",
     "items": [
      {
-      "title": "A deep dive into Fernando Tatis Jr.'s home run - MLB.com",
-      "link": "https://news.google.com/rss/articles/CBMijAFBVV95cUxPRVFsV0NwaEFISFVheHV1LXVKTU1mcUYyaEYzeVVmelNZTnFESnhmNHAyYWU0ME1UMl9tcThReTEzTUJQekpMSDJHYVpyZWpCTlJFbVFjajNiN2owNzRvUk0zbkE2dHRmUFZadDEyT1hjaVBIbFdLSXFfeFdtMkFRUVBVMDJibnI1S1VfLQ?oc=5"
+      "title": "Tatis, Merrill each collect 4 RBIs as Padres' bats erupt for 19 runs - MLB.com",
+      "link": "https://news.google.com/rss/articles/CBMif0FVX3lxTE10TVBtTnRuZGhtZURoblhKS2cySlJ5aFBQWEZHUkdBc1RTTS1XcWhFZlNoSFY1WG15emtrd1QtdmxSUXdZUFpkR210RTJGcnBQckxvTHkxa25rdUU5QVZUSTJOT1p6Q190cWJyVl9HeXdEWFY4MFgybWlSVFVNVFk?oc=5"
      },
      {
-      "title": "Fernando Tatis Jr. hits home run Saturday - FantasyPros",
-      "link": "https://news.google.com/rss/articles/CBMikwFBVV95cUxONkFubUJ2VWxKdVRRYkQ0c1VMN2hFal9ZVnpCVkNjcGJyMHJycEFySGYwdFNkOTloNUJ1NEVMcGx2VHFpUHdBWVRzWlBINllYY1I5STdRVm9zWE1YV3lGemg0cjFlNWxQdkoycHM0Mkc1QnRic0FaMlVBUVk4TDAyaEd4U0VyMDBnY0hHNHA3aTFnazTSAZgBQVVfeXFMT3FMRFFkelBrYjFPT0xfdnFZbEVnQzNEbmlFM0I1WHBBLTk5YWwzV3VuU29QOFJMUkFXTWJoSkpGSjV4UTNoMjNLanlRWDF1cFFmcm81blEwOTVJbHpfTks1WVRPR1FmWXRtaDlTVmhDbHluak4zcmVGS1BUbnkxTTAxZ0VWV3RPNmY2N0owQ2RsX2lKVmJDTUY?oc=5"
+      "title": "A deep dive into Fernando Tatis Jr.'s home run - MLB.com",
+      "link": "https://news.google.com/rss/articles/CBMijAFBVV95cUxOWVdNVUJJOUpxMk1tMDVHUTRXWGxaSnVjYUV4a3IwaVdjV2luWF9FTmNLWk8wSjZMUnpyUHlha0xmOW4wbzRSRjViNGxYUm9PU3ZZZkd0X3JQXzFJUGh5TlJ1cnFvblZBaGNpWDFMZ29HTlhfZVJfNGRkOUNxdEktU1NBQ2xfREdUSGQxbg?oc=5"
      }
     ]
    },
@@ -247,8 +210,8 @@
       "link": "https://news.google.com/rss/articles/CBMif0FVX3lxTE9yakdhWDdJTmZwOTFJV3ZSV3ZUb0kwU2JSbDNkaEF1TjZnaWRqdV9JWmtrR3NmX0M2Wnl4RG55MmpjSDN2SldvSGV3YUJ6VXlUS1ZWSFFaMXo5S2dUdDBXUkMybW5LX1VBaDRrUW9wMl9JemZmRURibmlNVDBpajQ?oc=5"
      },
      {
-      "title": "TROUBLING: Kyle Tucker and Edwin Díaz FALL SHORT so far | MLB vs. MLBPA Olympic Battle - kagstv.com",
-      "link": "https://news.google.com/rss/articles/CBMilgJBVV95cUxQeXlQeGdieUR1OGk5Q2RsSndJbHM2SXlxSXJRbVNJUDRuc2Jud1NIdWdRRXVYUmpPYlZ4bEwtaEZqc3l6STJWWVd2RFBsZmx5UGV3WGNNcEdMQ3BJaHIxQlF4Qi1IaU8tMFVfQmlzVTZucmRNYjlUMC1RWGR4ZVlyWnZkLTZFdlVRQzVsTUl2QVItdGl4QWdlNkRac3J6SzdhNnRrYkxDQW1yaXFZcmYzREhwcTJGUkJ2S3JlOERKYnJkQUVldWN4TDFUX0VJcVEtVXBVUnJDdUNTMXpXSGYzN1gtUVljNXhQYW51bzBYZGxvNThEYk5INzJ5c1V6NzJWMVRDMHlIOHNPTmpqOEtEM2RQclVhZw?oc=5"
+      "title": "MLB 2026 Buzz: Shohei Ohtani To Miss Next Start And Potentially More Due To Knee - FOX Sports",
+      "link": "https://news.google.com/rss/articles/CBMihgFBVV95cUxNM2lISVJwU2hPdnoyMXJmV2hFZnN4S3JRWDNPc2gxNzVTOWVYTkZXc3pnUy1Vakc1QmQzcVhna1M0U2tTSGRybzdNME5fU0ZEUm1MRW5NWXBQbmRHWkRHdDhQTFlZTWhGZ3EtMTNoRHVoUTEzWEZncFcxUE1vX3ZwdTRsUVg1Zw?oc=5"
      }
     ]
    },
@@ -257,12 +220,12 @@
     "reason": "",
     "items": [
      {
-      "title": "Los Angeles Dodgers at New York Yankees Game Story, Scores/Highlights - 07/18/2026 - MLB.com",
-      "link": "https://news.google.com/rss/articles/CBMiUEFVX3lxTFBTZ0swOWstNklXQjhmOWhKZDBsTkRKYWc3ZjdtSnNadG5aUFRCbGdKclRpMUFBUDhPaDFYMWRtMEduaE5WdTU2SXdKRGVSbmRy0gFQQVVfeXFMUFNnSzA5ay02SVdCOGY5aEpkMGxOREphZzdmN21Kc1p0blpQVEJsZ0pyVGkxQUFQOE9oMVgxZG0wR25oTlZ1NTZJd0pEZVJuZHI?oc=5"
+      "title": "A dream matchup in Bronx: Yamamoto to face Schlittler in G1 of twin bill - MLB.com",
+      "link": "https://news.google.com/rss/articles/CBMigwFBVV95cUxPMk1YN0xXdGZJNE53UVpvdnJkMVZUekFrSTdvZ0VIQV9EaU9pMnI2ZUlQOE1UMlFGN05RR0FBMXNyQjRXdmh3Z0Z2M1hvMHdnSTRHMl92U2xOYmVsb3B6UWhod2N2SU5DWUJSeXFhRndQWWNYOVRtV0NkQ2NOeFF3WV9RMA?oc=5"
      },
      {
-      "title": "Yoshinobu Yamamoto Called Strike to Jasson Domínguez - MLB.com",
-      "link": "https://news.google.com/rss/articles/CBMiowFBVV95cUxPVXFUbHNqMkpZc0dmNS0wRXdVOVpyMTY1ZzAwVkhtdVE5b3NzSjB0UlFfdkdmV0lEeVBNdnB2OGpwOUh1ZnduXzVDQW5zVmVfNDVLMDdYV1daWENYUE9ZaWw3bWNPMkJUQ3pHM2UyM1lNY2NyTURfUmRZdlBsZFlJckRvNUd6T2taUGduN1dKVktfNi1OblZZdVdWOVRDNVR2TDlJ?oc=5"
+      "title": "'Why he's our ace': Yamamoto twirls 1st regular-season CG with another Bronx gem - MLB.com",
+      "link": "https://news.google.com/rss/articles/CBMihwFBVV95cUxOZFF4VEhFSkFScXBRTzBfTjNsTzZQVWtUYmk3U3YzcThrVXZmdXNQZ0Jha0M2RFlGcVQtSkFCcFlWNzFFOE5OYVVueXh6MnhObHVRTzRuT19yM2dGbk1BSFdHMmV6eEdncWxrV29kdFk3NjVLY29uVzAza3J0RDBDa0xwTUI2MVE?oc=5"
      }
     ]
    },
@@ -271,12 +234,12 @@
     "reason": "",
     "items": [
      {
-      "title": "Chicago White Sox at Toronto Blue Jays Game Story, Scores/Highlights - 07/18/2026 - MLB.com",
-      "link": "https://news.google.com/rss/articles/CBMiUEFVX3lxTFBEV2ZvX0IwMFF6bzBUUjBIeXRQSlpXVUY1eXZBOWlfSHktODV3cUNmVjkxQ2RKX1NydXlOTnlnZGdMSm5ESnFIRFpaTHlBbWIw0gFQQVVfeXFMUERXZm9fQjAwUXpvMFRSMEh5dFBKWldVRjV5dkE5aV9IeS04NXdxQ2ZWOTFDZEpfU3J1eU5OeWdkZ0xKbkRKcUhEWlpMeUFtYjA?oc=5"
+      "title": "Blue Jays Make George Springer Decision Before White Sox Game - Athlon Sports",
+      "link": "https://news.google.com/rss/articles/CBMiogFBVV95cUxQX3VZTGNTMkhVWjBZYkV0VkRfaGNPMTVISW52elZSZmU5TU1BbU5vdURDaXNuaW9sX29UbHVqalZHX1VyRE1ENWJpUllFWVNOUlplaWtHWTVlRUVyOFQ0VWNjYTF5MGxCeHdQelduR0VvSnFRMEp3SHJVdkI5T3N0TThjRlBRSkh1Y2NVSVJpOGMtSk1NcnBfel9CcjgxcklKaXc?oc=5"
      },
      {
-      "title": "Blue Jays' George Springer Not in Lineup for White Sox Game - Yahoo Sports",
-      "link": "https://news.google.com/rss/articles/CBMihAFBVV95cUxQMlV1Mkk3b1B3aUxyNU9aM0JGeHFvRHp4eG42ZjV0N0I3aHVUX2pLaVVrekNBYTlFcHdzWGd6NGNXMFMtU3BKSXdyRDhnRmxIYTNudGxNTW00djVDODI4YllvV1ZSQ25lb3ZESjQ5a3pMOEV3MDNvNkRtRDNJRmZUWUVwbWo?oc=5"
+      "title": "Blue Jays Make George Springer Change Following Embarrassing Loss - heavy.com",
+      "link": "https://news.google.com/rss/articles/CBMinwFBVV95cUxNMGlyQmpfMzRGX0dQZ2FXRmYzcmkzU1BkMm05anRiWVlidjNBSGFkbVBFa2dRMmNjYnp4elFKUkxNRzVKc3hqT3MzVEYxZTRxazVmZktrUnB1b25kaDV6WjlnR2tsV3R4d0ZUN21DRXZDVXZDZ0c2bkFxTURYVGtlRHlBdVRmdmt6OV96bDhPS3NhNEhveUZzZ2hfbC1MaFE?oc=5"
      }
     ]
    },
@@ -285,26 +248,12 @@
     "reason": "",
     "items": [
      {
+      "title": "An animated look at Riley Greene's home run - MLB.com",
+      "link": "https://news.google.com/rss/articles/CBMiigFBVV95cUxPZXhyMHRqUWZnUlMwUnh3ZWRJU0Y0MUNDMDlFbl9qanhnaG15c0hzdGstdFVPOGxodFdieVVUbVFJVi1HTVl2S3F6bWkxZll4cHdxY3JvdWVKamhjaDJTNEFxTDktNWJ5Zy1wNWFKTHQ3S3dhQ1BJcEdwbk15Q3VNRU5OZFA4NXAxbUE?oc=5"
+     },
+     {
       "title": "Riley Greene on verge of making All-Star history – and not the good kind - Detroit Free Press",
       "link": "https://news.google.com/rss/articles/CBMiuAFBVV95cUxNWUUtMEdYN2FoTExaSmtaNl9tWVZrMUFuNVIwbzdXQ0dKSEZJYnNBWE1MX3B2V0djMnVPaVVNb3BqQnk5c1NjX1VIYmtNZWp4RzNNSGp4SkxpVHpvVDZzMmtUaWV5Zm5DeGh0UXFXTndHYkE0M3VESzlfUHcxT3l2SDJWdkFYTEVoWE5IUDV1QWt6VmxUeFZCTWlIcTE0NnNjZDJUSF82dW9UbEt0N1ZRbS04dUI2MVpL?oc=5"
-     },
-     {
-      "title": "Detroit Tigers at Los Angeles Angels Game Story, Scores/Highlights - 07/18/2026 - MLB.com",
-      "link": "https://news.google.com/rss/articles/CBMiUEFVX3lxTFBmN2tCQldjSDVFNmZvZGlhWFdZT3M2dTJtV0tBelVJU0t0WXFCZjd6Z3QyNjNXLWg5VzlBQ3paZk50ZGVEamlTcXV2ekVMTHV20gFQQVVfeXFMUGY3a0JCV2NINUU2Zm9kaWFYV1lPczZ1Mm1XS0F6VUlTS3RZcUJmN3pndDI2M1ctaDlXOUFDelpmTnRkZURqaVNxdXZ6RUxMdXY?oc=5"
-     }
-    ]
-   },
-   {
-    "name": "Junior Caminero",
-    "reason": "",
-    "items": [
-     {
-      "title": "Caminero alleviates concerns after ASG injury scare, hits 29th HR - MLB.com",
-      "link": "https://news.google.com/rss/articles/CBMilgFBVV95cUxOa3RzZ0VKbml6czM1c2kycndPLTNlc1ROWFd4Rkg5NG52OVQwZEZheW5yamxmY0ZmcTBxLXBZc29ZVEVmeDJheEhaZUtkbXFTUWNaRVItWXJuLU5GYVp3QjVvX3pHZVRNUHFiTXlDelI4c19nakdHdUtMb0g3NVVwT2N0Nm5XTFZsNVpaLUwyaGhtMXYyb3c?oc=5"
-     },
-     {
-      "title": "Junior Caminero And Rays Face Red Sox On July 19 - FanDuel",
-      "link": "https://news.google.com/rss/articles/CBMitgFBVV95cUxNMjNKYmV1NEIxWDlXamg1YWtWS0UzeVl3Y1pjdGVtQzFuWl9xUG5uNjdnUllubzBxYW15Z1lpQXR1cE8zTzFhWUhtSFBTMzNyVHg4c0tpeUlPRE00UGxDSkZXMUU3YmM0RmhyQy12T2k4UnRyNDJaVnFuX25ncVRZZGFwSFQ5UEJwa25Rb2dUX0p5Y0wxc0NXdVdoTERkNFV5LW40ZnduN280TnNBdmM0UjdkUVpaQQ?oc=5"
      }
     ]
    },
@@ -313,22 +262,12 @@
     "reason": "",
     "items": [
      {
-      "title": "Wyatt Langford's RBI double - Yahoo Sports",
-      "link": "https://news.google.com/rss/articles/CBMifkFVX3lxTFB3aVFCWXZ6TzBWQy0zSE4ycW5CSFV1RUZBZXdfUjR0V29yelZXV180MHYtODFCWm5WQkFnSGtEelRFMmJDRnVGSTBRU3B5eDhqRzNqVXd0MFAzMVJhQ1YxQmpxNHlZZDlYbWZTWDJILVY1YTZIVVVMbGJMcjh2dw?oc=5"
-     }
-    ]
-   },
-   {
-    "name": "Hunter Brown",
-    "reason": "",
-    "items": [
-     {
-      "title": "Hunter Brown's first strikeout - MLB.com",
-      "link": "https://news.google.com/rss/articles/CBMiZ0FVX3lxTE1tMTgwQTZlOEVYdk16dER3SEltWWhBLW42dTNBd1lHanRCQjNoTnBNdEZnM1BaQndGaV9BVVc3RFZPN0ZuS1RzMURybUFMM01uaVdnX0ExWngyWUduN0tJOVhGN0hjRVU?oc=5"
+      "title": "Three takeaways from Rangers' tough series loss to Braves - MLB.com",
+      "link": "https://news.google.com/rss/articles/CBMiggFBVV95cUxPMEpVd0Y4djhnMXQwb19ldjJjbE5vRUNjWjhxeTdkYkEwMEw5WWRkY0tnclNZaWZydllkQ3dLTFAzMmtZVXhLVEtLWFVqT0R0d0NLeUlLcWxnX0hRdWJNVkxSdFJ6ZG1WY2h3cmYtYWZMREM5Q1NuWFBUYkdsNWtxOUV3?oc=5"
      },
      {
-      "title": "Hunter Brown to start Sunday - FantasyPros",
-      "link": "https://news.google.com/rss/articles/CBMigwFBVV95cUxQeXVtaV92YkVjV1lCZm9qdUlOLWdpVXQ5SHJpRWN0SDM3ZVlwei1pdTk4RTdudUtPczR5NzBKYlRJblhHd3hqYkpXUVhCQkx3NWRERk5fOVBhaWIybzZxZDBHa2FXTkNFZVhoRnQtemVjN0xPR21vd2JJN0gtZEMxTmRLZ9IBiAFBVV95cUxPbG1JYXpFZlVXN3ZxaFJiYmdRYjJueG9rdTFKZUZFcWlVcloxcjQ3ZVF0NnVEZFY5SnFJSndXZE5HdklmdnZCUzFrMFQxcWtXVW5BbHRfMFdWNEEyS1J6c3p5UmFSQklnbWVSS1pjeEFkYndiUmdZXzlLaDdQMnhCRFlSeVVuY1Bp?oc=5"
+      "title": "Wyatt Langford's RBI double - Yahoo Sports",
+      "link": "https://news.google.com/rss/articles/CBMifkFVX3lxTFB3aVFCWXZ6TzBWQy0zSE4ycW5CSFV1RUZBZXdfUjR0V29yelZXV180MHYtODFCWm5WQkFnSGtEelRFMmJDRnVGSTBRU3B5eDhqRzNqVXd0MFAzMVJhQ1YxQmpxNHlZZDlYbWZTWDJILVY1YTZIVVVMbGJMcjh2dw?oc=5"
      }
     ]
    },
@@ -337,12 +276,12 @@
     "reason": "",
     "items": [
      {
-      "title": "Bryan Woo's seven strikeouts - MLB.com",
-      "link": "https://news.google.com/rss/articles/CBMibEFVX3lxTFBEbzh5Q1ZVdDhMVDY0Z1NyOFRYeVA2RHh0Qzk4bFZaTFNBOU5POWctWlJJVHItb2xUbTdPSWZZSWdxVTN2Mzc5elFGcnFXa3BiejdwYmFVcUF4blUxMXpfR25tTGdNUmx1MHVXeg?oc=5"
+      "title": "San Francisco Giants at Seattle Mariners Game Story, Scores/Highlights - 07/18/2026 - MLB.com",
+      "link": "https://news.google.com/rss/articles/CBMiUEFVX3lxTE9PQm5MNUhpN0V5aS1mUWhLcnlyLVhZTjUwb3B3OGpKNVA4MW9fTW91UnpNenF6ZUgySFdpdkhoeUtGaWhiTFdnQkxEUExVTmg10gFQQVVfeXFMT09Cbkw1SGk3RXlpLWZRaEtyeXItWFlONTBvcHc4ako1UDgxb19Nb3VSek16cXplSDJIV2l2SGh5S0ZpaGJMV2dCTERQTFVOaDU?oc=5"
      },
      {
-      "title": "Three Important Giants Matchups as Lineup Set Against Mariners, Bryan Woo - Sports Illustrated",
-      "link": "https://news.google.com/rss/articles/CBMiogFBVV95cUxQX0VSbWt3SWt0Mm1rTlh4MmxCaTJWSGtOcENXOEVfSUZkZWdxckp0NlJxckJ2WVhyWDRZbzBMZFlsZExwc2xoZlZUb2JpME5QSVRmS3FTdW5peHNjSEZrTHpSbTJLNjE3WHZkY01BQVVKaDZvTmRWNVg0YUpZTG1Tbmc1dlRwNUUtUHlCR3VTamdEdzRVbjdRS0RBaE44UHpPdmc?oc=5"
+      "title": "Bryan Woo 2026 MLB Highlights! (Mid-Season) Thunderstorm (FKNLswpITD) - Mshale",
+      "link": "https://news.google.com/rss/articles/CBMiYEFVX3lxTFBhaG5OQTFFWG9aT3VSd2JScHR0NXZ6RWJ6am1IZjBSVUxtNmlFQzc3Rm9UZVhqdWVnekNvSG93TUwzTjZKdEloWmp6S2hVQ3ZPbzktT3JLZENOWjcxbHZsUA?oc=5"
      }
     ]
    },
@@ -361,6 +300,16 @@
     ]
    },
    {
+    "name": "Nick Pivetta",
+    "reason": "",
+    "items": [
+     {
+      "title": "Padres' Joe Musgrove, Nick Pivetta Take Major Steps Toward Return - Sports Illustrated",
+      "link": "https://news.google.com/rss/articles/CBMinwFBVV95cUxNVnlIWHRPejBneGZMVThXcUxKanQtczVzanl1OE5SdlpGMWVRanV0TkZNQTVGQWJMTkNHcVZtb2hKbThlTkwta3lTMDBPajdra09MOVZON0YwUEt5N1lFSGM0M1BQeldJU0pzUW9hZERuaU9TQnhNRm5mWmZ3bHBfVzktVmtUdnktWTR4ci1tcTltTHFKWkh0S0VLeFp2VG8?oc=5"
+     }
+    ]
+   },
+   {
     "name": "Dansby Swanson",
     "reason": "",
     "items": [
@@ -375,50 +324,30 @@
     ]
    },
    {
+    "name": "Edwin Diaz",
+    "reason": "",
+    "items": [
+     {
+      "title": "Díaz still unscored upon, fires 2 K's in latest rehab outing - MLB.com",
+      "link": "https://news.google.com/rss/articles/CBMia0FVX3lxTFBmV2tBSVVUR0p1RkFtRkJGQUtDTWI0WVZ1YnVHUVpNLXYxR0NnYTRkNnFITnVZR3FxQnFjSkwwRVEtcGtLUUdSMGJvZ1dzbzYwZzl5a19WejJod3NZS1h2WUZ6UGNVVkpzZEtj?oc=5"
+     },
+     {
+      "title": "Dodgers Make Big Announcement on Star Pitcher Edwin Diaz - Yahoo Sports",
+      "link": "https://news.google.com/rss/articles/CBMijwFBVV95cUxPcmkwUVE0LTBZY0JINUNFRi1LRUd3RDBFZVNnVmxuVk1HQzFoRVE0TVZMM1UzVTc2RU13SmdZaWpDUlVpclZFWUdBRVRJR1JhUzE2OEhEcXdEdFlVV3BvcjlpbXpTUDVSeTBlbW9YQmhVaWlGbWFaU2hCNVFIY2kzcXJjOXhaN0pqTEFCdlEzRQ?oc=5"
+     }
+    ]
+   },
+   {
     "name": "Sal Stewart",
     "reason": "",
     "items": [
      {
+      "title": "The distance behind Sal Stewart's home run - MLB.com",
+      "link": "https://news.google.com/rss/articles/CBMihgFBVV95cUxQMTNORmtFZmxaeDVEMjFrX3dWVnRqSUhtcVpMRmlxQVZSSTBGV2tlcmo4RW9Rei1vYnBHdWN1cVRMby1jRmpkVEJRZ3Y0bFZoSENfdXZDYVZrM05kcXhHWjJYOXdKOWk0Vnp3NnE2TXRMVlFidldUVEMtamlGVHRkRW1SWXRnZw?oc=5"
+     },
+     {
       "title": "What Sal Stewart took away from his first MLB All-Star Game - Cincinnati Enquirer",
       "link": "https://news.google.com/rss/articles/CBMiugFBVV95cUxPT3Y3enZ3WXBRY2VHVE1mZUxPSjNiYXBQdEE2a0MzWkNQS0FsTnczdk54MnBrZ1lybWVsWFJFTmR6SmpxcVo1VjQxMkY4NmFkbVJmNWN3cWM2b0ticUFwR3p0SU5kblhwX2p6dmJ0MTd5QlU5LWF2akVRaFp2WFE1bm9HdFB3Tks2T0NuUkREVFJEQldjOUtPY0x0TmVMZnNPS25TVHB4akQ5cjJOZmZsVk1meTBHaEFydnc?oc=5"
-     },
-     {
-      "title": "Reds' Stewart hitless in All-Star Game debut as NL loses to AL 4-0 - WKRC",
-      "link": "https://news.google.com/rss/articles/CBMingFBVV95cUxQRHZMRUhtWmt2VXptQ0Ftd1VoR3JfaGRLeENHaFN1dDg4LTdscjRIUng3d1hDaHQ4SUJRWG5RTnVnSWo3ZDZMSnhqSFk4YnJTQTk0a2FfWndNd1lRenVGOWZKVVdoaXY1V0JPVVU5NFlyaVpYbTFkVFprR05vWFpBZmlfakw3MnRtMXhVaUU4WVpUZkdCNENFR0FVZUZDUQ?oc=5"
-     }
-    ]
-   },
-   {
-    "name": "Spencer Schwellenbach",
-    "reason": "",
-    "items": [
-     {
-      "title": "Acuña nearing possible return on this homestand; Schwellenbach, Strider still TBD - MLB.com",
-      "link": "https://news.google.com/rss/articles/CBMif0FVX3lxTE5abG9sZXlHUnpUcjEtUVZ5cEMxOW9jTkdjMy1xVElXYm8tbkl0cG5HR0VoT2R0ZkNsZl8zbm9pTk5mdnUxWmRGZ0ZlWC12cUpvdnhzcE5DVHN4dEg0RmZpSXFSTm1YZXROWHA4ZnBndkNCWnVxQXdxYUZVWmZJa0U?oc=5"
-     },
-     {
-      "title": "Atlanta Braves Announce Spencer Schwellenbach Update During Rangers Series - heavy.com",
-      "link": "https://news.google.com/rss/articles/CBMipgFBVV95cUxNNFNOdzZPSXQzbnhzZkgwNUNPT1BOSGl5RWVaZG1JWkw1b2V1ODZIaXRxd1E1cUlrQmJWbmh3M1lZWmhJakdMNk81cGNaVTZkQUV6RzlBRXFoVFdUaTQ3V09UdGpoUlEzUUw2aXVpamQyWmhCUUJjNjFZOEtDSjkzYmlQY1lVS2tIdWUtV3djRUhqcTFTSTIwU0dVWHJKa0R1NFRLSy13?oc=5"
-     }
-    ]
-   },
-   {
-    "name": "Cam Schlittler",
-    "reason": "",
-    "items": [
-     {
-      "title": "New York Yankees vs. Los Angeles Dodgers: Cam Schlittler vs. Yoshinobu Yamamoto - Pinstripe Alley",
-      "link": "https://news.google.com/rss/articles/CBMi7wFBVV95cUxPb1pyNWI2TTQ3aGtlaGtlbDdEUXp5WTFnbGxBWEtzUTgwMEZyZlpFRXBTS0xRYUY3dUw5T0ltMy1neVE2emNoQ2h0Y0lxMkxkb0xSYVpKYUdvcWZYNFFnTVpNUmRZN2JrU2RSVE9PeTVfMG1TOU1ZMW1NTlFUaVRZQ1dvdHVIOF83bGVtSzA5cm56Y1ZXVWdMSEZybTJTVURfNWRmWVptTXp3WDVJanBvUnc5OUhyd0pIejJFWmpGNWtqcDV5S184TzJQdzQzNVRkM3R4TDg2dURpd2pyc2x0cXV0M1hkWjZ4d3dRTlliSQ?oc=5"
-     }
-    ]
-   },
-   {
-    "name": "Daulton Varsho",
-    "reason": "",
-    "items": [
-     {
-      "title": "Blue Jays Must Replace Daulton Varsho at Trade Deadline - lindyssports.com",
-      "link": "https://news.google.com/rss/articles/CBMijAFBVV95cUxQS0RiT2xBNzAxSGpZU2hOdGNQOE9Eam01Y0FLZnpPYVFEcUFGbkcyQmdxLVo3SlNGRnZ0MWw5czV4bFBhby1mcWljd1pOWnhXZVE1UEJJaWtCOEhuYnBJcGVLUnpLUFktSktrdTRjQXU3M3oxNTQxX2Q0ck14Q0lIRVY5Q2hQMGw1dFFjTQ?oc=5"
      }
     ]
    },
@@ -431,8 +360,8 @@
       "link": "https://news.google.com/rss/articles/CBMid0FVX3lxTFA0ZDVJdk94S0ZaR1NNbWtJY1hNTzhDVjZDTnRXTmxCLS01dmlFQlhzSkktdWVIYWVDbzg3X3k1akZqTXZ3MFoxVXRUSEVnVnpEQWhhVzZMS2VjMnFOSnZQbjRKZ096Mm1aLTVDTXJROGZEazE2SG4w?oc=5"
      },
      {
-      "title": "Jacob Wilson goes deep in rout of Nationals - FantasyPros",
-      "link": "https://news.google.com/rss/articles/CBMijgFBVV95cUxQdVJqOXlFZlZSaldkUkpmOXJwTlQ3aUpsUVJ0cEJvNmNiT2dOZFFNaHh4MDdaQ1ZXWDBPajlnV3AzYnVpSHdnLUVDSUFNc05QMGkyUm0zQlRDTlZMSTdzSUx6LWZPSEoyQ3E5RnpxWUdyU2t6Y3FVMk1fRzRvWTk2WkJkZEpsbTRpMXp5amRB0gGTAUFVX3lxTE5kM3NheGVkX0hVQXhkdlJIaXlQSEw2REJPaW5ScVhNYVZuSENPNU5DU3pobzhHaDR6R1RXbXp4OXJKUmtlR2xKNjFjUU9zVjJMYWFZRFAxQWJqN1puZWpZVVU0UmpaQ1hVVGJrNXM1bWNoLWhxZ3JwS3lseGtjU1lXWGZFbmRIeThkNHVtWmFVTjJZMA?oc=5"
+      "title": "Jacob Wilson hits an RBI single - ESPN Philippines",
+      "link": "https://news.google.com/rss/articles/CBMifkFVX3lxTE5qWmpOVzJMMU9xa1VHVDFfRGdBeFFacGxiM0FuWmRLUkdEYkY5eVR5QVVxVVN5WTJrdjJ1X0xTNkQ4Y1IxM1ZtUG16cEd0NC1sLS1CT2VvU05iaXNNbXpyU2NCM2EwZFVCTG41Q3hIenE5a1dicWd0aDI0SHZodw?oc=5"
      }
     ]
    },
@@ -441,22 +370,12 @@
     "reason": "",
     "items": [
      {
-      "title": "Basallo exits with right shoulder discomfort in finale - MLB.com",
-      "link": "https://news.google.com/rss/articles/CBMikwFBVV95cUxQdjA3c1RxMERZSHEtcjhMaE55TVZ2S24zMS1ZbXNZc1hYWGU3aDNIckF0bThxWTBJMlR3aDhETnFicVd6MkN2eFBuVXNYVXZCOUdsOFRBY0hQdlBBUGwzZ29ENHYxbUQyUmc3WmpPMmp4Tk9IaE5iVlgtWkRDOTBnZ1d2OUhuMHRfbFR1WTJnM0wyczDSAZ8BQVVfeXFMUE5FZU1Nb3hGaF9tczRBQ2xjdEVneTJDcDRwaDhPT2FXNGlKMmlFMk5VUXdEYzRzU0xIR0h4VThtd0dHOEZyX09DVHFvVXFTVHJqLVFoNDhJa3VCTXlyVjRHYUFFVFVheC1VRmlDMmVNSzBnYm9DdGNlWTJnanFXN3VGaGxoRmVERFh3QzFHWmNybGxOYXVLS1IzckNDZlI4?oc=5"
-     },
-     {
       "title": "Orioles catcher Samuel Basallo exits with shoulder discomfort - ESPN",
       "link": "https://news.google.com/rss/articles/CBMiowFBVV95cUxPem1Pc3VJN0ppd2t6cWhXbWtjdm9TNldSeUMtVnFGMHRIdWY4QXhweXRkUU1WZ3AteVlQN1NmMEdveEpVdzFBeWRSeXh4b3VTc3lOZnkxb3RQZ3RHTi1zSlFHZEV0RWY1bGlaTXdBd0psWEFSVzc1ZXlkU0JqWS1mUGVYcDF5X0JLemV5blhrLWFxS2tlVmZ6a1BLYjQ2UkFoUmg0?oc=5"
-     }
-    ]
-   },
-   {
-    "name": "Jose A. Ferrer",
-    "reason": "",
-    "items": [
+     },
      {
-      "title": "Harry Ford Promotion Changes Nothing About the Mariners’ José A. Ferrer Trade - Sports Illustrated",
-      "link": "https://news.google.com/rss/articles/CBMisgFBVV95cUxOaVJQZHlvcVNRMmNLZlM5QmVSTnRwenFIaThTT3lQY0RpYlNXd21wYzVFUElzc2VJUmRPQzM3SjRKYkJ2MlJqT25CR3NjM2Y2Z2ctbUt5M3Z6TS05QjQ2UnVaZGY3LXBxN1Z2SXYtSHlnNUtnZHNzMm5IaFc5aWJvSWRjdER5OGhFcVVkYjQ4Vi0zV3MtdlBnT1FuQ1ZQYnZNSGNzZG9ZRlhWT0FIXzd3VFBB?oc=5"
+      "title": "Orioles Transfer Ryan Helsley To 60-Day IL, Select Sam Huff - MLB Trade Rumors",
+      "link": "https://news.google.com/rss/articles/CBMipAFBVV95cUxQMjNHSzRzQm5rMS16eDJBd3h1WXEzeXAzTjdRY2JYdjI3eEtPSEdvbWQzWXUtcElrcGNPdm9xeDlfeFgtVk1OS1RPYXNOYVZsdmpRV29QVXZVQi0wTmt5YWhSRlNnWFVNX01sWUFHc2o0Q3hJUWN4dGZ4R3BCbldTMkxJTkVkUnFiSWFGYXlHYU5qd3pFWHlvcThfT1VlNWc0Q2VxaA?oc=5"
      }
     ]
    },
@@ -465,22 +384,12 @@
     "reason": "",
     "items": [
      {
-      "title": "Pittsburgh Pirates at Cleveland Guardians Game Story, Scores/Highlights - 07/19/2026 - MLB.com",
-      "link": "https://news.google.com/rss/articles/CBMiUEFVX3lxTFBnWHJXSzBuZGdZNEZ2dmFPSkdKczNkcjZ2Wk9BLXlKN3BqdWpLaUh4czl2QmZ0aXJCWE5pOVRsS1luSkNwWXFGektpWWV6Mjho0gFQQVVfeXFMUGdYcldLMG5kZ1k0RnZ2YU9KR0pzM2RyNnZaT0EteUo3cGp1aktpSHhzOXZCZnRpckJYTmk5VGxLWW5KQ3BZcUZ6S2lZZXoyOGg?oc=5"
+      "title": "Joey Cantillo's seven strikeouts - MLB.com",
+      "link": "https://news.google.com/rss/articles/CBMid0FVX3lxTE1yZFVVQy1yT1dxbGd6OFM0RjIwQkdCRmdXNEo2RVE3WVRvQTFPbktFYnFycXV5UWtMczBfNVo0eWZ0Q004cWRtREpVM0RLdVJqN19ldzFjb0tCbU5ySUdnenZlZjJ6dmp2RTRVWVZIalg2TnB4aU9J?oc=5"
      },
      {
-      "title": "Resumen Piratas @ Guardianes, Resultados/Jugadas destacadas - 19/07/2026 - MLB.com",
-      "link": "https://news.google.com/rss/articles/CBMigAFBVV95cUxNam5OZXRSOTRuNHlGOVZvOWVvR3pTTDdMaC10emFxYndaR3dueFlOTTE2NWtqcjl5dDlqYklhNklobGJSSkVMNmlVUS14bDExZWNpQ0RYa1ZMMVFsSjFMN3VhVXU1X19vLW1YUC01RE9rT0JvX2tDeElQNFViYy1YStIBgAFBVV95cUxNam5OZXRSOTRuNHlGOVZvOWVvR3pTTDdMaC10emFxYndaR3dueFlOTTE2NWtqcjl5dDlqYklhNklobGJSSkVMNmlVUS14bDExZWNpQ0RYa1ZMMVFsSjFMN3VhVXU1X19vLW1YUC01RE9rT0JvX2tDeElQNFViYy1YSg?oc=5"
-     }
-    ]
-   },
-   {
-    "name": "Jack Flaherty",
-    "reason": "",
-    "items": [
-     {
-      "title": "2nd Half Pitcher Fantasy Baseball Breakouts: Buy-Low Sleepers (2026) - RotoBaller",
-      "link": "https://news.google.com/rss/articles/CBMiogFBVV95cUxPUk53a1gtRTg4RDdaQW5oQUlDMC1iVXZyaWl0RFU0cExvSnF6QmJfZHdjWW1nX2hQNHJoZVh0ZnZ5T3RLR3RKR2M3Y1lfN1VxMnRVdS11RXVtb0VBQllxeXlTQU9JVDNGQXQ2dF9hMU5qblZnSThfOG5GSkFNTl9rN2JfUHRtYUFhdldpZ1JYZjRWM1Z3WWstQzdpbWVYakxTVWc?oc=5"
+      "title": "Pittsburgh Pirates at Cleveland Guardians Game Story, Scores/Highlights - 07/19/2026 - MLB.com",
+      "link": "https://news.google.com/rss/articles/CBMiUEFVX3lxTFBnWHJXSzBuZGdZNEZ2dmFPSkdKczNkcjZ2Wk9BLXlKN3BqdWpLaUh4czl2QmZ0aXJCWE5pOVRsS1luSkNwWXFGektpWWV6Mjho0gFQQVVfeXFMUGdYcldLMG5kZ1k0RnZ2YU9KR0pzM2RyNnZaT0EteUo3cGp1aktpSHhzOXZCZnRpckJYTmk5VGxLWW5KQ3BZcUZ6S2lZZXoyOGg?oc=5"
      }
     ]
    },
@@ -493,8 +402,8 @@
       "link": "https://news.google.com/rss/articles/CBMikAFBVV95cUxObkc0YXFoYk0wYXpmVmNIbXlzR2o1M0hfVGVobWtybWE2dlZoZVluN0RhWlNUTUVoMjJwMW1zaEdTSENVWlZFZVRRbng2SDEzMmxOSDFmNlVRZkNFS1JxQklvcExyTjF3MXd4bkEwbHR2M3IzVnhwa29SRVhjdnVhdGFnZnI3NFpGVjk3S3NDdno?oc=5"
      },
      {
-      "title": "Is Geraldo Perdomo a Second-Half Breakout Candidate? - MLB News | Fantasy Baseball - RotoBaller",
-      "link": "https://news.google.com/rss/articles/CBMinwFBVV95cUxQRnhKamRvTTRyMVFaWXNoNjhrNDh6WXJnMElNQ0FXUUMwQnFYNGg1bmZUYWZicDRPejNWOXRJQ3FLLUV0WXZKUmQwWGpVUDlDMnZkQXZRRk5pZ19Rc3p3ZUJXd3JkUjdpanpnYUtfZFBEckNwVlFQQmU3V0VYQTJUM1R4R082RVJlN3hlV1QyaDkxc05wRVRVcHo3ZDlJOGs?oc=5"
+      "title": "Geraldo Perdomo (wrist) receives cortisone injection over All-Star break - FantasyPros",
+      "link": "https://news.google.com/rss/articles/CBMiugFBVV95cUxQSHVTRzhVcXc0R0UyOG9rS0dVTFBSQ2NMSkV6VnBVS3lxZk9YZGowYWdtZER6TUpTQUZWYy1LQm9CWU4ySUZvdmVBME8xYVpvcWtGTHp4d0pYMXczM29PSGl6NWx2RzBsQ1hKdnU0dHZTUnRvWmplTDNUOGR5dlNYVHRlWEp0SVp6ZGpTN2FkRDNPZ2tUN2dVd1BqNC1IbUlNVGxvT3VIZzBsMU5jaTl2LUZCeU9fNFVSTFHSAb8BQVVfeXFMUHFYUmdWQUU5Y2dYYjNXTlBqV1BQeGdTMVRaNlE4TVdVdHpLUTNVSUtvRFp1S1dWNjN5UUlZU0dpTHYxa2tfSlJYSkxqV2VXbEhTQUkzM09XRk8zVHlFV1paM0lKcUZnRmhKTWt3RGxfNi1WVUxzSHA3OWYxZnRHQlJtaVNpMlFmaks3YlJsMUprMDRNdm9DcnFsTkJ0ZGdhX185ZmZfeUlJT25jYUdXaUxlVXVkaFZjMTdwRm1iMzQ?oc=5"
      }
     ]
    },
@@ -509,30 +418,16 @@
     ]
    },
    {
-    "name": "Drake Baldwin",
-    "reason": "",
-    "items": [
-     {
-      "title": "Drake Baldwin's solo home run (17) - MLB.com",
-      "link": "https://news.google.com/rss/articles/CBMie0FVX3lxTE5LQ193U2ZwdVVJOEhTZDJZci1LY3prYXplNzVTMzZyY2xHMVNJQndlMUJsY1p2U3cxcF8wWS1xNzZyZERsSWFhUk96R1d4T2N2cXVpN1A2RGZfWjFtZ0R6elN3Zi12ZnBrX2tuQTNhM2J0NTFDamswSndNaw?oc=5"
-     },
-     {
-      "title": "A deep dive into Drake Baldwin's home run - MLB.com",
-      "link": "https://news.google.com/rss/articles/CBMihwFBVV95cUxNeXNOYS1ZTU1BMDIxcWdPVmhPVl83bUxVdHVQUGd2TXdaLV9GQ3Z6dmFsLWFGdVJ1OVdUa2c2UUlid2VfaU1LUDNneGVpQUFKYXhsWGFWNzZ5b0wzb2dBelNCNDZ4eUs3dmtGNFJXVGdsbVhpTEstX3RPbmsxUmdLMWNCdURXMTQ?oc=5"
-     }
-    ]
-   },
-   {
     "name": "Seth Lugo",
     "reason": "",
     "items": [
      {
-      "title": "Seth Lugo - MLB.com",
-      "link": "https://news.google.com/rss/articles/CBMimgFBVV95cUxPMWtkeXZpWjFycU02SFlvOFRyQ0xObDhlWlpGOFh3blVKbnRrNDl5UFNBQ0dLblVGekNoajYtM3E2dmRxbVY4bXlMVTVQbmV3WmhaMVM2OHdtT1dqdW1iUThWelFZbWt0VF9zRFQxendST1hpeW5FZ0I3R3lKbVpTUGxFeXE4Y1FvOFdhNU1udFdLWUM3bDFNS1Vn?oc=5"
-     },
-     {
       "title": "Royals not inclined to move starters Michael Wacha, Seth Lugo at trade deadline - Kansas City Star",
       "link": "https://news.google.com/rss/articles/CBMihAFBVV95cUxNNEtuclRnS1NqbExtUHBKUjBwMUZvVjhSS0dmaFJZOHRsN0pScEhMTVVmaGJ4RTBGV3R4RzNieXFZU1UyWW9JM0dzWVBWTERCZnpyRzMtX3dfcVpSNlM0UC1GbFFhSWRoTlFVVjhxTmVWUG5vRGFmQ0YwcWw1V3I0TTZvc1_SAYQBQVVfeXFMTmpfNnRxcWxieWFCMjFiRkNJV2d2Tkk3VFk5b2drRXY1QTE1UHVDUThfdWtGZHBFY21waEdfdDQ1SzNaSEJtS3lDRFprOGZrd2tISUZ2N2pmb1BSM3lZN09SMVppRzFTVkozeVBHcWxNdnl0elZCYnVTRVZncVRMOWd2aHdp?oc=5"
+     },
+     {
+      "title": "Seth Lugo - MLB.com",
+      "link": "https://news.google.com/rss/articles/CBMimgFBVV95cUxPMWtkeXZpWjFycU02SFlvOFRyQ0xObDhlWlpGOFh3blVKbnRrNDl5UFNBQ0dLblVGekNoajYtM3E2dmRxbVY4bXlMVTVQbmV3WmhaMVM2OHdtT1dqdW1iUThWelFZbWt0VF9zRFQxendST1hpeW5FZ0I3R3lKbVpTUGxFeXE4Y1FvOFdhNU1udFdLWUM3bDFNS1Vn?oc=5"
      }
     ]
    },
@@ -565,22 +460,12 @@
     ]
    },
    {
-    "name": "Abner Uribe",
-    "reason": "",
-    "items": [
-     {
-      "title": "MLB 2026 Buzz: Reds, Chase Burns Agree To 7-Year, $105 Million Extension - FOX Sports",
-      "link": "https://news.google.com/rss/articles/CBMihgFBVV95cUxNM2lISVJwU2hPdnoyMXJmV2hFZnN4S3JRWDNPc2gxNzVTOWVYTkZXc3pnUy1Vakc1QmQzcVhna1M0U2tTSGRybzdNME5fU0ZEUm1MRW5NWXBQbmRHWkRHdDhQTFlZTWhGZ3EtMTNoRHVoUTEzWEZncFcxUE1vX3ZwdTRsUVg1Zw?oc=5"
-     }
-    ]
-   },
-   {
     "name": "Kyle Bradish",
     "reason": "",
     "items": [
      {
-      "title": "Source: Orioles sign righty Kyle Bradish to $90M extension - ESPN",
-      "link": "https://news.google.com/rss/articles/CBMinwFBVV95cUxOUHJCemhnanNaMU9IS3pyNU50dHJ4bHNfU3FGX1hBNDV5SmFMQ1VWLVowZEEtQmk5MGh1YlJXeFllS3NMWllFbHBzVm1iTGEwY0dKcXBCSTdoYXBsX3AwVnJYWlhldXlpN182S2lrQXJseDdkWmhaa0twenplYTdzazd6OTZQX296TVF6SU4wWjhkNTlBZG8wckxBYWU4Szg?oc=5"
+      "title": "Orioles, Kyle Bradish Agree To Five-Year Extension - MLB Trade Rumors",
+      "link": "https://news.google.com/rss/articles/CBMimAFBVV95cUxNY1JyRFV0TmFSUUFPMUNXWWo1eFR5LU93VzY0UWh5ME1yanYwQ0FJVE50RW1ENFpELUNYUlowRWlEY2FNZ1Zuc2stWTdMME80eFE4T3k5S1dubEVnT0ZLR0ttVTJFNWhNcVV5QWhBcEE0U1czYnlsWm1XbzBCN0J1SllQS2FXWklzdWVVa2hkRzEwNjBmNE9ibw?oc=5"
      },
      {
       "title": "Kyle Bradish, Orioles Agree to 5-Year Contract Extension, Reported Details Revealed - Bleacher Report",
@@ -603,26 +488,16 @@
     ]
    },
    {
-    "name": "Colt Emerson",
-    "reason": "",
-    "items": [
-     {
-      "title": "Colt Emerson throws out Drew Gilbert after a review - Baseball Savant",
-      "link": "https://news.google.com/rss/articles/CBMikgFBVV95cUxPUmotUVNaYzJIVGhOSnZ1R19wbFVfRDlXczBwS21RMTJ2Q3NVYmd5WnJtRXVLemhFSkVSbUhNSm1XdEJ3bWZ0Z1A5czRMalFReFZRRFpPdlh0aXJHUUtLaTFkTjNrYzZPZk9CU1IyMlp2OHhob3RKNFdCbFQ4X2J1ekRHbG5mVDBvaFlybXBQZmxuQQ?oc=5"
-     },
-     {
-      "title": "Re-ranking Mariners' top 10 prospects after Colt Emerson graduation, 2026 MLB Draft - Sodo Mojo",
-      "link": "https://news.google.com/rss/articles/CBMipAFBVV95cUxQTHhJMF8wbWwySkp1TjBfYXVaUzc1Y2NaZmdNMHFUcjF1UUd6VklzSVBZMHJTaUQzV3M1VDFaSTlVZzJQa2pmbHQ0Yi1yc0xmaUZoeHlrOGxKYTR5RmpRQmdjdTBMSVJMQl95dC03SEpXVE80aldMRDZBMXk4anRETXNLTndNTERKQ2lPWHJIMjdnQmM0YUpIdlhQb2NqbnZ2QXFpcQ?oc=5"
-     }
-    ]
-   },
-   {
     "name": "Mike Sirota",
     "reason": "",
     "items": [
      {
       "title": "Top 100 Baseball Prospects - MLB.com",
       "link": "https://news.google.com/rss/articles/CBMiakFVX3lxTE8zajFKVnRUN3liRzhRZG5zeWhqLTlzS1FrMlZBSjBzeUZwZng4UUVsNk1oeHUzU29qWlFzQnh1MWdiTW9CS0oxZWs1Qk9qbGtOYTFZU0dnUHlkUEsyamZzWDNtY2U3eVlnR2c?oc=5"
+     },
+     {
+      "title": "Dodgers' prospect Mike Sirota celebrates growth despite falling short of minor league on-base record - NBC Sports",
+      "link": "https://news.google.com/rss/articles/CBMizwFBVV95cUxNbnJGMk5hNXJ2dFdBUENFS1FIUkYxRm5FbDBnczNpeGdhQko0UVN0S0RIRU1Iai1QeHV0TlA4bmJ6TnhxT1pOQ2hpUHp6UExYMW5seGh0aGZfUVZBQkhNYjk1MnBncVBnT1BQbmlhRTM4WlBORk1MRXExakllRmpmUlIxYUpDTUxEY2dDTzR6dkI5RVdaSEFMNWZZeWVGMkFKdDZ6c2k3djdfeGg2N0dBUGUtRzVUelhrTHhRbDBzV1p5TEJjQ3RFdUQ4eUE3Mkk?oc=5"
      }
     ]
    },
@@ -673,12 +548,12 @@
     "reason": "",
     "items": [
      {
-      "title": "James Tibbs III singles on a ground ball to right fielder Lazaro Montes. Zach Ehrhard scores. - MLB.com",
-      "link": "https://news.google.com/rss/articles/CBMitAFBVV95cUxQdFNZVm5YUFhWQk5OX20tQWQyYXFKWk1aOG5RaHJXX3YwUU04cVM4RHVBam9tOTFWNjBCaDJEcTdLV0hPOFFzTE52YWtveXM2WDZmcHVBRVdDbUZVblRjWThfdU5nRDBrZ3N1cURhQ0NFeGtGT1BPd085U2paaUgyNzFqNUxKWkNlMmQ5b1lNUVpRajJvTGM5cnBvYkFhZlZDOVA5SFVPY3d6T3ZmT3BPVi1nTTY?oc=5"
-     },
-     {
       "title": "M’s prospect Lazaro Montes crushes HR in 1st home game for Tacoma - Seattle Sports",
       "link": "https://news.google.com/rss/articles/CBMiygFBVV95cUxQTmszSzRpWFJqVTdTQkFXRDRLYkpHZTZzRkVwOGxialg0WVVqUzJjZ25UYXR3TnB5YjNJYWU0cjBkcUpXa2ZCaDMwX0NlZk1pb3JtRHdBWTJJeWNZUU5HcXlsYUxBbjFYanhTcGs0eFNiRzRTejJRMkx6T2ZIb3FDb05WN2t1M1Z4X3lVZzBRQ1dpMnYxcWhuQVI4WXlIck1QYm9WcVJHbndPM2twOWFFemVjTkhLckNWM2c2LW5uaC1SMXJwa29JRlJR?oc=5"
+     },
+     {
+      "title": "James Tibbs III singles on a ground ball to right fielder Lazaro Montes. Zach Ehrhard scores. - MLB.com",
+      "link": "https://news.google.com/rss/articles/CBMitAFBVV95cUxQdFNZVm5YUFhWQk5OX20tQWQyYXFKWk1aOG5RaHJXX3YwUU04cVM4RHVBam9tOTFWNjBCaDJEcTdLV0hPOFFzTE52YWtveXM2WDZmcHVBRVdDbUZVblRjWThfdU5nRDBrZ3N1cURhQ0NFeGtGT1BPd085U2paaUgyNzFqNUxKWkNlMmQ5b1lNUVpRajJvTGM5cnBvYkFhZlZDOVA5SFVPY3d6T3ZmT3BPVi1nTTY?oc=5"
      }
     ]
    },
@@ -688,7 +563,7 @@
     "items": [
      {
       "title": "Wilber Dotel to remain in majors - FantasyPros",
-      "link": "https://news.google.com/rss/articles/CBMiiAFBVV95cUxQMndRX2ZfRE1OUTJfNTZFLXoydVlaeXNYRll2emQ1RnI4a0FibUR1ZFF1VUpqWHdnX2pfZmc2X3BicnRsczR0aDlNTzA3czVSUm1WXzEtNVUyaUpwc3gxVE1WZk9TTnhmelE4VGNTUGFibXZlQ2ItOHo0VTNSQ3AtOUNVelVPZExw0gGIAUFVX3lxTFAyd1FfZl9ETU5RMl81NkUtejJ1WVp5c1hGWXZ6ZDVGcjhrQWJtRHVkUXVVSmpYd2dfal9mZzZfcGJydGxzNHRoOU1PMDdzNVJSbVZfMS01VTJpSnBzeDFUTVZmT1NOeGZ6UThUY1NQYWJtdmVDYi04ejRVM1JDcC05Q1V6VU9kTHA?oc=5"
+      "link": "https://news.google.com/rss/articles/CBMigwFBVV95cUxNWnJHdkdiYno3a010bll3NGM3bUVyZXhsMmdJc1hNa01UVVQtRy10TDBZS3Fjc3c0WUJ6ME9MSXpJcG11UXJ6MUNZcTZ0b2k5RkNQal9aSFVCYWFTbVJEdTJUcGZhQ2dQOWxkQUdBTlNzNzhvSk9uOERKVkVnY0NtYXB4d9IBiAFBVV95cUxQMndRX2ZfRE1OUTJfNTZFLXoydVlaeXNYRll2emQ1RnI4a0FibUR1ZFF1VUpqWHdnX2pfZmc2X3BicnRsczR0aDlNTzA3czVSUm1WXzEtNVUyaUpwc3gxVE1WZk9TTnhmelE4VGNTUGFibXZlQ2ItOHo0VTNSQ3AtOUNVelVPZExw?oc=5"
      },
      {
       "title": "Pirates Roster Moves: Khristian Curtis Joins 40-Man Roster, Wilber Dotel Returns From IL - Pittsburgh Baseball Now",
@@ -713,12 +588,8 @@
   ],
   "league": [
    {
-    "title": "Orioles catcher Samuel Basallo exits with shoulder discomfort",
-    "link": "https://www.espn.com/mlb/story/_/id/49401914/orioles-catcher-samuel-basallo-exits-shoulder-discomfort"
-   },
-   {
-    "title": "MLB betting tips for Sunday: Cam Schlittler faces tough Dodgers lineup",
-    "link": "https://www.espn.com/espn/betting/story/_/id/49396739/mlb-betting-tips-odds-lines-2026-sunday-july-19"
+    "title": "Yamamoto fires 4-hitter and Ohtani leads offense as Dodgers top Yankees 8-2 in 1st game of twinbill",
+    "link": "http://www.espn.com/mlb/recap?gameId=401897386"
    }
   ]
  },
@@ -729,49 +600,49 @@
     "players": [
      "Geraldo Perdomo"
     ],
-    "game": "AZ vs STL 4:10 PM",
-    "opp": "vs RP Andre Pallante",
-    "era": 3.96,
-    "flag": ""
+    "game": "AZ vs ATH 9:40 PM",
+    "opp": "vs LP Jeffrey Springs",
+    "era": 6.08,
+    "flag": "target"
    },
    {
     "mlb": "BAL",
     "players": [
      "Samuel Basallo"
     ],
-    "game": "BAL @ HOU 2:10 PM",
-    "opp": "vs RP Hunter Brown",
-    "era": 3.6,
-    "flag": ""
+    "game": "BAL @ BOS 7:10 PM",
+    "opp": "vs LP Payton Tolle",
+    "era": 3.11,
+    "flag": "tough"
    },
    {
     "mlb": "CHC",
     "players": [
      "Dansby Swanson"
     ],
-    "game": "CHC vs MIN 2:20 PM",
-    "opp": "vs RP Zebby Matthews",
-    "era": 5.4,
-    "flag": "target"
+    "game": "CHC vs DET 8:05 PM",
+    "opp": "vs RP Jack Flaherty",
+    "era": 4.48,
+    "flag": ""
    },
    {
     "mlb": "CIN",
     "players": [
      "Sal Stewart"
     ],
-    "game": "CIN @ COL 3:10 PM",
-    "opp": "vs RP Ryan Feltner",
-    "era": 5.6,
-    "flag": "target"
+    "game": "CIN @ SEA 9:40 PM",
+    "opp": "vs RP George Kirby",
+    "era": 3.76,
+    "flag": ""
    },
    {
     "mlb": "DET",
     "players": [
      "Riley Greene"
     ],
-    "game": "DET @ LAA 4:07 PM",
-    "opp": "vs RP Ryan Johnson",
-    "era": 6.75,
+    "game": "DET @ CHC 8:05 PM",
+    "opp": "vs RP Jameson Taillon",
+    "era": 5.19,
     "flag": "target"
    },
    {
@@ -779,20 +650,20 @@
     "players": [
      "Kyle Tucker"
     ],
-    "game": "LAD @ NYY 7:20 PM",
-    "opp": "vs TBD",
-    "era": null,
-    "flag": ""
+    "game": "LAD @ PHI 7:10 PM",
+    "opp": "vs LP Cristopher Sánchez",
+    "era": 2.62,
+    "flag": "tough"
    },
    {
     "mlb": "NYM",
     "players": [
      "Juan Soto"
     ],
-    "game": "NYM @ PHI 1:35 PM",
-    "opp": "vs RP Alan Rangel",
-    "era": 5.4,
-    "flag": "target"
+    "game": "NYM @ MIL 7:40 PM",
+    "opp": "vs RP Jacob Misiorowski",
+    "era": 1.62,
+    "flag": "tough"
    },
    {
     "mlb": "ATH",
@@ -801,29 +672,29 @@
      "Jacob Wilson",
      "Carlos Cortes"
     ],
-    "game": "ATH vs WSH 4:05 PM",
-    "opp": "vs LP Foster Griffin",
-    "era": 2.77,
-    "flag": "tough"
+    "game": "ATH @ AZ 9:40 PM",
+    "opp": "vs LP Mitch Bratt",
+    "era": 6,
+    "flag": "target"
    },
    {
     "mlb": "SD",
     "players": [
      "Fernando Tatis Jr."
     ],
-    "game": "SD @ KC 2:10 PM",
-    "opp": "vs LP Noah Cameron",
-    "era": 5.31,
-    "flag": "target"
+    "game": "SD @ ATL 7:15 PM",
+    "opp": "vs RP Bryce Elder",
+    "era": 4.12,
+    "flag": ""
    },
    {
     "mlb": "SEA",
     "players": [
      "Colt Emerson"
     ],
-    "game": "SEA vs SF 4:10 PM",
-    "opp": "vs LP Robbie Ray",
-    "era": 3.38,
+    "game": "SEA vs CIN 9:40 PM",
+    "opp": "vs LP Andrew Abbott",
+    "era": 4.11,
     "flag": ""
    },
    {
@@ -831,9 +702,9 @@
     "players": [
      "Junior Caminero"
     ],
-    "game": "TB @ BOS 1:35 PM",
-    "opp": "vs RP Sonny Gray",
-    "era": 2.48,
+    "game": "TB @ TOR 7:07 PM",
+    "opp": "vs RP Dylan Cease",
+    "era": 2.56,
     "flag": "tough"
    },
    {
@@ -841,9 +712,9 @@
     "players": [
      "Wyatt Langford"
     ],
-    "game": "TEX @ ATL 1:35 PM",
-    "opp": "vs RP Grant Holmes",
-    "era": 3.7,
+    "game": "TEX vs CWS 8:05 PM",
+    "opp": "vs RP Erick Fedde",
+    "era": 4.15,
     "flag": ""
    },
    {
@@ -852,9 +723,9 @@
      "George Springer",
      "Daulton Varsho"
     ],
-    "game": "TOR vs CWS 12:15 PM",
-    "opp": "vs RP Sean Burke",
-    "era": 3.2,
+    "game": "TOR vs TB 7:07 PM",
+    "opp": "vs RP Nick Martinez",
+    "era": 2.65,
     "flag": "tough"
    },
    {
@@ -862,9 +733,9 @@
     "players": [
      "Luke Keaschall"
     ],
-    "game": "MIN @ CHC 2:20 PM",
-    "opp": "vs LP Shota Imanaga",
-    "era": 4.02,
+    "game": "MIN @ CLE 6:40 PM",
+    "opp": "vs RP Tanner Bibee",
+    "era": 3.9,
     "flag": ""
    },
    {
@@ -872,56 +743,47 @@
     "players": [
      "Drake Baldwin"
     ],
-    "game": "ATL vs TEX 1:35 PM",
-    "opp": "vs RP Nathan Eovaldi",
-    "era": 4.21,
-    "flag": ""
+    "game": "ATL vs SD 7:15 PM",
+    "opp": "vs LP JP Sears",
+    "era": 5.03,
+    "flag": "target"
    },
    {
     "mlb": "MIA",
     "players": [
      "Owen Caissie"
     ],
-    "game": "MIA @ MIL 2:10 PM",
-    "opp": "vs LP Robert Gasser",
-    "era": 4.91,
-    "flag": "target"
+    "game": "MIA @ HOU 8:10 PM",
+    "opp": "vs RP Ronel Blanco",
+    "era": null,
+    "flag": ""
    }
   ],
   "myStarters": [
    {
-    "name": "Cam Schlittler",
-    "era": 2.2,
-    "game": "NYY vs LAD (home)",
-    "oppTeam": "LAD",
-    "oppOffRank": 1,
+    "name": "Emmet Sheehan",
+    "era": 4.81,
+    "game": "LAD @ PHI (away)",
+    "oppTeam": "PHI",
+    "oppOffRank": 24,
+    "oppOffTotal": 30,
+    "flag": "good"
+   },
+   {
+    "name": "Jack Flaherty",
+    "era": 4.48,
+    "game": "DET @ CHC (away)",
+    "oppTeam": "CHC",
+    "oppOffRank": 4,
     "oppOffTotal": 30,
     "flag": "tough"
    },
    {
-    "name": "Yoshinobu Yamamoto",
-    "era": 2.78,
-    "game": "LAD @ NYY (away)",
-    "oppTeam": "NYY",
-    "oppOffRank": 6,
-    "oppOffTotal": 30,
-    "flag": "tough"
-   },
-   {
-    "name": "Joey Cantillo",
-    "era": 3.74,
-    "game": "CLE vs PIT (home)",
-    "oppTeam": "PIT",
-    "oppOffRank": 2,
-    "oppOffTotal": 30,
-    "flag": "tough"
-   },
-   {
-    "name": "Hunter Brown",
-    "era": 3.6,
-    "game": "HOU vs BAL (home)",
-    "oppTeam": "BAL",
-    "oppOffRank": 18,
+    "name": "Jacob DeGrom",
+    "era": 3.49,
+    "game": "TEX vs CWS (home)",
+    "oppTeam": "CWS",
+    "oppOffRank": 12,
     "oppOffTotal": 30,
     "flag": ""
    }

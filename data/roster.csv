@@ -48,29 +48,29 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10759,"Juan Nation UndeGrom 🫡",39108,28163,sa3015532,"Junior Caminero",TBR,3B,$20
 10759,"Juan Nation UndeGrom 🫡",43896,33333,sa3022654,"Wyatt Langford",TEX,OF,$16
 10759,"Juan Nation UndeGrom 🫡",37201,25880,sa3010571,"Hunter Brown",HOU,SP,$14
-10759,"Juan Nation UndeGrom 🫡",41042,30279,sa3018290,"Bryan Woo",SEA,SP,$12
-10759,"Juan Nation UndeGrom 🫡",14294,10954,sa548447,"Jacob DeGrom",TEX,SP,$12
 10759,"Juan Nation UndeGrom 🫡",45716,35110,sa3025385,"Nick Kurtz",ATH,1B,$12
+10759,"Juan Nation UndeGrom 🫡",14294,10954,sa548447,"Jacob DeGrom",TEX,SP,$12
+10759,"Juan Nation UndeGrom 🫡",41042,30279,sa3018290,"Bryan Woo",SEA,SP,$12
+10759,"Juan Nation UndeGrom 🫡",22674,18360,sa874756,"Austin Riley",ATL,3B,$11
 10759,"Juan Nation UndeGrom 🫡",19398,15454,sa737889,"Nick Pivetta",SDP,SP,$8
-10759,"Juan Nation UndeGrom 🫡",18506,18314,sa659260,"Dansby Swanson",CHC,SS,$7
 10759,"Juan Nation UndeGrom 🫡",23601,14710,sa657938,"Edwin Diaz",LAD,RP,$7
+10759,"Juan Nation UndeGrom 🫡",18506,18314,sa659260,"Dansby Swanson",CHC,SS,$7
 10759,"Juan Nation UndeGrom 🫡",42358,31505,sa3020130,"Sal Stewart",CIN,1B/2B/3B,$6
 10759,"Juan Nation UndeGrom 🫡",42737,31846,sa3020703,"Spencer Schwellenbach",ATL,SP,$5
 10759,"Juan Nation UndeGrom 🫡",43589,32095,sa3021981,"Cam Schlittler",NYY,SP,$5
-10759,"Juan Nation UndeGrom 🫡",23833,19918,sa3002838,"Daulton Varsho",TOR,OF,$5
 10759,"Juan Nation UndeGrom 🫡",44003,33266,sa3022538,"Jacob Wilson",ATH,SS,$5
+10759,"Juan Nation UndeGrom 🫡",23833,19918,sa3002838,"Daulton Varsho",TOR,OF,$5
 10759,"Juan Nation UndeGrom 🫡",39288,28824,sa3015716,"Samuel Basallo",BAL,C/1B,$4
 10759,"Juan Nation UndeGrom 🫡",38367,27496,sa3014465,"Owen Caissie",MIA,OF,$4
-10759,"Juan Nation UndeGrom 🫡",34396,24017,sa3006373,"Jose A. Ferrer",SEA,RP,$4
 10759,"Juan Nation UndeGrom 🫡",27148,23335,sa3005246,"Joey Cantillo",CLE,SP/RP,$4
-10759,"Juan Nation UndeGrom 🫡",20920,17479,sa828681,"Jack Flaherty",DET,SP,$3
+10759,"Juan Nation UndeGrom 🫡",34396,24017,sa3006373,"Jose A. Ferrer",SEA,RP,$4
 10759,"Juan Nation UndeGrom 🫡",26198,22799,sa3003290,"Geraldo Perdomo",ARI,SS,$3
 10759,"Juan Nation UndeGrom 🫡",44057,33321,sa3022614,"Luke Keaschall",MIN,2B/OF,$3
-10759,"Juan Nation UndeGrom 🫡",42221,31539,sa3019920,"Drake Baldwin",ATL,C,$3
 10759,"Juan Nation UndeGrom 🫡",23701,12447,sa599698,"Seth Lugo",KCR,SP,$3
+10759,"Juan Nation UndeGrom 🫡",42221,31539,sa3019920,"Drake Baldwin",ATL,C,$3
 10759,"Juan Nation UndeGrom 🫡",44544,33927,sa3023634,"Grant Taylor",CHW,SP/RP,$3
-10759,"Juan Nation UndeGrom 🫡",40552,29839,sa3017416,"Emmet Sheehan",LAD,SP,$3
 10759,"Juan Nation UndeGrom 🫡",35602,25327,sa3008177,"Abner Uribe",MIL,RP,$3
+10759,"Juan Nation UndeGrom 🫡",40552,29839,sa3017416,"Emmet Sheehan",LAD,SP,$3
 10759,"Juan Nation UndeGrom 🫡",35874,24586,sa3008605,"Kyle Bradish",BAL,SP,$3
 10759,"Juan Nation UndeGrom 🫡",23672,20039,sa969093,"Adrian Morejon",SDP,RP,$3
 10759,"Juan Nation UndeGrom 🫡",44248,33575,sa3022923,"Colt Emerson",SEA,SS/3B,$2
@@ -80,7 +80,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10759,"Juan Nation UndeGrom 🫡",33672,23550,sa3007225,"Aaron Ashby",MIL,RP,$1
 10759,"Juan Nation UndeGrom 🫡",41160,,sa3018409,"Lazaro Montes","SEA AAA",OF,$1
 10759,"Juan Nation UndeGrom 🫡",45708,34979,sa3025168,"Christian Moore","LAA AAA",2B/3B,$1
-10759,"Juan Nation UndeGrom 🫡",38813,28901,sa3015163,"Wilber Dotel","PIT AAA",SP/RP,$1
+10759,"Juan Nation UndeGrom 🫡",38813,28901,sa3015163,"Wilber Dotel",PIT,SP/RP,$1
 10759,"Juan Nation UndeGrom 🫡",38328,27468,sa3014425,"Reid Detmers",LAA,SP/RP,$1
 10761,"NBC Andy Pages Program",43894,33677,sa3023079,"Paul Skenes",PIT,SP,$60
 10761,"NBC Andy Pages Program",18284,13510,sa598784,"José Ramírez",CLE,3B,$47
@@ -95,37 +95,37 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10761,"NBC Andy Pages Program",40508,29794,sa3017342,"Kyle Manzardo",CLE,1B,$7
 10761,"NBC Andy Pages Program",33949,24816,sa3005625,"Andy Pages",LAD,OF,$6
 10761,"NBC Andy Pages Program",38320,27465,sa3014504,"Spencer Torkelson",DET,1B,$6
+10761,"NBC Andy Pages Program",33259,20373,sa919548,"Andres Munoz",SEA,RP,$5
 10761,"NBC Andy Pages Program",31951,19569,sa915715,"David Bednar",NYY,RP,$5
 10761,"NBC Andy Pages Program",38361,27863,sa3014459,"Jared Jones",PIT,SP,$5
 10761,"NBC Andy Pages Program",47553,,sa3026056,"Kade Anderson","SEA AA",SP,$5
 10761,"NBC Andy Pages Program",37091,26477,sa1115496,"Spencer Horwitz",PIT,1B,$5
-10761,"NBC Andy Pages Program",33259,20373,sa919548,"Andres Munoz",SEA,RP,$5
 10761,"NBC Andy Pages Program",45720,35041,sa3025245,"Jac Caglianone",KCR,1B/OF,$4
-10761,"NBC Andy Pages Program",40564,29868,sa3017428,"Bubba Chandler",PIT,SP,$4
 10761,"NBC Andy Pages Program",45706,35333,sa3028086,"Chase Burns",CIN,SP/RP,$4
+10761,"NBC Andy Pages Program",40564,29868,sa3017428,"Bubba Chandler",PIT,SP,$4
+10761,"NBC Andy Pages Program",45769,35376,sa3065496,"Konnor Griffin",PIT,SS,$3
 10761,"NBC Andy Pages Program",43879,33527,sa3022942,"Hurston Waldrep","ATL AAA",SP,$3
 10761,"NBC Andy Pages Program",5644,10233,sa523977,"Aroldis Chapman",BOS,RP,$3
-10761,"NBC Andy Pages Program",45769,35376,sa3065496,"Konnor Griffin",PIT,SS,$3
-10761,"NBC Andy Pages Program",35776,23793,sa3008470,"Braxton Ashcraft",PIT,SP/RP,$3
-10761,"NBC Andy Pages Program",35566,21455,sa3008128,"Kris Bubic",KCR,SP,$3
-10761,"NBC Andy Pages Program",38308,27464,sa3014528,"Dillon Dingler",DET,C,$3
-10761,"NBC Andy Pages Program",33616,20492,sa3008444,"Casey Mize",DET,SP,$3
-10761,"NBC Andy Pages Program",31438,20253,sa738570,"Griffin Jax",TBR,SP/RP,$3
 10761,"NBC Andy Pages Program",38314,27490,sa3014510,"Nick Gonzales",PIT,2B/SS/3B,$3
+10761,"NBC Andy Pages Program",31438,20253,sa738570,"Griffin Jax",TBR,SP/RP,$3
+10761,"NBC Andy Pages Program",33616,20492,sa3008444,"Casey Mize",DET,SP,$3
+10761,"NBC Andy Pages Program",35566,21455,sa3008128,"Kris Bubic",KCR,SP,$3
+10761,"NBC Andy Pages Program",35776,23793,sa3008470,"Braxton Ashcraft",PIT,SP/RP,$3
+10761,"NBC Andy Pages Program",38308,27464,sa3014528,"Dillon Dingler",DET,C,$3
+10761,"NBC Andy Pages Program",20989,17722,sa828803,"Trevor Megill",MIL,RP,$2
 10761,"NBC Andy Pages Program",21075,17586,sa829027,"Tanner Scott",LAD,RP,$2
+10761,"NBC Andy Pages Program",38383,27577,sa3014484,"Casey Schmitt",SFG,1B/2B/3B/OF,$2
 10761,"NBC Andy Pages Program",42716,,sa3020659,"Karson Milbrandt","MIA AAA",SP,$2
 10761,"NBC Andy Pages Program",42299,31448,sa3020006,"Henry Bolte",ATH,OF,$2
-10761,"NBC Andy Pages Program",38316,28199,sa3014537,"Blaze Jordan",STL,1B/3B,$2
-10761,"NBC Andy Pages Program",20989,17722,sa828803,"Trevor Megill",MIL,RP,$2
-10761,"NBC Andy Pages Program",38383,27577,sa3014484,"Casey Schmitt",SFG,1B/2B/3B/OF,$2
 10761,"NBC Andy Pages Program",40456,29766,sa3017286,"Zack Gelof",ATH,2B/3B/OF,$2
-10761,"NBC Andy Pages Program",38403,27572,sa3014505,"Carmen Mlodzinski",PIT,SP/RP,$1
-10761,"NBC Andy Pages Program",18522,15194,sa737848,"Jake Bauers",MIL,1B/OF/RP,$1
 10761,"NBC Andy Pages Program",38410,27758,sa3014513,"Kyle Harrison",MIL,SP/RP,$1
-10761,"NBC Andy Pages Program",35532,25007,sa3008070,"Alex Vesia",LAD,RP,$1
-10761,"NBC Andy Pages Program",39340,29005,sa3015768,"Esmerlyn Valdez",PIT,OF,$1
-10761,"NBC Andy Pages Program",40472,29770,sa3017306,"Mason Montgomery",PIT,SP/RP,$1
 10761,"NBC Andy Pages Program",35928,21626,sa876060,"Griffin Conine",MIA,OF,$1
+10761,"NBC Andy Pages Program",35532,25007,sa3008070,"Alex Vesia",LAD,RP,$1
+10761,"NBC Andy Pages Program",38403,27572,sa3014505,"Carmen Mlodzinski",PIT,SP/RP,$1
+10761,"NBC Andy Pages Program",43973,33225,sa3022498,"Jacob Gonzalez",PIT,1B/2B/SS,$1
+10761,"NBC Andy Pages Program",18522,15194,sa737848,"Jake Bauers",MIL,1B/OF/RP,$1
+10761,"NBC Andy Pages Program",40472,29770,sa3017306,"Mason Montgomery",PIT,SP/RP,$1
+10761,"NBC Andy Pages Program",39340,29005,sa3015768,"Esmerlyn Valdez",PIT,OF,$1
 10764,"Wrecking Crews",18164,13743,sa657860,"Max Fried","NYY AAA",SP,$39
 10764,"Wrecking Crews",22426,17295,sa873146,"Framber Valdez",DET,SP,$34
 10764,"Wrecking Crews",23762,20454,sa919327,"Jazz Chisholm Jr.",NYY,2B/3B,$27
@@ -176,7 +176,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10818,"Bureau of Gleyber Statistics",33654,21534,sa3008377,"Cal Raleigh",SEA,C,$20
 10818,"Bureau of Gleyber Statistics",14393,10603,sa392121,"Chris Sale",ATL,SP,$18
 10818,"Bureau of Gleyber Statistics",18479,17919,sa827194,"Ian Happ",CHC,OF,$17
-10818,"Bureau of Gleyber Statistics",18487,16997,sa830372,"Gleyber Torres","DET A",2B,$17
+10818,"Bureau of Gleyber Statistics",18487,16997,sa830372,"Gleyber Torres",DET,2B,$17
 10818,"Bureau of Gleyber Statistics",33647,21483,sa3008547,"Shane McClanahan",TBR,SP,$16
 10818,"Bureau of Gleyber Statistics",18517,16578,sa823741,"Yandy Diaz",TBR,1B,$13
 10818,"Bureau of Gleyber Statistics",18113,12768,sa455516,"Sonny Gray",BOS,SP,$9
@@ -185,30 +185,29 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10818,"Bureau of Gleyber Statistics",42176,32127,sa3021053,"Chase DeLauter",CLE,OF,$5
 10818,"Bureau of Gleyber Statistics",37480,26151,sa1115829,"Kyle Stowers",MIA,1B/OF,$4
 10818,"Bureau of Gleyber Statistics",33548,20391,sa962605,"Luis García Jr.",WSN,1B/2B,$4
+10818,"Bureau of Gleyber Statistics",42754,31959,sa3020737,"Jake Bennett",BOS,SP,$3
 10818,"Bureau of Gleyber Statistics",40972,30182,sa3018149,"Will Warren",NYY,SP,$3
 10818,"Bureau of Gleyber Statistics",42765,31986,sa3020748,"Parker Messick",CLE,SP,$3
-10818,"Bureau of Gleyber Statistics",42754,31959,sa3020737,"Jake Bennett",BOS,SP,$3
-10818,"Bureau of Gleyber Statistics",12379,9777,sa500816,"Nolan Arenado",ARI,3B,$3
 10818,"Bureau of Gleyber Statistics",31958,20352,sa915732,"Ernie Clement",TOR,1B/2B/SS/3B,$3
+10818,"Bureau of Gleyber Statistics",12379,9777,sa500816,"Nolan Arenado",ARI,3B,$3
 10818,"Bureau of Gleyber Statistics",26134,22664,sa3003226,"Gabriel Moreno",ARI,C,$3
 10818,"Bureau of Gleyber Statistics",18364,17432,sa709602,"Jeff Hoffman",TOR,RP,$2
+10818,"Bureau of Gleyber Statistics",22676,17969,sa874771,"Peter Lambert",HOU,SP,$1
 10818,"Bureau of Gleyber Statistics",42652,31891,sa3020569,"Andrew Morris",MIN,SP/RP,$1
-10818,"Bureau of Gleyber Statistics",41265,30675,sa3018514,"Luis Lara",MIL,OF,$1
-10818,"Bureau of Gleyber Statistics",49684,,sa3058966,"Derek Curiel",,Util,$1
 10818,"Bureau of Gleyber Statistics",40674,29957,sa3017626,"Edwin Arroyo",CIN,2B/SS,$1
+10818,"Bureau of Gleyber Statistics",33651,22514,sa3007634,"Triston Casas",BOS,1B,$1
 10818,"Bureau of Gleyber Statistics",44274,33568,sa3022951,"Brandyn Garcia",ARI,RP,$1
+10818,"Bureau of Gleyber Statistics",18421,13580,sa550187,"Steven Okert",HOU,RP,$1
+10818,"Bureau of Gleyber Statistics",41265,30675,sa3018514,"Luis Lara",MIL,OF,$1
+10818,"Bureau of Gleyber Statistics",23679,18655,sa659284,"A.J. Minter",NYM,RP,$1
 10818,"Bureau of Gleyber Statistics",38325,27555,sa3014438,"Garrett Mitchell",MIL,OF,$1
 10818,"Bureau of Gleyber Statistics",38311,27501,sa3014527,"Justin Foscue",TEX,1B/2B,$1
-10818,"Bureau of Gleyber Statistics",22676,17969,sa874771,"Peter Lambert",HOU,SP,$1
-10818,"Bureau of Gleyber Statistics",23679,18655,sa659284,"A.J. Minter",NYM,RP,$1
-10818,"Bureau of Gleyber Statistics",33610,23802,sa3006894,"Anthony Seigler",BOS,C/2B/3B,$1
-10818,"Bureau of Gleyber Statistics",33622,21501,sa3008376,"Trevor Larnach",MIN,OF,$1
-10818,"Bureau of Gleyber Statistics",33650,23690,sa3005898,"Brayan Rocchio",CLE,2B/SS,$1
-10818,"Bureau of Gleyber Statistics",33651,22514,sa3007634,"Triston Casas",BOS,1B,$1
-10818,"Bureau of Gleyber Statistics",36046,26540,sa3008762,"Angel Martinez",CLE,2B/OF,$1
 10818,"Bureau of Gleyber Statistics",32710,22361,sa918172,"Colin Holderman",CLE,RP,$1
 10818,"Bureau of Gleyber Statistics",37202,27691,sa3010572,"Louis Varland",TOR,RP,$1
-10818,"Bureau of Gleyber Statistics",18421,13580,sa550187,"Steven Okert",HOU,RP,$1
+10818,"Bureau of Gleyber Statistics",33650,23690,sa3005898,"Brayan Rocchio",CLE,2B/SS,$1
+10818,"Bureau of Gleyber Statistics",36046,26540,sa3008762,"Angel Martinez",CLE,2B/OF,$1
+10818,"Bureau of Gleyber Statistics",33622,21501,sa3008376,"Trevor Larnach",MIN,OF,$1
+10818,"Bureau of Gleyber Statistics",49684,,sa3058966,"Derek Curiel",,Util,$1
 10881,"Look Out Bello",18344,17350,sa828312,"Rafael Devers",SFG,1B,$31
 10881,"Look Out Bello",38736,27498,sa3015059,"Spencer Strider",ATL,SP,$22
 10881,"Look Out Bello",23767,19612,sa917949,"Bo Bichette",NYM,SS/3B,$20
@@ -357,41 +356,42 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10908,"South Side Shitshow",9335,9132,sa455169,"Nathan Eovaldi",TEX,SP,$11
 10908,"South Side Shitshow",42156,31347,sa3019855,"Zach Neto",LAA,SS,$9
 10908,"South Side Shitshow",20545,18568,sa828153,"Luis Arraez",SFG,1B/2B,$8
-10908,"South Side Shitshow",23780,20043,sa3003396,"Luis Robert Jr.","NYM AAA",OF,$7
+10908,"South Side Shitshow",23780,20043,sa3003396,"Luis Robert Jr.",NYM,OF,$7
 10908,"South Side Shitshow",40941,30122,sa3018106,"Gavin Williams",CLE,SP,$7
 10908,"South Side Shitshow",38754,27867,sa3015086,"Cade Smith",CLE,RP,$5
 10908,"South Side Shitshow",43949,33549,sa3022886,"Kyle Teel",CHW,C,$4
 10908,"South Side Shitshow",40714,29995,sa3017698,"Daylen Lile",WSN,OF,$4
+10908,"South Side Shitshow",38374,27899,sa3014474,"Colt Keith",DET,1B/2B/3B,$3
+10908,"South Side Shitshow",37469,26197,sa3011226,"Andrew Vaughn",MIL,1B,$3
 10908,"South Side Shitshow",42175,,sa3020134,"Jett Williams","MIL AAA",2B/SS/3B/OF,$3
 10908,"South Side Shitshow",40181,29514,sa3016863,"River Ryan","LAD AAA",SP/RP,$3
-10908,"South Side Shitshow",38374,27899,sa3014474,"Colt Keith",DET,1B/2B/3B,$3
-10908,"South Side Shitshow",23856,14551,sa659463,"Anthony Santander",TOR,OF,$3
-10908,"South Side Shitshow",37469,26197,sa3011226,"Andrew Vaughn",MIL,1B,$3
-10908,"South Side Shitshow",18465,15440,sa621603,"Matthew Boyd",CHC,SP,$3
 10908,"South Side Shitshow",33424,22487,sa922365,"Johan Oviedo",BOS,SP,$3
+10908,"South Side Shitshow",23856,14551,sa659463,"Anthony Santander",TOR,OF,$3
+10908,"South Side Shitshow",18465,15440,sa621603,"Matthew Boyd",CHC,SP,$3
 10908,"South Side Shitshow",47533,,sa3030545,"Liam Doyle","STL AA",SP,$2
-10908,"South Side Shitshow",42873,32056,sa3020949,"Noah Schultz",CHW,SP,$2
 10908,"South Side Shitshow",42279,31695,sa3019983,"Dylan Beavers",BAL,OF,$2
+10908,"South Side Shitshow",42873,32056,sa3020949,"Noah Schultz",CHW,SP,$2
+10908,"South Side Shitshow",37234,25756,sa3010616,"Matt Brash",SEA,RP,$2
 10908,"South Side Shitshow",37649,26221,sa3011244,"Ryan Pepiot",TBR,SP,$2
 10908,"South Side Shitshow",27162,23733,sa3005271,"Ezequiel Duran",TEX,1B/2B/SS/3B/OF,$2
-10908,"South Side Shitshow",37234,25756,sa3010616,"Matt Brash",SEA,RP,$2
-10908,"South Side Shitshow",40568,29878,sa3017461,"Sean Burke",CHW,SP/RP,$1
-10908,"South Side Shitshow",44659,33573,sa3023557,"Travis Sykora","WSN AA",SP,$1
-10908,"South Side Shitshow",44975,,sa3023944,"Edward Florentino","PIT A+",OF,$1
-10908,"South Side Shitshow",39283,28816,sa3015711,"Denzer Guzman",LAA,SS/3B,$1
 10908,"South Side Shitshow",46397,,sa3067043,"Caleb Bonemer","CHW AA",SS/3B,$1
+10908,"South Side Shitshow",40147,,sa3017022,"Joshua Baez","STL AAA",OF,$1
 10908,"South Side Shitshow",46459,,sa3067261,"Tucker Musgrove","SDP AA",SP/RP,$1
-10908,"South Side Shitshow",39099,28142,sa3015523,"Jhostynxon Garcia","PIT AAA",OF,$1
+10908,"South Side Shitshow",44659,33573,sa3023557,"Travis Sykora","WSN AA",SP,$1
+10908,"South Side Shitshow",18380,16918,sa599729,"Luke Weaver",NYM,RP,$1
 10908,"South Side Shitshow",47552,,sa3069100,"Ethan Holliday","COL A",SS,$1
 10908,"South Side Shitshow",44202,33530,sa3022867,"Cooper Pratt",MIL,SS,$1
-10908,"South Side Shitshow",18380,16918,sa599729,"Luke Weaver",NYM,RP,$1
-10908,"South Side Shitshow",39557,29107,sa3016035,"Bradgley Rodriguez",SDP,RP,$1
+10908,"South Side Shitshow",44975,,sa3023944,"Edward Florentino","PIT A+",OF,$1
+10908,"South Side Shitshow",33679,19899,sa3007582,"Clarke Schmidt",NYY,SP,$1
 10908,"South Side Shitshow",42310,31461,sa3020078,"Ben Joyce",LAA,RP,$1
-10908,"South Side Shitshow",36825,25679,sa3009999,"Kevin Kelly",TBR,RP,$1
+10908,"South Side Shitshow",40460,29779,sa3017290,"Max Muncy","ATH AAA",2B/SS/3B,$1
 10908,"South Side Shitshow",40496,29805,sa3017330,"TJ Rumfield",COL,1B,$1
 10908,"South Side Shitshow",40520,29780,sa3017374,"Joe Mack",MIA,C,$1
-10908,"South Side Shitshow",33679,19899,sa3007582,"Clarke Schmidt",NYY,SP,$1
-10908,"South Side Shitshow",40147,,sa3017022,"Joshua Baez","STL AAA",OF,$1
+10908,"South Side Shitshow",40568,29878,sa3017461,"Sean Burke",CHW,SP/RP,$1
+10908,"South Side Shitshow",39557,29107,sa3016035,"Bradgley Rodriguez",SDP,RP,$1
+10908,"South Side Shitshow",39283,28816,sa3015711,"Denzer Guzman",LAA,SS/3B,$1
+10908,"South Side Shitshow",39099,28142,sa3015523,"Jhostynxon Garcia","PIT AAA",OF,$1
+10908,"South Side Shitshow",36825,25679,sa3009999,"Kevin Kelly",TBR,RP,$1
 10908,"South Side Shitshow",45881,,sa3025360,"Kaelen Culpepper","MIN AAA",SS,$1
 10925,"Bryce Krispies👨‍🍳",23795,19556,sa943524,"Yordan Alvarez",HOU,OF,$51
 10925,"Bryce Krispies👨‍🍳",35204,22267,sa3007593,"Tarik Skubal",DET,SP,$46
@@ -500,7 +500,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10974,"Ketel Corn",26099,20599,sa3003191,"Ivan Herrera",STL,C,$6
 10974,"Ketel Corn",38388,27467,sa3014489,"Tyler Soderstrom",ATH,1B/OF,$6
 10974,"Ketel Corn",19268,15816,sa737560,"Devin Williams",NYM,RP,$6
-10974,"Ketel Corn",33194,19407,sa919082,"Ronel Blanco","HOU AAA",SP,$6
+10974,"Ketel Corn",33194,19407,sa919082,"Ronel Blanco",HOU,SP,$6
 10974,"Ketel Corn",31703,19470,sa873704,"Tommy Edman",LAD,2B/3B/OF,$6
 10974,"Ketel Corn",23745,19287,sa908695,"Adolis García",PHI,OF,$6
 10974,"Ketel Corn",23373,21052,sa877821,"Luis Gil",NYY,SP,$5

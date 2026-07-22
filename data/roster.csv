@@ -172,7 +172,6 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10818,"Bureau of Gleyber Statistics",21015,17995,sa828873,"Logan Webb",SFG,SP,$31
 10818,"Bureau of Gleyber Statistics",23840,19290,sa914549,"Randy Arozarena",SEA,OF,$24
 10818,"Bureau of Gleyber Statistics",48239,37123,sa3063134,"Kazuma Okamoto",TOR,1B/3B,$22
-10818,"Bureau of Gleyber Statistics",14893,11477,sa548190,"Christian Yelich",MIL,OF,$21
 10818,"Bureau of Gleyber Statistics",33654,21534,sa3008377,"Cal Raleigh",SEA,C,$20
 10818,"Bureau of Gleyber Statistics",14393,10603,sa392121,"Chris Sale",ATL,SP,$18
 10818,"Bureau of Gleyber Statistics",18479,17919,sa827194,"Ian Happ",CHC,OF,$17
@@ -185,29 +184,30 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10818,"Bureau of Gleyber Statistics",42176,32127,sa3021053,"Chase DeLauter",CLE,OF,$5
 10818,"Bureau of Gleyber Statistics",37480,26151,sa1115829,"Kyle Stowers",MIA,1B/OF,$4
 10818,"Bureau of Gleyber Statistics",33548,20391,sa962605,"Luis García Jr.",WSN,1B/2B,$4
-10818,"Bureau of Gleyber Statistics",42754,31959,sa3020737,"Jake Bennett",BOS,SP,$3
 10818,"Bureau of Gleyber Statistics",40972,30182,sa3018149,"Will Warren",NYY,SP,$3
+10818,"Bureau of Gleyber Statistics",12379,9777,sa500816,"Nolan Arenado",ARI,3B,$3
 10818,"Bureau of Gleyber Statistics",42765,31986,sa3020748,"Parker Messick",CLE,SP,$3
 10818,"Bureau of Gleyber Statistics",31958,20352,sa915732,"Ernie Clement",TOR,1B/2B/SS/3B,$3
-10818,"Bureau of Gleyber Statistics",12379,9777,sa500816,"Nolan Arenado",ARI,3B,$3
+10818,"Bureau of Gleyber Statistics",42754,31959,sa3020737,"Jake Bennett",BOS,SP,$3
 10818,"Bureau of Gleyber Statistics",26134,22664,sa3003226,"Gabriel Moreno",ARI,C,$3
 10818,"Bureau of Gleyber Statistics",18364,17432,sa709602,"Jeff Hoffman",TOR,RP,$2
-10818,"Bureau of Gleyber Statistics",22676,17969,sa874771,"Peter Lambert",HOU,SP,$1
-10818,"Bureau of Gleyber Statistics",42652,31891,sa3020569,"Andrew Morris",MIN,SP/RP,$1
-10818,"Bureau of Gleyber Statistics",40674,29957,sa3017626,"Edwin Arroyo",CIN,2B/SS,$1
-10818,"Bureau of Gleyber Statistics",33651,22514,sa3007634,"Triston Casas",BOS,1B,$1
 10818,"Bureau of Gleyber Statistics",44274,33568,sa3022951,"Brandyn Garcia",ARI,RP,$1
-10818,"Bureau of Gleyber Statistics",18421,13580,sa550187,"Steven Okert",HOU,RP,$1
+10818,"Bureau of Gleyber Statistics",42652,31891,sa3020569,"Andrew Morris",MIN,SP/RP,$1
 10818,"Bureau of Gleyber Statistics",41265,30675,sa3018514,"Luis Lara",MIL,OF,$1
-10818,"Bureau of Gleyber Statistics",23679,18655,sa659284,"A.J. Minter",NYM,RP,$1
+10818,"Bureau of Gleyber Statistics",40674,29957,sa3017626,"Edwin Arroyo",CIN,2B/SS,$1
+10818,"Bureau of Gleyber Statistics",49684,,sa3058966,"Derek Curiel",,Util,$1
 10818,"Bureau of Gleyber Statistics",38325,27555,sa3014438,"Garrett Mitchell",MIL,OF,$1
 10818,"Bureau of Gleyber Statistics",38311,27501,sa3014527,"Justin Foscue",TEX,1B/2B,$1
+10818,"Bureau of Gleyber Statistics",22676,17969,sa874771,"Peter Lambert",HOU,SP,$1
+10818,"Bureau of Gleyber Statistics",23679,18655,sa659284,"A.J. Minter",NYM,RP,$1
 10818,"Bureau of Gleyber Statistics",32710,22361,sa918172,"Colin Holderman",CLE,RP,$1
-10818,"Bureau of Gleyber Statistics",37202,27691,sa3010572,"Louis Varland",TOR,RP,$1
-10818,"Bureau of Gleyber Statistics",33650,23690,sa3005898,"Brayan Rocchio",CLE,2B/SS,$1
-10818,"Bureau of Gleyber Statistics",36046,26540,sa3008762,"Angel Martinez",CLE,2B/OF,$1
 10818,"Bureau of Gleyber Statistics",33622,21501,sa3008376,"Trevor Larnach",MIN,OF,$1
-10818,"Bureau of Gleyber Statistics",49684,,sa3058966,"Derek Curiel",,Util,$1
+10818,"Bureau of Gleyber Statistics",18421,13580,sa550187,"Steven Okert",HOU,RP,$1
+10818,"Bureau of Gleyber Statistics",33651,22514,sa3007634,"Triston Casas",BOS,1B,$1
+10818,"Bureau of Gleyber Statistics",36046,26540,sa3008762,"Angel Martinez",CLE,2B/OF,$1
+10818,"Bureau of Gleyber Statistics",33650,23690,sa3005898,"Brayan Rocchio",CLE,2B/SS,$1
+10818,"Bureau of Gleyber Statistics",37202,27691,sa3010572,"Louis Varland",TOR,RP,$1
+10818,"Bureau of Gleyber Statistics",21041,16939,sa828962,"Lane Thomas",KCR,OF,$1
 10881,"Look Out Bello",18344,17350,sa828312,"Rafael Devers",SFG,1B,$31
 10881,"Look Out Bello",38736,27498,sa3015059,"Spencer Strider",ATL,SP,$22
 10881,"Look Out Bello",23767,19612,sa917949,"Bo Bichette",NYM,SS/3B,$20
@@ -364,14 +364,14 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10908,"South Side Shitshow",42175,,sa3020134,"Jett Williams","MIL AAA",2B/SS/3B/OF,$3
 10908,"South Side Shitshow",40181,29514,sa3016863,"River Ryan","LAD AAA",SP/RP,$3
 10908,"South Side Shitshow",38374,27899,sa3014474,"Colt Keith",DET,1B/2B/3B,$3
-10908,"South Side Shitshow",23856,14551,sa659463,"Anthony Santander",TOR,OF,$3
 10908,"South Side Shitshow",37469,26197,sa3011226,"Andrew Vaughn",MIL,1B,$3
 10908,"South Side Shitshow",18465,15440,sa621603,"Matthew Boyd",CHC,SP,$3
+10908,"South Side Shitshow",23856,14551,sa659463,"Anthony Santander",TOR,OF,$3
 10908,"South Side Shitshow",33424,22487,sa922365,"Johan Oviedo",BOS,SP,$3
+10908,"South Side Shitshow",37649,26221,sa3011244,"Ryan Pepiot",TBR,SP,$2
 10908,"South Side Shitshow",47533,,sa3030545,"Liam Doyle","STL AA",SP,$2
 10908,"South Side Shitshow",42873,32056,sa3020949,"Noah Schultz",CHW,SP,$2
 10908,"South Side Shitshow",42279,31695,sa3019983,"Dylan Beavers",BAL,OF,$2
-10908,"South Side Shitshow",37649,26221,sa3011244,"Ryan Pepiot",TBR,SP,$2
 10908,"South Side Shitshow",27162,23733,sa3005271,"Ezequiel Duran",TEX,1B/2B/SS/3B/OF,$2
 10908,"South Side Shitshow",37234,25756,sa3010616,"Matt Brash",SEA,RP,$2
 10908,"South Side Shitshow",40568,29878,sa3017461,"Sean Burke",CHW,SP/RP,$1
@@ -389,6 +389,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10908,"South Side Shitshow",36825,25679,sa3009999,"Kevin Kelly",TBR,RP,$1
 10908,"South Side Shitshow",40496,29805,sa3017330,"TJ Rumfield",COL,1B,$1
 10908,"South Side Shitshow",40520,29780,sa3017374,"Joe Mack",MIA,C,$1
+10908,"South Side Shitshow",41400,30249,sa3018789,"Jack Dreyer",LAD,SP/RP,$1
 10908,"South Side Shitshow",33679,19899,sa3007582,"Clarke Schmidt",NYY,SP,$1
 10908,"South Side Shitshow",40147,,sa3017022,"Joshua Baez","STL AAA",OF,$1
 10908,"South Side Shitshow",45881,,sa3025360,"Kaelen Culpepper","MIN AAA",SS,$1
@@ -446,7 +447,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10944,"Si Se Fuentes",45709,34967,sa3025129,"Travis Bazzana",CLE,2B,$5
 10944,"Si Se Fuentes",40978,30134,sa3018170,"Tanner Bibee",CLE,SP,$5
 10944,"Si Se Fuentes",33645,22266,sa3007018,"Xavier Edwards",MIA,2B/SS,$5
-10944,"Si Se Fuentes",27208,22210,sa3005339,"Jeremiah Estrada","SDP CPX",RP,$5
+10944,"Si Se Fuentes",27208,22210,sa3005339,"Jeremiah Estrada","SDP AAA",RP,$5
 10944,"Si Se Fuentes",35367,22543,sa3007839,"Taj Bradley",MIN,SP,$4
 10944,"Si Se Fuentes",40937,30184,sa3018097,"Noah Cameron",KCR,SP,$4
 10944,"Si Se Fuentes",40255,29576,sa3016974,"Ben Rice",NYY,C/1B,$4

@@ -126,7 +126,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10761,"NBC Andy Pages Program",18522,15194,sa737848,"Jake Bauers",MIL,1B/OF/RP,$1
 10761,"NBC Andy Pages Program",40472,29770,sa3017306,"Mason Montgomery",PIT,SP/RP,$1
 10761,"NBC Andy Pages Program",39340,29005,sa3015768,"Esmerlyn Valdez",PIT,OF,$1
-10764,"Wrecking Crews",18164,13743,sa657860,"Max Fried","NYY AAA",SP,$39
+10764,"Wrecking Crews",18164,13743,sa657860,"Max Fried",NYY,SP,$39
 10764,"Wrecking Crews",22426,17295,sa873146,"Framber Valdez",DET,SP,$34
 10764,"Wrecking Crews",23762,20454,sa919327,"Jazz Chisholm Jr.",NYY,2B/3B,$27
 10764,"Wrecking Crews",46091,35323,sa3025686,"Roki Sasaki",LAD,SP,$27
@@ -160,8 +160,8 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10764,"Wrecking Crews",38043,26440,sa3011818,"Ryan Gusto",MIA,SP/RP,$3
 10764,"Wrecking Crews",33147,19392,sa918920,"Zach McKinstry",DET,2B/SS/3B/OF,$3
 10764,"Wrecking Crews",40707,29960,sa3017690,"AJ Smith-Shawver",ATL,SP,$3
-10764,"Wrecking Crews",25806,23395,sa3002875,"Eric Wagaman",NYM,1B/OF,$3
-10764,"Wrecking Crews",35548,21267,sa3008097,"Jake Bird",NYY,RP,$3
+10764,"Wrecking Crews",25806,23395,sa3002875,"Eric Wagaman","NYM AAA",1B/OF,$3
+10764,"Wrecking Crews",35548,21267,sa3008097,"Jake Bird","NYY AAA",RP,$3
 10764,"Wrecking Crews",35618,21504,sa3008223,"Jake Irvin",WSN,SP,$3
 10764,"Wrecking Crews",26080,21897,sa3003171,"Christopher Morel","NYM AAA",1B/OF,$2
 10764,"Wrecking Crews",40301,29630,sa3017050,"Joey Loperfido","HOU AAA",OF,$1
@@ -308,7 +308,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10899,"Prospects R Us",38398,27815,sa3014499,"Jordan Westburg",BAL,2B/3B,$4
 10899,"Prospects R Us",36682,25977,sa3011297,"Quinn Priester",MIL,SP/RP,$4
 10899,"Prospects R Us",43966,33322,sa3022615,"Matt Shaw",CHC,3B/OF,$4
-10899,"Prospects R Us",42266,31532,sa3019969,"Spencer Jones","NYY AAA",OF,$3
+10899,"Prospects R Us",42266,31532,sa3019969,"Spencer Jones",NYY,OF,$3
 10899,"Prospects R Us",40807,30063,sa3017851,"Tristan Peters",CHW,OF,$3
 10899,"Prospects R Us",45789,35061,sa3025261,"Ryan Waldschmidt",ARI,OF,$3
 10899,"Prospects R Us",38409,27932,sa3014512,"Ian Seymour",TBR,SP/RP,$3

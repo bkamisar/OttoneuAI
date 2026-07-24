@@ -70,7 +70,6 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10759,"Juan Nation UndeGrom 🫡",42221,31539,sa3019920,"Drake Baldwin",ATL,C,$3
 10759,"Juan Nation UndeGrom 🫡",44544,33927,sa3023634,"Grant Taylor",CHW,SP/RP,$3
 10759,"Juan Nation UndeGrom 🫡",35602,25327,sa3008177,"Abner Uribe",MIL,RP,$3
-10759,"Juan Nation UndeGrom 🫡",40552,29839,sa3017416,"Emmet Sheehan",LAD,SP,$3
 10759,"Juan Nation UndeGrom 🫡",35874,24586,sa3008605,"Kyle Bradish",BAL,SP,$3
 10759,"Juan Nation UndeGrom 🫡",23672,20039,sa969093,"Adrian Morejon",SDP,RP,$3
 10759,"Juan Nation UndeGrom 🫡",44248,33575,sa3022923,"Colt Emerson",SEA,SS/3B,$2
@@ -302,38 +301,38 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10899,"Prospects R Us",23790,13649,sa598167,"Clay Holmes",NYM,SP,$7
 10899,"Prospects R Us",37841,26319,sa3011540,"Michael Busch",CHC,1B,$6
 10899,"Prospects R Us",49442,,sa3031459,"Jackson Flora",,RP,$5
-10899,"Prospects R Us",47555,,sa3069247,"Seth Hernandez","PIT A+",SP,$5
 10899,"Prospects R Us",46310,35466,sa3043900,"Payton Tolle",BOS,SP,$5
-10899,"Prospects R Us",49401,,sa3028866,"Roch Cholowsky",,Util,$4
+10899,"Prospects R Us",47555,,sa3069247,"Seth Hernandez","PIT A+",SP,$5
 10899,"Prospects R Us",38398,27815,sa3014499,"Jordan Westburg",BAL,2B/3B,$4
-10899,"Prospects R Us",36682,25977,sa3011297,"Quinn Priester",MIL,SP/RP,$4
+10899,"Prospects R Us",49401,,sa3028866,"Roch Cholowsky",,Util,$4
 10899,"Prospects R Us",43966,33322,sa3022615,"Matt Shaw",CHC,3B/OF,$4
-10899,"Prospects R Us",42266,31532,sa3019969,"Spencer Jones",NYY,OF,$3
-10899,"Prospects R Us",40807,30063,sa3017851,"Tristan Peters",CHW,OF,$3
+10899,"Prospects R Us",36682,25977,sa3011297,"Quinn Priester",MIL,SP/RP,$4
+10899,"Prospects R Us",37797,26368,sa3011642,"JJ Bleday",CIN,OF,$3
+10899,"Prospects R Us",43893,,sa3022683,"Max Clark","DET AAA",OF,$3
 10899,"Prospects R Us",45789,35061,sa3025261,"Ryan Waldschmidt",ARI,OF,$3
 10899,"Prospects R Us",38409,27932,sa3014512,"Ian Seymour",TBR,SP/RP,$3
-10899,"Prospects R Us",43893,,sa3022683,"Max Clark","DET AAA",OF,$3
-10899,"Prospects R Us",37797,26368,sa3011642,"JJ Bleday",CIN,OF,$3
+10899,"Prospects R Us",40552,29839,sa3017416,"Emmet Sheehan",LAD,SP,$3
+10899,"Prospects R Us",40807,30063,sa3017851,"Tristan Peters",CHW,OF,$3
+10899,"Prospects R Us",42266,31532,sa3019969,"Spencer Jones",NYY,OF,$3
 10899,"Prospects R Us",44487,33435,sa3023268,"Thomas White","MIA AAA",SP,$3
 10899,"Prospects R Us",37531,26294,sa3011443,"Bryson Stott",PHI,2B/SS,$3
 10899,"Prospects R Us",18462,12970,sa597766,"Joe Musgrove",SDP,RP,$3
 10899,"Prospects R Us",36030,26517,sa3008745,"Noelvi Marte",CIN,3B/OF,$3
-10899,"Prospects R Us",42794,31857,sa3020808,"Connor Prielipp","MIN AAA",SP,$2
-10899,"Prospects R Us",44349,33708,sa3023069,"Cooper Ingle","CLE AAA",C,$2
 10899,"Prospects R Us",42598,31621,sa3020475,"Spencer Miles",TOR,RP,$2
+10899,"Prospects R Us",44349,33708,sa3023069,"Cooper Ingle","CLE AAA",C,$2
 10899,"Prospects R Us",45715,,sa3025257,"Charlie Condon","COL AAA",1B/OF,$2
 10899,"Prospects R Us",22654,17988,sa874242,"Tyler Stephenson",CIN,C,$2
 10899,"Prospects R Us",33954,24878,sa3005630,"Heriberto Hernandez",MIA,OF,$2
 10899,"Prospects R Us",45947,35177,sa3025452,"Carson Benge",NYM,OF,$2
+10899,"Prospects R Us",32576,19955,sa917933,"Gavin Lux",TBR,2B/3B/OF,$2
 10899,"Prospects R Us",40541,29844,sa3017400,"Liam Hicks",MIA,C/1B,$2
 10899,"Prospects R Us",19242,20666,sa737480,"Felix Bautista",BAL,RP,$2
 10899,"Prospects R Us",35725,23986,sa3008392,"Curtis Mead",WSN,1B/2B/3B,$2
 10899,"Prospects R Us",36539,26944,sa3009613,"Edgardo Henriquez",LAD,RP,$2
 10899,"Prospects R Us",37786,26299,sa3011468,"Josh Jung",TEX,3B,$2
-10899,"Prospects R Us",32576,19955,sa917933,"Gavin Lux",TBR,2B/3B/OF,$2
 10899,"Prospects R Us",45884,35101,sa3025363,"Sam Antonacci",CHW,2B/3B/OF,$1
-10899,"Prospects R Us",21961,17920,sa856266,"Cody Ponce",TOR,SP/RP,$1
 10899,"Prospects R Us",32492,21924,sa917772,"Juan Morillo",ARI,RP,$1
+10899,"Prospects R Us",21961,17920,sa856266,"Cody Ponce",TOR,SP/RP,$1
 10899,"Prospects R Us",32719,19996,sa918185,"Dylan Lee",ATL,RP,$1
 10899,"Prospects R Us",37171,27552,sa918274,"Graham Ashcraft",CIN,SP/RP,$1
 10899,"Prospects R Us",35300,23789,sa3007742,"Blaze Alexander",BAL,2B/SS/3B/OF,$1

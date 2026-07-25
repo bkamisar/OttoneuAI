@@ -202,7 +202,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10818,"Bureau of Gleyber Statistics",33622,21501,sa3008376,"Trevor Larnach",MIN,OF,$1
 10818,"Bureau of Gleyber Statistics",33650,23690,sa3005898,"Brayan Rocchio",CLE,2B/SS,$1
 10818,"Bureau of Gleyber Statistics",33651,22514,sa3007634,"Triston Casas",BOS,1B,$1
-10818,"Bureau of Gleyber Statistics",36046,26540,sa3008762,"Angel Martinez","CLE AA",2B/OF,$1
+10818,"Bureau of Gleyber Statistics",36046,26540,sa3008762,"Angel Martinez",CLE,2B/OF,$1
 10818,"Bureau of Gleyber Statistics",37202,27691,sa3010572,"Louis Varland",TOR,RP,$1
 10818,"Bureau of Gleyber Statistics",38311,27501,sa3014527,"Justin Foscue",TEX,1B/2B,$1
 10818,"Bureau of Gleyber Statistics",38325,27555,sa3014438,"Garrett Mitchell",MIL,OF,$1
@@ -333,7 +333,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10899,"Prospects R Us",21961,17920,sa856266,"Cody Ponce",TOR,SP/RP,$1
 10899,"Prospects R Us",45884,35101,sa3025363,"Sam Antonacci",CHW,2B/3B/OF,$1
 10899,"Prospects R Us",25866,22630,sa3002956,"Keider Montero",DET,SP/RP,$1
-10899,"Prospects R Us",43569,,sa3021845,"Franklin Arias","BOS AA",SS,$1
+10899,"Prospects R Us",43569,,sa3021845,"Franklin Arias","BOS AAA",SS,$1
 10899,"Prospects R Us",35030,24763,sa3007241,"Kyle Leahy",STL,SP/RP,$1
 10899,"Prospects R Us",35300,23789,sa3007742,"Blaze Alexander",BAL,2B/SS/3B/OF,$1
 10899,"Prospects R Us",37171,27552,sa918274,"Graham Ashcraft",CIN,SP/RP,$1
@@ -410,13 +410,14 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10925,"Bryce Krispies👨‍🍳",21156,16442,sa829141,"Ryan O'Hearn",PIT,1B/OF,$3
 10925,"Bryce Krispies👨‍🍳",38334,27473,sa3014421,"Cade Cavalli",WSN,SP,$3
 10925,"Bryce Krispies👨‍🍳",45064,,sa3024108,"Jesus Made","MIL AA",SS,$3
+10925,"Bryce Krispies👨‍🍳",38661,27819,sa3014926,"Brandon Young",BAL,SP,$3
+10925,"Bryce Krispies👨‍🍳",44052,,sa3022609,"Aidan Miller","PHI AAA",SS,$2
 10925,"Bryce Krispies👨‍🍳",38307,27474,sa3014430,"Max Meyer",MIA,SP,$2
 10925,"Bryce Krispies👨‍🍳",26570,19608,sa3004268,"Otto Lopez",MIA,2B/SS,$2
 10925,"Bryce Krispies👨‍🍳",33049,20023,sa918679,"Rico Garcia",BAL,RP,$2
-10925,"Bryce Krispies👨‍🍳",44052,,sa3022609,"Aidan Miller","PHI AAA",SS,$2
-10925,"Bryce Krispies👨‍🍳",45797,,sa3066592,"Bryce Rainer","DET A+",SS,$1
 10925,"Bryce Krispies👨‍🍳",42110,31843,sa3020827,"Kumar Rocker",TEX,SP,$1
 10925,"Bryce Krispies👨‍🍳",37946,25911,sa3011688,"Yennier Cano",BAL,RP,$1
+10925,"Bryce Krispies👨‍🍳",45797,,sa3066592,"Bryce Rainer","DET A+",SS,$1
 10925,"Bryce Krispies👨‍🍳",37536,26438,sa1115890,"Dominic Canzone",SEA,OF,$1
 10925,"Bryce Krispies👨‍🍳",37304,25979,sa3010695,"Nasim Nunez",WSN,2B/SS,$1
 10925,"Bryce Krispies👨‍🍳",18162,14221,sa658226,"Jorge Soler",LAA,OF,$1

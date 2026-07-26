@@ -159,7 +159,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10764,"Wrecking Crews",38043,26440,sa3011818,"Ryan Gusto",MIA,SP/RP,$3
 10764,"Wrecking Crews",33147,19392,sa918920,"Zach McKinstry",DET,2B/SS/3B/OF,$3
 10764,"Wrecking Crews",40707,29960,sa3017690,"AJ Smith-Shawver",ATL,SP,$3
-10764,"Wrecking Crews",25806,23395,sa3002875,"Eric Wagaman","NYM AAA",1B/OF,$3
+10764,"Wrecking Crews",25806,23395,sa3002875,"Eric Wagaman","NYM ST",1B/OF,$3
 10764,"Wrecking Crews",35548,21267,sa3008097,"Jake Bird","NYY AAA",RP,$3
 10764,"Wrecking Crews",35618,21504,sa3008223,"Jake Irvin",WSN,SP,$3
 10764,"Wrecking Crews",26080,21897,sa3003171,"Christopher Morel","NYM AAA",1B/OF,$2
@@ -224,7 +224,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10881,"Look Out Bello",33767,23920,sa3005436,"Brayan Bello",BOS,SP/RP,$8
 10881,"Look Out Bello",31687,19352,sa873680,"Sean Murphy",ATL,C,$8
 10881,"Look Out Bello",33656,20633,,"Yusei Kikuchi",LAA,SP,$7
-10881,"Look Out Bello",37960,26396,sa3011703,"Josh Smith","TEX AAA",1B/2B/SS/3B/OF,$6
+10881,"Look Out Bello",37960,26396,sa3011703,"Josh Smith",TEX,1B/2B/SS/3B/OF,$6
 10881,"Look Out Bello",33627,21479,sa3007867,"Nico Hoerner",CHC,2B/SS,$6
 10881,"Look Out Bello",23809,22275,sa915698,"Jake Burger",TEX,1B,$5
 10881,"Look Out Bello",27058,23772,sa3005082,"Wilyer Abreu",BOS,OF,$5
@@ -324,7 +324,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10899,"Prospects R Us",45715,,sa3025257,"Charlie Condon","COL AAA",1B/OF,$2
 10899,"Prospects R Us",32576,19955,sa917933,"Gavin Lux",TBR,2B/3B/OF,$2
 10899,"Prospects R Us",19242,20666,sa737480,"Felix Bautista",BAL,RP,$2
-10899,"Prospects R Us",35725,23986,sa3008392,"Curtis Mead",WSN,1B/2B/3B,$2
+10899,"Prospects R Us",35725,23986,sa3008392,"Curtis Mead",BOS,1B/2B/3B,$2
 10899,"Prospects R Us",36539,26944,sa3009613,"Edgardo Henriquez",LAD,RP,$2
 10899,"Prospects R Us",33954,24878,sa3005630,"Heriberto Hernandez",MIA,OF,$2
 10899,"Prospects R Us",45947,35177,sa3025452,"Carson Benge",NYM,OF,$2
@@ -487,7 +487,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10974,"Ketel Corn",44524,33824,sa3012640,"Jung Hoo Lee",SFG,OF,$10
 10974,"Ketel Corn",18255,13301,sa503373,"Max Muncy",LAD,3B,$9
 10974,"Ketel Corn",22651,18138,sa874172,"Ryan Helsley",BAL,RP,$9
-10974,"Ketel Corn",44515,33666,sa3023308,"Connelly Early",BOS,SP,$9
+10974,"Ketel Corn",44515,33666,sa3023308,"Connelly Early",WSN,SP,$9
 10974,"Ketel Corn",40260,29976,sa3017662,"Jordan Lawlar",ARI,2B/SS/3B/OF,$8
 10974,"Ketel Corn",42719,31872,sa3020860,"Cade Horton",CHC,SP,$8
 10974,"Ketel Corn",33612,24492,sa3008130,"Grayson Rodriguez",LAA,SP,$7

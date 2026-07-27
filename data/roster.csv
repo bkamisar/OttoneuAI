@@ -1,6 +1,6 @@
 TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB Team",Position(s),Salary
 10758,"Misiorowski Index",18312,15640,sa549847,"Aaron Judge",NYY,OF,$60
-10758,"Misiorowski Index",23327,18401,sa877503,"Ronald Acuña Jr.",ATL,OF,$43
+10758,"Misiorowski Index",23327,18401,sa877503,"Ronald Acuña Jr.","ATL AAA",OF,$43
 10758,"Misiorowski Index",23859,19251,sa873981,"Pete Alonso",BAL,1B,$34
 10758,"Misiorowski Index",18460,13543,sa597786,"Blake Snell",LAD,SP,$27
 10758,"Misiorowski Index",33682,22250,sa3008598,"Logan Gilbert",SEA,SP,$22
@@ -13,7 +13,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10758,"Misiorowski Index",23792,20220,sa3004837,"Jo Adell",LAA,OF,$8
 10758,"Misiorowski Index",20732,18684,sa828383,"Sandy Alcantara",MIA,SP,$8
 10758,"Misiorowski Index",37427,26121,sa3010862,"Francisco Alvarez",NYM,C,$7
-10758,"Misiorowski Index",23796,20437,sa3004259,"Royce Lewis",MIN,1B/3B,$7
+10758,"Misiorowski Index",23796,20437,sa3004259,"Royce Lewis",MIN,1B/2B/3B,$7
 10758,"Misiorowski Index",40262,29712,sa3017170,"Colson Montgomery",CHW,SS/3B,$6
 10758,"Misiorowski Index",42711,31623,sa3020644,"Jacob Misiorowski",MIL,SP,$6
 10758,"Misiorowski Index",39978,29591,sa3017018,"Colton Cowser",BAL,OF,$6
@@ -244,7 +244,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10881,"Look Out Bello",34103,24094,sa3005835,"Ronny Henriquez",MIA,RP,$3
 10881,"Look Out Bello",18459,16943,sa709548,"Sean Newcomb",CHW,SP/RP,$3
 10881,"Look Out Bello",40398,29646,sa3017183,"Caleb Durbin",BOS,2B/3B,$2
-10881,"Look Out Bello",42538,31760,sa3020395,"JR Ritchie",ATL,SP/RP,$2
+10881,"Look Out Bello",42538,31760,sa3020395,"JR Ritchie","ATL AAA",SP/RP,$2
 10881,"Look Out Bello",44039,33253,sa3022596,"Cole Carrigg",COL,OF,$2
 10881,"Look Out Bello",18152,13145,sa597768,"Josh Bell",MIN,1B,$1
 10881,"Look Out Bello",33669,21537,sa3007588,"Daniel Lynch IV",KCR,RP,$1
@@ -307,31 +307,32 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10899,"Prospects R Us",36682,25977,sa3011297,"Quinn Priester",MIL,SP/RP,$4
 10899,"Prospects R Us",49401,,sa3028866,"Roch Cholowsky",,Util,$4
 10899,"Prospects R Us",40807,30063,sa3017851,"Tristan Peters",CHW,OF,$3
-10899,"Prospects R Us",43893,,sa3022683,"Max Clark","DET AAA",OF,$3
-10899,"Prospects R Us",37797,26368,sa3011642,"JJ Bleday",CIN,OF,$3
-10899,"Prospects R Us",40552,29839,sa3017416,"Emmet Sheehan",LAD,SP,$3
-10899,"Prospects R Us",37531,26294,sa3011443,"Bryson Stott",PHI,2B/SS,$3
-10899,"Prospects R Us",45789,35061,sa3025261,"Ryan Waldschmidt",ARI,OF,$3
-10899,"Prospects R Us",38409,27932,sa3014512,"Ian Seymour",TBR,SP/RP,$3
+10899,"Prospects R Us",42266,31532,sa3019969,"Spencer Jones",NYY,OF,$3
 10899,"Prospects R Us",44487,33435,sa3023268,"Thomas White","MIA AAA",SP,$3
-10899,"Prospects R Us",42266,31532,sa3019969,"Spencer Jones","NYY AAA",OF,$3
+10899,"Prospects R Us",45789,35061,sa3025261,"Ryan Waldschmidt",ARI,OF,$3
+10899,"Prospects R Us",40552,29839,sa3017416,"Emmet Sheehan",LAD,SP,$3
+10899,"Prospects R Us",43893,,sa3022683,"Max Clark","DET AAA",OF,$3
+10899,"Prospects R Us",38409,27932,sa3014512,"Ian Seymour",TBR,SP/RP,$3
+10899,"Prospects R Us",37797,26368,sa3011642,"JJ Bleday",CIN,OF,$3
+10899,"Prospects R Us",37531,26294,sa3011443,"Bryson Stott",PHI,2B/SS,$3
+10899,"Prospects R Us",18462,12970,sa597766,"Joe Musgrove",SDP,RP,$3
 10899,"Prospects R Us",36030,26517,sa3008745,"Noelvi Marte",CIN,3B/OF,$3
 10899,"Prospects R Us",35566,21455,sa3008128,"Kris Bubic",KCR,SP,$3
-10899,"Prospects R Us",18462,12970,sa597766,"Joe Musgrove",SDP,RP,$3
-10899,"Prospects R Us",44349,33708,sa3023069,"Cooper Ingle","CLE AAA",C,$2
+10899,"Prospects R Us",22654,17988,sa874242,"Tyler Stephenson",CIN,C,$2
 10899,"Prospects R Us",42598,31621,sa3020475,"Spencer Miles",TOR,RP,$2
-10899,"Prospects R Us",40541,29844,sa3017400,"Liam Hicks",MIA,C/1B,$2
+10899,"Prospects R Us",44349,33708,sa3023069,"Cooper Ingle","CLE AAA",C,$2
+10899,"Prospects R Us",34817,24598,sa3006910,"Addison Barger",TOR,3B/OF,$2
 10899,"Prospects R Us",45715,,sa3025257,"Charlie Condon","COL AAA",1B/OF,$2
-10899,"Prospects R Us",32576,19955,sa917933,"Gavin Lux",TBR,2B/3B/OF,$2
 10899,"Prospects R Us",19242,20666,sa737480,"Felix Bautista",BAL,RP,$2
+10899,"Prospects R Us",40541,29844,sa3017400,"Liam Hicks",MIA,C/1B,$2
 10899,"Prospects R Us",35725,23986,sa3008392,"Curtis Mead",BOS,1B/2B/3B,$2
+10899,"Prospects R Us",32576,19955,sa917933,"Gavin Lux",TBR,2B/3B/OF,$2
 10899,"Prospects R Us",36539,26944,sa3009613,"Edgardo Henriquez",LAD,RP,$2
+10899,"Prospects R Us",37786,26299,sa3011468,"Josh Jung",TEX,3B,$2
 10899,"Prospects R Us",33954,24878,sa3005630,"Heriberto Hernandez",MIA,OF,$2
 10899,"Prospects R Us",45947,35177,sa3025452,"Carson Benge",NYM,OF,$2
-10899,"Prospects R Us",37786,26299,sa3011468,"Josh Jung",TEX,3B,$2
-10899,"Prospects R Us",22654,17988,sa874242,"Tyler Stephenson",CIN,C,$2
-10899,"Prospects R Us",21961,17920,sa856266,"Cody Ponce",TOR,SP/RP,$1
 10899,"Prospects R Us",45884,35101,sa3025363,"Sam Antonacci",CHW,2B/3B/OF,$1
+10899,"Prospects R Us",21961,17920,sa856266,"Cody Ponce",TOR,SP/RP,$1
 10899,"Prospects R Us",25866,22630,sa3002956,"Keider Montero",DET,SP/RP,$1
 10899,"Prospects R Us",43569,,sa3021845,"Franklin Arias","BOS AAA",SS,$1
 10899,"Prospects R Us",35030,24763,sa3007241,"Kyle Leahy",STL,SP/RP,$1

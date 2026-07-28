@@ -1,6 +1,6 @@
 TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB Team",Position(s),Salary
 10758,"Misiorowski Index",18312,15640,sa549847,"Aaron Judge",NYY,OF,$60
-10758,"Misiorowski Index",23327,18401,sa877503,"Ronald Acuña Jr.","ATL AAA",OF,$43
+10758,"Misiorowski Index",23327,18401,sa877503,"Ronald Acuña Jr.",ATL,OF,$43
 10758,"Misiorowski Index",23859,19251,sa873981,"Pete Alonso",BAL,1B,$34
 10758,"Misiorowski Index",18460,13543,sa597786,"Blake Snell",LAD,SP,$27
 10758,"Misiorowski Index",33682,22250,sa3008598,"Logan Gilbert",SEA,SP,$22
@@ -186,7 +186,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10818,"Bureau of Gleyber Statistics",42754,31959,sa3020737,"Jake Bennett",BOS,SP,$3
 10818,"Bureau of Gleyber Statistics",12379,9777,sa500816,"Nolan Arenado",ARI,3B,$3
 10818,"Bureau of Gleyber Statistics",40972,30182,sa3018149,"Will Warren",NYY,SP,$3
-10818,"Bureau of Gleyber Statistics",44630,33891,sa3023505,"Zach Thornton",NYM,SP/RP,$3
+10818,"Bureau of Gleyber Statistics",44630,33891,sa3023505,"Zach Thornton",NYM,SP,$3
 10818,"Bureau of Gleyber Statistics",31958,20352,sa915732,"Ernie Clement",TOR,1B/2B/SS/3B,$3
 10818,"Bureau of Gleyber Statistics",26134,22664,sa3003226,"Gabriel Moreno",ARI,C,$3
 10818,"Bureau of Gleyber Statistics",42765,31986,sa3020748,"Parker Messick",CLE,SP,$3
@@ -291,7 +291,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10897,"Five-cent head",44012,33252,sa3022559,"Kyle Karros",COL,3B,$2
 10897,"Five-cent head",44083,,sa3022672,"Yohandy Morales","WSN AAA",1B/3B,$1
 10897,"Five-cent head",40648,29869,sa3017598,"Michael McGreevy",STL,SP,$1
-10897,"Five-cent head",35650,25332,sa3008272,"Endy Rodriguez","PIT AAA",C/1B,$1
+10897,"Five-cent head",35650,25332,sa3008272,"Endy Rodriguez",PIT,C/1B,$1
 10897,"Five-cent head",13335,13164,sa548722,"Eduardo Rodriguez",ARI,SP,$1
 10897,"Five-cent head",41926,31204,sa3019501,"Justin Wrobleski",LAD,SP/RP,$1
 10899,"Prospects R Us",33600,19755,,"Shohei Ohtani",LAD,Util/SP,$78
@@ -514,6 +514,6 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10974,"Ketel Corn",41865,,sa3019390,"Carlos Lagrange","NYY AAA",SP/RP,$1
 10974,"Ketel Corn",18303,15518,sa732115,"Amed Rosario",NYY,2B/3B,$1
 10974,"Ketel Corn",38412,27779,sa3014515,"Bryce Elder",ATL,SP,$1
-10974,"Ketel Corn",4514,3137,sa326473,"Max Scherzer","TOR AAA",SP,$1
+10974,"Ketel Corn",4514,3137,sa326473,"Max Scherzer",TOR,SP,$1
 10974,"Ketel Corn",26915,23401,sa3004817,"Jose Caballero",NYY,2B/SS/3B/OF,$1
 10974,"Ketel Corn",31488,19804,sa739000,"Bryan Baker",TBR,RP,$1

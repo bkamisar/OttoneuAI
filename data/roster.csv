@@ -157,7 +157,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10764,"Wrecking Crews",22725,20070,sa875033,"Bailey Falter","KCR AAA",SP/RP,$3
 10764,"Wrecking Crews",38043,26440,sa3011818,"Ryan Gusto",MIA,SP/RP,$3
 10764,"Wrecking Crews",33147,19392,sa918920,"Zach McKinstry",DET,2B/SS/3B/OF,$3
-10764,"Wrecking Crews",40707,29960,sa3017690,"AJ Smith-Shawver",ATL,SP,$3
+10764,"Wrecking Crews",40707,29960,sa3017690,"AJ Smith-Shawver","ATL ST",SP,$3
 10764,"Wrecking Crews",25806,23395,sa3002875,"Eric Wagaman","NYM ST",1B/OF,$3
 10764,"Wrecking Crews",35548,21267,sa3008097,"Jake Bird","NYY AAA",RP,$3
 10764,"Wrecking Crews",35618,21504,sa3008223,"Jake Irvin",WSN,SP,$3
@@ -378,7 +378,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10908,"South Side Shitshow",47552,,sa3069100,"Ethan Holliday","COL A",SS,$1
 10908,"South Side Shitshow",46459,,sa3067261,"Tucker Musgrove","SDP AA",SP/RP,$1
 10908,"South Side Shitshow",46397,,sa3067043,"Caleb Bonemer","CHW AA",SS/3B,$1
-10908,"South Side Shitshow",39099,28142,sa3015523,"Jhostynxon Garcia","PIT AAA",OF,$1
+10908,"South Side Shitshow",39099,28142,sa3015523,"Jhostynxon Garcia","PIT ST",OF,$1
 10908,"South Side Shitshow",44975,,sa3023944,"Edward Florentino","PIT A+",OF,$1
 10908,"South Side Shitshow",44659,33573,sa3023557,"Travis Sykora","WSN AA",SP,$1
 10908,"South Side Shitshow",44202,33530,sa3022867,"Cooper Pratt",MIL,SS,$1

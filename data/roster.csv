@@ -119,7 +119,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10761,"NBC Andy Pages Program",43973,33225,sa3022498,"Jacob Gonzalez",PIT,1B/2B/SS,$1
 10761,"NBC Andy Pages Program",18522,15194,sa737848,"Jake Bauers",MIL,1B/OF/RP,$1
 10761,"NBC Andy Pages Program",39340,29005,sa3015768,"Esmerlyn Valdez",PIT,OF,$1
-10761,"NBC Andy Pages Program",38410,27758,sa3014513,"Kyle Harrison",MIL,SP/RP,$1
+10761,"NBC Andy Pages Program",38410,27758,sa3014513,"Kyle Harrison","MIL A+",SP/RP,$1
 10761,"NBC Andy Pages Program",38403,27572,sa3014505,"Carmen Mlodzinski",PIT,SP/RP,$1
 10761,"NBC Andy Pages Program",4970,10061,sa501562,"Brooks Raley",NYM,RP,$1
 10761,"NBC Andy Pages Program",35928,21626,sa876060,"Griffin Conine",MIA,OF,$1
@@ -161,7 +161,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10764,"Wrecking Crews",40707,29960,sa3017690,"AJ Smith-Shawver",ATL,SP,$3
 10764,"Wrecking Crews",25806,23395,sa3002875,"Eric Wagaman",NYM,1B/OF,$3
 10764,"Wrecking Crews",35548,21267,sa3008097,"Jake Bird","NYY AAA",RP,$3
-10764,"Wrecking Crews",35618,21504,sa3008223,"Jake Irvin","WSN ST",SP,$3
+10764,"Wrecking Crews",35618,21504,sa3008223,"Jake Irvin",WSN,SP,$3
 10764,"Wrecking Crews",26080,21897,sa3003171,"Christopher Morel","NYM AAA",1B/OF,$2
 10764,"Wrecking Crews",40301,29630,sa3017050,"Joey Loperfido","HOU AAA",OF,$1
 10764,"Wrecking Crews",42416,31912,sa3020219,"Chandler Simpson",TBR,OF,$1

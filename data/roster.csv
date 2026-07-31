@@ -161,7 +161,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10764,"Wrecking Crews",40707,29960,sa3017690,"AJ Smith-Shawver",ATL,SP,$3
 10764,"Wrecking Crews",25806,23395,sa3002875,"Eric Wagaman",NYM,1B/OF,$3
 10764,"Wrecking Crews",35548,21267,sa3008097,"Jake Bird","NYY AAA",RP,$3
-10764,"Wrecking Crews",35618,21504,sa3008223,"Jake Irvin","WSN AA",SP,$3
+10764,"Wrecking Crews",35618,21504,sa3008223,"Jake Irvin","WSN ST",SP,$3
 10764,"Wrecking Crews",26080,21897,sa3003171,"Christopher Morel","NYM AAA",1B/OF,$2
 10764,"Wrecking Crews",40301,29630,sa3017050,"Joey Loperfido","HOU AAA",OF,$1
 10764,"Wrecking Crews",42416,31912,sa3020219,"Chandler Simpson",TBR,OF,$1
@@ -282,7 +282,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10897,"Five-cent head",46221,35418,sa3034986,"Gage Jump",ATH,SP,$3
 10897,"Five-cent head",22668,18383,sa874715,"Michael Soroka",ARI,SP/RP,$3
 10897,"Five-cent head",26531,20348,sa3004210,"Riley O'Brien",STL,RP,$3
-10897,"Five-cent head",38456,,sa3014693,"Emmanuel Rodriguez","MIN AAA",OF,$3
+10897,"Five-cent head",38456,,sa3014693,"Emmanuel Rodriguez","MIN A",OF,$3
 10897,"Five-cent head",38339,27889,sa3014428,"J.T. Ginn",ATH,SP/RP,$3
 10897,"Five-cent head",38315,27470,sa3014456,"Emerson Hancock",SEA,SP/RP,$3
 10897,"Five-cent head",42653,31827,sa3020570,"Zebby Matthews",MIN,SP,$2

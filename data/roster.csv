@@ -173,31 +173,32 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10818,"Bureau of Gleyber Statistics",48239,37123,sa3063134,"Kazuma Okamoto",TOR,1B/3B,$22
 10818,"Bureau of Gleyber Statistics",33654,21534,sa3008377,"Cal Raleigh",SEA,C,$20
 10818,"Bureau of Gleyber Statistics",14393,10603,sa392121,"Chris Sale",ATL,SP,$18
-10818,"Bureau of Gleyber Statistics",18479,17919,sa827194,"Ian Happ",CHC,OF,$17
 10818,"Bureau of Gleyber Statistics",18487,16997,sa830372,"Gleyber Torres",DET,2B,$17
+10818,"Bureau of Gleyber Statistics",18479,17919,sa827194,"Ian Happ",CHC,OF,$17
 10818,"Bureau of Gleyber Statistics",33647,21483,sa3008547,"Shane McClanahan",TBR,SP,$16
 10818,"Bureau of Gleyber Statistics",18517,16578,sa823741,"Yandy Diaz",TBR,1B,$13
 10818,"Bureau of Gleyber Statistics",18113,12768,sa455516,"Sonny Gray",BOS,SP,$9
-10818,"Bureau of Gleyber Statistics",34619,24679,sa3006675,"Brendan Donovan",SEA,2B/SS/3B/OF,$7
 10818,"Bureau of Gleyber Statistics",44336,33703,sa3023053,"Nolan McLean",NYM,SP,$7
+10818,"Bureau of Gleyber Statistics",34619,24679,sa3006675,"Brendan Donovan",SEA,2B/SS/3B/OF,$7
 10818,"Bureau of Gleyber Statistics",42176,32127,sa3021053,"Chase DeLauter",CLE,OF,$5
 10818,"Bureau of Gleyber Statistics",37480,26151,sa1115829,"Kyle Stowers",MIA,1B/OF,$4
+10818,"Bureau of Gleyber Statistics",38699,27782,sa3014983,"Brandon Pfaadt",ARI,SP/RP,$4
 10818,"Bureau of Gleyber Statistics",33548,20391,sa962605,"Luis García Jr.",WSN,1B/2B,$4
-10818,"Bureau of Gleyber Statistics",42754,31959,sa3020737,"Jake Bennett",BOS,SP,$3
 10818,"Bureau of Gleyber Statistics",12379,9777,sa500816,"Nolan Arenado",ARI,3B,$3
-10818,"Bureau of Gleyber Statistics",44630,33891,sa3023505,"Zach Thornton",NYM,SP,$3
-10818,"Bureau of Gleyber Statistics",42765,31986,sa3020748,"Parker Messick",CLE,SP,$3
 10818,"Bureau of Gleyber Statistics",40972,30182,sa3018149,"Will Warren",NYY,SP,$3
+10818,"Bureau of Gleyber Statistics",42754,31959,sa3020737,"Jake Bennett",BOS,SP,$3
+10818,"Bureau of Gleyber Statistics",42765,31986,sa3020748,"Parker Messick",CLE,SP,$3
+10818,"Bureau of Gleyber Statistics",44630,33891,sa3023505,"Zach Thornton",NYM,SP,$3
 10818,"Bureau of Gleyber Statistics",23201,17982,sa876140,"Ty France",SDP,1B,$3
 10818,"Bureau of Gleyber Statistics",26134,22664,sa3003226,"Gabriel Moreno",ARI,C,$3
 10818,"Bureau of Gleyber Statistics",31958,20352,sa915732,"Ernie Clement",TOR,1B/2B/SS/3B,$3
 10818,"Bureau of Gleyber Statistics",18364,17432,sa709602,"Jeff Hoffman",TOR,RP,$2
-10818,"Bureau of Gleyber Statistics",18421,13580,sa550187,"Steven Okert",HOU,RP,$1
 10818,"Bureau of Gleyber Statistics",44274,33568,sa3022951,"Brandyn Garcia",ARI,RP,$1
-10818,"Bureau of Gleyber Statistics",42652,31891,sa3020569,"Andrew Morris",MIN,SP/RP,$1
 10818,"Bureau of Gleyber Statistics",41265,30675,sa3018514,"Luis Lara",MIL,OF,$1
 10818,"Bureau of Gleyber Statistics",49684,,sa3058966,"Derek Curiel",,Util,$1
 10818,"Bureau of Gleyber Statistics",40674,29957,sa3017626,"Edwin Arroyo",CIN,2B/SS,$1
+10818,"Bureau of Gleyber Statistics",38325,27555,sa3014438,"Garrett Mitchell",MIL,OF,$1
+10818,"Bureau of Gleyber Statistics",21041,16939,sa828962,"Lane Thomas",KCR,OF,$1
 10818,"Bureau of Gleyber Statistics",22676,17969,sa874771,"Peter Lambert",HOU,SP,$1
 10818,"Bureau of Gleyber Statistics",32710,22361,sa918172,"Colin Holderman",CLE,RP,$1
 10818,"Bureau of Gleyber Statistics",33622,21501,sa3008376,"Trevor Larnach",MIN,OF,$1
@@ -205,8 +206,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10818,"Bureau of Gleyber Statistics",33651,22514,sa3007634,"Triston Casas",BOS,1B,$1
 10818,"Bureau of Gleyber Statistics",37202,27691,sa3010572,"Louis Varland",TOR,RP,$1
 10818,"Bureau of Gleyber Statistics",38311,27501,sa3014527,"Justin Foscue",TEX,1B/2B,$1
-10818,"Bureau of Gleyber Statistics",38325,27555,sa3014438,"Garrett Mitchell",MIL,OF,$1
-10818,"Bureau of Gleyber Statistics",21041,16939,sa828962,"Lane Thomas",KCR,OF,$1
+10818,"Bureau of Gleyber Statistics",18421,13580,sa550187,"Steven Okert",HOU,RP,$1
 10881,"Look Out Bello",18344,17350,sa828312,"Rafael Devers",SFG,1B,$31
 10881,"Look Out Bello",38736,27498,sa3015059,"Spencer Strider",ATL,SP,$22
 10881,"Look Out Bello",23767,19612,sa917949,"Bo Bichette",NYM,SS/3B,$20
@@ -272,7 +272,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10897,"Five-cent head",45790,35456,sa3045705,"Trey Yesavage",TOR,SP,$5
 10897,"Five-cent head",33652,24618,sa3007051,"Ryan Jeffers",MIN,C,$5
 10897,"Five-cent head",38368,27615,sa3014466,"Alec Burleson",STL,1B/OF,$5
-10897,"Five-cent head",22331,19913,sa872787,"Jesus Sanchez",TOR,OF,$5
+10897,"Five-cent head",22331,19913,sa872787,"Jesus Sanchez","TOR AAA",OF,$5
 10897,"Five-cent head",40607,29911,sa3017529,"Andrew Abbott",CIN,SP,$4
 10897,"Five-cent head",42146,31595,sa3019973,"Brooks Lee",MIN,2B/SS/3B,$4
 10897,"Five-cent head",42712,31807,sa3020652,"Troy Melton",DET,SP/RP,$4
@@ -431,7 +431,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10925,"Bryce Krispies👨‍🍳",47549,,sa3069164,"Eli Willits","WSN A+",SS,$1
 10944,"Si Se Fuentes",18549,19611,sa920245,"Vladimir Guerrero Jr.",TOR,1B,$53
 10944,"Si Se Fuentes",23625,21846,sa917938,"Cole Ragans",KCR,SP,$22
-10944,"Si Se Fuentes",18216,13624,sa657913,"Corey Seager",TEX,SS,$19
+10944,"Si Se Fuentes",18216,13624,sa657913,"Corey Seager","TEX AA",SS,$19
 10944,"Si Se Fuentes",37094,27676,sa1115762,"Vinnie Pasquantino",KCR,1B,$16
 10944,"Si Se Fuentes",37257,26288,sa3011643,"Adley Rutschman",BAL,C,$16
 10944,"Si Se Fuentes",23831,20036,sa920275,"Isaac Paredes",HOU,1B/3B,$16

@@ -272,7 +272,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10897,"Five-cent head",45790,35456,sa3045705,"Trey Yesavage",TOR,SP,$5
 10897,"Five-cent head",33652,24618,sa3007051,"Ryan Jeffers",MIN,C,$5
 10897,"Five-cent head",38368,27615,sa3014466,"Alec Burleson",STL,1B/OF,$5
-10897,"Five-cent head",22331,19913,sa872787,"Jesus Sanchez","TOR AAA",OF,$5
+10897,"Five-cent head",22331,19913,sa872787,"Jesus Sanchez",TOR,OF,$5
 10897,"Five-cent head",40607,29911,sa3017529,"Andrew Abbott",CIN,SP,$4
 10897,"Five-cent head",42146,31595,sa3019973,"Brooks Lee",MIN,2B/SS/3B,$4
 10897,"Five-cent head",42712,31807,sa3020652,"Troy Melton",DET,SP/RP,$4
@@ -282,7 +282,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10897,"Five-cent head",46221,35418,sa3034986,"Gage Jump",ATH,SP,$3
 10897,"Five-cent head",22668,18383,sa874715,"Michael Soroka",ARI,SP/RP,$3
 10897,"Five-cent head",26531,20348,sa3004210,"Riley O'Brien",STL,RP,$3
-10897,"Five-cent head",38456,,sa3014693,"Emmanuel Rodriguez","MIN A",OF,$3
+10897,"Five-cent head",38456,,sa3014693,"Emmanuel Rodriguez","MIN A+",OF,$3
 10897,"Five-cent head",38339,27889,sa3014428,"J.T. Ginn",ATH,SP/RP,$3
 10897,"Five-cent head",38315,27470,sa3014456,"Emerson Hancock",SEA,SP/RP,$3
 10897,"Five-cent head",42653,31827,sa3020570,"Zebby Matthews",MIN,SP,$2
@@ -312,7 +312,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10899,"Prospects R Us",37531,26294,sa3011443,"Bryson Stott",PHI,2B/SS,$3
 10899,"Prospects R Us",37797,26368,sa3011642,"JJ Bleday",CIN,OF,$3
 10899,"Prospects R Us",44487,33435,sa3023268,"Thomas White","MIA AAA",SP,$3
-10899,"Prospects R Us",43893,,sa3022683,"Max Clark","DET AAA",OF,$3
+10899,"Prospects R Us",43893,33381,sa3022683,"Max Clark",DET,OF,$3
 10899,"Prospects R Us",38409,27932,sa3014512,"Ian Seymour",TBR,SP/RP,$3
 10899,"Prospects R Us",42266,31532,sa3019969,"Spencer Jones",NYY,OF,$3
 10899,"Prospects R Us",40552,29839,sa3017416,"Emmet Sheehan",LAD,SP,$3
@@ -405,7 +405,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10925,"Bryce Krispies👨‍🍳",35939,21636,sa876320,"Jeremy Pena",HOU,SS,$13
 10925,"Bryce Krispies👨‍🍳",20975,20778,sa828749,"Cristopher Sanchez",PHI,SP,$8
 10925,"Bryce Krispies👨‍🍳",33217,21837,sa919293,"Jonathan Aranda",TBR,1B,$5
-10925,"Bryce Krispies👨‍🍳",40829,30091,sa3017880,"Andrew Painter","PHI AAA",SP,$4
+10925,"Bryce Krispies👨‍🍳",40829,30091,sa3017880,"Andrew Painter",PHI,SP,$4
 10925,"Bryce Krispies👨‍🍳",38334,27473,sa3014421,"Cade Cavalli",WSN,SP,$3
 10925,"Bryce Krispies👨‍🍳",38661,27819,sa3014926,"Brandon Young",BAL,SP,$3
 10925,"Bryce Krispies👨‍🍳",21156,16442,sa829141,"Ryan O'Hearn",PIT,1B/OF,$3
@@ -431,7 +431,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10925,"Bryce Krispies👨‍🍳",47549,,sa3069164,"Eli Willits","WSN A+",SS,$1
 10944,"Si Se Fuentes",18549,19611,sa920245,"Vladimir Guerrero Jr.",TOR,1B,$53
 10944,"Si Se Fuentes",23625,21846,sa917938,"Cole Ragans",KCR,SP,$22
-10944,"Si Se Fuentes",18216,13624,sa657913,"Corey Seager","TEX AA",SS,$19
+10944,"Si Se Fuentes",18216,13624,sa657913,"Corey Seager",TEX,SS,$19
 10944,"Si Se Fuentes",37094,27676,sa1115762,"Vinnie Pasquantino",KCR,1B,$16
 10944,"Si Se Fuentes",37257,26288,sa3011643,"Adley Rutschman",BAL,C,$16
 10944,"Si Se Fuentes",23831,20036,sa920275,"Isaac Paredes",HOU,1B/3B,$16
@@ -509,7 +509,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10974,"Ketel Corn",42991,,sa3021069,"Sebastian Walcott","TEX AA",SS,$3
 10974,"Ketel Corn",45721,,sa3025544,"Hagen Smith","CHW AAA",SP/RP,$3
 10974,"Ketel Corn",42304,31580,sa3020011,"Chase Meidroth",CHW,2B/SS,$3
-10974,"Ketel Corn",33325,21690,sa920423,"Edward Cabrera",CHC,SP,$3
+10974,"Ketel Corn",33325,21690,sa920423,"Edward Cabrera","CHC AAA",SP,$3
 10974,"Ketel Corn",40615,29921,sa3017537,"Spencer Arrighetti",HOU,SP,$2
 10974,"Ketel Corn",41865,,sa3019390,"Carlos Lagrange","NYY AAA",SP/RP,$1
 10974,"Ketel Corn",18303,15518,sa732115,"Amed Rosario",NYY,2B/3B,$1

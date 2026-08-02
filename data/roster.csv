@@ -61,7 +61,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10759,"Juan Nation UndeGrom 🫡",44003,33266,sa3022538,"Jacob Wilson",ATH,SS,$5
 10759,"Juan Nation UndeGrom 🫡",23833,19918,sa3002838,"Daulton Varsho",TOR,OF,$5
 10759,"Juan Nation UndeGrom 🫡",39288,28824,sa3015716,"Samuel Basallo",BAL,C/1B,$4
-10759,"Juan Nation UndeGrom 🫡",38367,27496,sa3014465,"Owen Caissie","MIA AAA",OF,$4
+10759,"Juan Nation UndeGrom 🫡",38367,27496,sa3014465,"Owen Caissie","MIA ST",OF,$4
 10759,"Juan Nation UndeGrom 🫡",27148,23335,sa3005246,"Joey Cantillo",CLE,SP/RP,$4
 10759,"Juan Nation UndeGrom 🫡",34396,24017,sa3006373,"Jose A. Ferrer",SEA,RP,$4
 10759,"Juan Nation UndeGrom 🫡",26198,22799,sa3003290,"Geraldo Perdomo",ARI,SS,$3
@@ -100,7 +100,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10761,"NBC Andy Pages Program",31951,19569,sa915715,"David Bednar",NYY,RP,$5
 10761,"NBC Andy Pages Program",47553,,sa3026056,"Kade Anderson","SEA AA",SP,$5
 10761,"NBC Andy Pages Program",38361,27863,sa3014459,"Jared Jones",PIT,SP,$5
-10761,"NBC Andy Pages Program",37091,26477,sa1115496,"Spencer Horwitz",PIT,1B,$5
+10761,"NBC Andy Pages Program",37091,26477,sa1115496,"Spencer Horwitz","PIT A",1B,$5
 10761,"NBC Andy Pages Program",40564,29868,sa3017428,"Bubba Chandler",PIT,SP,$4
 10761,"NBC Andy Pages Program",45706,35333,sa3028086,"Chase Burns",CIN,SP/RP,$4
 10761,"NBC Andy Pages Program",45720,35041,sa3025245,"Jac Caglianone",KCR,1B/OF,$4
@@ -155,7 +155,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10764,"Wrecking Crews",34601,21454,sa3006649,"Lars Nootbaar",STL,OF,$4
 10764,"Wrecking Crews",42206,31765,sa3019905,"Nacho Alvarez Jr.","ATL AAA",3B,$3
 10764,"Wrecking Crews",26783,20308,sa3004621,"Jake Meyers","HOU AAA",OF,$3
-10764,"Wrecking Crews",22725,20070,sa875033,"Bailey Falter","KCR AAA",SP/RP,$3
+10764,"Wrecking Crews",22725,20070,sa875033,"Bailey Falter","ATL ST",SP/RP,$3
 10764,"Wrecking Crews",38043,26440,sa3011818,"Ryan Gusto",MIA,SP/RP,$3
 10764,"Wrecking Crews",33147,19392,sa918920,"Zach McKinstry",DET,2B/SS/3B/OF,$3
 10764,"Wrecking Crews",40707,29960,sa3017690,"AJ Smith-Shawver",ATL,SP,$3
@@ -198,7 +198,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10818,"Bureau of Gleyber Statistics",49684,,sa3058966,"Derek Curiel",,Util,$1
 10818,"Bureau of Gleyber Statistics",40674,29957,sa3017626,"Edwin Arroyo",CIN,2B/SS,$1
 10818,"Bureau of Gleyber Statistics",38325,27555,sa3014438,"Garrett Mitchell",MIL,OF,$1
-10818,"Bureau of Gleyber Statistics",21041,16939,sa828962,"Lane Thomas",KCR,OF,$1
+10818,"Bureau of Gleyber Statistics",21041,16939,sa828962,"Lane Thomas",ATL,OF,$1
 10818,"Bureau of Gleyber Statistics",22676,17969,sa874771,"Peter Lambert",HOU,SP,$1
 10818,"Bureau of Gleyber Statistics",32710,22361,sa918172,"Colin Holderman",CLE,RP,$1
 10818,"Bureau of Gleyber Statistics",33622,21501,sa3008376,"Trevor Larnach",MIN,OF,$1
@@ -285,7 +285,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10897,"Five-cent head",38315,27470,sa3014456,"Emerson Hancock",SEA,SP/RP,$3
 10897,"Five-cent head",26531,20348,sa3004210,"Riley O'Brien",STL,RP,$3
 10897,"Five-cent head",32655,19354,sa918048,"Luke Raley",SEA,1B/OF,$3
-10897,"Five-cent head",44554,33851,sa3023407,"Quinn Mathews","STL AAA",SP,$2
+10897,"Five-cent head",44554,33851,sa3023407,"Quinn Mathews",STL,SP,$2
 10897,"Five-cent head",44470,,sa3023233,"George Lombard Jr.","NYY AAA",SS,$2
 10897,"Five-cent head",44012,33252,sa3022559,"Kyle Karros",COL,3B,$2
 10897,"Five-cent head",42653,31827,sa3020570,"Zebby Matthews",MIN,SP,$2
@@ -364,7 +364,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10908,"South Side Shitshow",40714,29995,sa3017698,"Daylen Lile",WSN,OF,$4
 10908,"South Side Shitshow",43949,33549,sa3022886,"Kyle Teel",CHW,C,$4
 10908,"South Side Shitshow",38374,27899,sa3014474,"Colt Keith",DET,1B/2B/3B,$3
-10908,"South Side Shitshow",40181,29514,sa3016863,"River Ryan","LAD AAA",SP/RP,$3
+10908,"South Side Shitshow",40181,29514,sa3016863,"River Ryan","DET AAA",SP/RP,$3
 10908,"South Side Shitshow",23856,14551,sa659463,"Anthony Santander",TOR,OF,$3
 10908,"South Side Shitshow",33424,22487,sa922365,"Johan Oviedo",BOS,SP,$3
 10908,"South Side Shitshow",18465,15440,sa621603,"Matthew Boyd",CHC,SP,$3
@@ -395,7 +395,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10908,"South Side Shitshow",40568,29878,sa3017461,"Sean Burke",CHW,SP/RP,$1
 10908,"South Side Shitshow",45881,,sa3025360,"Kaelen Culpepper","MIN AAA",SS,$1
 10925,"Bryce Krispies👨‍🍳",23795,19556,sa943524,"Yordan Alvarez",HOU,OF,$51
-10925,"Bryce Krispies👨‍🍳",35204,22267,sa3007593,"Tarik Skubal",DET,SP,$46
+10925,"Bryce Krispies👨‍🍳",35204,22267,sa3007593,"Tarik Skubal",LAD,SP,$46
 10925,"Bryce Krispies👨‍🍳",36671,25436,sa3011526,"George Kirby",SEA,SP,$35
 10925,"Bryce Krispies👨‍🍳",37806,26289,sa3011484,"Gunnar Henderson",BAL,SS,$34
 10925,"Bryce Krispies👨‍🍳",14934,11493,sa548155,"Manny Machado",SDP,3B,$33

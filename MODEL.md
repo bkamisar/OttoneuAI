@@ -251,11 +251,28 @@ simulation, status auto-detect).
   exactly the players whose trade value matters most, and it is not cosmetic — the
   chosen 12 feed team aggregation, so it perturbs `calcSGPDenoms` and Y0 values too,
   and it makes `tradefinder.js` report Soto/Judge as $0-marginal "blocked assets"
-  when they are nothing of the kind. Fixing it means ranking by actual SGP
-  contribution rather than the `pa × (obp+slg)` proxy; that changes values
-  suite-wide, so it needs its own plan and verification pass (same shape as the
-  option-valued-contracts change). **Do not ship a trade-archetype generator that
-  can say "trade him, he's blocked" until this is resolved.**
+  when they are nothing of the kind.
+
+  **Root cause is injury, and there are TWO defects, measured Aug 2026 on the
+  Misiorowski Index roster:**
+  1. *Misranking.* Judge actually beats Rafaela for the slot by **0.915 z (~$13.7)**,
+     so `pa × (obp+slg)` benches the better player outright. Ranking by SGP
+     contribution fixes this much.
+  2. *The either/or assumption — the larger defect.* Letting **both** contribute is
+     worth **+1.694 z (~$25.4)** over the best single choice. A slot absorbs ~194
+     RoS PA; an injured Judge fills only 50% of one and Soto 70%. In reality the
+     slot is shared (start Judge when healthy, the other bat covers the rest), and
+     the model discards that entirely.
+
+  **The fix is a PA budget, mirroring `selectPitchers`.** The pitching side already
+  fills an innings budget with multiple arms; hitters should fill a PA budget with
+  multiple bats, keeping the 12 slots for position eligibility and letting a second
+  player absorb the remainder. This supersedes the note in §3 that "hitting needs no
+  volume cap (one hitter per active slot)" — true only when every hitter is a
+  healthy full-timer. Changes values suite-wide, so it needs its own plan and
+  verification pass (same shape as the option-valued-contracts change).
+  **Do not ship a trade-archetype generator that can say "trade him, he's blocked"
+  until this is resolved.**
 - Arbitration not modeled beyond +$2/+$4 (star keeper costs slightly light).
 - Positional scarcity IS modeled for hitters now (`computePositionalOffsets` /
   `hitterSGP`): per-position HR/SLG/OBP offsets vs the slot-weighted average,

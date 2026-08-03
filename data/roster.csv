@@ -61,7 +61,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10759,"Juan Nation UndeGrom 🫡",44003,33266,sa3022538,"Jacob Wilson",ATH,SS,$5
 10759,"Juan Nation UndeGrom 🫡",23833,19918,sa3002838,"Daulton Varsho",TOR,OF,$5
 10759,"Juan Nation UndeGrom 🫡",39288,28824,sa3015716,"Samuel Basallo",BAL,C/1B,$4
-10759,"Juan Nation UndeGrom 🫡",38367,27496,sa3014465,"Owen Caissie","MIA ST",OF,$4
+10759,"Juan Nation UndeGrom 🫡",38367,27496,sa3014465,"Owen Caissie",MIA,OF,$4
 10759,"Juan Nation UndeGrom 🫡",27148,23335,sa3005246,"Joey Cantillo",CLE,SP/RP,$4
 10759,"Juan Nation UndeGrom 🫡",34396,24017,sa3006373,"Jose A. Ferrer",SEA,RP,$4
 10759,"Juan Nation UndeGrom 🫡",26198,22799,sa3003290,"Geraldo Perdomo",ARI,SS,$3
@@ -100,7 +100,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10761,"NBC Andy Pages Program",31951,19569,sa915715,"David Bednar",NYY,RP,$5
 10761,"NBC Andy Pages Program",47553,,sa3026056,"Kade Anderson","SEA AA",SP,$5
 10761,"NBC Andy Pages Program",38361,27863,sa3014459,"Jared Jones",PIT,SP,$5
-10761,"NBC Andy Pages Program",37091,26477,sa1115496,"Spencer Horwitz","PIT ST",1B,$5
+10761,"NBC Andy Pages Program",37091,26477,sa1115496,"Spencer Horwitz",PIT,1B,$5
 10761,"NBC Andy Pages Program",40564,29868,sa3017428,"Bubba Chandler",PIT,SP,$4
 10761,"NBC Andy Pages Program",45706,35333,sa3028086,"Chase Burns",CIN,SP/RP,$4
 10761,"NBC Andy Pages Program",45720,35041,sa3025245,"Jac Caglianone",KCR,1B/OF,$4
@@ -160,7 +160,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10764,"Wrecking Crews",33147,19392,sa918920,"Zach McKinstry",DET,2B/SS/3B/OF,$3
 10764,"Wrecking Crews",40707,29960,sa3017690,"AJ Smith-Shawver",ATL,SP,$3
 10764,"Wrecking Crews",25806,23395,sa3002875,"Eric Wagaman",NYM,1B/OF,$3
-10764,"Wrecking Crews",35548,21267,sa3008097,"Jake Bird","NYY AAA",RP,$3
+10764,"Wrecking Crews",35548,21267,sa3008097,"Jake Bird","WSN ST",RP,$3
 10764,"Wrecking Crews",35618,21504,sa3008223,"Jake Irvin",WSN,SP,$3
 10764,"Wrecking Crews",26080,21897,sa3003171,"Christopher Morel","NYM AAA",1B/OF,$2
 10764,"Wrecking Crews",40301,29630,sa3017050,"Joey Loperfido","HOU AAA",OF,$1
@@ -183,7 +183,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10818,"Bureau of Gleyber Statistics",42176,32127,sa3021053,"Chase DeLauter",CLE,OF,$5
 10818,"Bureau of Gleyber Statistics",37480,26151,sa1115829,"Kyle Stowers",MIA,1B/OF,$4
 10818,"Bureau of Gleyber Statistics",38699,27782,sa3014983,"Brandon Pfaadt",ARI,SP/RP,$4
-10818,"Bureau of Gleyber Statistics",33548,20391,sa962605,"Luis García Jr.",WSN,1B/2B,$4
+10818,"Bureau of Gleyber Statistics",33548,20391,sa962605,"Luis García Jr.",NYY,1B/2B,$4
 10818,"Bureau of Gleyber Statistics",12379,9777,sa500816,"Nolan Arenado",ARI,3B,$3
 10818,"Bureau of Gleyber Statistics",40972,30182,sa3018149,"Will Warren",NYY,SP,$3
 10818,"Bureau of Gleyber Statistics",42754,31959,sa3020737,"Jake Bennett",BOS,SP,$3
@@ -216,7 +216,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10881,"Look Out Bello",44526,33829,sa3023346,"Shota Imanaga",CHC,SP,$15
 10881,"Look Out Bello",38559,27768,sa3014807,"Eury Perez",MIA,SP,$15
 10881,"Look Out Bello",18126,12927,sa597760,"Brandon Nimmo",TEX,OF,$14
-10881,"Look Out Bello",19168,18679,sa737343,"Freddy Peralta",NYM,SP,$14
+10881,"Look Out Bello",19168,18679,sa737343,"Freddy Peralta",TBR,SP,$14
 10881,"Look Out Bello",18359,16137,sa598286,"Carlos Rodon",NYY,SP,$14
 10881,"Look Out Bello",22559,21029,sa873347,"Jhoan Duran",PHI,RP,$10
 10881,"Look Out Bello",23613,14542,sa598491,"Carlos Estevez",KCR,RP,$9
@@ -245,7 +245,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10881,"Look Out Bello",34103,24094,sa3005835,"Ronny Henriquez",MIA,RP,$3
 10881,"Look Out Bello",44039,33253,sa3022596,"Cole Carrigg",COL,OF,$2
 10881,"Look Out Bello",40398,29646,sa3017183,"Caleb Durbin",BOS,2B/3B,$2
-10881,"Look Out Bello",42538,31760,sa3020395,"JR Ritchie","ATL ST",SP/RP,$2
+10881,"Look Out Bello",42538,31760,sa3020395,"JR Ritchie",ATL,SP/RP,$2
 10881,"Look Out Bello",18152,13145,sa597768,"Josh Bell",MIN,1B,$1
 10881,"Look Out Bello",23787,13619,sa602414,"Jakob Junis",TEX,RP,$1
 10881,"Look Out Bello",26446,19769,sa3004101,"Will Vest",DET,RP,$1
@@ -285,12 +285,12 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10897,"Five-cent head",38315,27470,sa3014456,"Emerson Hancock",SEA,SP/RP,$3
 10897,"Five-cent head",26531,20348,sa3004210,"Riley O'Brien",STL,RP,$3
 10897,"Five-cent head",32655,19354,sa918048,"Luke Raley",SEA,1B/OF,$3
-10897,"Five-cent head",44554,33851,sa3023407,"Quinn Mathews",STL,SP,$2
+10897,"Five-cent head",44554,33851,sa3023407,"Quinn Mathews",STL,SP/RP,$2
 10897,"Five-cent head",44470,,sa3023233,"George Lombard Jr.","NYY AAA",SS,$2
 10897,"Five-cent head",44012,33252,sa3022559,"Kyle Karros",COL,3B,$2
 10897,"Five-cent head",42653,31827,sa3020570,"Zebby Matthews",MIN,SP,$2
 10897,"Five-cent head",34921,21622,sa3007015,"Jake McCarthy",COL,OF,$2
-10897,"Five-cent head",14895,11899,sa549081,"Joc Pederson",TEX,Util,$2
+10897,"Five-cent head",14895,11899,sa549081,"Joc Pederson",TEX,1B,$2
 10897,"Five-cent head",35650,25332,sa3008272,"Endy Rodriguez",PIT,C/1B,$1
 10897,"Five-cent head",44083,,sa3022672,"Yohandy Morales","WSN AAA",1B/3B,$1
 10897,"Five-cent head",40648,29869,sa3017598,"Michael McGreevy",STL,SP,$1
@@ -417,6 +417,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10925,"Bryce Krispies👨‍🍳",45797,,sa3066592,"Bryce Rainer","DET A+",SS,$1
 10925,"Bryce Krispies👨‍🍳",42110,31843,sa3020827,"Kumar Rocker",TEX,SP,$1
 10925,"Bryce Krispies👨‍🍳",37946,25911,sa3011688,"Yennier Cano",BAL,RP,$1
+10925,"Bryce Krispies👨‍🍳",37599,26108,sa3011186,"Andre Pallante",STL,SP,$1
 10925,"Bryce Krispies👨‍🍳",37536,26438,sa1115890,"Dominic Canzone",SEA,OF,$1
 10925,"Bryce Krispies👨‍🍳",37304,25979,sa3010695,"Nasim Nunez",WSN,2B/SS,$1
 10925,"Bryce Krispies👨‍🍳",18162,14221,sa658226,"Jorge Soler",LAA,OF,$1
@@ -482,7 +483,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10974,"Ketel Corn",32291,21711,sa917318,"Oneil Cruz",PIT,OF,$19
 10974,"Ketel Corn",12398,11609,sa508176,"Willson Contreras",BOS,1B,$18
 10974,"Ketel Corn",23824,22182,sa3005315,"Hunter Greene",CIN,SP,$17
-10974,"Ketel Corn",18196,14107,sa548347,"Kevin Gausman",TOR,SP,$15
+10974,"Ketel Corn",18196,14107,sa548347,"Kevin Gausman",CHC,SP,$15
 10974,"Ketel Corn",42723,31838,,"Kodai Senga",NYM,SP/RP,$11
 10974,"Ketel Corn",36686,26378,sa917947,"Nick Lodolo",CIN,SP,$11
 10974,"Ketel Corn",18391,14212,sa658473,"Josh Hader",HOU,RP,$11

@@ -17,6 +17,24 @@ const LG_MEAN = { OBP: 0.325, SLG: 0.430, ERA: 3.735, WHIP: 1.197, HR9: 1.087 };
 
 const OF_GAME_CAP  = 810;     // 5 OF × 162 games
 const SLOT_CAP     = 162;
+
+// ── PA-BUDGET LINEUP ────────────────────────────────────────────────────────
+// A lineup slot's hard capacity is SLOT_CAP games — one player can never exceed
+// it, so primaries are never capped. PA_PER_SLOT is the EXPECTED full-season PA
+// of a full-timer: below it, the slot has leftover days a bench bat would cover.
+const PA_PER_SLOT = 650;
+// Full-season thresholds; scaled to the active budget inside optimizeHitterLineup.
+// Scaling matters: fixed thresholds invert in September, when every RoS
+// projection is tiny and a fixed ramp would re-introduce volume bias.
+const PA_FULL_RATE_FULL = 150;  // below (scaled) this, rate is ramped down as a partial sample
+const PA_MIN_SHARE_FULL = 100;  // don't supplement (or accept a backup) below this (scaled)
+// Hitter ranking weights: per-rate-unit z-value of filling one slot, derived
+// from the Aug 2026 SGP denominators (D_OBP .0083, D_SLG .0094, D_HR 8.39,
+// D_R 17.84; avg lineup PA 2355 / AB 2082), normalized to OBP = 1:
+//   w_obp = 1/(T_PA·D_OBP)   w_slg = 0.9/(T_AB·D_SLG)   w_hr = 1/D_HR   w_r = 1/D_R
+// OPS alone misranks: it overweights empty OBP/AVG and ignores HR/R (~24% of a
+// starter's rank score); 380 rostered pairs flip order vs this key.
+const HIT_RANK_W = { obp: 1.0, slg: 0.905, hrPerPA: 2.34, rPerPA: 1.10 };
 const IP_MAX       = 1500;
 const IP_MIN       = 400;   // RoS projections have lower IP totals; 400 works year-round
 const TWO_WAY_IP_MIN = 30; // Min projected IP for a hitter to count as a true two-way pitcher
@@ -825,6 +843,44 @@ const HITTER_SLOTS = [
   { id: 'OF5',  eligible: p => p.positions.includes('of') },
   { id: 'UTIL', eligible: p => p.type === 'H' },
 ];
+
+// RoS plate appearances a single lineup slot is expected to absorb.
+// NOTE: this is the ONLY date-dependent entry point. The ramp and min-share
+// thresholds are derived from the budget inside optimizeHitterLineup, so the
+// optimizer itself is a pure function of (hitters, budget) — deterministic in
+// tests and correct in September, when fixed thresholds would exceed every
+// projection and silently re-introduce volume bias.
+function paSlotBudget() { return PA_PER_SLOT * Math.max(rosProrationFactor(), 0.1); }
+
+// Ranking key for lineup selection: rate quality weighted by what this league
+// scores (HIT_RANK_W), NOT raw volume and NOT raw OPS. Volume is handled by the
+// slot budget — a short-PA player simply leaves room for a backup. The ramp only
+// suppresses genuinely tiny samples. rampPA is overridable for deterministic tests.
+function hitterRateValue(p, rampPA) {
+  const b = p._proj || p.proj || {};
+  const pa = b.pa || 0;
+  const rate = (b.obp || 0) * HIT_RANK_W.obp
+             + (b.slg || 0) * HIT_RANK_W.slg
+             + (pa > 0 ? (b.hr || 0) / pa : 0) * HIT_RANK_W.hrPerPA
+             + (pa > 0 ? (b.r  || 0) / pa : 0) * HIT_RANK_W.rPerPA;
+  const ramp = Math.min(1, pa / (rampPA || PA_FULL_RATE_FULL * Math.max(rosProrationFactor(), 0.1)));
+  return rate * ramp;
+}
+
+// A player contributing only part of a slot: rate stats unchanged, counting
+// stats scaled to the fraction of his projection actually used.
+function scaleHitterUsage(p, usedPA) {
+  const b = p._proj || p.proj || {};
+  const full = b.pa || 0;
+  if (!full || usedPA >= full) return p;
+  const f = usedPA / full;
+  return Object.assign({}, p, { _proj: Object.assign({}, b, {
+    pa: usedPA,
+    ab: (b.ab || 0) * f,
+    hr: (b.hr || 0) * f,
+    r:  (b.r  || 0) * f,
+  }) });
+}
 
 // Assigns hitters to slots. Returns { slotId: player } map.
 function optimizeHitterLineup(hitters) {

@@ -444,6 +444,35 @@
     assert(typeof TF_BLOCK_MIN === 'number' && typeof TF_NEED_MIN === 'number' &&
            typeof TF_GAIN_MIN === 'number', 'tradefinder: tunable thresholds exported');
 
+    // ── PA-budget lineup: rate key + scaling ─────────────────────────────────
+    section('PA budget');
+    var paJudge = { name: 'judge', type: 'H', positions: ['of'], proj: { pa: 97,  ab: 85,  obp: 0.420, slg: 0.551, hr: 8, r: 15 } };
+    var paRaf   = { name: 'raf',   type: 'H', positions: ['of'], proj: { pa: 213, ab: 195, obp: 0.300, slg: 0.411, hr: 6, r: 22 } };
+    assert(hitterRateValue(paJudge, 45) > hitterRateValue(paRaf, 45),
+      'hitterRateValue: injured star outranks healthy mediocrity');
+
+    // The league scores HR and R: a power/R profile must beat an empty-OPS profile
+    // that raw OPS would prefer. (Perez-vs-Arraez shape.)
+    var paPower = { name: 'power', type: 'H', positions: ['c'], proj: { pa: 400, ab: 370, obp: 0.310, slg: 0.470, hr: 20, r: 44 } };
+    var paEmpty = { name: 'empty', type: 'H', positions: ['c'], proj: { pa: 400, ab: 360, obp: 0.350, slg: 0.450, hr: 4,  r: 40 } };
+    assert(((paEmpty.proj.obp + paEmpty.proj.slg) > (paPower.proj.obp + paPower.proj.slg)),
+      'fixture check: OPS actually prefers the empty profile');
+    assert(hitterRateValue(paPower, 45) > hitterRateValue(paEmpty, 45),
+      'hitterRateValue: z-weights prefer the power/R profile OPS misses');
+
+    var paFluke = { name: 'fluke', type: 'H', positions: ['of'], proj: { pa: 1, ab: 1, obp: 0.500, slg: 0.900, hr: 1, r: 1 } };
+    assert(hitterRateValue(paFluke, 45) < hitterRateValue(paRaf, 45),
+      'hitterRateValue: a 1-PA fluke is ramped below a real regular');
+
+    var paScaled = scaleHitterUsage(paRaf, 100);
+    assertEqual(paScaled._proj.pa, 100, 'scaleHitterUsage: PA set to the used amount');
+    assertEqual(paScaled._proj.obp, 0.300, 'scaleHitterUsage: rate stats unchanged');
+    assert(Math.abs(paScaled._proj.r - 22 * (100 / 213)) < 1e-9,
+      'scaleHitterUsage: counting stats scale by the used fraction');
+    assert(scaleHitterUsage(paRaf, 500) === paRaf,
+      'scaleHitterUsage: asking for more than projected returns the player untouched');
+    assert(paSlotBudget() > 0, 'paSlotBudget: positive');
+
     // ── Summary ──────────────────────────────────────────────────────────────
     const sumEl = document.getElementById('summary');
     sumEl.textContent = passed + ' passed, ' + failed + ' failed';

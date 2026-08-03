@@ -91,3 +91,56 @@ function tfGain(player, marginalsA, marginalsB) {
   var key = tfKey(player);
   return (marginalsB[key] || 0) - (marginalsA[key] || 0);
 }
+
+var TF_BLOCK_MIN = 5;   // $ stranded before a player counts as a surplus asset
+var TF_NEED_MIN  = 5;   // $ below the league median before a slot counts as a hole
+var TF_GAIN_MIN  = 5;   // $ a player must gain by moving before it is worth proposing
+
+// Which player currently occupies each hitter slot, per team.
+// Returns { teamName: { slotId: player } }.
+function tfSlotOccupants(rostersByTeam) {
+  var out = {};
+  Object.keys(rostersByTeam).forEach(function (t) {
+    out[t] = optimizeHitterLineup(rostersByTeam[t].filter(function (p) { return p.type === 'H'; }));
+  });
+  return out;
+}
+
+function tfMedian(arr) {
+  if (!arr.length) return 0;
+  var s = arr.slice().sort(function (a, b) { return a - b; });
+  var m = Math.floor(s.length / 2);
+  return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;
+}
+
+// A slot is a NEED when its occupant contributes materially less than the
+// league-median occupant of that same slot. Self-relative — no external
+// baseline required, same principle as the SGP denominators.
+// Returns { teamName: { slotId: gapDollars } }, positive = hole.
+function tfNeedGaps(rostersByTeam, allMarginals) {
+  var occ = tfSlotOccupants(rostersByTeam);
+  var teams = Object.keys(rostersByTeam);
+  var slotIds = {};
+  teams.forEach(function (t) { Object.keys(occ[t]).forEach(function (s) { slotIds[s] = 1; }); });
+
+  var medians = {};
+  Object.keys(slotIds).forEach(function (slot) {
+    var vals = [];
+    teams.forEach(function (t) {
+      var p = occ[t][slot];
+      if (p) vals.push((allMarginals[t] || {})[tfKey(p)] || 0);
+    });
+    medians[slot] = tfMedian(vals);
+  });
+
+  var out = {};
+  teams.forEach(function (t) {
+    out[t] = {};
+    Object.keys(slotIds).forEach(function (slot) {
+      var p = occ[t][slot];
+      var mine = p ? ((allMarginals[t] || {})[tfKey(p)] || 0) : 0;
+      out[t][slot] = medians[slot] - mine;   // empty slot → full median gap
+    });
+  });
+  return out;
+}

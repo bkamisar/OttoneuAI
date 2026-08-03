@@ -420,6 +420,30 @@
     assertEqual(tfGain(tfScrub, tfMarg, tfThin), 9,
       'tfGain: blocked here, valuable there → positive gain');
 
+    // Two identical teams plus one with a hole at catcher.
+    function tfC(name, obp, slg, hr, r) {
+      var p = tfHit(name, obp, slg, hr, r); p.positions = ['c']; return p;
+    }
+    function tfTeam(prefix, catcher) {
+      var arr = [catcher];
+      for (var i = 0; i < 12; i++) arr.push(tfHit(prefix + ' OF' + i, 0.360, 0.480, 25, 80));
+      return arr;
+    }
+    var tfRostersByTeam = {
+      Alpha: tfTeam('A', tfC('A C', 0.370, 0.500, 28, 85)),
+      Bravo: tfTeam('B', tfC('B C', 0.370, 0.500, 28, 85)),
+      Delta: tfTeam('D', tfC('D C', 0.270, 0.300, 2, 20)),   // the hole
+    };
+    var tfAll = tfAllMarginals(tfRostersByTeam, tfDen, 400);
+    var tfGaps = tfNeedGaps(tfRostersByTeam, tfAll);
+
+    assert(tfGaps.Delta.C > tfGaps.Alpha.C,
+      'tfNeedGaps: the team with a weak catcher shows the larger gap at C');
+    assert(Math.abs(tfGaps.Alpha.C) < 0.01,
+      'tfNeedGaps: a median-strength slot shows ~zero gap');
+    assert(typeof TF_BLOCK_MIN === 'number' && typeof TF_NEED_MIN === 'number' &&
+           typeof TF_GAIN_MIN === 'number', 'tradefinder: tunable thresholds exported');
+
     // ── Summary ──────────────────────────────────────────────────────────────
     const sumEl = document.getElementById('summary');
     sumEl.textContent = passed + ' passed, ' + failed + ' failed';

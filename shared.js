@@ -1124,12 +1124,16 @@ function calculateAllValues(allTeamRosters, extraPlayers, quiet, yearKey) {
   // remaining share (calendar-prorated). Y1/Y2 files are full-season → full cap.
   const isFutureYear = yearKey && yearKey !== 'proj';
   const ipBudget = isFutureYear ? IP_MAX : IP_MAX * Math.max(rosProrationFactor(), 0.1);
+  // Y1/Y2 projections are FULL-SEASON (invariant #1), so those passes get the
+  // unprorated slot budget — mirroring ipBudget above. Passing the prorated Y0
+  // budget here would treat a full-season line as if it overflowed the slot.
+  const paBudget = isFutureYear ? PA_PER_SLOT : paSlotBudget();
 
   // 1. Optimize lineup for each team
   const teamLineups = allTeamRosters.map(roster => {
     const hitters  = roster.filter(p => p.type === 'H');
     const pitchers = roster.filter(p => p.type === 'P');
-    const lineup   = optimizeHitterLineup(hitters);
+    const lineup   = optimizeHitterLineup(hitters, paBudget);
     const pitPool  = selectPitchers(pitchers, ipBudget);
     const stats    = computeTeamStats(lineup, pitPool, Math.min(IP_MIN, ipBudget * 0.5));
     return { lineup, pitPool, stats, roster };

@@ -717,18 +717,20 @@ function calculateDynastyValues(allRosters, weights, extraPlayers) {
     const v0 = vmY0[key] || {};
     const v1 = vmY1 ? (vmY1[key] || {}) : {};
     const v2 = vmY2 ? (vmY2[key] || {}) : {};
-    const currentValue = v0.projectedValue || 0;
-    let dynastyValue = currentValue
-      + w1 * (v1.projectedValue || 0)
-      + w2 * (v2.projectedValue || 0);
-    const floor = prospectDynastyValue(keyToProspect[key]);
-    if (floor > dynastyValue) dynastyValue = floor;
-    const s0 = Math.max(1, v0.actualSalary || 0);
-    const dynastyCost = s0 + w1 * Math.max(1, s0 + 2) + w2 * Math.max(1, s0 + 4);
+    const h = computeContractHorizon(
+      v0.projectedValue || 0,
+      v1.projectedValue || 0,
+      v2.projectedValue || 0,
+      v0.actualSalary   || 0,
+      w1, w2, rosProrationFactor(),
+      prospectDynastyValue(keyToProspect[key])
+    );
     dynastyMap[key] = {
       ...v0,
-      dynastyValue,
-      dynastySurplus: dynastyValue - dynastyCost,
+      dynastyValue:   h.dynastyValue,
+      dynastyCost:    h.dynastyCost,
+      dynastySurplus: h.dynastySurplus,
+      holdHorizon:    h.holdHorizon,
     };
   });
   return dynastyMap;

@@ -247,11 +247,17 @@ Expected: one `[dynasty]` line, e.g.
 `[dynasty] horizons H0/H1/H2 = 41/12/470 | mean proration gain $6.20 | mean option gain $1.85`
 
 Sanity checks on that line — if any fails, STOP and report rather than proceeding:
-- **H2 dominates.** Most contracts should still be keepers. If H0 is the majority, the
-  proration or the escalation is being applied wrongly.
-- **`mean proration gain` is positive.** Prorating the year-0 salary can only reduce cost.
-- **`mean option gain` is positive but smaller.** It is zero for every player where H2
-  already won, so the average across the pool is modest.
+- **`mean option gain` is positive.** The option can only ever raise surplus (it takes a
+  max), so a negative mean means the horizons are miscomputed.
+- **No absurd positives.** Spot-check the most expensive contracts: a star on a rich deal
+  must NOT show positive surplus late in the season. (An earlier draft prorated the
+  year-0 salary and produced Bobby Witt Jr. at $68 with +$16 — that was the tell.)
+- **H0 share ≈ 60%, but read it correctly.** Roughly 27 H0 players per team sounds high;
+  ~163 of them league-wide are $1-3 fringe/deep-bench contracts whose routine churn nobody
+  thinks of as "cutting someone." Meaningful cuts ($4+) are ~13 per team and $16+ are
+  ~4.6 per team, which matches the league's actual offseason behavior. Verify the H0 calls
+  are *decisive* rather than near-ties: >90% should beat H2 by more than $3. If most H0
+  wins are sub-$1 margins, the label is noise and needs a longer-horizon tie-break.
 
 - [ ] **Step 3: Commit**
 

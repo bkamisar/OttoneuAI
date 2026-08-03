@@ -93,20 +93,53 @@ simulation, status auto-detect).
   only ~54% of rostered players and almost no pitchers — without the fallback
   every ace lost a 0.81-weighted year AND the fixed pool spread over half as
   many claimants, inflating everyone else.
-- **Dynasty cost:** `s0 + 0.90×(s0+2) + 0.81×(s0+4)` — Ottoneu's +$2/yr base
-  escalation. **Known simplification:** arbitration allocations add ~$4-8/yr
-  more to star salaries; the +$2/+$4 understates star keeper costs slightly,
-  so dynasty surplus on stars reads a touch rich. If tuning: raise the +2/+4,
-  don't touch the value side.
+- **Dynasty cost — contracts are OPTIONS, not obligations.** Cutting is free at
+  season's end, so a contract is priced at the best available holding plan, not
+  a forced 3-year hold. `computeContractHorizon` evaluates three horizons and
+  returns the winner's value, cost and surplus together, plus `holdHorizon`:
+
+  | Horizon | Value | Cost |
+  |---|---|---|
+  | H0 "rental" | `y0` | `s0` |
+  | H1 | `y0 + w1×y1` | `s0 + w1×(s0+2)` |
+  | H2 "keeper" | `y0 + w1×y1 + w2×y2` | `s0 + w1×(s0+2) + w2×(s0+4)` |
+
+  Ottoneu's +$2/yr base escalation still drives the cost side. Because holding
+  costs +$2/+$4 while a flat player earns the same, **H2 only wins when next
+  year's value exceeds salary by ≈$3** — that spread is the keep/cut bar.
+  **Do NOT prorate the year-0 salary.** Y0 *stat lines* are rest-of-season, but
+  Y0 *dollar values* are normalized to the full $4,800 pool regardless of date
+  (verified: rostered Y0 values sum to exactly $4800 on Aug 2 with
+  `rosProrationFactor` 0.30) — a player's Y0 value is his SHARE of that pool, so
+  value and salary are already on the same scale. Prorating cost against
+  unprorated value inflates every surplus and makes H0 win spuriously (it once
+  priced Bobby Witt Jr. at $68 as a +$16 rental). Invariant #1 governs
+  projection stat lines, not pool-normalized dollars.
+- **Reading the `holdHorizon` split.** ~60% of rostered players resolve to H0,
+  which sounds alarming and is not. About half of those are $1-3 fringe/deep-bench
+  contracts whose churn nobody thinks of as "cutting someone"; meaningful cuts
+  ($4+) are ~13 per team and real contributors ($16+) ~4.6 per team, matching the
+  league's actual offseason behavior. The calls are decisive, not coin-flips —
+  >90% of H0 wins beat H2 by more than $3. **`holdHorizon === 0` therefore does
+  NOT mean "rental trade target"** — for most of that population it just means
+  "cut candidate." Any consumer wanting rentals must also require meaningful Y0
+  value.
+- **Known simplification:** arbitration allocations add ~$4-8/yr more to star
+  salaries; the +$2/+$4 understates star keeper costs slightly, and option-valuing
+  raises surplus further, so dynasty surplus on stars reads a touch rich. If
+  tuning: raise the +2/+4, don't touch the value side.
 - **Prospect floor** (`prospectDynastyValue`): scouting-based expected value
   under `max(model, floor)`. Top-100 rank curve `PROSPECT_RANK_CURVE`
   (#1 $62 → #100 $15, interpolated) for ranked prospects; `FV_DYNASTY_FLOORS`
   (FV45 $4 → FV80 $55) for unranked; ×0.72 pitching prospects; ×0.85
   High/Extreme risk, ×1.12 Low. Calibrated to public surplus-value research +
   this league's market (Made $59, Basallo $45, De Vries $41). The floor never
-  overrides a higher projection-based value (e.g. McLean $78).
-- Values are 3-season present values — they run to ~$330 (Ohtani); that scale
-  is intentional, compare only against other dynasty numbers or dynastyCost.
+  overrides a higher projection-based value (e.g. McLean $78). The floor applies
+  to the **H2 value only** — a prospect's scouting-based worth is inherently
+  long-horizon — so prospects resolve to `holdHorizon = 2` and the floor stays
+  `max(model, floor)`, never additive.
+- Values are present values of the **winning horizon**, not always 3 seasons.
+  Compare only against other dynasty numbers or the matching `dynastyCost`.
 
 ## 5. Trade finder (targets.html)
 
@@ -175,6 +208,17 @@ simulation, status auto-detect).
    roster" as the FA pool, turning the Y1/Y2 replacement baseline into the
    league's rostered stars (ERA 3.18) and inflating elite FA relievers to
    $200+ dynasty while zeroing FA hitters' future value.
+9. Dynasty value and dynasty cost must ALWAYS report the same holding horizon.
+   Reporting a 3-season value against a 1-season cost credits production that
+   was never paid for. `computeContractHorizon` returns the triple together for
+   exactly this reason — never recombine a `dynastyValue` from one horizon with
+   a cost from another. This is also load-bearing for the trade finder: the
+   fairness filter matches value-for-value, so a rental must carry his RENTAL
+   value or no rental trade can ever clear.
+10. Do not prorate salary against Y0 dollar values. Y0 dollars are normalized to
+   the full $4,800 pool at any date, so salary and value are already on the same
+   scale (see §4). Invariant #1's RoS-vs-full-season distinction applies to
+   projection STAT LINES only.
 
 ## 8. Known limitations (accepted, documented)
 

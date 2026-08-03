@@ -32,7 +32,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10758,"Misiorowski Index",37239,25636,sa3010621,"Hunter Gaddis",CLE,RP,$3
 10758,"Misiorowski Index",35487,20572,sa3008002,"Kody Clemens",MIN,1B/2B/OF,$3
 10758,"Misiorowski Index",35205,20423,sa3007594,"Ryan Walker","SFG AAA",RP,$3
-10758,"Misiorowski Index",35181,24729,sa3007519,"Logan O'Hoppe",TEX,C,$3
+10758,"Misiorowski Index",35181,24729,sa3007519,"Logan O'Hoppe","TEX AAA",C,$3
 10758,"Misiorowski Index",44539,,sa3023363,"Leo De Vries","ATH AA",SS,$3
 10758,"Misiorowski Index",19296,15711,sa737633,"Tyler O'Neill",BAL,OF,$2
 10758,"Misiorowski Index",23818,19574,sa917955,"JoJo Romero",STL,RP,$2
@@ -100,7 +100,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10761,"NBC Andy Pages Program",31951,19569,sa915715,"David Bednar",NYY,RP,$5
 10761,"NBC Andy Pages Program",47553,,sa3026056,"Kade Anderson","SEA AA",SP,$5
 10761,"NBC Andy Pages Program",38361,27863,sa3014459,"Jared Jones",PIT,SP,$5
-10761,"NBC Andy Pages Program",37091,26477,sa1115496,"Spencer Horwitz","PIT A",1B,$5
+10761,"NBC Andy Pages Program",37091,26477,sa1115496,"Spencer Horwitz","PIT ST",1B,$5
 10761,"NBC Andy Pages Program",40564,29868,sa3017428,"Bubba Chandler",PIT,SP,$4
 10761,"NBC Andy Pages Program",45706,35333,sa3028086,"Chase Burns",CIN,SP/RP,$4
 10761,"NBC Andy Pages Program",45720,35041,sa3025245,"Jac Caglianone",KCR,1B/OF,$4
@@ -196,7 +196,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10818,"Bureau of Gleyber Statistics",44274,33568,sa3022951,"Brandyn Garcia",ARI,RP,$1
 10818,"Bureau of Gleyber Statistics",41265,30675,sa3018514,"Luis Lara",MIL,OF,$1
 10818,"Bureau of Gleyber Statistics",49684,,sa3058966,"Derek Curiel",,Util,$1
-10818,"Bureau of Gleyber Statistics",40674,29957,sa3017626,"Edwin Arroyo",CIN,2B/SS,$1
+10818,"Bureau of Gleyber Statistics",40674,29957,sa3017626,"Edwin Arroyo","CIN AAA",2B/SS,$1
 10818,"Bureau of Gleyber Statistics",38325,27555,sa3014438,"Garrett Mitchell",MIL,OF,$1
 10818,"Bureau of Gleyber Statistics",21041,16939,sa828962,"Lane Thomas",ATL,OF,$1
 10818,"Bureau of Gleyber Statistics",22676,17969,sa874771,"Peter Lambert",HOU,SP,$1
@@ -245,7 +245,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10881,"Look Out Bello",34103,24094,sa3005835,"Ronny Henriquez",MIA,RP,$3
 10881,"Look Out Bello",44039,33253,sa3022596,"Cole Carrigg",COL,OF,$2
 10881,"Look Out Bello",40398,29646,sa3017183,"Caleb Durbin",BOS,2B/3B,$2
-10881,"Look Out Bello",42538,31760,sa3020395,"JR Ritchie","ATL AAA",SP/RP,$2
+10881,"Look Out Bello",42538,31760,sa3020395,"JR Ritchie","ATL ST",SP/RP,$2
 10881,"Look Out Bello",18152,13145,sa597768,"Josh Bell",MIN,1B,$1
 10881,"Look Out Bello",23787,13619,sa602414,"Jakob Junis",TEX,RP,$1
 10881,"Look Out Bello",26446,19769,sa3004101,"Will Vest",DET,RP,$1
@@ -364,7 +364,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10908,"South Side Shitshow",40714,29995,sa3017698,"Daylen Lile",WSN,OF,$4
 10908,"South Side Shitshow",43949,33549,sa3022886,"Kyle Teel",CHW,C,$4
 10908,"South Side Shitshow",38374,27899,sa3014474,"Colt Keith",DET,1B/2B/3B,$3
-10908,"South Side Shitshow",40181,29514,sa3016863,"River Ryan","DET AAA",SP/RP,$3
+10908,"South Side Shitshow",40181,29514,sa3016863,"River Ryan","DET ST",SP/RP,$3
 10908,"South Side Shitshow",23856,14551,sa659463,"Anthony Santander",TOR,OF,$3
 10908,"South Side Shitshow",33424,22487,sa922365,"Johan Oviedo",BOS,SP,$3
 10908,"South Side Shitshow",18465,15440,sa621603,"Matthew Boyd",CHC,SP,$3
@@ -453,28 +453,27 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10944,"Si Se Fuentes",42193,31382,sa3019892,"Dalton Rushing",LAD,C,$4
 10944,"Si Se Fuentes",45018,,sa3023987,"Rainiel Rodriguez","STL AA",C,$3
 10944,"Si Se Fuentes",48241,37124,sa3062955,"Tatsuya Imai",HOU,SP,$3
+10944,"Si Se Fuentes",44147,33390,sa3022757,"Bryce Eldridge",SFG,1B,$3
 10944,"Si Se Fuentes",43988,,sa3022894,"Walker Jenkins","MIN AAA",OF,$3
 10944,"Si Se Fuentes",43841,32157,sa3022324,"Jonah Tong","NYM AAA",SP,$3
-10944,"Si Se Fuentes",44147,33390,sa3022757,"Bryce Eldridge",SFG,1B,$3
 10944,"Si Se Fuentes",44286,33656,sa3022963,"A.J. Ewing",NYM,OF,$2
 10944,"Si Se Fuentes",44223,33572,sa3022895,"Kevin McGonigle",DET,SS/3B,$2
-10944,"Si Se Fuentes",44114,,sa3022703,"Zyhir Hope","LAD AA",OF,$2
 10944,"Si Se Fuentes",45739,35423,sa3038253,"Braden Montgomery",CHW,OF,$2
+10944,"Si Se Fuentes",44114,,sa3022703,"Zyhir Hope","DET ST",OF,$2
 10944,"Si Se Fuentes",41342,,sa3018591,"Josue De Paula","LAD AA",OF,$2
 10944,"Si Se Fuentes",45090,,sa3024134,"Luis Pena","MIL A+",2B/SS,$2
 10944,"Si Se Fuentes",45901,35107,sa3025383,"Tommy White",ATH,1B/3B,$1
 10944,"Si Se Fuentes",46358,,sa3067131,"Ryan Sloan","SEA AA",SP,$1
-10944,"Si Se Fuentes",37458,26143,sa3010899,"Troy Johnston",COL,1B/OF,$1
 10944,"Si Se Fuentes",47653,,sa3031104,"Anthony Eyanson","BOS AA",SP,$1
-10944,"Si Se Fuentes",19520,17170,sa738213,"Gabe Speier",SEA,RP,$1
 10944,"Si Se Fuentes",8550,7048,sa389855,"Fernando Cruz",NYY,RP,$1
+10944,"Si Se Fuentes",19520,17170,sa738213,"Gabe Speier",SEA,RP,$1
+10944,"Si Se Fuentes",38366,27475,sa3014464,"Jordan Walker",STL,OF,$1
 10944,"Si Se Fuentes",44512,33482,sa3023361,"Chase Dollander",COL,SP/RP,$1
-10944,"Si Se Fuentes",38386,27787,sa3014487,"Will Klein",LAD,RP,$1
 10944,"Si Se Fuentes",40097,30203,sa3018054,"Jackson Jobe",DET,SP,$1
 10944,"Si Se Fuentes",26800,22872,sa3004650,"Yoendrys Gomez",MIN,SP/RP,$1
-10944,"Si Se Fuentes",42741,31893,sa3020707,"Robby Snelling",MIA,SP/RP,$1
-10944,"Si Se Fuentes",38366,27475,sa3014464,"Jordan Walker",STL,OF,$1
 10944,"Si Se Fuentes",41419,30375,sa3018808,"Jarlin Susana","WSN AA",SP,$1
+10944,"Si Se Fuentes",42741,31893,sa3020707,"Robby Snelling",MIA,SP/RP,$1
+10944,"Si Se Fuentes",37458,26143,sa3010899,"Troy Johnston",COL,1B/OF,$1
 10944,"Si Se Fuentes",41452,30661,sa3018841,"Didier Fuentes",ATL,SP/RP,$1
 10974,"Ketel Corn",5680,5361,sa390291,"Freddie Freeman",LAD,1B,$33
 10974,"Ketel Corn",18466,13613,sa597026,"Ketel Marte",ARI,2B,$28

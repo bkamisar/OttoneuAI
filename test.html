@@ -313,6 +313,41 @@
     assert(hotIsFreeAgent('Some Prospect', rset), 'hotIsFreeAgent: unrostered → true');
     assert(!hotIsFreeAgent('Jose Ramirez', rset), 'hotIsFreeAgent: accent-insensitive match');
 
+    // ── Option-valued contracts ──────────────────────────────────────────────
+    section('Contract horizons');
+    // Cheap productive player: keeping all three years is clearly best.
+    var cheap = computeContractHorizon(20, 22, 21, 5, 0.90, 0.81, 0.45, 0);
+    assertEqual(cheap.holdHorizon, 2, 'horizon: cheap productive contract → keeper (H2)');
+    assert(cheap.dynastySurplus > 40, 'horizon: cheap contract surplus is large positive');
+
+    // Productive but overpaid: renting beats holding. The spec's worked example.
+    var rental = computeContractHorizon(12, 18, 15, 30, 0.90, 0.81, 0.45, 0);
+    assertEqual(rental.holdHorizon, 0, 'horizon: overpaid productive → rental (H0)');
+    assert(Math.abs(rental.dynastySurplus - (-1.5)) < 0.01,
+      'horizon: rental surplus ≈ -1.5 (was -46 under forced 3-year hold)');
+    assertEqual(rental.dynastyValue, 12, 'horizon: rental value is Y0 only');
+    assert(Math.abs(rental.dynastyCost - 13.5) < 0.01, 'horizon: rental cost is prorated salary only');
+
+    // Overpaid AND unproductive: negative at every horizon; max is still negative.
+    var bad = computeContractHorizon(2, 3, 2, 25, 0.90, 0.81, 0.45, 0);
+    assert(bad.dynastySurplus < 0, 'horizon: genuinely bad contract stays negative');
+    assertEqual(bad.holdHorizon, 0, 'horizon: bad contract cuts at earliest horizon');
+
+    // Prospect floor applies to the long horizon and wins there (invariant #6).
+    var prospect = computeContractHorizon(0, 2, 3, 1, 0.90, 0.81, 0.45, 45);
+    assertEqual(prospect.holdHorizon, 2, 'horizon: prospect floor → keeper (H2)');
+    assertEqual(prospect.dynastyValue, 45, 'horizon: prospect floor becomes the H2 value');
+
+    // Value and cost must always describe the SAME horizon.
+    [cheap, rental, bad, prospect].forEach(function (h, i) {
+      assert(Math.abs((h.dynastyValue - h.dynastyCost) - h.dynastySurplus) < 1e-9,
+        'horizon: value-cost-surplus internally consistent (case ' + i + ')');
+    });
+
+    // Salary floor: a $0 salary is treated as $1, never free.
+    var freebie = computeContractHorizon(10, 10, 10, 0, 0.90, 0.81, 1.0, 0);
+    assert(freebie.dynastyCost > 0, 'horizon: zero salary floors to $1, cost is positive');
+
     // ── Summary ──────────────────────────────────────────────────────────────
     const sumEl = document.getElementById('summary');
     sumEl.textContent = passed + ' passed, ' + failed + ' failed';

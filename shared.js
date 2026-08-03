@@ -596,6 +596,44 @@ function attachYearProjections(matchedPlayers, hittingProj, pitchingProj, projKe
   });
 }
 
+// ── CONTRACT HORIZONS ────────────────────────────────────────────────────────
+// A dynasty contract is an OPTION, not an obligation: cutting is free at
+// season's end, so nobody is forced to carry an escalating salary for three
+// years. Evaluate each holding horizon and return the best one:
+//   H0 "rental" — keep through this season only, then cut
+//   H1          — keep one additional year  (+$2 escalation)
+//   H2 "keeper" — keep two additional years (+$2 / +$4)
+// Y0 values are REST-OF-SEASON (invariant #1), so the year-0 salary term is
+// prorated to match — charging a full season's salary against a partial
+// season's production was a latent bug in the old formula.
+// Value and cost ALWAYS describe the same horizon; reporting a 3-year value
+// against a 1-year cost would credit production that was never paid for.
+function computeContractHorizon(y0, y1, y2, s0, w1, w2, ros, floor) {
+  const salary = Math.max(1, s0 || 0);
+  const base0  = salary * ros;          // this season's remaining salary
+  const esc1   = Math.max(1, salary + 2);
+  const esc2   = Math.max(1, salary + 4);
+
+  const v0 = y0;
+  const v1 = y0 + w1 * y1;
+  // The prospect floor is long-horizon by nature — it represents what a
+  // prospect is worth if you hold him. Apply it to H2 only, as max() never
+  // additive (invariant #6).
+  let   v2 = y0 + w1 * y1 + w2 * y2;
+  if (floor > v2) v2 = floor;
+
+  const c0 = base0;
+  const c1 = base0 + w1 * esc1;
+  const c2 = base0 + w1 * esc1 + w2 * esc2;
+
+  const options = [
+    { holdHorizon: 0, dynastyValue: v0, dynastyCost: c0, dynastySurplus: v0 - c0 },
+    { holdHorizon: 1, dynastyValue: v1, dynastyCost: c1, dynastySurplus: v1 - c1 },
+    { holdHorizon: 2, dynastyValue: v2, dynastyCost: c2, dynastySurplus: v2 - c2 },
+  ];
+  return options.reduce((best, o) => (o.dynastySurplus > best.dynastySurplus ? o : best));
+}
+
 // Computes dynasty value by running the SGP model across up to three projection
 // years and combining with weighted discounting.
 // weights: { y1: 0.90, y2: 0.81 }  (defaults; pass null to use Y0 only)

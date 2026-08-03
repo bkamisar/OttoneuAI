@@ -12,7 +12,7 @@
 
 **Note on commits:** Commit locally after each task. NEVER `git push` — the user pushes via GitHub Desktop.
 
-**Baseline:** `test.html` currently reports **92 assertions, 0 failed**. Every task must keep failed at 0.
+**Baseline:** `test.html` currently reports **112 assertions, 0 failed**. Every task must keep failed at 0.
 
 ---
 
@@ -72,7 +72,7 @@ python -m http.server 8000
 ```
 
 Open `http://localhost:8000/test.html` and hard-refresh (Ctrl+Shift+R).
-Expected: the run halts early with a red `✗` and the summary does NOT reach 92 —
+Expected: the run halts early with a red `✗` and the summary does NOT reach 112 —
 `computeContractHorizon` is not defined, which throws a ReferenceError.
 
 - [ ] **Step 3: Write the implementation**
@@ -123,7 +123,7 @@ function computeContractHorizon(y0, y1, y2, s0, w1, w2, ros, floor) {
 
 Reload `http://localhost:8000/test.html` with a hard refresh (invariant #7 — `shared.js`
 is cached aggressively).
-Expected: green summary reading **107 passed, 0 failed** (92 baseline + 15 new).
+Expected: green summary reading **127 passed, 0 failed** (112 baseline + 15 new).
 
 - [ ] **Step 5: Commit**
 
@@ -185,7 +185,7 @@ existing consumer of `dynastyValue`/`dynastySurplus` changes shape.
 - [ ] **Step 2: Verify the existing suite still passes**
 
 Reload `http://localhost:8000/test.html` with a hard refresh.
-Expected: **107 passed, 0 failed** — unchanged. Existing dynasty tests must not regress.
+Expected: **127 passed, 0 failed** — unchanged. Existing dynasty tests must not regress.
 If any dynasty assertion now fails, STOP: it encodes an expectation about the old forced
 3-year cost, and the correct fix needs a human decision about which behavior is intended.
 
@@ -366,7 +366,7 @@ git commit -m "docs(model): option-valued contract horizons + same-horizon invar
 
 ## Definition of done
 
-- `test.html` reports **107 passed, 0 failed**.
+- `test.html` reports **127 passed, 0 failed**.
 - `[dynasty]` diagnostic prints, H2 is the majority horizon, both gains positive.
 - Y0 anchors (`[values]`) unchanged; prospect anchors stable with H2.
 - All five consumer pages load with a clean console.

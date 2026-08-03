@@ -45,3 +45,49 @@ function tfMarginalZ(baseStats, cutStats, denoms) {
   });
   return z;
 }
+
+function tfKey(p) { return p.fgId || p.name; }
+
+// Marginal DOLLARS for every player on one roster. Computes the team's baseline
+// once, then re-optimizes with each player removed in turn.
+// Returns { playerKey: dollars }.
+function tfRosterMarginals(roster, denoms, ipBudget) {
+  var budget = ipBudget || tfIpBudget();
+  var base   = tfTeamStats(roster, budget);
+  var out    = {};
+  roster.forEach(function (p) {
+    var key = tfKey(p);
+    var without = roster.filter(function (q) { return tfKey(q) !== key; });
+    out[key] = tfMarginalZ(base, tfTeamStats(without, budget), denoms) * TF_PTS_DOLLARS;
+  });
+  return out;
+}
+
+// Marginals for every team. rostersByTeam: { teamName: [players] }.
+// Returns { teamName: { playerKey: dollars } }.
+function tfAllMarginals(rostersByTeam, denoms, ipBudget) {
+  var budget = ipBudget || tfIpBudget();
+  var out = {};
+  Object.keys(rostersByTeam).forEach(function (t) {
+    out[t] = tfRosterMarginals(rostersByTeam[t], denoms, budget);
+  });
+  return out;
+}
+
+// Value stranded on the bench: what he is worth in the abstract minus what he
+// is worth to the roster he is actually on. High = trade asset.
+// NOTE: compares against projValue (Y0 dollars) because marginals are derived
+// from Y0 production. Do NOT mix dynastyValue into this subtraction — the
+// dynasty lens enters later, at the fairness/utility stage.
+function tfBlockedness(player, ownerMarginals, valueMap) {
+  var key = tfKey(player);
+  var abs = (valueMap[key] && valueMap[key].projectedValue) || 0;
+  return abs - (ownerMarginals[key] || 0);
+}
+
+// How much MORE a player is worth to team B than to his current team A.
+// This is the quantity that makes a trade mutually attractive.
+function tfGain(player, marginalsA, marginalsB) {
+  var key = tfKey(player);
+  return (marginalsB[key] || 0) - (marginalsA[key] || 0);
+}

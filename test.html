@@ -386,6 +386,40 @@
     assert(Math.abs(tfZFlip - tfZHitOnly) < 1e-9,
       'tfMarginalZ: pitching-validity flip skips pitching cats, no phantom delta');
 
+    // Fixture roster: 3 clearly-better outfielders plus a blocked 4th.
+    function tfHit(name, obp, slg, hr, r) {
+      return { name: name, fgId: name, type: 'H', positions: ['of'],
+               proj: { pa: 600, ab: 540, obp: obp, slg: slg, hr: hr, r: r } };
+    }
+    var tfStar1 = tfHit('Star One',   0.400, 0.560, 40, 100);
+    var tfStar2 = tfHit('Star Two',   0.390, 0.550, 38, 98);
+    var tfStar3 = tfHit('Star Three', 0.385, 0.545, 36, 96);
+    var tfScrub = tfHit('Blocked Guy', 0.300, 0.350, 5, 30);
+    // These players are OF-only, so they can fill just OF1-5 + UTIL = 6 slots
+    // (C/1B/2B/SS/3B/MI require other eligibility and stay empty). 15 players
+    // rank ahead of the scrub, so he is guaranteed not to start.
+    var tfFill = [];
+    for (var tfi = 0; tfi < 12; tfi++) tfFill.push(tfHit('Filler ' + tfi, 0.360, 0.480, 25, 80));
+    var tfRoster = [tfStar1, tfStar2, tfStar3].concat(tfFill).concat([tfScrub]);
+    var tfMarg = tfRosterMarginals(tfRoster, tfDen, 400);
+
+    assert(tfMarg['Blocked Guy'] === 0,
+      'tfRosterMarginals: player who never cracks the lineup has zero marginal');
+    assert(tfMarg['Star One'] > 0,
+      'tfRosterMarginals: a starter has positive marginal value');
+
+    // Blockedness: the scrub strands whatever absolute value he carries.
+    var tfVals = { 'Blocked Guy': { projectedValue: 12 }, 'Star One': { projectedValue: 40 } };
+    assertEqual(tfBlockedness(tfScrub, tfMarg, tfVals), 12,
+      'tfBlockedness: blocked player strands his full absolute value');
+    assert(tfBlockedness(tfStar1, tfMarg, tfVals) < 40,
+      'tfBlockedness: a starter strands less than his absolute value');
+
+    // Gain: worth more to a team that would actually start him.
+    var tfThin = { 'Blocked Guy': 9 };
+    assertEqual(tfGain(tfScrub, tfMarg, tfThin), 9,
+      'tfGain: blocked here, valuable there → positive gain');
+
     // ── Summary ──────────────────────────────────────────────────────────────
     const sumEl = document.getElementById('summary');
     sumEl.textContent = passed + ' passed, ' + failed + ' failed';

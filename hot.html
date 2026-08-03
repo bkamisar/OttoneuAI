@@ -70,8 +70,14 @@
       <div><label>Position</label>
         <div class="btns" id="posBtns"></div>
       </div>
+      <div><label>Show</label>
+        <div class="btns" id="ownerBtns">
+          <button class="btn" data-owner="FA">Free agents</button>
+          <button class="btn" data-owner="ROSTERED">Rostered</button>
+          <button class="btn" data-owner="ALL">All</button>
+        </div>
+      </div>
       <input type="text" id="search" placeholder="Search name…">
-      <label class="toggle"><input type="checkbox" id="faOnly" checked> Free agents only</label>
       <label class="toggle"><input type="checkbox" id="marginal"> Show marginal (below threshold)</label>
     </div>
     <div class="legend">
@@ -91,7 +97,7 @@
     var controls = document.getElementById('controls');
 
     // View state
-    var state = { win: 15, faOnly: true, marginal: false, pos: 'ALL', search: '' };
+    var state = { win: 15, owner: 'FA', marginal: false, pos: 'ALL', search: '' };  // owner: FA | ROSTERED | ALL
     var sortState = { H: { col: 'hotScore', dir: -1 }, SP: { col: 'hotScore', dir: -1 }, RP: { col: 'hotScore', dir: -1 } };
     var HOT_LIMIT = 25;                                   // rows per section before "Show all"
     var expanded = { H: false, SP: false, RP: false };   // per-section expand state
@@ -99,7 +105,7 @@
     var POS_BUTTONS = ['ALL', 'C', '1B', '2B', '3B', 'SS', 'OF', 'DH'];
     var OF_SET = { LF: 1, CF: 1, RF: 1, OF: 1 };
 
-    var hot = null, rosteredSet = {}, projHitMap = {}, projPitMap = {};
+    var hot = null, ownerMap = {}, projHitMap = {}, projPitMap = {};  // ownerMap: normName -> fantasy team
 
     function el(tag, cls, text) {
       var e = document.createElement(tag);
@@ -151,14 +157,16 @@
         if (!isHit && w.role !== kind) return;
         var meets = hotMeetsThreshold(kind, win, w);
         if (!meets && !state.marginal) return;
-        var isFA = hotIsFreeAgent(p.name, rosteredSet);
-        if (state.faOnly && !isFA) return;
+        var owner = ownerMap[normalizeName(p.name)] || '';
+        var isFA = !owner;
+        if (state.owner === 'FA' && !isFA) return;
+        if (state.owner === 'ROSTERED' && isFA) return;
         if (isHit && !posMatches(p.pos || '')) return;
         if (state.search && normalizeName(p.name).indexOf(normalizeName(state.search)) === -1) return;
 
         var proj = isHit ? projHitMap[normalizeName(p.name)] : projPitMap[normalizeName(p.name)];
         var row = {
-          name: p.name, team: p.team || '', pos: p.pos || '', isFA: isFA, marginal: !meets,
+          name: p.name, team: p.team || '', pos: p.pos || '', isFA: isFA, owner: owner, marginal: !meets,
           hotScore: hotScoreFor(w, poolStats, isHit ? 'H' : 'P'),
           badge: hotBreakoutBadge(isHit ? 'H' : 'P', w, proj)
         };
@@ -248,7 +256,7 @@
           if (c.key === 'name') {
             td.appendChild(el('span', 'pname', r.name));
             if (r.marginal) td.appendChild(el('span', 'chip', 'thin'));
-            if (!r.isFA) td.appendChild(el('span', 'chip', 'rostered'));
+            if (!r.isFA) td.appendChild(el('span', 'chip', r.owner || 'rostered'));
           } else {
             td.textContent = c.cell ? c.cell(r) : (r[c.key] == null ? '' : String(r[c.key]));
           }
@@ -279,6 +287,9 @@
       [].forEach.call(document.querySelectorAll('#posBtns .btn'), function (b) {
         b.classList.toggle('active', b.dataset.pos === state.pos);
       });
+      [].forEach.call(document.querySelectorAll('#ownerBtns .btn'), function (b) {
+        b.classList.toggle('active', b.dataset.owner === state.owner);
+      });
     }
 
     function wireControls() {
@@ -293,7 +304,9 @@
       [].forEach.call(document.querySelectorAll('#winBtns .btn'), function (b) {
         b.addEventListener('click', function () { state.win = +b.dataset.win; render(); });
       });
-      document.getElementById('faOnly').addEventListener('change', function (e) { state.faOnly = e.target.checked; render(); });
+      [].forEach.call(document.querySelectorAll('#ownerBtns .btn'), function (b) {
+        b.addEventListener('click', function () { state.owner = b.dataset.owner; render(); });
+      });
       document.getElementById('marginal').addEventListener('change', function (e) { state.marginal = e.target.checked; render(); });
       document.getElementById('search').addEventListener('input', function (e) { state.search = e.target.value; render(); });
     }
@@ -301,7 +314,9 @@
     (async function () {
       try { await autoLoadFromRepo(); } catch (e) {}
       var roster  = loadData('ottoneu_roster') || [];
-      rosteredSet = hotRosteredSet(roster);
+      roster.forEach(function (p) {
+        if (p && p.name && p.team && p.team !== 'Free Agent') ownerMap[normalizeName(p.name)] = p.team;
+      });
       projHitMap  = buildProjMap(loadData('ottoneu_proj_hitting'));
       projPitMap  = buildProjMap(loadData('ottoneu_proj_pitching'));
 
@@ -316,7 +331,7 @@
       var r15 = (hot.ranges && hot.ranges['15']) || {};
       stamp.textContent = 'Recent form · generated ' + ago(hot.generatedAt) +
         (r15.start ? ' · 15d window ' + r15.start + ' → ' + r15.end : '') +
-        (Object.keys(rosteredSet).length ? '' : ' · (roster not loaded — FA filter disabled)');
+        (Object.keys(ownerMap).length ? '' : ' · (roster not loaded — FA/Rostered filter disabled)');
       wireControls();
       render();
     })();

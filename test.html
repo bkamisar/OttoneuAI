@@ -17,6 +17,7 @@
   <div id="summary"></div>
   <script src="shared.js"></script>
   <script src="hotboard.js"></script>
+  <script src="tradefinder.js"></script>
   <script>
     let passed = 0, failed = 0;
     const out = document.getElementById('output');
@@ -348,6 +349,42 @@
     // Salary floor: a $0 salary is treated as $1, never free.
     var freebie = computeContractHorizon(10, 10, 10, 0, 0.90, 0.81, 0);
     assert(freebie.dynastyCost > 0, 'horizon: zero salary floors to $1, cost is positive');
+
+    // ── tradefinder: marginal delta ──────────────────────────────────────────
+    section('Marginal value');
+    var tfDen = { OBP: 0.010, SLG: 0.020, HR: 10, R: 40, ERA: 0.20, WHIP: 0.040, HR9: 0.10, SO: 80 };
+    var tfBase = { OBP: 0.330, SLG: 0.430, HR: 200, R: 700, ERA: 3.80, WHIP: 1.200, HR9: 1.10, SO: 1300,
+                   _pitchingValid: true };
+
+    // Removing a hitter lowers HR/R → the player's marginal contribution is positive.
+    var tfCutHitter = { OBP: 0.330, SLG: 0.430, HR: 180, R: 660, ERA: 3.80, WHIP: 1.200, HR9: 1.10, SO: 1300,
+                        _pitchingValid: true };
+    assert(tfMarginalZ(tfBase, tfCutHitter, tfDen) > 0, 'tfMarginalZ: removing a productive hitter → positive marginal');
+
+    // A player whose removal changes nothing is worth nothing to that roster.
+    assertEqual(tfMarginalZ(tfBase, tfBase, tfDen), 0, 'tfMarginalZ: blocked player (no change) → zero marginal');
+
+    // ERA is lower-better: base 3.80 vs cut 4.00 means the player IMPROVED the
+    // team ERA, so his marginal must be positive.
+    var tfCutPitcher = { OBP: 0.330, SLG: 0.430, HR: 200, R: 700, ERA: 4.00, WHIP: 1.200, HR9: 1.10, SO: 1300,
+                         _pitchingValid: true };
+    assert(tfMarginalZ(tfBase, tfCutPitcher, tfDen) > 0, 'tfMarginalZ: lower-better ERA handled with correct sign');
+
+    // A player who actively hurts the team scores negative.
+    var tfCutBad = { OBP: 0.330, SLG: 0.430, HR: 210, R: 720, ERA: 3.80, WHIP: 1.200, HR9: 1.10, SO: 1300,
+                     _pitchingValid: true };
+    assert(tfMarginalZ(tfBase, tfCutBad, tfDen) < 0, 'tfMarginalZ: removing him IMPROVES the team → negative marginal');
+
+    // Pitching-validity flip must not emit a phantom gain.
+    var tfCutInvalid = { OBP: 0.330, SLG: 0.430, HR: 180, R: 660, ERA: 0, WHIP: 0, HR9: 0, SO: 0,
+                         _pitchingValid: false };
+    var tfZFlip = tfMarginalZ(tfBase, tfCutInvalid, tfDen);
+    var tfZHitOnly = tfMarginalZ(
+      { OBP: 0.330, SLG: 0.430, HR: 200, R: 700, _pitchingValid: true },
+      { OBP: 0.330, SLG: 0.430, HR: 180, R: 660, _pitchingValid: true },
+      tfDen);
+    assert(Math.abs(tfZFlip - tfZHitOnly) < 1e-9,
+      'tfMarginalZ: pitching-validity flip skips pitching cats, no phantom delta');
 
     // ── Summary ──────────────────────────────────────────────────────────────
     const sumEl = document.getElementById('summary');

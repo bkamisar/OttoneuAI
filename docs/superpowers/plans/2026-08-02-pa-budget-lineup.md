@@ -1,75 +1,139 @@
-# PA-Budget Lineup Implementation Plan
+# PA-Budget Lineup Implementation Plan — v2 (post design review)
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans (user preference: inline execution) to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Stop the lineup optimizer from discarding injured stars. Rank hitters by rate quality rather than raw volume, and let a second bat absorb a slot's unused plate appearances — mirroring how `selectPitchers` already fills an innings budget.
+**Goal:** Stop the lineup optimizer from discarding injured stars, and rank hitters by what this league actually scores instead of raw volume or raw OPS.
 
-**Architecture:** `optimizeHitterLineup` keeps its 12 position slots and its scarcity ordering. Two changes: (1) the ranking key drops the volume multiplier, and (2) when a slot's primary occupant projects fewer PA than the slot's budget, a second eligible bat is added under a derived key (`OF1_2`) with counting stats scaled to the shortfall. Full-time slots are untouched.
-
-**Tech stack:** Vanilla browser JS (no build). Unit tests in `test.html`. Live-data verification in Node (the in-app browser's fetch proxy caps ~400KB; `proj_pitching.csv` is 438KB).
-
-**Source:** MODEL.md §8 "optimizeHitterLineup is volume-biased". Measured Aug 2026 on the Misiorowski Index roster: the misranking alone costs **0.915 z (~$13.7)**, and the either/or assumption costs a further **1.694 z (~$25.4)**.
-
-**Note on commits:** Commit locally after each task. NEVER `git push` — the user pushes via GitHub Desktop.
+**Status:** v2, 2026-08-03. Supersedes v1 after a design review that answered the six open
+questions in `docs/superpowers/specs/2026-08-02-lineup-model-review-brief.md` and audited
+the shipped Fix 1/Fix 2 code. v1 was never executed; no unwinding needed.
 
 **Baseline:** `test.html` reports **140 passed, 0 failed**. Every task must keep failed at 0.
+Test-count expectations below are approximate — verify the *failed = 0* invariant, and
+update this plan's numbers to observed reality rather than forcing them.
+
+**Note on commits:** Commit locally after each task. NEVER `git push` — the user pushes via
+GitHub Desktop.
 
 ---
 
-## Why this design
+## Design decisions from the review (what changed vs v1 and why)
 
-Three constraints shaped it, all verified against the codebase:
+**D1 — Ranking key: denominator-aware, not OPS.** OPS weights OBP and SLG equally and
+ignores HR/R entirely, but this 4×4 league scores all four. Derived from the live SGP
+denominators (Aug 2026: D_OBP .0083, D_SLG .0094, D_HR 8.39, D_R 17.84; avg lineup
+PA 2355 / AB 2082), the per-rate-unit z-weights for filling one slot, normalized to
+OBP = 1, are: **slg 0.905, hr/pa 2.34, r/pa 1.10**. HR+R carry ~24% of a typical
+starter's rank score — and empirically **380 rostered-hitter pairs flip order** between
+OPS and this key (OPS overrates Arraez-types, underrates Perez-types). Weights are baked
+constants (tunable knobs), not computed at runtime: deriving them live would be circular
+(denominators need lineups). Seasonal drift in the ratios is an accepted approximation.
 
-1. **`computeTeamStats` reads `p._proj || p.proj`** ([shared.js:893](../../shared.js)), so a partial-usage player can be passed as a scaled clone with `_proj` set — no change to the consumer.
-2. **6 of 7 callers pass the lineup straight into `computeTeamStats`** without inspecting slot keys; `bid.html:283` iterates `Object.keys` to build a starter set (extra keys are correct there); `test.html:161` reads `lu['C']`. So adding `OF1_2`-style keys is safe if primary keys keep their meaning.
-3. **`test.html:169` asserts no duplicate assignments.** Therefore a player fills **at most one slot** — leftover PA beyond a slot's budget is not carried elsewhere. A player cannot occupy two lineup spots at once.
+**D2 — Uncapped primary is principled, not pragmatic** (v1 called it a compromise; the
+review found the real justification). A slot's true capacity is **162 games**
+(`SLOT_CAP`, until now dead code), and a single player physically cannot exceed it — he
+plays at most his team's games. So the primary is never capped. `PA_PER_SLOT = 650` is
+not a capacity; it is the **expected PA of a full-timer**, i.e. the level below which the
+slot has leftover days a bench bat would really cover. The PA arithmetic approximates the
+games arithmetic well (verified: Judge 97 PA ≈ 24 games of a ~49-game RoS slot; the 99-PA
+supplement ≈ the other 25 games). Backups sharing days with the primary is an accepted
+approximation.
 
-**Only supplement, never cap.** The primary occupant always contributes his full projection. A backup is added *only* when the primary falls short of the budget. This means healthy full-time lineups produce byte-identical results to today, and only injury-thinned slots change — the smallest blast radius that fixes the bug.
+**D3 — Constant budget, year-aware.** Do not self-derive the budget from league data
+(circular: observed slot PA already includes the injured players we are correcting for).
+But it must be **year-aware**: Y1/Y2 valuation passes use full-season projections, so they
+get the unprorated 650, exactly as `ipBudget` already does at [shared.js:971](../../shared.js).
+v1 silently used the prorated budget for future years.
 
-`OF_GAME_CAP` and `SLOT_CAP` already exist in `shared.js` but are **dead constants, referenced nowhere**. They are leftovers from exactly this intent. This plan completes it.
+**D4 — Prorate the small-sample thresholds.** v1's fixed `PA_FULL_RATE = 50` inverts in
+September: when every RoS projection is under 50 PA, the ramp multiplies everyone by
+`pa/50` and the ranking silently degrades back to volume-biased — the original bug,
+returning exactly when volume differences are pure noise. Thresholds are defined as
+full-season constants × `max(rosProrationFactor(), 0.1)`.
+
+**D5 — Two-phase assignment.** v1 supplemented each slot inline while iterating. That
+lets a scarce player (e.g. the only backup catcher) be consumed as an OF backup before
+the C slot is even processed. Phase 1 assigns every primary; phase 2 supplements.
+
+**D6 — Loop supplementation** (v1: one backup, arbitrarily). Deep-injury slots can need
+two. Loop while the shortfall exceeds the threshold, capped at 3 contributors per slot.
+
+**D7 — `tfNeedGaps` must ignore derived `_n` keys** — a bug v1 would have introduced.
+It medians each slot id across teams; backup keys exist only on injury-thinned teams, so
+healthy teams would show `median − 0` = a phantom "need" at slots they don't have.
+Filter to the primary `HITTER_SLOTS` ids.
+
+**Kept from v1:** the 12-slot abstraction (it encodes position eligibility, which a pure
+PA pool like `selectPitchers` cannot express — a global assignment optimizer is not
+warranted); supplement-only design (healthy full-time lineups stay byte-identical);
+`scaleHitterUsage` clones via `_proj` (verified: `computeTeamStats` reads `_proj || proj`);
+no-duplicate-assignment invariant (a player fills at most one slot).
+
+**Fix 1 / Fix 2 audit outcome:** sound. H0's full-`s0` cost matches Ottoneu's
+full-salary cap accounting (MODEL.md §5); no other defects found beyond D7.
 
 ---
 
-### Task 1: Ranking key and slot-budget constants
+### Task 0: Baseline snapshot (before any code changes)
+
+- [ ] Run the existing harness (`<scratchpad>/verify_marginal.js`) and save its output plus
+the `[values]` line to `<scratchpad>/baseline_before_pa_budget.txt`. This is the
+"before" for Task 5's before/after report. No commit.
+
+---
+
+### Task 1: Constants, rate key, usage scaling
 
 **Files:**
-- Modify: `shared.js` (constants near `SLOT_CAP`; new helper above `optimizeHitterLineup`)
+- Modify: `shared.js` (constants near `SLOT_CAP`; helpers above `optimizeHitterLineup`)
 - Modify: `test.html`
 
-- [ ] **Step 1: Add the constants and the ranking helper**
-
-In `shared.js`, immediately after the `const SLOT_CAP = 162;` line, add:
+- [ ] **Step 1: Add constants** (in `shared.js`, immediately after `const SLOT_CAP = 162;`):
 
 ```js
-// Full-season plate appearances one lineup slot absorbs. Prorated for RoS use.
-// Calibrated Aug 2026: 650 × rosProrationFactor(0.302) = 196 PA/slot, against an
-// observed 194 PA/slot across the league's 12 optimized starters.
-const PA_PER_SLOT  = 650;
-// Below this many projected PA a hitter is treated as a partial sample and his
-// rate is ramped down, so a 1-PA fluke cannot outrank a real regular.
-const PA_FULL_RATE = 50;
-// Don't bother supplementing a slot for a trivial shortfall.
-const PA_MIN_SHARE = 30;
+// ── PA-BUDGET LINEUP ────────────────────────────────────────────────────────
+// A lineup slot's hard capacity is SLOT_CAP games — one player can never exceed
+// it, so primaries are never capped. PA_PER_SLOT is the EXPECTED full-season PA
+// of a full-timer: below it, the slot has leftover days a bench bat would cover.
+const PA_PER_SLOT = 650;
+// Full-season thresholds, prorated at use (see paMinShare / hitterRateValue).
+// Prorating matters: fixed thresholds invert in September, when every RoS
+// projection is tiny and a fixed ramp would re-introduce volume bias.
+const PA_FULL_RATE_FULL = 150;  // below (prorated) this, rate is ramped down as a partial sample
+const PA_MIN_SHARE_FULL = 100;  // don't supplement (or accept a backup) below this (prorated)
+// Hitter ranking weights: per-rate-unit z-value of filling one slot, derived
+// from the Aug 2026 SGP denominators (D_OBP .0083, D_SLG .0094, D_HR 8.39,
+// D_R 17.84; avg lineup PA 2355 / AB 2082), normalized to OBP = 1:
+//   w_obp = 1/(T_PA·D_OBP)   w_slg = 0.9/(T_AB·D_SLG)   w_hr = 1/D_HR   w_r = 1/D_R
+// OPS alone misranks: it overweights empty OBP/AVG and ignores HR/R (~24% of a
+// starter's rank score); 380 rostered pairs flip order vs this key.
+const HIT_RANK_W = { obp: 1.0, slg: 0.905, hrPerPA: 2.34, rPerPA: 1.10 };
 ```
 
-Then, immediately above `function optimizeHitterLineup(hitters) {`, add:
+- [ ] **Step 2: Add helpers** (immediately above `function optimizeHitterLineup`):
 
 ```js
-// RoS plate appearances a single lineup slot absorbs.
-function paSlotBudget() {
-  return PA_PER_SLOT * Math.max(rosProrationFactor(), 0.1);
-}
+// RoS plate appearances a single lineup slot is expected to absorb.
+// NOTE: this is the ONLY date-dependent entry point. The ramp and min-share
+// thresholds are derived from the budget inside optimizeHitterLineup, so the
+// optimizer itself is a pure function of (hitters, budget) — deterministic in
+// tests and correct in September, when fixed thresholds would exceed every
+// projection and silently re-introduce volume bias.
+function paSlotBudget() { return PA_PER_SLOT * Math.max(rosProrationFactor(), 0.1); }
 
-// Ranking key for lineup selection. RATE-first: volume is handled by the slot
-// budget (a short-PA player simply leaves room for a backup), so multiplying by
-// PA — as the old key did — double-counted volume and benched injured stars
-// behind healthy mediocrities. The PA_FULL_RATE ramp only suppresses genuinely
-// tiny samples; anyone at or above it is judged purely on rate.
-function hitterRateValue(p) {
+// Ranking key for lineup selection: rate quality weighted by what this league
+// scores (HIT_RANK_W), NOT raw volume and NOT raw OPS. Volume is handled by the
+// slot budget — a short-PA player simply leaves room for a backup. The ramp only
+// suppresses genuinely tiny samples. rampPA is overridable for deterministic tests.
+function hitterRateValue(p, rampPA) {
   const b = p._proj || p.proj || {};
-  const ops = (b.obp || 0) + (b.slg || 0);
-  const ramp = Math.min(1, (b.pa || 0) / PA_FULL_RATE);
-  return ops * ramp;
+  const pa = b.pa || 0;
+  const rate = (b.obp || 0) * HIT_RANK_W.obp
+             + (b.slg || 0) * HIT_RANK_W.slg
+             + (pa > 0 ? (b.hr || 0) / pa : 0) * HIT_RANK_W.hrPerPA
+             + (pa > 0 ? (b.r  || 0) / pa : 0) * HIT_RANK_W.rPerPA;
+  const ramp = Math.min(1, pa / (rampPA || PA_FULL_RATE_FULL * Math.max(rosProrationFactor(), 0.1)));
+  return rate * ramp;
 }
 
 // A player contributing only part of a slot: rate stats unchanged, counting
@@ -88,25 +152,30 @@ function scaleHitterUsage(p, usedPA) {
 }
 ```
 
-- [ ] **Step 2: Add the failing tests**
-
-Insert before `// ── Summary ──` in `test.html`:
+- [ ] **Step 3: Tests** (insert before `// ── Summary ──` in `test.html`). Tests pass an
+explicit `rampPA` so they are date-independent:
 
 ```js
-    // ── PA-budget lineup ─────────────────────────────────────────────────────
+    // ── PA-budget lineup: rate key + scaling ─────────────────────────────────
     section('PA budget');
-    // Rate-first ranking: the injured star outranks the healthy mediocrity.
     var paJudge = { name: 'judge', type: 'H', positions: ['of'], proj: { pa: 97,  ab: 85,  obp: 0.420, slg: 0.551, hr: 8, r: 15 } };
     var paRaf   = { name: 'raf',   type: 'H', positions: ['of'], proj: { pa: 213, ab: 195, obp: 0.300, slg: 0.411, hr: 6, r: 22 } };
-    assert(hitterRateValue(paJudge) > hitterRateValue(paRaf),
-      'hitterRateValue: injured star (.971 OPS, 97 PA) outranks healthy mediocrity (.711, 213 PA)');
+    assert(hitterRateValue(paJudge, 45) > hitterRateValue(paRaf, 45),
+      'hitterRateValue: injured star outranks healthy mediocrity');
 
-    // Tiny samples are ramped down so a fluke cannot lead the board.
+    // The league scores HR and R: a power/R profile must beat an empty-OPS profile
+    // that raw OPS would prefer. (Perez-vs-Arraez shape.)
+    var paPower = { name: 'power', type: 'H', positions: ['c'], proj: { pa: 400, ab: 370, obp: 0.310, slg: 0.470, hr: 20, r: 44 } };
+    var paEmpty = { name: 'empty', type: 'H', positions: ['c'], proj: { pa: 400, ab: 360, obp: 0.350, slg: 0.450, hr: 4,  r: 40 } };
+    assert(((paEmpty.proj.obp + paEmpty.proj.slg) > (paPower.proj.obp + paPower.proj.slg)),
+      'fixture check: OPS actually prefers the empty profile');
+    assert(hitterRateValue(paPower, 45) > hitterRateValue(paEmpty, 45),
+      'hitterRateValue: z-weights prefer the power/R profile OPS misses');
+
     var paFluke = { name: 'fluke', type: 'H', positions: ['of'], proj: { pa: 1, ab: 1, obp: 0.500, slg: 0.900, hr: 1, r: 1 } };
-    assert(hitterRateValue(paFluke) < hitterRateValue(paRaf),
+    assert(hitterRateValue(paFluke, 45) < hitterRateValue(paRaf, 45),
       'hitterRateValue: a 1-PA fluke is ramped below a real regular');
 
-    // Scaling: rates hold, counting stats shrink proportionally.
     var paScaled = scaleHitterUsage(paRaf, 100);
     assertEqual(paScaled._proj.pa, 100, 'scaleHitterUsage: PA set to the used amount');
     assertEqual(paScaled._proj.obp, 0.300, 'scaleHitterUsage: rate stats unchanged');
@@ -114,40 +183,38 @@ Insert before `// ── Summary ──` in `test.html`:
       'scaleHitterUsage: counting stats scale by the used fraction');
     assert(scaleHitterUsage(paRaf, 500) === paRaf,
       'scaleHitterUsage: asking for more than projected returns the player untouched');
-
     assert(paSlotBudget() > 0, 'paSlotBudget: positive');
 ```
 
-- [ ] **Step 3: Run and verify**
-
-Serve the repo and hard-refresh `http://localhost:8000/test.html` (invariant #7).
-Expected: **147 passed, 0 failed** (140 + 7 new).
-
-- [ ] **Step 4: Commit**
-
-```bash
-git add shared.js test.html
-git commit -m "feat(lineup): rate-first ranking key + partial-usage scaling"
-```
+- [ ] **Step 4: Verify** — hard-refresh `http://localhost:8000/test.html`; all green
+(~140 + 9 new). **Step 5: Commit** `feat(lineup): denominator-aware rate key + partial-usage scaling`.
 
 ---
 
-### Task 2: Slot supplementation in `optimizeHitterLineup`
+### Task 2: Two-phase optimizer with loop supplementation
 
 **Files:**
-- Modify: `shared.js` (`optimizeHitterLineup`, currently at ~line 830)
+- Modify: `shared.js` (`optimizeHitterLineup`, ~line 830)
+- Modify: `test.html`
 
-- [ ] **Step 1: Replace the function body**
-
-Find:
+- [ ] **Step 1: Replace `optimizeHitterLineup`** with:
 
 ```js
-function optimizeHitterLineup(hitters) {
+// Assigns hitters to slots under a PA budget. Returns { slotId: player } map;
+// derived keys (OF1_2, C_3, …) are scaled backup contributions for slots whose
+// primary cannot fill the budget. paBudget overridable: future-year valuation
+// passes full-season PA_PER_SLOT; tests pass explicit budgets.
+function optimizeHitterLineup(hitters, paBudget) {
+  const budget = paBudget || paSlotBudget();
+  // Thresholds scale with the budget, keeping this a pure function of its
+  // arguments: a September budget shrinks the ramp and min-share with it.
+  const rampPA   = budget * PA_FULL_RATE_FULL / PA_PER_SLOT;   // ≈ 0.23 × budget
+  const minShare = budget * PA_MIN_SHARE_FULL / PA_PER_SLOT;   // ≈ 0.15 × budget
   const scored = hitters
     .filter(p => p.type === 'H')
     .map(p => {
       const b = p.proj || {};
-      return { ...p, _proj: b, _value: (b.pa || 0) * ((b.obp || 0) + (b.slg || 0)) };
+      return { ...p, _proj: b, _value: hitterRateValue(p, rampPA) };
     })
     .sort((a, b) => b._value - a._value);
 
@@ -157,231 +224,197 @@ function optimizeHitterLineup(hitters) {
 
   const assignment = {};
   const used = new Set();
+
+  // Phase 1 — primaries only. No player may be consumed as a backup before
+  // every slot has its best available starter (a lone backup catcher must not
+  // be eaten by an OF slot's supplementation).
   for (const slot of slots) {
     const best = scored.find(p => slot.eligible(p) && !used.has(p.fgId || p.name));
-    if (best) {
-      assignment[slot.id] = best;
-      used.add(best.fgId || best.name);
+    if (best) { assignment[slot.id] = best; used.add(best.fgId || best.name); }
+  }
+
+  // Phase 2 — supplementation. The primary always contributes his FULL
+  // projection (one player cannot exceed the slot's SLOT_CAP-game capacity, so
+  // he is never capped). When injury or part-time usage leaves the slot short
+  // of the budget, bench bats absorb the remainder as scaled clones — the slot
+  // is shared, as it would be in a real daily lineup.
+  for (const slot of slots) {
+    const primary = assignment[slot.id];
+    if (!primary) continue;
+    let shortfall = budget - ((primary._proj && primary._proj.pa) || 0);
+    let n = 2;
+    while (shortfall >= minShare && n <= 3) {
+      const backup = scored.find(p => slot.eligible(p) && !used.has(p.fgId || p.name)
+        && ((p._proj && p._proj.pa) || 0) >= minShare);
+      if (!backup) break;
+      const give = Math.min(shortfall, backup._proj.pa);
+      assignment[slot.id + '_' + n] = scaleHitterUsage(backup, give);
+      used.add(backup.fgId || backup.name);
+      shortfall -= give;
+      n++;
     }
   }
   return assignment;
 }
 ```
 
-Replace with:
+- [ ] **Step 2: Tests** (explicit budgets → date-independent):
 
 ```js
-function optimizeHitterLineup(hitters) {
-  const scored = hitters
-    .filter(p => p.type === 'H')
-    .map(p => {
-      const b = p.proj || {};
-      return { ...p, _proj: b, _value: hitterRateValue(p) };
-    })
-    .sort((a, b) => b._value - a._value);
+    // ── PA-budget lineup: supplementation ────────────────────────────────────
+    function paC(name, pa, obp, slg, hr, r) {
+      return { name: name, fgId: name, type: 'H', positions: ['c'],
+               proj: { pa: pa, ab: pa * 0.9, obp: obp, slg: slg, hr: hr, r: r } };
+    }
+    // Injured elite + healthy mediocre catcher, budget 196.
+    var paLu = optimizeHitterLineup([paC('eliteC', 97, 0.420, 0.551, 8, 15),
+                                     paC('okC',   213, 0.300, 0.411, 6, 22)], 196);
+    assertEqual(paLu['C'].name, 'eliteC', 'optimizer: elite injured bat is the PRIMARY');
+    assert(paLu['C_2'] && paLu['C_2'].name === 'okC', 'optimizer: backup fills the shortfall');
+    assert(Math.abs(paLu['C_2']._proj.pa - 99) < 1e-9, 'optimizer: backup scaled to 196−97 PA');
 
-  const slots = [...HITTER_SLOTS].sort((a, b) =>
-    scored.filter(p => a.eligible(p)).length - scored.filter(p => b.eligible(p)).length
-  );
+    // Full-timer overflows the budget: NO backup, full projection kept.
+    var paLu2 = optimizeHitterLineup([paC('fullC', 250, 0.340, 0.450, 10, 30),
+                                      paC('benchC', 200, 0.300, 0.400, 5, 20)], 196);
+    assertEqual(paLu2['C'].name, 'fullC', 'optimizer: full-timer is primary');
+    assert(!paLu2['C_2'], 'optimizer: no supplementation when the primary exceeds the budget');
+    assertEqual(paLu2['C']._proj.pa, 250, 'optimizer: primary is never capped');
 
-  const budget = paSlotBudget();
-  const assignment = {};
-  const used = new Set();
-  for (const slot of slots) {
-    const best = scored.find(p => slot.eligible(p) && !used.has(p.fgId || p.name));
-    if (!best) continue;
-    assignment[slot.id] = best;                 // primary contributes his FULL projection
-    used.add(best.fgId || best.name);
+    // Deep shortfall loops to a third contributor.
+    var paLu3 = optimizeHitterLineup([paC('c1', 60, 0.380, 0.500, 5, 10),
+                                      paC('c2', 60, 0.340, 0.450, 4, 9),
+                                      paC('c3', 100, 0.320, 0.420, 4, 12)], 196);
+    assert(paLu3['C'] && paLu3['C_2'] && paLu3['C_3'], 'optimizer: loop supplements twice on a deep shortfall');
+    var paNames3 = Object.values(paLu3).map(function (p) { return p.name; });
+    assertEqual(paNames3.length, new Set(paNames3).size, 'optimizer: no duplicates across primary+backup keys');
 
-    // If an injured or part-time primary cannot fill the slot, a second eligible
-    // bat absorbs the remaining plate appearances — the slot is shared, exactly
-    // as it would be in a real daily lineup.
-    const shortfall = budget - ((best._proj && best._proj.pa) || 0);
-    if (shortfall < PA_MIN_SHARE) continue;
-    const backup = scored.find(p => slot.eligible(p) && !used.has(p.fgId || p.name));
-    if (!backup) continue;
-    assignment[slot.id + '_2'] = scaleHitterUsage(backup, shortfall);
-    used.add(backup.fgId || backup.name);
-  }
-  return assignment;
-}
+    // Incentive check: a healthy full-timer beats an injured star + mediocre
+    // backup of the same blended volume — supplementation must never make
+    // rostering injuries BETTER than health.
+    function paTeamZ(lu) {
+      var st = computeTeamStats(lu, [], 0);
+      return st.HR / 8.39 + st.R / 17.84 + st.OBP / 0.0083 + st.SLG / 0.0094;
+    }
+    var paHealthy = optimizeHitterLineup([paC('healthy', 196, 0.420, 0.551, 16, 30)], 196);
+    var paInjured = optimizeHitterLineup([paC('star', 97, 0.420, 0.551, 8, 15),
+                                          paC('bench', 99, 0.300, 0.411, 3, 10)], 196);
+    assert(paTeamZ(paHealthy) >= paTeamZ(paInjured),
+      'optimizer: healthy full-timer ≥ injured star + backup (no perverse incentive)');
 ```
 
-Each player is added to `used` when assigned, so no player occupies two slots and the
-existing "no duplicate assignments" assertion still holds.
-
-- [ ] **Step 2: Verify the existing suite did not regress**
-
-Hard-refresh `http://localhost:8000/test.html`.
-Expected: **147 passed, 0 failed** — unchanged.
-
-The existing optimizer fixture uses 400-600 PA hitters against a ~196 PA budget, so every
-shortfall is negative and no `_2` keys are created — those assertions must be untouched.
-**If `optimizer: no duplicate assignments` fails, STOP**: a player is being assigned twice
-and the `used` bookkeeping is wrong.
-
-- [ ] **Step 3: Commit**
-
-```bash
-git add shared.js
-git commit -m "feat(lineup): share a slot when the primary cannot fill its PA budget"
-```
+- [ ] **Step 3: Verify** — all green, existing optimizer fixture untouched (12 hitters, all
+consumed as primaries, no bench → no `_n` keys regardless of date). **If
+`optimizer: no duplicate assignments` fails, STOP** — the `used` bookkeeping is wrong.
+- [ ] **Step 4: Commit** `feat(lineup): two-phase PA-budget assignment with loop supplementation`.
 
 ---
 
-### Task 3: Verify the Judge/Soto case and measure suite-wide impact
+### Task 3: Year-aware budget at the valuation call site
 
 **Files:**
-- Create: `<scratchpad>/verify_lineup.js` (throwaway — do NOT commit)
+- Modify: `shared.js:1045` (inside `calculateAllValues`'s teamLineups map)
 
-- [ ] **Step 1: Write the harness**
+- [ ] **Step 1:** The block at ~1041 already has year-aware `ipBudget` (from ~line 971,
+`isFutureYear ? IP_MAX : …`). Change line 1045 from
+`const lineup = optimizeHitterLineup(hitters);` to:
 
 ```js
-const fs = require('fs'), vm = require('vm'), path = require('path');
-const REPO = 'C:/Users/bkami/Documents/OttoneuAI';
-const read = f => fs.readFileSync(path.join(REPO, f), 'utf8');
-const store = {};
-const sb = { console,
-  localStorage: { getItem: k => (k in store ? store[k] : null),
-                  setItem: (k, v) => { store[k] = String(v); }, removeItem: k => { delete store[k]; } },
-  fetch: () => Promise.reject(new Error('no network')), setTimeout, clearTimeout };
-sb.window = sb; sb.globalThis = sb; vm.createContext(sb);
-const L = console.log; console.log = () => {};
-vm.runInContext(read('shared.js'), sb, { filename: 'shared.js' });
-vm.runInContext(read('tradefinder.js'), sb, { filename: 'tradefinder.js' });
-vm.runInContext('var __CATS = CATS;', sb);          // const does not attach to the sandbox global
-const S = sb;
-const roster = S.parseRosterCSV(read('data/roster.csv'));
-const merged = S.matchPlayers(roster,
-  S.parseHittingProjections(read('data/proj_hitting.csv')),
-  S.parsePitchingProjections(read('data/proj_pitching.csv')));
-console.log = L;
-
-const byTeam = {};
-merged.forEach(p => { if (p.team && p.team !== 'Free Agent') (byTeam[p.team] = byTeam[p.team] || []).push(p); });
-
-console.log('SHARED SLOTS BY TEAM (a "_2" key means the primary could not fill the slot):');
-let shared = 0;
-Object.keys(byTeam).forEach(t => {
-  const lu = S.optimizeHitterLineup(byTeam[t].filter(p => p.type === 'H'));
-  const extras = Object.keys(lu).filter(k => k.indexOf('_2') > -1);
-  shared += extras.length;
-  if (extras.length) console.log('  ' + t.slice(0, 22).padEnd(23) + extras.map(k =>
-    k.replace('_2', '') + '=' + (lu[k].rawName || lu[k].name) + '(' + Math.round(lu[k]._proj.pa) + 'PA)').join(', '));
-});
-console.log('  total shared slots: ' + shared);
-
-console.log('');
-console.log('ARE JUDGE AND SOTO NOW IN THEIR LINEUPS?');
-['Aaron Judge', 'Juan Soto'].forEach(n => {
-  const t = Object.keys(byTeam).find(x => byTeam[x].some(p => (p.rawName || p.name) === n));
-  if (!t) { console.log('  ' + n + ': not rostered'); return; }
-  const lu = S.optimizeHitterLineup(byTeam[t].filter(p => p.type === 'H'));
-  const slot = Object.keys(lu).find(k => (lu[k].rawName || lu[k].name) === n);
-  console.log('  ' + n.padEnd(12) + (slot ? 'STARTS in ' + slot : 'still benched') + '  (' + t.slice(0, 20) + ')');
-});
-
-// Marginal values now?
-console.log('');
-const budget = S.tfIpBudget();
-const den = S.calcSGPDenoms(Object.keys(byTeam).map(t => S.tfTeamStats(byTeam[t], budget)));
-const all = S.tfAllMarginals(byTeam, den, budget);
-['Aaron Judge', 'Juan Soto'].forEach(n => {
-  const t = Object.keys(byTeam).find(x => byTeam[x].some(p => (p.rawName || p.name) === n));
-  if (!t) return;
-  const p = byTeam[t].find(q => (q.rawName || q.name) === n);
-  console.log('  ' + n.padEnd(12) + ' marginal $' + (all[t][p.fgId || p.name] || 0).toFixed(1));
-});
-
-console.log('');
-console.log = () => {};
-const vm0 = S.calculateAllValues(Object.keys(byTeam).map(t => byTeam[t]));
-console.log = L;
-const vals = Object.keys(vm0).map(k => vm0[k].projectedValue || 0);
-console.log('Y0 ANCHOR CHECK: sum $' + vals.reduce((a, b) => a + b, 0).toFixed(0) +
-            ' | max $' + Math.max.apply(null, vals).toFixed(1) +
-            ' | at $1 floor ' + vals.filter(v => v <= 1.001).length + '/' + vals.length);
+    const lineup   = optimizeHitterLineup(hitters, isFutureYear ? PA_PER_SLOT : undefined);
 ```
 
-- [ ] **Step 2: Run and check**
+(If `isFutureYear` is not in scope at that line, derive it exactly as the `ipBudget`
+computation does — mirror, don't invent.) The seven page-level callers stay unchanged:
+they are all Y0 contexts and the prorated default is correct for them.
 
-```bash
-node "<scratchpad>/verify_lineup.js"
-```
-
-Sanity checks — if any fails, STOP and report:
-- **Judge and Soto now START.** That is the whole point of the change.
-- **Their marginal is no longer $0.** They should carry real positive marginal value.
-- **Shared slots are the minority.** Most teams field healthy full-timers; a large number of
-  `_2` keys means `PA_PER_SLOT` is set too high and is manufacturing phantom playing time.
-- **Y0 total still sums to ~$4800.** The pool is fixed by construction; if it moved, the
-  change leaked somewhere it should not have.
-
-- [ ] **Step 3: Record the before/after for the commit message.** No commit for the harness.
+- [ ] **Step 2:** Verify test.html still all green. **Step 3: Commit**
+`fix(lineup): full-season PA budget for Y1/Y2 valuation passes`.
 
 ---
 
-### Task 4: Update MODEL.md
+### Task 4: `tfNeedGaps` must ignore backup keys
 
 **Files:**
-- Modify: `MODEL.md` §3 (the "hitting needs no volume cap" claim), §6 (knobs), §8 (limitation now resolved)
+- Modify: `tradefinder.js` (`tfNeedGaps`)
+- Modify: `test.html`
 
-- [ ] **Step 1: Correct the §3 claim**
+- [ ] **Step 1:** In `tfNeedGaps`, restrict the slot-id universe to primary slots.
+Where slot ids are collected, replace with:
 
-In `MODEL.md` §3, find the sentence stating hitting needs no volume cap (one hitter per
-active slot) and replace that clause with:
-
-```markdown
-Hitting now uses a PA budget per active slot (`PA_PER_SLOT` × proration): the primary
-occupant contributes his full projection, and when injury or part-time usage leaves the
-slot short by more than `PA_MIN_SHARE`, a second eligible bat absorbs the remainder as a
-scaled clone. This mirrors the pitching side's innings budget. The earlier "one hitter per
-active slot" rule silently discarded injured stars — Aaron Judge and Juan Soto were being
-dropped from their lineups entirely.
+```js
+  var primaryIds = {};
+  HITTER_SLOTS.forEach(function (s) { primaryIds[s.id] = 1; });
+  var slotIds = {};
+  teams.forEach(function (t) {
+    Object.keys(occ[t]).forEach(function (s) { if (primaryIds[s]) slotIds[s] = 1; });
+  });
 ```
 
-- [ ] **Step 2: Add the knobs to §6**
+Rationale (comment it): backup keys (`C_2`, `OF1_3`) exist only on injury-thinned rosters;
+mediating them across teams would show healthy teams a phantom "need" of
+`median − 0` at slots they don't have.
 
-```markdown
-| `PA_PER_SLOT` | shared.js | 650 | full-season PA one lineup slot absorbs (prorated for RoS) |
-| `PA_FULL_RATE` | shared.js | 50 | PA below which a hitter's rate is ramped down as a partial sample |
-| `PA_MIN_SHARE` | shared.js | 30 | shortfall below which a slot is not supplemented |
+- [ ] **Step 2: Test:**
+
+```js
+    // A team with a supplemented slot must not create phantom needs elsewhere.
+    var paGapRosters = {
+      Whole:  [paC('wc1', 250, 0.340, 0.450, 10, 30)],
+      Injured:[paC('ic1', 97, 0.420, 0.551, 8, 15), paC('ic2', 213, 0.300, 0.411, 6, 22)]
+    };
+    var paGapMarg = tfAllMarginals(paGapRosters, tfDen, 400);
+    var paGaps2 = tfNeedGaps(paGapRosters, paGapMarg);
+    assert(!Object.keys(paGaps2.Whole).some(function (s) { return s.indexOf('_') > -1; }),
+      'tfNeedGaps: no derived backup keys in the gap map');
 ```
 
-- [ ] **Step 3: Move the §8 limitation to resolved**
+- [ ] **Step 3:** Verify green. **Step 4: Commit**
+`fix(trade): need gaps ignore supplemented backup slots`.
 
-Replace the `optimizeHitterLineup is volume-biased` limitation in §8 with a short resolved
-note recording what it was and where the fix lives:
+---
 
-```markdown
-- ~~`optimizeHitterLineup` volume bias~~ — **RESOLVED.** It ranked by `pa × (obp+slg)`, so
-  injured stars were benched behind healthy mediocrities (Judge .971 OPS/97 PA behind
-  Rafaela .711/213 PA) and dropped from team aggregation entirely. Two defects: misranking
-  (~$13.7) and the either/or slot assumption (~$25.4). Fixed by rate-first ranking plus
-  slot supplementation — see §3 and the `PA_*` knobs in §6.
-```
+### Task 5: Live verification — before/after
 
-- [ ] **Step 4: Commit**
+**Files:** `<scratchpad>/verify_lineup.js` (throwaway, do NOT commit)
 
-```bash
-git add MODEL.md
-git commit -m "docs(model): PA-budget lineup replaces one-hitter-per-slot"
-```
+- [ ] Reuse v1's harness (same sandbox pattern; remember `var __CATS = CATS;` for const
+extraction). Check, comparing against Task 0's baseline snapshot:
+1. **Judge and Soto START** (primary or backup key) and carry **non-zero marginal value**.
+2. **Shared slots are a minority** of the 144 league-wide slots. If most slots have `_n`
+   keys, `PA_PER_SLOT` is manufacturing phantom playing time — STOP.
+3. **Y0 values still sum to ~$4800** (pool conservation is by construction; drift means a leak).
+4. **§2 anchors move modestly, not upheaval**: hitShare ≈ 50% ± a couple points; top
+   hitters/aces shift but stay in-band; report before → after numbers, don't assert equality.
+   Judge/Soto's own Y0 values should RISE (they now contribute to team aggregation).
+5. Print the horizon diagnostic (`[dynasty]`) once — dynasty numbers ride on Y0, so record
+   the new H0/H1/H2 split for MODEL.md if it moved.
+
+---
+
+### Task 6: MODEL.md
+
+- [ ] **§2 step 1:** describe the lineup as "12 slots under a PA budget (`PA_PER_SLOT` ×
+proration; full-season for Y1/Y2), denominator-aware rate ranking (`HIT_RANK_W`),
+supplementation for injury-thinned slots."
+- [ ] **§3:** replace the "hitting needs no volume cap (one hitter per active slot)" clause —
+hitting now has the PA-budget analog of the pitching innings budget.
+- [ ] **§5:** the "inherited lineup flaw" caveat under marginal value → resolved, pointing here.
+- [ ] **§6 knobs:** `PA_PER_SLOT` 650, `PA_FULL_RATE_FULL` 150, `PA_MIN_SHARE_FULL` 100,
+`HIT_RANK_W` {1.0/0.905/2.34/1.10} with the derivation formula.
+- [ ] **§8:** mark the volume-bias limitation **RESOLVED** (short note: what it was, the two
+measured defects, where the fix lives). Update anchor numbers if Task 5 moved them.
+- [ ] **Commit** `docs(model): PA-budget lineup + denominator-aware ranking`.
 
 ---
 
 ## Definition of done
 
-- `test.html` reports **147 passed, 0 failed**.
-- Judge and Soto start for their teams and carry non-zero marginal value.
-- Shared slots are a minority of the 144 league-wide slots.
-- Y0 values still sum to ~$4800.
-- MODEL.md §3, §6, §8 updated.
+- `test.html` all green (~140 + ~14 new; verify empirically).
+- Judge and Soto start with non-zero marginals; shared slots a minority; Y0 sums to ~$4800.
+- Before/after anchor movement reported (not asserted away).
+- MODEL.md §2, §3, §5, §6, §8 updated.
 
-## Risk
+## Explicitly out of scope
 
-This changes team aggregation, so it moves **every Y0 value** and therefore the SGP
-denominators, dynasty values, and every page. That is intended — teams with injured stars
-were being undercounted. Verify the anchors in §2 (hitShare ≈ 50%, top hitter, ~35% at the
-$1 floor) and expect modest movement, not upheaval. Report before/after rather than
-asserting "no change".
+- The archetype generator (next plan — unblocked once this ships).
+- Arbitration escalation (+$2/+$4) — unchanged, per spec non-goals.
+- Global assignment optimization / reopening the 12-slot abstraction (reviewed and kept).

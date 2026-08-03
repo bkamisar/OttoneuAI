@@ -603,14 +603,17 @@ function attachYearProjections(matchedPlayers, hittingProj, pitchingProj, projKe
 //   H0 "rental" — keep through this season only, then cut
 //   H1          — keep one additional year  (+$2 escalation)
 //   H2 "keeper" — keep two additional years (+$2 / +$4)
-// Y0 values are REST-OF-SEASON (invariant #1), so the year-0 salary term is
-// prorated to match — charging a full season's salary against a partial
-// season's production was a latent bug in the old formula.
+// Do NOT prorate the year-0 salary. Y0 *stat lines* are rest-of-season, but Y0
+// *dollar values* are normalized to the full $4,800 pool regardless of how much
+// season remains — a player's Y0 value is his share of that full pool. Salary
+// and value are therefore already on the same scale. (Invariant #1 governs
+// projection stat lines, not pool-normalized dollars; prorating cost against
+// unprorated value inflates every surplus and makes H0 win spuriously.)
 // Value and cost ALWAYS describe the same horizon; reporting a 3-year value
 // against a 1-year cost would credit production that was never paid for.
-function computeContractHorizon(y0, y1, y2, s0, w1, w2, ros, floor) {
+function computeContractHorizon(y0, y1, y2, s0, w1, w2, floor) {
   const salary = Math.max(1, s0 || 0);
-  const base0  = salary * ros;          // this season's remaining salary
+  const base0  = salary;                // full season-long cap commitment
   const esc1   = Math.max(1, salary + 2);
   const esc2   = Math.max(1, salary + 4);
 
@@ -722,7 +725,7 @@ function calculateDynastyValues(allRosters, weights, extraPlayers) {
       v1.projectedValue || 0,
       v2.projectedValue || 0,
       v0.actualSalary   || 0,
-      w1, w2, rosProrationFactor(),
+      w1, w2,
       prospectDynastyValue(keyToProspect[key])
     );
     dynastyMap[key] = {
@@ -733,6 +736,31 @@ function calculateDynastyValues(allRosters, weights, extraPlayers) {
       holdHorizon:    h.holdHorizon,
     };
   });
+
+  // Diagnostic: the option effect is the whole change — how much surplus the
+  // best horizon recovers versus the old forced-3-year hold. Zero for every
+  // player where H2 already won, so the pool mean is modest by construction.
+  try {
+    let nH0 = 0, nH1 = 0, nH2 = 0, optionGain = 0, maxGain = 0, maxName = '', n = 0;
+    Object.keys(dynastyMap).forEach(k => {
+      const d = dynastyMap[k];
+      if (d.holdHorizon === 0) nH0++; else if (d.holdHorizon === 1) nH1++; else nH2++;
+      const v0 = vmY0[k] || {}, v1 = vmY1 ? (vmY1[k] || {}) : {}, v2 = vmY2 ? (vmY2[k] || {}) : {};
+      const s0 = Math.max(1, v0.actualSalary || 0);
+      let val2 = (v0.projectedValue || 0) + w1 * (v1.projectedValue || 0) + w2 * (v2.projectedValue || 0);
+      const fl = prospectDynastyValue(keyToProspect[k]);
+      if (fl > val2) val2 = fl;
+      const forcedH2 = val2 - (s0 + w1 * Math.max(1, s0 + 2) + w2 * Math.max(1, s0 + 4));
+      const gain = d.dynastySurplus - forcedH2;
+      optionGain += gain;
+      if (gain > maxGain) { maxGain = gain; maxName = k; }
+      n++;
+    });
+    console.log('[dynasty] horizons H0/H1/H2 = ' + nH0 + '/' + nH1 + '/' + nH2 +
+      ' | mean option gain $' + (optionGain / (n || 1)).toFixed(2) +
+      ' | max $' + maxGain.toFixed(1) + ' (' + maxName + ')');
+  } catch (e) { /* diagnostic only — never break valuation */ }
+
   return dynastyMap;
 }
 

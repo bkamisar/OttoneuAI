@@ -521,6 +521,20 @@
     assert(paTeamZ(paHealthy) >= paTeamZ(paInjured),
       'optimizer: healthy full-timer ≥ injured star + backup (no perverse incentive)');
 
+    // A team with a supplemented slot must not create phantom needs elsewhere.
+    var paGapRosters = {
+      Whole:   [paC('wc1', 250, 0.340, 0.450, 10, 30)],
+      Injured: [paC('ic1', 97,  0.420, 0.551, 8,  15),
+                paC('ic2', 213, 0.340, 0.460, 10, 25),
+                paC('ic3', 213, 0.300, 0.411, 6,  22)]
+    };
+    var paGapMarg = tfAllMarginals(paGapRosters, tfDen, 400);
+    var paGaps2 = tfNeedGaps(paGapRosters, paGapMarg);
+    assert(!Object.keys(paGaps2.Whole).some(function (s) { return s.indexOf('_') > -1; }),
+      'tfNeedGaps: no derived backup keys in the gap map');
+    assert(!Object.keys(paGaps2.Injured).some(function (s) { return s.indexOf('_') > -1; }),
+      'tfNeedGaps: supplemented team also reports only primary slots');
+
     // ── Summary ──────────────────────────────────────────────────────────────
     const sumEl = document.getElementById('summary');
     sumEl.textContent = passed + ' passed, ' + failed + ' failed';

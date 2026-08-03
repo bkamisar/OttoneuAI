@@ -120,8 +120,16 @@ function tfMedian(arr) {
 function tfNeedGaps(rostersByTeam, allMarginals) {
   var occ = tfSlotOccupants(rostersByTeam);
   var teams = Object.keys(rostersByTeam);
+  // Only PRIMARY slots are league-wide. Derived supplementation keys (C_2,
+  // OF1_3) exist solely on injury-thinned rosters, so medianing them across
+  // teams would show every healthy team a phantom `median − 0` need at a slot
+  // it does not even have.
+  var primaryIds = {};
+  HITTER_SLOTS.forEach(function (s) { primaryIds[s.id] = 1; });
   var slotIds = {};
-  teams.forEach(function (t) { Object.keys(occ[t]).forEach(function (s) { slotIds[s] = 1; }); });
+  teams.forEach(function (t) {
+    Object.keys(occ[t]).forEach(function (s) { if (primaryIds[s]) slotIds[s] = 1; });
+  });
 
   var medians = {};
   Object.keys(slotIds).forEach(function (slot) {

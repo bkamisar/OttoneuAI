@@ -143,6 +143,23 @@ simulation, status auto-detect).
 
 ## 5. Trade finder (targets.html)
 
+- **Marginal value (`tradefinder.js`).** A player's worth is measured AGAINST A
+  SPECIFIC ROSTER: re-optimize the lineup with him removed and score the delta in
+  SGP-denominator units, converted at `TF_PTS_DOLLARS` ($15/point, matching
+  `PTS_DOLLARS`). `tfBlockedness` = absolute Y0 value − marginal value to his own
+  team, so a blocked 6th outfielder reads as a trade asset. `tfNeedGaps` compares
+  each lineup slot's occupant against the league-median occupant of that slot
+  (self-relative, like the SGP denominators). Compare blockedness against
+  **`projValue`, never `dynastyValue`** — marginals derive from Y0 production; the
+  dynasty lens enters later at the fairness/utility stage. Cost is trivial: 518
+  marginals across 12 teams run in ~95ms.
+  - Negative marginals are legitimate, not bugs. A **hitter** with empty PA can
+    drag team OBP/SLG, so removing him raises the rate cats. A **pitcher** whose
+    innings crowd better arms out of the capped budget likewise scores negative.
+  - **Caveat — inherited lineup flaw.** Marginals are only as good as
+    `optimizeHitterLineup`, which ranks by `pa × (obp+slg)` and therefore benches
+    low-PA elite bats behind high-PA mediocre ones (see §8). Any consumer must not
+    conclude "blocked ⇒ trade him" without checking rate quality.
 - **Team status:** auto from blended standings (top/bottom third = contender/
   rebuilder), user-overridable per team (persisted). Status sets each team's
   **valuation lens**: contenders price players at current value, rebuilders at
@@ -179,6 +196,10 @@ simulation, status auto-detect).
 | `tradeTol`, `CONSOL_PREM` | targets.html | 30% / 15% | fairness window |
 | `FA_COHORT_H/P`, `FA_MIN_PA/IP` | shared.js | 8/10, 100/30 | replacement baseline |
 | dynasty cost bumps | `calculateDynastyValues` | +$2 / +$4 | keeper escalation (see §4 caveat) |
+| `TF_PTS_DOLLARS` | tradefinder.js | 15 | $ per standings point; keep in sync with `PTS_DOLLARS` |
+| `TF_BLOCK_MIN` | tradefinder.js | 5 | $ stranded before a player is a surplus asset |
+| `TF_NEED_MIN` | tradefinder.js | 5 | $ below median before a slot is a hole |
+| `TF_GAIN_MIN` | tradefinder.js | 5 | $ a player must gain by moving to be worth proposing |
 
 ## 7. Invariants — do not re-break
 
@@ -222,6 +243,19 @@ simulation, status auto-detect).
 
 ## 8. Known limitations (accepted, documented)
 
+- **`optimizeHitterLineup` is volume-biased — NOT yet accepted, needs a fix.**
+  It ranks hitters by `pa × (obp+slg)`, so a low-PA elite bat loses to a high-PA
+  mediocre one. Measured Aug 2026: **16 bad pairings across 3 of 12 teams**, e.g.
+  Aaron Judge (.971 OPS, 97 RoS PA) benched behind Ceddanne Rafaela (.711, 213 PA);
+  Juan Soto (.952, 136 PA) benched behind Daulton Varsho (.718, 187 PA). It hits
+  exactly the players whose trade value matters most, and it is not cosmetic — the
+  chosen 12 feed team aggregation, so it perturbs `calcSGPDenoms` and Y0 values too,
+  and it makes `tradefinder.js` report Soto/Judge as $0-marginal "blocked assets"
+  when they are nothing of the kind. Fixing it means ranking by actual SGP
+  contribution rather than the `pa × (obp+slg)` proxy; that changes values
+  suite-wide, so it needs its own plan and verification pass (same shape as the
+  option-valued-contracts change). **Do not ship a trade-archetype generator that
+  can say "trade him, he's blocked" until this is resolved.**
 - Arbitration not modeled beyond +$2/+$4 (star keeper costs slightly light).
 - Positional scarcity IS modeled for hitters now (`computePositionalOffsets` /
   `hitterSGP`): per-position HR/SLG/OBP offsets vs the slot-weighted average,

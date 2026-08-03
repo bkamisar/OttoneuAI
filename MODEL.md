@@ -38,7 +38,8 @@ per-team values — the endpoint doesn't have them).
 
 SGP model: a player's value = standings-gain-points above replacement × $/SGP.
 
-1. **Team aggregation** — per team: `optimizeHitterLineup` (12 active slots),
+1. **Team aggregation** — per team: `optimizeHitterLineup` (12 active slots under
+   a **PA budget**; ranked by `HIT_RANK_W` rate quality, not volume — see §3),
    `selectPitchers` under an innings budget. **The Y0 budget is
    `IP_MAX × rosProrationFactor()`** (the league cap's remaining share,
    ~694 IP in early July). Without this cap the team-SO stdev was 191.6 (vs
@@ -82,8 +83,21 @@ simulation, status auto-detect).
 - Pitching respects the innings cap: remaining IP = `min(proj._ip, IP_MAX −
   innings thrown)`; SO scales by that ratio; rates weight by actual IP shares.
   (Without this, staff-hoarding teams got up to +352 phantom K.)
-- Hitting rates blend by season-elapsed fraction `games/162`. Hitting needs no
-  volume cap (one hitter per active slot).
+- Hitting rates blend by season-elapsed fraction `games/162`.
+- **Hitting uses a PA budget per active slot** — the analog of the pitching
+  innings budget. `PA_PER_SLOT × rosProrationFactor()` (full-season `PA_PER_SLOT`
+  for Y1/Y2 passes, mirroring `ipBudget`). The **primary occupant is never
+  capped**: a slot's hard capacity is `SLOT_CAP` games and one player cannot
+  exceed it, so `PA_PER_SLOT` is the *expected* PA of a full-timer, not a
+  ceiling. When injury or part-time usage leaves a slot short by more than
+  `PA_MIN_SHARE`, bench bats absorb the remainder as scaled clones under derived
+  keys (`C_2`, `OF4_3`; up to 3 contributors per slot). Assignment is two-phase —
+  every primary first, then supplementation — so a scarce bench bat is not
+  consumed by an earlier slot's shortfall. Hitters are ranked by `hitterRateValue`
+  (`HIT_RANK_W`: obp 1.0, slg 0.905, hr/pa 2.34, r/pa 1.10), **not** `pa × OPS`
+  and **not** raw OPS: volume is handled by the budget, and OPS ignores HR/R
+  (~24% of a starter's rank score). Measured Aug 2026: 37 of 181 filled slots
+  shared (20%).
 
 ## 4. Dynasty values (`calculateDynastyValues`)
 
@@ -156,10 +170,11 @@ simulation, status auto-detect).
   - Negative marginals are legitimate, not bugs. A **hitter** with empty PA can
     drag team OBP/SLG, so removing him raises the rate cats. A **pitcher** whose
     innings crowd better arms out of the capped budget likewise scores negative.
-  - **Caveat — inherited lineup flaw.** Marginals are only as good as
-    `optimizeHitterLineup`, which ranks by `pa × (obp+slg)` and therefore benches
-    low-PA elite bats behind high-PA mediocre ones (see §8). Any consumer must not
-    conclude "blocked ⇒ trade him" without checking rate quality.
+  - Marginals inherit the lineup model, so they are only as good as
+    `optimizeHitterLineup`. The volume-bias flaw that once made Judge and Soto
+    read as $0-marginal "blocked assets" is fixed (§3, §8) — they now start and
+    carry $29.3 / $30.7. A player at zero marginal genuinely does not crack his
+    lineup.
 - **Team status:** auto from blended standings (top/bottom third = contender/
   rebuilder), user-overridable per team (persisted). Status sets each team's
   **valuation lens**: contenders price players at current value, rebuilders at
@@ -196,6 +211,10 @@ simulation, status auto-detect).
 | `tradeTol`, `CONSOL_PREM` | targets.html | 30% / 15% | fairness window |
 | `FA_COHORT_H/P`, `FA_MIN_PA/IP` | shared.js | 8/10, 100/30 | replacement baseline |
 | dynasty cost bumps | `calculateDynastyValues` | +$2 / +$4 | keeper escalation (see §4 caveat) |
+| `PA_PER_SLOT` | shared.js | 650 | full-season PA one lineup slot absorbs (prorated for Y0) |
+| `PA_FULL_RATE_FULL` | shared.js | 150 | PA below which a hitter's rate is ramped down as a partial sample (scaled to budget) |
+| `PA_MIN_SHARE_FULL` | shared.js | 100 | shortfall below which a slot is not supplemented (scaled to budget) |
+| `HIT_RANK_W` | shared.js | obp 1.0 / slg 0.905 / hr-pa 2.34 / r-pa 1.10 | lineup ranking weights; `w=1/(T_PA·D_OBP)`, `0.9/(T_AB·D_SLG)`, `1/D_HR`, `1/D_R` — recompute if denominators shift a lot |
 | `TF_PTS_DOLLARS` | tradefinder.js | 15 | $ per standings point; keep in sync with `PTS_DOLLARS` |
 | `TF_BLOCK_MIN` | tradefinder.js | 5 | $ stranded before a player is a surplus asset |
 | `TF_NEED_MIN` | tradefinder.js | 5 | $ below median before a slot is a hole |
@@ -243,36 +262,21 @@ simulation, status auto-detect).
 
 ## 8. Known limitations (accepted, documented)
 
-- **`optimizeHitterLineup` is volume-biased — NOT yet accepted, needs a fix.**
-  It ranks hitters by `pa × (obp+slg)`, so a low-PA elite bat loses to a high-PA
-  mediocre one. Measured Aug 2026: **16 bad pairings across 3 of 12 teams**, e.g.
-  Aaron Judge (.971 OPS, 97 RoS PA) benched behind Ceddanne Rafaela (.711, 213 PA);
-  Juan Soto (.952, 136 PA) benched behind Daulton Varsho (.718, 187 PA). It hits
-  exactly the players whose trade value matters most, and it is not cosmetic — the
-  chosen 12 feed team aggregation, so it perturbs `calcSGPDenoms` and Y0 values too,
-  and it makes `tradefinder.js` report Soto/Judge as $0-marginal "blocked assets"
-  when they are nothing of the kind.
-
-  **Root cause is injury, and there are TWO defects, measured Aug 2026 on the
-  Misiorowski Index roster:**
-  1. *Misranking.* Judge actually beats Rafaela for the slot by **0.915 z (~$13.7)**,
-     so `pa × (obp+slg)` benches the better player outright. Ranking by SGP
-     contribution fixes this much.
-  2. *The either/or assumption — the larger defect.* Letting **both** contribute is
-     worth **+1.694 z (~$25.4)** over the best single choice. A slot absorbs ~194
-     RoS PA; an injured Judge fills only 50% of one and Soto 70%. In reality the
-     slot is shared (start Judge when healthy, the other bat covers the rest), and
-     the model discards that entirely.
-
-  **The fix is a PA budget, mirroring `selectPitchers`.** The pitching side already
-  fills an innings budget with multiple arms; hitters should fill a PA budget with
-  multiple bats, keeping the 12 slots for position eligibility and letting a second
-  player absorb the remainder. This supersedes the note in §3 that "hitting needs no
-  volume cap (one hitter per active slot)" — true only when every hitter is a
-  healthy full-timer. Changes values suite-wide, so it needs its own plan and
-  verification pass (same shape as the option-valued-contracts change).
-  **Do not ship a trade-archetype generator that can say "trade him, he's blocked"
-  until this is resolved.**
+- ~~`optimizeHitterLineup` volume bias~~ — **RESOLVED 2026-08-03** (§3). It ranked by
+  `pa × (obp+slg)`, so injured stars were benched behind healthy mediocrities and
+  dropped from team aggregation entirely: Judge (.971 OPS, 97 RoS PA) behind Rafaela
+  (.711, 213 PA), Soto (.952, 136 PA) behind Varsho (.718, 187 PA) — 16 bad pairings
+  across 3 of 12 teams. Two defects, measured on the Misiorowski Index roster:
+  **misranking** (Judge beat Rafaela for the slot by 0.915 z ≈ $13.7, yet lost it) and
+  the larger **either/or assumption** (letting both contribute was worth a further
+  1.694 z ≈ $25.4). Fixed by rate-first ranking (`HIT_RANK_W`) plus PA-budget slot
+  supplementation. After: both start, marginals $29.3 / $30.7, 20% of slots shared,
+  Y0 pool still $4800, hitShare 52.2% → 53.9%.
+- **§2 anchors need seasonal recalibration** (drift predates the lineup fix). They were
+  set from July data; on Aug 2 the pool concentrates into fewer remaining PA/IP, so the
+  top non-Ohtani hitter reads ~$72 (anchor band $55-65) and ~48% sit at the $1 floor
+  (anchor ~35%). Both were already out of band *before* the PA-budget change, which
+  moved them only 1-3%. Re-derive the bands rather than chasing them.
 - Arbitration not modeled beyond +$2/+$4 (star keeper costs slightly light).
 - Positional scarcity IS modeled for hitters now (`computePositionalOffsets` /
   `hitterSGP`): per-position HR/SLG/OBP offsets vs the slot-weighted average,

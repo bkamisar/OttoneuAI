@@ -882,13 +882,21 @@ function scaleHitterUsage(p, usedPA) {
   }) });
 }
 
-// Assigns hitters to slots. Returns { slotId: player } map.
-function optimizeHitterLineup(hitters) {
+// Assigns hitters to slots under a PA budget. Returns { slotId: player } map;
+// derived keys (OF1_2, C_3, …) are scaled backup contributions for slots whose
+// primary cannot fill the budget. paBudget overridable: future-year valuation
+// passes full-season PA_PER_SLOT; tests pass explicit budgets.
+function optimizeHitterLineup(hitters, paBudget) {
+  const budget = paBudget || paSlotBudget();
+  // Thresholds scale with the budget, keeping this a pure function of its
+  // arguments: a September budget shrinks the ramp and min-share with it.
+  const rampPA   = budget * PA_FULL_RATE_FULL / PA_PER_SLOT;   // ≈ 0.23 × budget
+  const minShare = budget * PA_MIN_SHARE_FULL / PA_PER_SLOT;   // ≈ 0.15 × budget
   const scored = hitters
     .filter(p => p.type === 'H')
     .map(p => {
       const b = p.proj || {};
-      return { ...p, _proj: b, _value: (b.pa || 0) * ((b.obp || 0) + (b.slg || 0)) };
+      return { ...p, _proj: b, _value: hitterRateValue(p, rampPA) };
     })
     .sort((a, b) => b._value - a._value);
 
@@ -898,11 +906,34 @@ function optimizeHitterLineup(hitters) {
 
   const assignment = {};
   const used = new Set();
+
+  // Phase 1 — primaries only. No player may be consumed as a backup before
+  // every slot has its best available starter (a lone backup catcher must not
+  // be eaten by an OF slot's supplementation).
   for (const slot of slots) {
     const best = scored.find(p => slot.eligible(p) && !used.has(p.fgId || p.name));
-    if (best) {
-      assignment[slot.id] = best;
-      used.add(best.fgId || best.name);
+    if (best) { assignment[slot.id] = best; used.add(best.fgId || best.name); }
+  }
+
+  // Phase 2 — supplementation. The primary always contributes his FULL
+  // projection (one player cannot exceed the slot's SLOT_CAP-game capacity, so
+  // he is never capped). When injury or part-time usage leaves the slot short
+  // of the budget, bench bats absorb the remainder as scaled clones — the slot
+  // is shared, as it would be in a real daily lineup.
+  for (const slot of slots) {
+    const primary = assignment[slot.id];
+    if (!primary) continue;
+    let shortfall = budget - ((primary._proj && primary._proj.pa) || 0);
+    let n = 2;
+    while (shortfall >= minShare && n <= 3) {
+      const backup = scored.find(p => slot.eligible(p) && !used.has(p.fgId || p.name)
+        && ((p._proj && p._proj.pa) || 0) >= minShare);
+      if (!backup) break;
+      const give = Math.min(shortfall, backup._proj.pa);
+      assignment[slot.id + '_' + n] = scaleHitterUsage(backup, give);
+      used.add(backup.fgId || backup.name);
+      shortfall -= give;
+      n++;
     }
   }
   return assignment;

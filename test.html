@@ -473,6 +473,54 @@
       'scaleHitterUsage: asking for more than projected returns the player untouched');
     assert(paSlotBudget() > 0, 'paSlotBudget: positive');
 
+    // ── PA-budget lineup: supplementation ────────────────────────────────────
+    function paC(name, pa, obp, slg, hr, r) {
+      return { name: name, fgId: name, type: 'H', positions: ['c'],
+               proj: { pa: pa, ab: pa * 0.9, obp: obp, slg: slg, hr: hr, r: r } };
+    }
+    // NOTE on fixtures: UTIL is eligible to ANY hitter, so with only two
+    // catchers the second becomes UTIL's primary in phase 1 and never reaches
+    // supplementation. Supplementation fires only for players left over after
+    // all 12 primary slots are filled — hence three catchers below.
+    // Injured elite + two bench catchers, budget 196.
+    var paLu = optimizeHitterLineup([paC('eliteC', 97,  0.420, 0.551, 8,  15),
+                                     paC('midC',  213, 0.340, 0.460, 10, 25),
+                                     paC('lowC',  213, 0.300, 0.411, 6,  22)], 196);
+    assertEqual(paLu['C'].name, 'eliteC', 'optimizer: elite injured bat is the PRIMARY');
+    assertEqual(paLu['UTIL'].name, 'midC', 'optimizer: UTIL takes the best remaining bat as a primary');
+    assert(paLu['C_2'] && paLu['C_2'].name === 'lowC', 'optimizer: leftover bat supplements the short slot');
+    assert(Math.abs(paLu['C_2']._proj.pa - 99) < 1e-9, 'optimizer: backup scaled to 196−97 PA');
+
+    // Full-timer overflows the budget: NO backup, full projection kept.
+    var paLu2 = optimizeHitterLineup([paC('fullC', 250, 0.340, 0.450, 10, 30),
+                                      paC('benchC', 200, 0.300, 0.400, 5, 20)], 196);
+    assertEqual(paLu2['C'].name, 'fullC', 'optimizer: full-timer is primary');
+    assert(!paLu2['C_2'], 'optimizer: no supplementation when the primary exceeds the budget');
+    assertEqual(paLu2['C']._proj.pa, 250, 'optimizer: primary is never capped');
+
+    // Deep shortfall loops to a third contributor (c2 goes to UTIL, so four
+    // catchers are needed to leave two on the bench).
+    var paLu3 = optimizeHitterLineup([paC('c1', 60,  0.380, 0.500, 5, 10),
+                                      paC('c2', 60,  0.340, 0.450, 4, 9),
+                                      paC('c3', 100, 0.320, 0.420, 4, 12),
+                                      paC('c4', 80,  0.310, 0.410, 3, 10)], 196);
+    assert(paLu3['C'] && paLu3['C_2'] && paLu3['C_3'], 'optimizer: loop supplements twice on a deep shortfall');
+    var paNames3 = Object.values(paLu3).map(function (p) { return p.name; });
+    assertEqual(paNames3.length, new Set(paNames3).size, 'optimizer: no duplicates across primary+backup keys');
+
+    // Incentive check: a healthy full-timer beats an injured star + mediocre
+    // backup of the same blended volume — supplementation must never make
+    // rostering injuries BETTER than health.
+    function paTeamZ(lu) {
+      var st = computeTeamStats(lu, [], 0);
+      return st.HR / 8.39 + st.R / 17.84 + st.OBP / 0.0083 + st.SLG / 0.0094;
+    }
+    var paHealthy = optimizeHitterLineup([paC('healthy', 196, 0.420, 0.551, 16, 30)], 196);
+    var paInjured = optimizeHitterLineup([paC('star', 97, 0.420, 0.551, 8, 15),
+                                          paC('bench', 99, 0.300, 0.411, 3, 10)], 196);
+    assert(paTeamZ(paHealthy) >= paTeamZ(paInjured),
+      'optimizer: healthy full-timer ≥ injured star + backup (no perverse incentive)');
+
     // ── Summary ──────────────────────────────────────────────────────────────
     const sumEl = document.getElementById('summary');
     sumEl.textContent = passed + ' passed, ' + failed + ' failed';

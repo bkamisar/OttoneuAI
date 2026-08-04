@@ -278,7 +278,15 @@ simulation, status auto-detect).
    Tripwire: reliever share of pitching dollars ≈ 3.5%; top RP ≈ $10.
 4. Name matching is type-separated everywhere (hitter names look up hitting
    projections only) — prevents Ohtani/name-collision clobbering.
-5. ~50% hitShare is CORRECT for 4×4. Don't tune toward 5×5 intuition.
+5. hitShare should track ~**65%**, NOT the ~50% this line claimed until 2026-08-03.
+   The old figure was reasoned from "4 hitting cats + 4 pitching cats ⇒ even split"
+   and was never checked against the league. Measured from the actual roster export
+   (what owners really pay): **64.8% of committed salary is on hitters** ($2,708 H /
+   $1,474 P), **75.8%** among $20+ contracts, and **all 12 teams sit between 51% and
+   75%** (median 68.4%). The structural reason is the 1,500 IP cap: usable pitching
+   is capped and replacement innings are abundant, so scarcity — and therefore
+   money — concentrates in the 12 fixed lineup slots. Do not tune toward 5×5
+   intuition, but do not tune toward 50% either; **verify against the roster export.**
 6. Prospect floors are `max(model, floor)` — never additive, never overriding
    a better projection-based value.
 7. Browser caching: shared.js changes may not appear until a hard refresh;
@@ -333,15 +341,23 @@ simulation, status auto-detect).
   Combined: Y1 hitShare **39.9% → 45.2%**, $1 floor **63% → 27%**, Skubal
   **$168 → $75**, top-arm share **3.5% → 1.6%** (matching Y0). Y0 hitShare moved
   54.2% → 57.0% as a side effect of (2), which applies in both years.
-- **Y0 hitShare has drifted to 57% against the ~50% invariant #5 anchor — OPEN.**
-  Progression across 2026-08-03: 52.2% → 54.0% (PA-budget lineup) → 57.0% (SO
-  scaling). Each step was independently justified and verified, but the cumulative
-  drift is +4.8pp. Two readings: either the ~50% anchor was calibrated against the
-  old over-crediting SO term and 57% is the corrected value, or the hitting side now
-  carries its own inflation. **Resolve empirically, not by tuning** — compare against
-  how the league's own auction dollars actually split between hitters and pitchers.
-  Do not "fix" this by reverting invariant #3's scaling, which is separately
-  validated by the reliever tripwire and the Y1 top-arm cross-check.
+- **The model still under-weights hitting vs the real market — OPEN, direction known.**
+  Settled 2026-08-03 against the roster export: the league pays **64.8%** of committed
+  salary for hitters (invariant #5). The model's Y0 hitShare reads **57.0%** and Y1
+  reads **45.2%**, so both under-weight bats — Y1 badly. Today's progression
+  (52.2% → 54.0% PA-budget → 57.0% SO scaling) moved *toward* the market, not away;
+  what looked like drift was correction.
+  Remaining gap ≈ 8pp in Y0 and ≈ 20pp in Y1. Suspects, in order: the two-sided
+  asymmetry in `calcPlayerSGP` (hitter counting stats pro-rate the replacement,
+  pitcher SO now scales only upward — a deliberate but unequal treatment); the
+  pitching side getting 4 categories' worth of SGP from ~12 usable arms while 12
+  lineup slots must cover 4 hitting categories; and the possibility that the Y1
+  post-reshuffle boundary is still too generous to arms.
+  **Do not close this gap by tuning a coefficient.** Every fix today came from
+  finding a specific wrong assumption, and each was validated against an external
+  fact (the reliever market, the roster export). Do the same here. Note also that
+  salaries are sticky in a dynasty league — escalation means the 64.8% lags current
+  value somewhat — so treat it as a strong signal, not a precise target.
 - ~~§2 anchors stale~~ — **RESOLVED 2026-08-03.** They were a July snapshot of a
   date-dependent quantity. §2 now records Y0 anchors with their proration factor and
   adds date-invariant Y1 anchors as the stable tripwire.

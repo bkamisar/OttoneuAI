@@ -548,6 +548,34 @@
       ROSTERED_IDS = sI; ROSTERED_NAMES = sN; ROSTERED_COUNTS = sC; FA_BASELINES = sB;
     })();
 
+    // Future years slice past the re-rostered boundary; Y0 slices the top of the FA pool.
+    (function () {
+      function hp(n, pa, obp, slg) { return { name: n, proj: { pa: pa, ab: pa * 0.9, hr: 10, r: 50, obp: obp, slg: slg } }; }
+      var pool = [hp('h1',600,0.400,0.550), hp('h2',600,0.380,0.520), hp('h3',600,0.360,0.500),
+                  hp('h4',600,0.340,0.470), hp('h5',600,0.320,0.440), hp('h6',600,0.300,0.410)];
+      var sC = ROSTERED_COUNTS, sB = FA_BASELINES, sI = ROSTERED_IDS, sN = ROSTERED_NAMES;
+      FA_BASELINES = {};
+      ROSTERED_IDS = new Set(); ROSTERED_NAMES = new Set();   // nobody rostered → all are FAs
+      ROSTERED_COUNTS = { H: 3, P: 3 };
+
+      computeFABaselines(pool, [], [], 'proj_y1');
+      // league re-rosters top 3, so replacement = ranks 4-6 → OBP (.340+.320+.300)/3 = .320
+      assert(Math.abs(FA_BASELINES['proj_y1'].H.obp - 0.320) < 1e-9,
+        'computeFABaselines: future year takes the post-reshuffle boundary cohort');
+
+      computeFABaselines(pool, [], [], 'proj');
+      // Y0 unchanged: top-of-pool cohort (all 6 are FAs, cohort cap 8) → mean OBP .350
+      assert(Math.abs(FA_BASELINES['proj'].H.obp - 0.350) < 1e-9,
+        'computeFABaselines: Y0 still averages the top free agents');
+
+      ROSTERED_COUNTS = { H: 10, P: 10 };   // boundary past the end of a 6-deep pool
+      computeFABaselines(pool, [], [], 'proj_y2');
+      assertEqual(FA_BASELINES['proj_y2'].H, null,
+        'computeFABaselines: pool thinner than the boundary yields null (fallback path)');
+
+      ROSTERED_COUNTS = sC; FA_BASELINES = sB; ROSTERED_IDS = sI; ROSTERED_NAMES = sN;
+    })();
+
     // ── Summary ──────────────────────────────────────────────────────────────
     const sumEl = document.getElementById('summary');
     sumEl.textContent = passed + ' passed, ' + failed + ' failed';

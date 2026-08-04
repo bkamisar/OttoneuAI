@@ -569,14 +569,37 @@ function computeFABaselines(hittingProj, pitchingProj, rosterPlayers, yearKey) {
   const rosteredNames = ROSTERED_NAMES || new Set(rosterPlayers.map(p => p.name));
   const isFA = p => !(p.fgId && rosteredIds.has(p.fgId)) && !rosteredNames.has(p.name);
 
-  const faH = (hittingProj || [])
-    .filter(p => isFA(p) && p.proj && (p.proj.pa || 0) >= FA_MIN_PA)
-    .sort((a, b) => valProxy({ type: 'H' }, b.proj) - valProxy({ type: 'H' }, a.proj))
-    .slice(0, FA_COHORT_H);
-  const faP = (pitchingProj || [])
-    .filter(p => isFA(p) && p.proj && (p.proj.ip || 0) >= FA_MIN_IP)
-    .sort((a, b) => valProxy({ type: 'P' }, b.proj) - valProxy({ type: 'P' }, a.proj))
-    .slice(0, FA_COHORT_P);
+  // Ranked pools (role floors applied first — same floors as before).
+  const hPool = (hittingProj || [])
+    .filter(p => p.proj && (p.proj.pa || 0) >= FA_MIN_PA)
+    .sort((a, b) => valProxy({ type: 'H' }, b.proj) - valProxy({ type: 'H' }, a.proj));
+  const pPool = (pitchingProj || [])
+    .filter(p => p.proj && (p.proj.ip || 0) >= FA_MIN_IP)
+    .sort((a, b) => valProxy({ type: 'P' }, b.proj) - valProxy({ type: 'P' }, a.proj));
+
+  const future = yearKey && yearKey !== 'proj';
+  let faH, faP;
+  if (future) {
+    // FUTURE YEARS: "unrostered today" is NOT "freely available next season."
+    // The roster boundary dissolves each October — cutting is free and ~60% of
+    // contracts resolve to the rental horizon (§4) — so the league re-rosters
+    // the best available. Assume it re-rosters the top N of each type by THIS
+    // year's value (N = what it rosters today) and take replacement from the
+    // boundary of what remains. Without this, mid-season churn leaves regulars
+    // (Duran/Naylor/McLain class) unrostered, putting Y1 hitter replacement at
+    // league average — which drops half the league's bats below replacement.
+    const counts = ROSTERED_COUNTS || {
+      H: rosterPlayers.filter(p => p.type === 'H').length,
+      P: rosterPlayers.filter(p => p.type === 'P').length,
+    };
+    faH = hPool.slice(counts.H, counts.H + FA_COHORT_H);
+    faP = pPool.slice(counts.P, counts.P + FA_COHORT_P);
+  } else {
+    // Y0: today's rosters ARE current reality — the best actual free agents are
+    // genuinely the freely available alternative right now.
+    faH = hPool.filter(isFA).slice(0, FA_COHORT_H);
+    faP = pPool.filter(isFA).slice(0, FA_COHORT_P);
+  }
 
   FA_BASELINES[yearKey] = {
     H: avgCohortStats(faH.map(p => p.proj), ['pa', 'hr', 'r', 'obp', 'slg']),

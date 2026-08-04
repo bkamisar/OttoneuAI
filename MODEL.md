@@ -85,18 +85,21 @@ remaining playing time. The progression is monotonic and is NOT a regression:
 The old "July 2026" anchors were a snapshot of this moving quantity; do not chase
 them. Re-measure and record the proration alongside.
 
-**Y0 @ 2026-08-02, proration 0.300** — hitShare 54.2%, pool $4800, top hitters
-Ohtani $74 / Alvarez $72 / Caminero $50, top arms Skubal $84 / Skenes $72 /
-Sanchez $70, 249/518 (48%) at the $1 floor.
+**Y0 @ 2026-08-03, proration 0.300** — hitShare 57.0%, pool $4800, top hitters
+Ohtani $78 / Alvarez $76 / Caminero $53, top arms Skubal $78 / Skenes $70 /
+Misiorowski $66, 250/518 (48%) at the $1 floor, top arm 1.6% of pool.
+**Elite relievers ≈ $10** (Duran $10.0) — matches the league's real market, where
+top RPs go **$10-14 and have never exceeded it**. An older anchor claiming
+"$15-30" was wrong and has been removed; it was above anything this market pays.
+Reliever share of pitching dollars ≈ 3.5% (invariant #3 tripwire).
 
 **Y1 (full-season, DATE-INVARIANT — the stable regression tripwire)** — measured on
 the REAL dynasty path (`calculateAllValues(clone, extras, quiet, 'proj_y1')`): pool
-$4800, hitShare **39.9%**, top hitters Ohtani $100 / Judge $88 / Soto $84, top arms
-**Skubal $168** / Skenes $156, **325/518 (63%) at the $1 floor**. The concentration
-(top arm 3.5% of pool; sanity band ~1.2-1.5%) and the floor share are symptoms of the
-§8 Y1-replacement defect — these are pre-fix values, expected to change when it lands.
-Because Y1 projections are always full-season, these numbers do not drift with the
-calendar, so a change in them is a real signal.
+$4800, hitShare **45.2%**, top hitters Ohtani $61 / Judge $54 / Soto $52, top arms
+Skubal $75 / Skenes $68 / Crochet $58, **141/518 (27%) at the $1 floor**, top arm
+1.6% of pool. Because Y1 projections are always full-season, these numbers do not
+drift with the calendar, so a change in them is a real signal. Top-arm share matching
+Y0's 1.6% is the key cross-check: the two years should price the same shape.
 
 **Harness gotcha (cost us a session of wrong numbers):** the signature is
 `calculateAllValues(rosters, extraPlayers, quiet, yearKey)`. Passing `'proj_y1'` as the
@@ -261,11 +264,18 @@ simulation, status auto-detect).
 3. Counting-stat handling in `calcPlayerSGP` is asymmetric ON PURPOSE:
    HITTER HR/R pro-rate the replacement to the player's PA (part-time bats are
    a fixed role; don't penalize them vs a full-time total — the Will Smith fix).
-   PITCHER strikeouts do NOT pro-rate — SO is pure volume, so a low-inning
-   reliever is correctly docked for contributing fewer raw K's. Do not
-   "unify" these; pro-rating pitcher SO re-inflates relievers to ~47% of
-   pitching value. Rate stats (OBP/SLG, ERA/WHIP/HR9) are IP/PA-weighted, so
-   low-volume arms' good ratios already earn proportionally less.
+   PITCHER strikeouts scale the replacement **one-directionally**:
+   `repl.so × max(1, ip / repl.ip)`. Above replacement innings the bar rises, so
+   a starter is charged for the innings he consumes under the league IP cap —
+   those innings displace another arm who would have struck batters out himself.
+   Below replacement innings the bar does NOT fall: a low-inning reliever still
+   faces the full replacement K total and is correctly docked. **The `max(1, …)`
+   clamp is the whole invariant.** Removing it (symmetric pro-rating) re-inflates
+   relievers to ~47% of pitching value; removing the scaling entirely lets
+   full-season aces bank ~75 innings of free K, which drove Y1 hitShare down to
+   37.6%. Rate stats (OBP/SLG, ERA/WHIP/HR9) are IP/PA-weighted, so low-volume
+   arms' good ratios already earn proportionally less.
+   Tripwire: reliever share of pitching dollars ≈ 3.5%; top RP ≈ $10.
 4. Name matching is type-separated everywhere (hitter names look up hitting
    projections only) — prevents Ohtani/name-collision clobbering.
 5. ~50% hitShare is CORRECT for 4×4. Don't tune toward 5×5 intuition.
@@ -304,28 +314,34 @@ simulation, status auto-detect).
   1.694 z ≈ $25.4). Fixed by rate-first ranking (`HIT_RANK_W`) plus PA-budget slot
   supplementation. After: both start, marginals $29.3 / $30.7, 20% of slots shared,
   Y0 pool still $4800, hitShare 52.2% → 53.9%.
-- **Y1 replacement level is set by players who will not be free agents — DIAGNOSED
-  2026-08-03, fix planned** (`docs/superpowers/plans/2026-08-03-y1-replacement.md`).
-  Real-path Y1 hitShare is **39.9%** vs Y0's 54.2% (pre-PA-budget it was 36.5%; the
-  lineup fix helped 3.4pp but did not cause it). Root cause, verified by cohort
-  inspection: the Y1 FA-hitter baseline averages the top-8 *currently unrostered*
-  hitters' full-season projections — Duran, Naylor, McLain, Butler-class regulars in
-  mid-churn — landing at **OBP .325 / SLG .427 ≈ league average** (`LG_MEAN` .325/.430).
-  With replacement ≈ average, half the league's bats fall below replacement (63% at
-  the $1 floor in a full-season pass) and the pool concentrates absurdly (Skubal $168).
-  The FA-*pitcher* baseline is honest (4.14 ERA, clearly below rostered quality)
-  because this league hoards arms, so the asymmetry lands entirely on hitters.
-  **The conceptual error is using today's roster boundary for next season** — §4
-  establishes that boundary dissolves in October (cutting is free; ~60% of contracts
-  resolve to H0). Duran/Naylor/McLain will be rostered next April; they are not
-  "freely available" in any Y1 sense. **Fix (validated by experiment):** for future
-  years, assume the league re-rosters the top N of each type by that year's value
-  (N = currently rostered count) and take the replacement cohort from the boundary of
-  what remains. Result: hitShare 43.1%, floor 31%, Skubal $92, Ohtani $59 — a sane
-  distribution. The residual gap to 50% may be REAL (the league's arm-hoarding makes
-  FA pitching genuinely scarcer than FA hitting) — do not force 50; sanity-check
-  against the league's actual dynasty market instead. Do NOT tune `HIT_RANK_W` or the
-  PA budget to paper over any of this; Y0 is correct and would break.
+- ~~Y1 replacement level / Y1 pitching tilt~~ — **RESOLVED 2026-08-03**, two
+  independent causes found and fixed together
+  (`docs/superpowers/plans/2026-08-03-y1-replacement.md`):
+  1. *Replacement set by players who will not be free agents.* The Y1 FA-hitter
+     baseline averaged the top-8 **currently unrostered** hitters' full-season lines —
+     Duran/Naylor/McLain-class regulars caught in mid-season churn — landing at
+     OBP .325 / SLG .427, i.e. **league average**. Half the league's bats fell below
+     replacement. Conceptually this contradicted §4: the roster boundary dissolves
+     every October, so today's boundary cannot define next year's "freely available."
+     Fixed by taking the future-year cohort from the **post-reshuffle boundary**
+     (assume the top N per type are re-rostered, N = today's count).
+  2. *Aces banking free strikeouts.* SO compared raw totals against a 105-IP
+     replacement while real Y1 starters throw 180 — worth ~75 innings of free K, so
+     SO carried **58%** of Y1 pitcher SGP (vs 34% in Y0). Fixed by the
+     one-directional `max(1, ip/repl.ip)` scaling in invariant #3.
+
+  Combined: Y1 hitShare **39.9% → 45.2%**, $1 floor **63% → 27%**, Skubal
+  **$168 → $75**, top-arm share **3.5% → 1.6%** (matching Y0). Y0 hitShare moved
+  54.2% → 57.0% as a side effect of (2), which applies in both years.
+- **Y0 hitShare has drifted to 57% against the ~50% invariant #5 anchor — OPEN.**
+  Progression across 2026-08-03: 52.2% → 54.0% (PA-budget lineup) → 57.0% (SO
+  scaling). Each step was independently justified and verified, but the cumulative
+  drift is +4.8pp. Two readings: either the ~50% anchor was calibrated against the
+  old over-crediting SO term and 57% is the corrected value, or the hitting side now
+  carries its own inflation. **Resolve empirically, not by tuning** — compare against
+  how the league's own auction dollars actually split between hitters and pitchers.
+  Do not "fix" this by reverting invariant #3's scaling, which is separately
+  validated by the reliever tripwire and the Y1 top-arm cross-check.
 - ~~§2 anchors stale~~ — **RESOLVED 2026-08-03.** They were a July snapshot of a
   date-dependent quantity. §2 now records Y0 anchors with their proration factor and
   adds date-invariant Y1 anchors as the stable tripwire.

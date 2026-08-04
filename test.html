@@ -593,6 +593,33 @@
       }), 'calculateAllValues: yearKey in the quiet slot yields identical values');
     })();
 
+    // ── Innings-aware strikeout replacement ──────────────────────────────────
+    section('SO innings scaling');
+    (function () {
+      var den = { SO: 20, ERA: 0.2, WHIP: 0.04, HR9: 0.07 };
+      var repl = { ip: 100, so: 80, era: 4.30, whip: 1.30, hr9: 1.20 };
+      function so(ip, k) {
+        return calcPlayerSGP({ type: 'P' }, { ip: ip, so: k, era: 4.30, whip: 1.30, hr9: 1.20 },
+                             repl, den, 600, 1000);
+      }
+      // A starter at 2x replacement innings is charged 2x replacement K: 160 K at
+      // 200 IP is exactly par, not a 80-K windfall.
+      assert(Math.abs(so(200, 160)) < 1e-9,
+        'calcPlayerSGP: double-innings starter at double replacement K scores par');
+      assert(so(200, 220) > 0, 'calcPlayerSGP: starter above the scaled bar still gains');
+      assert(so(200, 100) < 0, 'calcPlayerSGP: innings-eater below the scaled bar loses');
+
+      // INVARIANT #3 TRIPWIRE: a reliever is NOT credited for low volume. His bar
+      // stays the FULL replacement K total — never scaled down to his innings.
+      assert(so(25, 40) < 0,
+        'calcPlayerSGP: 25-IP reliever with 40 K is still docked vs the full 80-K bar');
+      assert(Math.abs(so(25, 80)) < 1e-9,
+        'calcPlayerSGP: reliever bar is the unscaled replacement K (invariant #3)');
+      // Equal-innings player is unaffected by the scaling.
+      assert(Math.abs(so(100, 95) - (95 - 80) / 20) < 1e-9,
+        'calcPlayerSGP: at replacement innings the scaling is a no-op');
+    })();
+
     // ── Summary ──────────────────────────────────────────────────────────────
     const sumEl = document.getElementById('summary');
     sumEl.textContent = passed + ' passed, ' + failed + ' failed';

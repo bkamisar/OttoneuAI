@@ -1440,7 +1440,16 @@ function calcPlayerSGP(player, b, repl, sgpDenom, avgPA, avgIP) {
     sgp += ((b.slg || 0) - (repl.slg || 0)) * pa / (avgPA || 1) / (sgpDenom['SLG'] || 1);
   } else {
     const ip = b.ip || 0;
-    sgp += ((b.so   || 0) - (repl.so   || 0)) / (sgpDenom['SO']   || 1);
+    // Innings-cap awareness. A pitcher who throws MORE innings than replacement
+    // does not get those extra strikeouts for free: under the league IP cap they
+    // displace another arm who would have produced K of his own. Charge him by
+    // scaling the replacement's K to his workload.
+    // max(1, …) is LOAD-BEARING — it never scales DOWN, so a low-inning reliever
+    // still faces the full replacement K total and stays correctly docked
+    // (invariant #3; naive two-way pro-rating once inflated relievers to ~47% of
+    // pitching value — this clamp is what prevents that).
+    const ipScale = (repl.ip || 0) > 0 ? Math.max(1, ip / (repl.ip || 1)) : 1;
+    sgp += ((b.so   || 0) - (repl.so   || 0) * ipScale) / (sgpDenom['SO']   || 1);
     sgp += ((repl.era  || 0) - (b.era  || 0)) * ip / (avgIP || 1) / (sgpDenom['ERA']  || 1);
     sgp += ((repl.whip || 0) - (b.whip || 0)) * ip / (avgIP || 1) / (sgpDenom['WHIP'] || 1);
     sgp += ((repl.hr9  || 0) - (b.hr9  || 0)) * ip / (avgIP || 1) / (sgpDenom['HR9']  || 1);

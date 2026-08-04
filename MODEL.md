@@ -278,15 +278,23 @@ simulation, status auto-detect).
    Tripwire: reliever share of pitching dollars ≈ 3.5%; top RP ≈ $10.
 4. Name matching is type-separated everywhere (hitter names look up hitting
    projections only) — prevents Ohtani/name-collision clobbering.
-5. hitShare should track ~**65%**, NOT the ~50% this line claimed until 2026-08-03.
-   The old figure was reasoned from "4 hitting cats + 4 pitching cats ⇒ even split"
-   and was never checked against the league. Measured from the actual roster export
-   (what owners really pay): **64.8% of committed salary is on hitters** ($2,708 H /
-   $1,474 P), **75.8%** among $20+ contracts, and **all 12 teams sit between 51% and
-   75%** (median 68.4%). The structural reason is the 1,500 IP cap: usable pitching
-   is capped and replacement innings are abundant, so scarcity — and therefore
-   money — concentrates in the 12 fixed lineup slots. Do not tune toward 5×5
-   intuition, but do not tune toward 50% either; **verify against the roster export.**
+5. **Do not calibrate `hitShare` against aggregate salary share — it is not the same
+   quantity.** 56% of rostered players (288 of 518) sit at $1-4 and hold only $613 of
+   $4,178; those salaries are roster-spot minimums, not prices, so the aggregate is a
+   floor artifact. Dynasty salaries are also sticky (escalation, old auctions), and Y0
+   values are rest-of-season while salaries price a full season — three separate
+   confounds pointing the same way.
+   **The valid check is per-player value against the $20+ population, where the market
+   actually clears.** Measured 2026-08-03 (n=57): market hit-share 75.8% vs model
+   72.9% — a 2.9-point gap, i.e. calibrated. Spot values agree closely (Yamamoto
+   $33/$33, Fried $39/$37, Ohtani $78/$81, Schwarber $55/$54). Expensive bats reading
+   low (Witt $68→$39, Judge $60→$34) are RoS-vs-full-season artifacts, not errors —
+   Judge has 97 RoS PA.
+   The engine-reported `hitShare` (~57% Y0) is an SGP-split diagnostic over ALL
+   starters and will not equal any salary share. Watch it for *movement*, not level.
+   The old "~50% is CORRECT for 4×4" claim was inferred from category counts and never
+   verified; it is gone. Do not tune toward 50%, 65%, or any other salary-derived
+   figure.
 6. Prospect floors are `max(model, floor)` — never additive, never overriding
    a better projection-based value.
 7. Browser caching: shared.js changes may not appear until a hard refresh;
@@ -341,23 +349,21 @@ simulation, status auto-detect).
   Combined: Y1 hitShare **39.9% → 45.2%**, $1 floor **63% → 27%**, Skubal
   **$168 → $75**, top-arm share **3.5% → 1.6%** (matching Y0). Y0 hitShare moved
   54.2% → 57.0% as a side effect of (2), which applies in both years.
-- **The model still under-weights hitting vs the real market — OPEN, direction known.**
-  Settled 2026-08-03 against the roster export: the league pays **64.8%** of committed
-  salary for hitters (invariant #5). The model's Y0 hitShare reads **57.0%** and Y1
-  reads **45.2%**, so both under-weight bats — Y1 badly. Today's progression
-  (52.2% → 54.0% PA-budget → 57.0% SO scaling) moved *toward* the market, not away;
-  what looked like drift was correction.
-  Remaining gap ≈ 8pp in Y0 and ≈ 20pp in Y1. Suspects, in order: the two-sided
-  asymmetry in `calcPlayerSGP` (hitter counting stats pro-rate the replacement,
-  pitcher SO now scales only upward — a deliberate but unequal treatment); the
-  pitching side getting 4 categories' worth of SGP from ~12 usable arms while 12
-  lineup slots must cover 4 hitting categories; and the possibility that the Y1
-  post-reshuffle boundary is still too generous to arms.
-  **Do not close this gap by tuning a coefficient.** Every fix today came from
-  finding a specific wrong assumption, and each was validated against an external
-  fact (the reliever market, the roster export). Do the same here. Note also that
-  salaries are sticky in a dynasty league — escalation means the 64.8% lags current
-  value somewhat — so treat it as a strong signal, not a precise target.
+- ~~Model under-weights hitting vs the market~~ — **NOT A DEFECT; investigated and
+  closed 2026-08-03.** The apparent 8-20pp gap was an artifact of comparing the
+  engine's SGP `hitShare` against aggregate salary share. Three confounds, all
+  pushing the same direction: the $1-4 floor population (56% of players, 15% of
+  salary, prices that encode nothing), dynasty salary stickiness, and RoS values
+  measured against full-season salaries. Restricted to the market-clearing $20+
+  population the model is calibrated — 72.9% vs 75.8%, with individual values
+  landing within a dollar or two of what the league pays.
+  A prior intermediate finding ("pitching over-allocated 38%, elite arms 2.4×
+  market") came from the same confound — it compared model-top-30 values against
+  *their own* salaries, which measures accumulated contract surplus, not error.
+  **Lesson worth keeping: aggregate model-value-vs-salary comparisons are
+  meaningless in a dynasty league.** Cheap keepers are supposed to be worth more
+  than they cost — that is what surplus *is*. Calibrate on recently-priced
+  (expensive) contracts only.
 - ~~§2 anchors stale~~ — **RESOLVED 2026-08-03.** They were a July snapshot of a
   date-dependent quantity. §2 now records Y0 anchors with their proration factor and
   adds date-invariant Y1 anchors as the stable tripwire.

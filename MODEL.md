@@ -69,9 +69,33 @@ SGP model: a player's value = standings-gain-points above replacement × $/SGP.
 6. **Two-way players** (type `H` with `projP` ≥ 30 IP): pitching SGP added on
    top of hitting SGP. Valid because hit/pit $-rates are close by construction.
 
-Sanity anchors (July 2026 data): hitShare ≈ 50%, top hitter (non-Ohtani) ≈
-$55-65 (~1.2% of pool), aces $45-70, elite K-relievers $15-30, ~35% of
-rostered players at the $1 floor. Diagnostic: `[values]` console line.
+### Sanity anchors — read the date first
+
+**Y0 anchors are DATE-DEPENDENT and must be quoted with their proration factor.**
+As the season shortens, injured and not-yet-promoted players fall to the $1 floor
+and the fixed $4,800 pool concentrates into the shrinking set of players with real
+remaining playing time. The progression is monotonic and is NOT a regression:
+
+| | at $1 floor | top non-Ohtani hitter |
+|---|---|---|
+| Y1 (full season, proration 1.0) | 15% | $39 |
+| Y0 @ July (proration ≈ 0.45) | ~35% | $55-65 |
+| Y0 @ 2026-08-02 (proration 0.30) | 48% | $72 |
+
+The old "July 2026" anchors were a snapshot of this moving quantity; do not chase
+them. Re-measure and record the proration alongside.
+
+**Y0 @ 2026-08-02, proration 0.300** — hitShare 54.2%, pool $4800, top hitters
+Ohtani $74 / Alvarez $72 / Caminero $50, top arms Skubal $84 / Skenes $72 /
+Sanchez $70, 249/518 (48%) at the $1 floor.
+
+**Y1 (full-season, DATE-INVARIANT — the stable regression tripwire)** — pool $4800,
+top hitters Ohtani $43 / Judge $39 / Soto $38, top arms Skubal $53 / Skenes $51 /
+Webb $42, 75/501 (15%) at the $1 floor. **hitShare 35.2% — this one is a known
+defect, not a target; see §8.** Because Y1 projections are always full-season, these
+numbers do not drift with the calendar, so a change in them is a real signal.
+
+Diagnostic: `[values]` console line.
 
 ## 3. Rest-of-season standings blend (`blendStats`)
 
@@ -272,11 +296,21 @@ simulation, status auto-detect).
   1.694 z ≈ $25.4). Fixed by rate-first ranking (`HIT_RANK_W`) plus PA-budget slot
   supplementation. After: both start, marginals $29.3 / $30.7, 20% of slots shared,
   Y0 pool still $4800, hitShare 52.2% → 53.9%.
-- **§2 anchors need seasonal recalibration** (drift predates the lineup fix). They were
-  set from July data; on Aug 2 the pool concentrates into fewer remaining PA/IP, so the
-  top non-Ohtani hitter reads ~$72 (anchor band $55-65) and ~48% sit at the $1 floor
-  (anchor ~35%). Both were already out of band *before* the PA-budget change, which
-  moved them only 1-3%. Re-derive the bands rather than chasing them.
+- **Y1/Y2 hitShare is ~35%, not the ~50% invariant #5 expects — UNRESOLVED, and it
+  matters.** Y0 sits correctly at 54.2%, but the same engine run on full-season Y1
+  projections gives hitters only 35.2% of the pool. **Pre-existing and confirmed by
+  A/B against the pre-PA-budget code: 31.8% before, 35.2% after** — the lineup fix
+  improved it by 3.4pp but did not cause it. Consequence: **dynasty values
+  systematically underweight hitters relative to Y0**, which skews every
+  `dynastySurplus`, the rebuilder trade lens, and prospect-vs-veteran comparisons.
+  Suspects worth checking, in order: the `FA_BASELINES['proj_y1']` replacement cohort
+  (a soft Y1 pitching baseline would inflate every arm's SGP); the full 1,500 IP Y1
+  budget versus the 12-slot hitter budget; and Y1 coverage asymmetry. Needs its own
+  investigation and A/B — do NOT tune `HIT_RANK_W` or the PA budget to paper over it,
+  since Y0 is already correct and would break.
+- ~~§2 anchors stale~~ — **RESOLVED 2026-08-03.** They were a July snapshot of a
+  date-dependent quantity. §2 now records Y0 anchors with their proration factor and
+  adds date-invariant Y1 anchors as the stable tripwire.
 - Arbitration not modeled beyond +$2/+$4 (star keeper costs slightly light).
 - Positional scarcity IS modeled for hitters now (`computePositionalOffsets` /
   `hitterSGP`): per-position HR/SLG/OBP offsets vs the slot-weighted average,

@@ -576,6 +576,23 @@
       ROSTERED_COUNTS = sC; FA_BASELINES = sB; ROSTERED_IDS = sI; ROSTERED_NAMES = sN;
     })();
 
+    // Signature guard: yearKey in the quiet slot must behave like the 4-arg call.
+    (function () {
+      function fh(n, pa) { return { fgId: n, name: n, type: 'H', positions: ['of'],
+        proj: { pa: pa, ab: pa*0.9, obp: 0.340, slg: 0.450, hr: 20, r: 70 } }; }
+      function fp(n, ip) { return { fgId: n, name: n, type: 'P', positions: ['sp'],
+        proj: { ip: ip, so: ip*1.1, era: 3.60, whip: 1.15, hr9: 1.05 } }; }
+      var t1 = [fh('a1',600), fh('a2',560), fp('a3',180), fp('a4',170)];
+      var t2 = [fh('b1',590), fh('b2',540), fp('b3',175), fp('b4',165)];
+      var threeArg = calculateAllValues([t1, t2], null, 'proj_y1');
+      var fourArg  = calculateAllValues([t1, t2], null, true, 'proj_y1');
+      assertEqual(Object.keys(threeArg).sort(), Object.keys(fourArg).sort(),
+        'calculateAllValues: 3-arg misuse covers the same players as the 4-arg call');
+      assert(Object.keys(fourArg).every(function (k) {
+        return Math.abs((threeArg[k].projectedValue || 0) - (fourArg[k].projectedValue || 0)) < 1e-9;
+      }), 'calculateAllValues: yearKey in the quiet slot yields identical values');
+    })();
+
     // ── Summary ──────────────────────────────────────────────────────────────
     const sumEl = document.getElementById('summary');
     sumEl.textContent = passed + ' passed, ' + failed + ' failed';

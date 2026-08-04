@@ -1150,6 +1150,10 @@ function buildStandings(teams) {
 // extraPlayers: optional array of FA players to value using the same rates.
 // They do NOT affect replacement levels or total SGP — keeping existing values calibrated.
 function calculateAllValues(allTeamRosters, extraPlayers, quiet, yearKey) {
+  // Guard against the (rosters, extras, 'proj_y1') call shape — yearKey passed
+  // in the quiet slot silently ran a Y0-baseline, prorated-budget pass over
+  // full-season stats and reported plausible-looking garbage with no error.
+  if (typeof quiet === 'string') { yearKey = quiet; quiet = true; }
   // Innings budget for team-stat aggregation. Y0 uses rest-of-season
   // projections, so each team can only add innings up to the league cap's
   // remaining share (calendar-prorated). Y1/Y2 files are full-season → full cap.

@@ -535,6 +535,19 @@
     assert(!Object.keys(paGaps2.Injured).some(function (s) { return s.indexOf('_') > -1; }),
       'tfNeedGaps: supplemented team also reports only primary slots');
 
+    // ── Y1 rank-based replacement ────────────────────────────────────────────
+    section('Future-year replacement');
+    // matchPlayers snapshot captures per-type rostered counts (invariant #8 family).
+    (function () {
+      var sI = ROSTERED_IDS, sN = ROSTERED_NAMES, sC = ROSTERED_COUNTS, sB = FA_BASELINES;
+      matchPlayers([{ fgId: 'r1', name: 'aa', type: 'H' },
+                    { fgId: 'r2', name: 'bb', type: 'H' },
+                    { fgId: 'r3', name: 'cc', type: 'P' }], [], []);
+      assertEqual(ROSTERED_COUNTS, { H: 2, P: 1 },
+        'ROSTERED_COUNTS: matchPlayers snapshots per-type rostered counts');
+      ROSTERED_IDS = sI; ROSTERED_NAMES = sN; ROSTERED_COUNTS = sC; FA_BASELINES = sB;
+    })();
+
     // ── Summary ──────────────────────────────────────────────────────────────
     const sumEl = document.getElementById('summary');
     sumEl.textContent = passed + ' passed, ' + failed + ' failed';

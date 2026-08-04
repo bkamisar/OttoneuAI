@@ -514,6 +514,10 @@ function matchPlayers(rosterPlayers, hittingProj, pitchingProj) {
   // place every page passes the true league roster.
   ROSTERED_IDS   = new Set(rosterPlayers.map(p => p.fgId).filter(Boolean));
   ROSTERED_NAMES = new Set(rosterPlayers.map(p => p.name));
+  ROSTERED_COUNTS = {
+    H: rosterPlayers.filter(p => p.type === 'H').length,
+    P: rosterPlayers.filter(p => p.type === 'P').length,
+  };
   computeFABaselines(hittingProj, pitchingProj, rosterPlayers, 'proj');
   return matched;
 }
@@ -555,6 +559,10 @@ let FA_BASELINES = {};    // { proj: {H,P}, proj_y1: {H,P}, proj_y2: {H,P} }
 // (Muñoz dynasty $236 instead of ~$70).
 let ROSTERED_IDS   = null;   // Set of fgIds
 let ROSTERED_NAMES = null;   // Set of normalized names
+// How many players of each type the league actually rosters. Used by future-year
+// replacement: the offseason reshuffle re-rosters roughly this many, so the
+// replacement cohort sits at the boundary of what is left over.
+let ROSTERED_COUNTS = null;  // { H, P }
 
 function computeFABaselines(hittingProj, pitchingProj, rosterPlayers, yearKey) {
   const rosteredIds   = ROSTERED_IDS   || new Set(rosterPlayers.map(p => p.fgId).filter(Boolean));

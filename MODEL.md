@@ -89,11 +89,19 @@ them. Re-measure and record the proration alongside.
 Ohtani $74 / Alvarez $72 / Caminero $50, top arms Skubal $84 / Skenes $72 /
 Sanchez $70, 249/518 (48%) at the $1 floor.
 
-**Y1 (full-season, DATE-INVARIANT — the stable regression tripwire)** — pool $4800,
-top hitters Ohtani $43 / Judge $39 / Soto $38, top arms Skubal $53 / Skenes $51 /
-Webb $42, 75/501 (15%) at the $1 floor. **hitShare 35.2% — this one is a known
-defect, not a target; see §8.** Because Y1 projections are always full-season, these
-numbers do not drift with the calendar, so a change in them is a real signal.
+**Y1 (full-season, DATE-INVARIANT — the stable regression tripwire)** — measured on
+the REAL dynasty path (`calculateAllValues(clone, extras, quiet, 'proj_y1')`): pool
+$4800, hitShare **39.9%**, top hitters Ohtani $100 / Judge $88 / Soto $84, top arms
+**Skubal $168** / Skenes $156, **325/518 (63%) at the $1 floor**. The concentration
+(top arm 3.5% of pool; sanity band ~1.2-1.5%) and the floor share are symptoms of the
+§8 Y1-replacement defect — these are pre-fix values, expected to change when it lands.
+Because Y1 projections are always full-season, these numbers do not drift with the
+calendar, so a change in them is a real signal.
+
+**Harness gotcha (cost us a session of wrong numbers):** the signature is
+`calculateAllValues(rosters, extraPlayers, quiet, yearKey)`. Passing `'proj_y1'` as the
+THIRD argument silently runs a Y0-baseline, prorated-budget pass on full-season stats
+and reports garbage (hitShare 35.2%, Skubal $53) with no error. Always pass all four.
 
 Diagnostic: `[values]` console line.
 
@@ -296,18 +304,28 @@ simulation, status auto-detect).
   1.694 z ≈ $25.4). Fixed by rate-first ranking (`HIT_RANK_W`) plus PA-budget slot
   supplementation. After: both start, marginals $29.3 / $30.7, 20% of slots shared,
   Y0 pool still $4800, hitShare 52.2% → 53.9%.
-- **Y1/Y2 hitShare is ~35%, not the ~50% invariant #5 expects — UNRESOLVED, and it
-  matters.** Y0 sits correctly at 54.2%, but the same engine run on full-season Y1
-  projections gives hitters only 35.2% of the pool. **Pre-existing and confirmed by
-  A/B against the pre-PA-budget code: 31.8% before, 35.2% after** — the lineup fix
-  improved it by 3.4pp but did not cause it. Consequence: **dynasty values
-  systematically underweight hitters relative to Y0**, which skews every
-  `dynastySurplus`, the rebuilder trade lens, and prospect-vs-veteran comparisons.
-  Suspects worth checking, in order: the `FA_BASELINES['proj_y1']` replacement cohort
-  (a soft Y1 pitching baseline would inflate every arm's SGP); the full 1,500 IP Y1
-  budget versus the 12-slot hitter budget; and Y1 coverage asymmetry. Needs its own
-  investigation and A/B — do NOT tune `HIT_RANK_W` or the PA budget to paper over it,
-  since Y0 is already correct and would break.
+- **Y1 replacement level is set by players who will not be free agents — DIAGNOSED
+  2026-08-03, fix planned** (`docs/superpowers/plans/2026-08-03-y1-replacement.md`).
+  Real-path Y1 hitShare is **39.9%** vs Y0's 54.2% (pre-PA-budget it was 36.5%; the
+  lineup fix helped 3.4pp but did not cause it). Root cause, verified by cohort
+  inspection: the Y1 FA-hitter baseline averages the top-8 *currently unrostered*
+  hitters' full-season projections — Duran, Naylor, McLain, Butler-class regulars in
+  mid-churn — landing at **OBP .325 / SLG .427 ≈ league average** (`LG_MEAN` .325/.430).
+  With replacement ≈ average, half the league's bats fall below replacement (63% at
+  the $1 floor in a full-season pass) and the pool concentrates absurdly (Skubal $168).
+  The FA-*pitcher* baseline is honest (4.14 ERA, clearly below rostered quality)
+  because this league hoards arms, so the asymmetry lands entirely on hitters.
+  **The conceptual error is using today's roster boundary for next season** — §4
+  establishes that boundary dissolves in October (cutting is free; ~60% of contracts
+  resolve to H0). Duran/Naylor/McLain will be rostered next April; they are not
+  "freely available" in any Y1 sense. **Fix (validated by experiment):** for future
+  years, assume the league re-rosters the top N of each type by that year's value
+  (N = currently rostered count) and take the replacement cohort from the boundary of
+  what remains. Result: hitShare 43.1%, floor 31%, Skubal $92, Ohtani $59 — a sane
+  distribution. The residual gap to 50% may be REAL (the league's arm-hoarding makes
+  FA pitching genuinely scarcer than FA hitting) — do not force 50; sanity-check
+  against the league's actual dynasty market instead. Do NOT tune `HIT_RANK_W` or the
+  PA budget to paper over any of this; Y0 is correct and would break.
 - ~~§2 anchors stale~~ — **RESOLVED 2026-08-03.** They were a July snapshot of a
   date-dependent quantity. §2 now records Y0 anchors with their proration factor and
   adds date-invariant Y1 anchors as the stable tripwire.

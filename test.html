@@ -723,6 +723,64 @@
         'tfRentalCandidates: a contender does not sell its production');
     })();
 
+    // ── Archetypes: window + consolidation + dispatcher ──────────────────────
+    (function () {
+      function of(n, obp, slg, hr, r, sal) {
+        return { name: n, fgId: n, type: 'H', positions: ['of'], salary: sal || 5,
+                 proj: { pa: 500, ab: 450, obp: obp, slg: slg, hr: hr, r: r } };
+      }
+      // ME: six mediocre outfielders fill OF1-5 + UTIL; a prospect sits.
+      var meFill = [];
+      for (var wi = 0; wi < 6; wi++) meFill.push(of('w-me' + wi, 0.330, 0.430, 15, 60));
+      // TWO bench bats: with exactly six players for six slots, removing any
+      // starter leaves an empty hole and his marginal balloons (65.9 here), which
+      // drives blockedness negative and disqualifies everyone. Real depth is what
+      // consolidation trades away, so the fixture needs a real bench.
+      var prospect = of('w-prospect', 0.250, 0.300, 4, 25);
+      var bench2   = of('w-bench2',   0.245, 0.295, 3, 22);
+      var ME = meFill.concat([prospect, bench2]);
+      // THEM: one clearly better bat than anything I field.
+      var stud = of('w-stud', 0.400, 0.560, 30, 95, 20);
+      var THEM = [stud];
+
+      var vm = {}, dm = {};
+      ME.concat(THEM).forEach(function (p) {
+        vm[p.fgId] = { projectedValue: 40 };                       // generous, so blockedness clears
+        dm[p.fgId] = { holdHorizon: 2, dynastySurplus: 2 };
+      });
+      dm['w-prospect'] = { holdHorizon: 2, dynastySurplus: 25 };   // the future asset
+      var ctx = tfBuildContext({ ME: ME, THEM: THEM }, vm, dm, tfDen, 400);
+
+      // Buy-now: I am a contender, they are rebuilding.
+      var buy = tfWindowCandidates(ctx, 'ME', 'THEM', 'contender', 'rebuilder');
+      assert(buy.length > 0, 'tfWindowCandidates: contender buys from a rebuilder');
+      assert(buy.every(function (c) { return c.archetype === 'buy-now'; }),
+        'tfWindowCandidates: labelled buy-now');
+      assert(buy.every(function (c) {
+        return ['w-prospect', 'w-bench2'].indexOf(c.myPlayers[0].name) > -1; }),
+        'tfWindowCandidates: I only send assets I am not fielding');
+      assert(buy.some(function (c) { return c.myPlayers[0].name === 'w-prospect'; }),
+        'tfWindowCandidates: the highest-surplus future asset is among them');
+      assertEqual(tfWindowCandidates(ctx, 'ME', 'THEM', 'contender', 'contender').length, 0,
+        'tfWindowCandidates: no window asymmetry between two contenders');
+
+      // Consolidation: two of my spare pieces for their clearly-better bat.
+      var cons = tfConsolidationCandidates(ctx, 'ME', 'THEM');
+      assert(cons.length > 0, 'tfConsolidationCandidates: proposes a 2-for-1');
+      assert(cons.every(function (c) { return c.myPlayers.length === 2 && c.theirPlayers.length === 1; }),
+        'tfConsolidationCandidates: always two-for-one');
+
+      // Dispatcher: fully formed, de-duplicated.
+      var allC = tfGenerateCandidates(ctx, 'ME', 'THEM', 'contender', 'rebuilder');
+      assert(allC.length > 0, 'tfGenerateCandidates: produces candidates');
+      assert(allC.every(function (c) {
+        return c.archetype && c.reason && c.myPlayers.length && c.theirPlayers.length; }),
+        'tfGenerateCandidates: every candidate is fully formed');
+      var keys = allC.map(function (c) {
+        return c.myPlayers.map(tfKey).sort().join('|') + '/' + c.theirPlayers.map(tfKey).sort().join('|'); });
+      assertEqual(keys.length, new Set(keys).size, 'tfGenerateCandidates: no duplicate pairings');
+    })();
+
     // ── Summary ──────────────────────────────────────────────────────────────
     const sumEl = document.getElementById('summary');
     sumEl.textContent = passed + ' passed, ' + failed + ' failed';

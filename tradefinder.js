@@ -313,3 +313,118 @@ function tfRentalCandidates(ctx, myTeam, theirTeam, myStatus, theirStatus) {
   });
   return out;
 }
+
+// ARCHETYPE 3 — Buy-now <-> sell-future.
+// The old rel='buy'/'sell' idea, but fed MARGINAL value: I send future surplus I
+// cannot field this year, they send current production they cannot cash in while
+// rebuilding. Requires a genuine status mismatch — two contenders have no window
+// asymmetry to trade on.
+function tfWindowCandidates(ctx, myTeam, theirTeam, myStatus, theirStatus) {
+  if (myStatus === theirStatus) return [];
+  var buying  = myStatus !== 'rebuilder' && theirStatus === 'rebuilder';
+  var selling = myStatus === 'rebuilder' && theirStatus !== 'rebuilder';
+  if (!buying && !selling) return [];
+
+  var out = [];
+  var myMarg = ctx.marginals[myTeam] || {}, thMarg = ctx.marginals[theirTeam] || {};
+  var myRoster = ctx.rostersByTeam[myTeam] || [], thRoster = ctx.rostersByTeam[theirTeam] || [];
+
+  // Future surplus not being fielded now.
+  function futureAssets(roster, marg) {
+    return roster.filter(function (p) {
+      var d = ctx.dynastyMap[tfKey(p)];
+      return p.proj && d && (d.dynastySurplus || 0) > 0 && (marg[tfKey(p)] || 0) < TF_GAIN_MIN;
+    }).sort(function (a, b) {
+      return ((ctx.dynastyMap[tfKey(b)] || {}).dynastySurplus || 0)
+           - ((ctx.dynastyMap[tfKey(a)] || {}).dynastySurplus || 0);
+    }).slice(0, 3);
+  }
+  // Production that would materially help the receiving roster.
+  function nowAssets(roster, otherRoster) {
+    return roster.filter(function (p) { return p.proj; })
+      .map(function (p) { return { p: p, add: tfMarginalOn(p, otherRoster, ctx.denoms, ctx.ipBudget) }; })
+      .filter(function (x) { return x.add >= TF_GAIN_MIN; })
+      .sort(function (a, b) { return b.add - a.add; })
+      .slice(0, 3);
+  }
+
+  var sendFuture = buying ? futureAssets(myRoster, myMarg) : futureAssets(thRoster, thMarg);
+  var sendNow    = buying ? nowAssets(thRoster, myRoster) : nowAssets(myRoster, thRoster);
+
+  sendFuture.forEach(function (f) {
+    sendNow.forEach(function (n) {
+      out.push({
+        archetype: buying ? 'buy-now' : 'sell-future',
+        myPlayers:    buying ? [f] : [n.p],
+        theirPlayers: buying ? [n.p] : [f],
+        reason: buying
+          ? 'They are rebuilding and cannot cash in ' + tfName(n.p) + ', who is worth ' +
+            tfDollars(n.add) + ' to your lineup right now; you send future surplus in ' +
+            tfName(f) + ', who is not in your lineup this year.'
+          : 'You are rebuilding, so ' + tfName(n.p) + ' is production you cannot use — ' +
+            tfDollars(n.add) + ' to their lineup — and they pay in ' + tfName(f) +
+            ', future value you can hold.',
+      });
+    });
+  });
+  return out;
+}
+
+// ARCHETYPE 4 — Consolidation.
+// Two of my usable-but-not-elite pieces for one clearly better player, when I am
+// deep enough to spare the roster spot. targets.html's existing CONSOL_PREM
+// (15% per extra player on the bulkier side) prices it; this only proposes it.
+function tfConsolidationCandidates(ctx, myTeam, theirTeam) {
+  var out = [];
+  var myMarg = ctx.marginals[myTeam] || {};
+  var myRoster = ctx.rostersByTeam[myTeam] || [], thRoster = ctx.rostersByTeam[theirTeam] || [];
+
+  var spares = myRoster.filter(function (p) {
+      // >= 0, not > 0: consolidation is precisely how you cash in DEPTH, and a
+      // benched player sits at exactly 0. Excluding him would leave only
+      // marginal starters, which is the opposite of the archetype. The >= 0 half
+      // still keeps out actively harmful players.
+      return p.proj && (myMarg[tfKey(p)] || 0) >= 0 &&
+             tfBlockedness(p, myMarg, ctx.valueMap) >= TF_BLOCK_MIN;
+    }).sort(function (a, b) {
+      return tfBlockedness(b, myMarg, ctx.valueMap) - tfBlockedness(a, myMarg, ctx.valueMap);
+    }).slice(0, 4);
+
+  var targets = thRoster.filter(function (p) { return p.proj; })
+    .map(function (p) { return { p: p, add: tfMarginalOn(p, myRoster, ctx.denoms, ctx.ipBudget) }; })
+    .filter(function (x) { return x.add >= TF_GAIN_MIN * 2; })   // must be clearly better
+    .sort(function (a, b) { return b.add - a.add; })
+    .slice(0, 2);
+
+  targets.forEach(function (t) {
+    for (var i = 0; i < spares.length; i++) {
+      for (var j = i + 1; j < spares.length; j++) {
+        out.push({
+          archetype: 'consolidation',
+          myPlayers: [spares[i], spares[j]], theirPlayers: [t.p],
+          reason: 'You are deep enough to spare ' + tfName(spares[i]) + ' and ' +
+                  tfName(spares[j]) + '; ' + tfName(t.p) + ' would add ' +
+                  tfDollars(t.add) + ' to your lineup and frees a roster spot.',
+        });
+      }
+    }
+  });
+  return out;
+}
+
+// Dispatcher — every archetype for one opponent, de-duplicated by player pairing.
+function tfGenerateCandidates(ctx, myTeam, theirTeam, myStatus, theirStatus) {
+  var all = []
+    .concat(tfLogjamCandidates(ctx, myTeam, theirTeam))
+    .concat(tfRentalCandidates(ctx, myTeam, theirTeam, myStatus, theirStatus))
+    .concat(tfWindowCandidates(ctx, myTeam, theirTeam, myStatus, theirStatus))
+    .concat(tfConsolidationCandidates(ctx, myTeam, theirTeam));
+  var seen = {}, out = [];
+  all.forEach(function (c) {
+    var k = c.myPlayers.map(tfKey).sort().join('|') + '/' +
+            c.theirPlayers.map(tfKey).sort().join('|');
+    if (seen[k]) return;
+    seen[k] = 1; out.push(c);
+  });
+  return out;
+}

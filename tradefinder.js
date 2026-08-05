@@ -222,32 +222,50 @@ function tfLogjamCandidates(ctx, myTeam, theirTeam) {
                  gain: addTo - own };
       })
       .filter(function (x) {
-        // BLOCKED means sitting on the bench contributing nothing, NOT actively
-        // harmful. A hitter with empty PA drags team OBP/SLG, so his marginal is
-        // negative — and since blockedness = value − marginal, a negative marginal
-        // INFLATES it (a -$68 marginal reads as $93 "stranded"). Requiring own >= 0
-        // keeps those out. Requiring addTo > 0 is the stronger gate: "worth more to
-        // them" is meaningless if he is still a negative there, which is how two
-        // mirror-image rosters used to generate a pointless symmetric swap.
-        return x.own >= 0 && x.addTo > 0 &&
-               x.blocked >= TF_BLOCK_MIN && x.gain >= TF_GAIN_MIN;
+        // The defining test is LOW MARGINAL TO ME — he is genuinely stranded.
+        // Blockedness alone is useless here: a player's marginal is essentially
+        // always below his absolute value (removing him promotes a bench bat who
+        // supplies something), so `blockedness >= 5` passes nearly the whole
+        // roster and this gate once nominated Caminero and Tatis — my two best
+        // hitters — as "stranded on the bench".
+        //   own >= 0            : benched, not actively harmful (an empty-PA bat
+        //                         drags team rates and is a different problem)
+        //   own <  TF_GAIN_MIN  : I genuinely will not miss him
+        //   addTo >= TF_GAIN_MIN: he would meaningfully help THEM
+        //   blocked >= BLOCK_MIN: he still carries real trade value
+        return x.own >= 0 && x.own < TF_GAIN_MIN &&
+               x.addTo >= TF_GAIN_MIN && x.blocked >= TF_BLOCK_MIN;
       })
       .sort(function (a, b) { return b.gain - a.gain; })
       .slice(0, 4);
   }
 
-  var mine  = surplusAssets(myRoster, myMarg, thRoster);
-  var yours = surplusAssets(thRoster, thMarg, myRoster);
+  var mine = surplusAssets(myRoster, myMarg, thRoster);
+  if (!mine.length) return out;
+
+  // Their side does NOT have to be blocked too. Requiring a mirror-image logjam
+  // (the spec's original framing) never fires against a deep roster: measured
+  // Aug 2026, I had 5 surplus assets and all 11 opponents had 0, because their
+  // bench bats cannot crack my lineup. The real trade is my surplus for a player
+  // who fills MY need — their motivation is that my blocked man starts for them.
+  // Whether the exchange is fair is not this function's job: the fairness filter
+  // and both utility gates decide that downstream.
+  var yours = thRoster.filter(function (q) { return q.proj; })
+    .map(function (q) { return { p: q, add: tfMarginalOn(q, myRoster, ctx.denoms, ctx.ipBudget) }; })
+    .filter(function (x) { return x.add >= TF_GAIN_MIN; })
+    .sort(function (a, b) { return b.add - a.add; })
+    .slice(0, 4);
 
   mine.forEach(function (a) {
     yours.forEach(function (b) {
       out.push({
         archetype: 'logjam',
         myPlayers: [a.p], theirPlayers: [b.p],
-        reason: tfName(a.p) + ' is stranded on your bench (' + tfDollars(a.blocked) +
-                ' of value you cannot field) and worth ' + tfDollars(a.gain) +
-                ' more to them; ' + tfName(b.p) + ' is the mirror image — ' +
-                tfDollars(b.gain) + ' more useful to you.',
+        reason: tfName(a.p) + ' is stranded behind your lineup — worth ' +
+                tfDollars(a.blocked) + ' on paper but only ' + tfDollars(a.own) +
+                ' to you as things stand, while he would add ' + tfDollars(a.addTo) +
+                ' to theirs. ' + tfName(b.p) + ' is the piece you actually need: ' +
+                tfDollars(b.add) + ' to your lineup.',
       });
     });
   });
@@ -380,11 +398,13 @@ function tfConsolidationCandidates(ctx, myTeam, theirTeam) {
   var myRoster = ctx.rostersByTeam[myTeam] || [], thRoster = ctx.rostersByTeam[theirTeam] || [];
 
   var spares = myRoster.filter(function (p) {
-      // >= 0, not > 0: consolidation is precisely how you cash in DEPTH, and a
-      // benched player sits at exactly 0. Excluding him would leave only
-      // marginal starters, which is the opposite of the archetype. The >= 0 half
-      // still keeps out actively harmful players.
-      return p.proj && (myMarg[tfKey(p)] || 0) >= 0 &&
+      // Same definition of "spare" the logjam matcher uses: LOW marginal to me.
+      // Blockedness alone passes nearly the whole roster, which once produced
+      // "you are deep enough to spare Fernando Tatis Jr. and Junior Caminero" —
+      // my two best hitters. `>= 0` (not `> 0`) keeps genuinely benched players
+      // in, since cashing in depth is exactly what consolidation is for.
+      var mg = myMarg[tfKey(p)] || 0;
+      return p.proj && mg >= 0 && mg < TF_GAIN_MIN &&
              tfBlockedness(p, myMarg, ctx.valueMap) >= TF_BLOCK_MIN;
     }).sort(function (a, b) {
       return tfBlockedness(b, myMarg, ctx.valueMap) - tfBlockedness(a, myMarg, ctx.valueMap);

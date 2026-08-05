@@ -129,6 +129,8 @@
     .trade-opt-hdr { display: flex; align-items: center; gap: 6px; }
     .trade-opt-num { font-size: 0.72rem; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 0.05em; }
     .badge-pkg { background: #e8f0fe; color: #1557b0; font-size: 0.68rem; padding: 1px 5px; border-radius: 8px; font-weight: 600; }
+    .badge-arch { background: #ede7f6; color: #4527a0; font-size: 0.66rem; padding: 1px 6px; border-radius: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
+    .trade-reason { font-size: 0.84rem; color: #555; line-height: 1.45; margin: 6px 0 8px; padding-left: 10px; border-left: 3px solid #d1c4e9; }
     .trade-legs { display: grid; grid-template-columns: 1fr 28px 1fr; gap: 8px; align-items: start; }
     .trade-side { display: flex; flex-direction: column; gap: 3px; }
     .trade-side-lbl { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.05em; color: #aaa; font-weight: 700; margin-bottom: 2px; }
@@ -236,6 +238,7 @@
       <div class="mode-toggle">
         <label><input type="radio" name="tradeMode" id="modeOffer" value="offer" checked> I want to offer…</label>
         <label><input type="radio" name="tradeMode" id="modeAcquire" value="acquire"> I want to acquire…</label>
+        <label><input type="radio" name="tradeMode" id="modeFind" value="find"> Find trades for me</label>
       </div>
       <div class="role-row" id="roleRow" style="display:none">
         <div class="val-group">
@@ -285,6 +288,7 @@
   </div>
 
   <script src="shared.js"></script>
+  <script src="tradefinder.js"></script>
   <script>
     var HIT_CATS = ['OBP', 'SLG', 'HR', 'R'];
     var PIT_CATS = ['ERA', 'WHIP', 'HR9', 'SO'];
@@ -305,6 +309,7 @@
 
     // Trade Finder
     var tradeMode      = 'offer';
+    var tfCtx          = null;   // archetype-generator context (built once after valuation)
     var myValuation    = 'auto';  // 'auto' | 'current' | 'dynasty'
     var theirValuation = 'auto';
     var myPackage      = [];   // players I'm offering (full player objects)
@@ -1044,11 +1049,12 @@
         radio.addEventListener('change', function() {
           tradeMode = this.value;
           var isAcquire = tradeMode === 'acquire';
-          // In acquire mode: hide the "my package" builder — the system suggests it automatically
-          document.getElementById('myPkgPanel').style.display    = isAcquire ? 'none' : '';
-          document.getElementById('targetPkgPanel').style.display = isAcquire ? ''     : 'none';
+          var isFind    = tradeMode === 'find';
+          // Find mode needs no package at all — the generator proposes both sides.
+          document.getElementById('myPkgPanel').style.display     = (isAcquire || isFind) ? 'none' : '';
+          document.getElementById('targetPkgPanel').style.display = isAcquire ? '' : 'none';
           // Single column when only one panel is visible
-          document.querySelector('.pkg-grid').classList.toggle('pkg-grid-single', isAcquire);
+          document.querySelector('.pkg-grid').classList.toggle('pkg-grid-single', isAcquire || isFind);
           var fr = document.getElementById('finderResults'); clearEl(fr);
           document.getElementById('finderHint').textContent = '';
         });
@@ -1080,7 +1086,11 @@
       clearEl(resultsEl); hintEl.textContent = '';
 
       try {
-        if (tradeMode === 'offer') {
+        if (tradeMode === 'find') {
+          hintEl.textContent = 'Generating trades by archetype — searching…';
+          runFindMode(resultsEl);
+          hintEl.textContent = '';
+        } else if (tradeMode === 'offer') {
           if (!myPackage.length) { hintEl.textContent = 'Add at least one player to your package.'; return; }
           var myTotal = pkgSurp(myPackage, 'offer');
           hintEl.textContent = 'Package value: ' + fmt$(myTotal) + ' — searching…';
@@ -1162,6 +1172,46 @@
         combos(sorted.slice(0, k === 3 ? 10 : 15), k).forEach(function(c) { pkgs.push(c); });
       });
       return pkgs;
+    }
+
+    // Archetype generator: proposes BOTH sides with an explicit reason, instead
+    // of slicing the top of a value-sorted list. Every candidate still passes the
+    // same fairness pre-filter, standings simulation and utility gates below.
+    function runFindMode(resultsEl) {
+      if (!tfCtx) {
+        var w = document.createElement('div'); w.className = 'no-trades-msg';
+        w.textContent = 'Trade generator unavailable — marginal values could not be computed.';
+        resultsEl.appendChild(w); return;
+      }
+      var myStatus = teamStatusOf(myTeamName);
+      var found = 0;
+      teamCards.forEach(function(tc) {
+        var cands;
+        try {
+          cands = tfGenerateCandidates(tfCtx, myTeamName, tc.name, myStatus, teamStatusOf(tc.name));
+        } catch (e) { return; }
+        if (!cands.length) return;
+        var options = [];
+        for (var i = 0; i < cands.length && options.length < 3; i++) {
+          var c = cands[i];
+          var res = evaluateCandidates(tc.name, [c.myPlayers], [c.theirPlayers]);
+          for (var j = 0; j < res.length && options.length < 3; j++) {
+            res[j].archetype = c.archetype;
+            res[j].reason    = c.reason;
+            options.push(res[j]);
+          }
+        }
+        if (!options.length) return;
+        found++;
+        resultsEl.appendChild(makeTradeCard(tc.name, tc.weakCats, options, null, false));
+      });
+      if (!found) {
+        var m = document.createElement('div'); m.className = 'no-trades-msg';
+        m.textContent = 'No archetype trades cleared both sides right now. That is a normal ' +
+          'result — every proposal must pass the fairness filter, a full standings simulation, ' +
+          'and both teams’ utility gates.';
+        resultsEl.appendChild(m);
+      }
     }
 
     function runOfferMode(resultsEl) {
@@ -1261,7 +1311,21 @@
           pkgBadge.textContent = offerPlayers.length + '-for-' + receivePlayers.length + ' package';
           optHdr.appendChild(pkgBadge);
         }
+        if (opt.archetype) {
+          var archBadge = document.createElement('span'); archBadge.className = 'badge badge-arch';
+          archBadge.textContent = opt.archetype;
+          optHdr.appendChild(archBadge);
+        }
         row.appendChild(optHdr);
+
+        // The "why" — plain-language motivation for BOTH sides. textContent only:
+        // this string embeds player names straight from the projection feed.
+        if (opt.reason) {
+          var reasonEl = document.createElement('div');
+          reasonEl.className = 'trade-reason';
+          reasonEl.textContent = opt.reason;
+          row.appendChild(reasonEl);
+        }
 
         // Trade layout
         var legs = document.createElement('div'); legs.className = 'trade-legs';
@@ -1346,6 +1410,23 @@
       // Valuations
       var valueMap        = calculateAllValues(allRosters);
       var dynastyValueMap = hasDynasty ? calculateDynastyValues(allRosters, weights) : {};
+
+      // Archetype-generator context — marginal values per roster, computed once.
+      // Denominators must come from the same optimized team stats the valuation
+      // used, so the generator speaks in the same units as everything else.
+      // Without dynasty data the rental and window archetypes correctly go quiet
+      // (they need holdHorizon / dynastySurplus).
+      try {
+        var tfTeamMap = {};
+        teamNames.forEach(function(t, i) { tfTeamMap[t] = allRosters[i]; });
+        var tfBudget   = tfIpBudget();
+        var tfStatsArr = teamNames.map(function(t) { return tfTeamStats(tfTeamMap[t], tfBudget); });
+        tfCtx = tfBuildContext(tfTeamMap, valueMap, dynastyValueMap,
+                               calcSGPDenoms(tfStatsArr), tfBudget);
+      } catch (e) {
+        console.warn('[targets] archetype context unavailable:', e);
+        tfCtx = null;
+      }
 
       function getVm(player) {
         var key = player.fgId || player.name;

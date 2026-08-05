@@ -646,6 +646,44 @@
         'tfCrossGain: positive when the target roster values him more than his owner');
     })();
 
+    // ── Archetype: logjam ↔ hole ─────────────────────────────────────────────
+    section('Archetypes');
+    (function () {
+      function ch(n, pa, obp, slg, hr, r, pos) {
+        return { name: n, fgId: n, type: 'H', positions: [pos || 'c'],
+                 proj: { pa: pa, ab: pa * 0.9, obp: obp, slg: slg, hr: hr, r: r } };
+      }
+      // Complementary logjams. C and 1B are single-slot positions (plus UTIL), so
+      // a third player at either is genuinely blocked — unlike OF, where five
+      // slots swallow any realistic surplus.
+      // A: three catchers, no first baseman  -> C+UTIL filled, 1B EMPTY, c3 benched.
+      // B: three first basemen, no catcher   -> 1B+UTIL filled, C EMPTY, f3 benched.
+      // Each team's benched man walks straight into the other's empty slot.
+      var A = [ch('a-c1',550,0.400,0.550,30,90), ch('a-c2',540,0.395,0.545,29,88),
+               ch('a-c3',530,0.390,0.540,28,86)];
+      var B = [ch('b-f1',550,0.400,0.550,30,90,'1b'), ch('b-f2',540,0.395,0.545,29,88,'1b'),
+               ch('b-f3',530,0.390,0.540,28,86,'1b')];
+      var vm = {}; A.concat(B).forEach(function (p) { vm[p.fgId] = { projectedValue: 25 }; });
+      var ctx = tfBuildContext({ A: A, B: B }, vm, {}, tfDen, 400);
+      var cands = tfLogjamCandidates(ctx, 'A', 'B');
+      assert(cands.length > 0, 'tfLogjamCandidates: finds the complementary logjam swap');
+      assert(cands.some(function (c) {
+        return c.myPlayers[0].name === 'a-c3' && c.theirPlayers[0].name === 'b-f3';
+      }), 'tfLogjamCandidates: pairs the two BENCHED players, not the starters');
+      assert(cands.every(function (c) { return c.archetype === 'logjam' && c.reason.length > 20; }),
+        'tfLogjamCandidates: every candidate carries an archetype and a reason');
+      assert(cands.every(function (c) { return c.myPlayers.length && c.theirPlayers.length; }),
+        'tfLogjamCandidates: both sides are populated');
+
+      // Mirror-image rosters have no logjam motivation in either direction.
+      var clone = A.map(function (p) {
+        return Object.assign({}, p, { fgId: 'x-' + p.fgId, name: 'x-' + p.name }); });
+      var vm2 = {}; A.concat(clone).forEach(function (p) { vm2[p.fgId] = { projectedValue: 25 }; });
+      var same = tfBuildContext({ A: A, B: clone }, vm2, {}, tfDen, 400);
+      assertEqual(tfLogjamCandidates(same, 'A', 'B').length, 0,
+        'tfLogjamCandidates: mirror-image rosters produce no candidates');
+    })();
+
     // ── Summary ──────────────────────────────────────────────────────────────
     const sumEl = document.getElementById('summary');
     sumEl.textContent = passed + ' passed, ' + failed + ' failed';

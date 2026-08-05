@@ -214,10 +214,43 @@ simulation, status auto-detect).
   rebuilder), user-overridable per team (persisted). Status sets each team's
   **valuation lens**: contenders price players at current value, rebuilders at
   dynasty value. That asymmetry is what makes buy-now/sell-future trades work.
-- **Candidate generation:** package combos (≤3 players), cheap fairness
-  pre-filter first: receiving side must be covered in the *counterparty's*
-  lens within `tradeTol` (30%), plus a consolidation premium (`CONSOL_PREM`
-  15% extra per additional player on the bulkier side — no 3-scrubs-for-a-star).
+- **Candidate generation — BY ARCHETYPE** (`tfGenerateCandidates`, the "Find trades
+  for me" mode). Every proposal carries an `archetype` badge and a plain-language
+  `reason` naming the motivation on both sides. Four matchers:
+  1. **logjam** — a bat with low marginal value to me (`0 ≤ own < TF_GAIN_MIN`) who
+     would meaningfully help them, traded for a player who fills my lineup.
+     Deliberately **not** reciprocal: requiring a mirror-image logjam on both sides
+     never fires against a deep roster (measured Aug 2026: I had 5 surplus assets,
+     all 11 opponents had 0, because their bench cannot crack my lineup).
+  2. **rental** — their `holdHorizon === 0` player with real Y0 value
+     (`TF_RENTAL_MIN_VALUE` $8). They were losing him in October for nothing, and an
+     in-season cut costs them half his salary in dead money; I cut free at year end.
+     The $8 gate is essential: ~60% of contracts sit at H0 and about half of those
+     are $1-3 fringe, which are cut candidates, not rental targets (§4).
+  3. **buy-now / sell-future** — needs a genuine contender/rebuilder mismatch.
+  4. **consolidation** — two of my low-marginal spares for one clearly better player
+     (target must add ≥ 2×`TF_GAIN_MIN`).
+
+  **"Spare" means LOW MARGINAL, never high blockedness.** A player's marginal is
+  essentially always below his absolute value (removing him promotes a bench bat),
+  so `blockedness ≥ TF_BLOCK_MIN` passes nearly the whole roster — it once nominated
+  Tatis and Caminero, the two best hitters on the roster, as players to "spare."
+  Blockedness survives only as a secondary check that a candidate carries real trade
+  value.
+
+  What this replaced: slicing `myOffers` to the top 4 and `theirChips` to the top 5
+  **by absolute value**, which explored 20 of ~1,764 possible 1-for-1s — 1.1% of the
+  space, all of it the priciest slice — so star-for-star was the only reachable
+  outcome. The old browse-all-teams card view still uses that slicing; it is kept as
+  a comparison until the generator has been used in anger.
+
+  Live Aug 2026: 301 candidates across 11 opponents in ~1.5s → **9 surviving options
+  across 5 teams** after the gates below. Few results is correct.
+- **Fairness pre-filter (unchanged):** receiving side must be covered in the
+  *counterparty's* lens within `tradeTol` (30%), plus a consolidation premium
+  (`CONSOL_PREM` 15% extra per additional player on the bulkier side — no
+  3-scrubs-for-a-star). The Offer and Acquire modes still build package combos
+  (≤3 players) from a value-sorted pool.
 - **Simulation:** survivors get a full standings re-run (`simulateTrade`,
   both rosters re-optimized, blended with actuals). This also auto-enforces
   "trade from strength" — dealing a needed player shows up as a points loss.
@@ -253,7 +286,8 @@ simulation, status auto-detect).
 | `TF_PTS_DOLLARS` | tradefinder.js | 15 | $ per standings point; keep in sync with `PTS_DOLLARS` |
 | `TF_BLOCK_MIN` | tradefinder.js | 5 | $ stranded before a player is a surplus asset |
 | `TF_NEED_MIN` | tradefinder.js | 5 | $ below median before a slot is a hole |
-| `TF_GAIN_MIN` | tradefinder.js | 5 | $ a player must gain by moving to be worth proposing |
+| `TF_GAIN_MIN` | tradefinder.js | 5 | $ a player must gain by moving to be worth proposing; also the ceiling on a "spare" player's own marginal |
+| `TF_RENTAL_MIN_VALUE` | tradefinder.js | 8 | $ of Y0 value before an H0 contract is a rental target rather than a cut candidate |
 
 ## 7. Invariants — do not re-break
 
@@ -367,6 +401,13 @@ simulation, status auto-detect).
 - ~~§2 anchors stale~~ — **RESOLVED 2026-08-03.** They were a July snapshot of a
   date-dependent quantity. §2 now records Y0 anchors with their proration factor and
   adds date-invariant Y1 anchors as the stable tripwire.
+- **`tfGain` answers a narrower question than its name suggests.** It compares two
+  already-computed marginals maps, so it only works when the player appears in BOTH.
+  For "what would he be worth to a team he is not on" use **`tfCrossGain`** /
+  `tfMarginalOn`, which insert him into the target roster and re-optimize. `tfGain`
+  silently returns `−marginalsA[key]` when the player is absent from `marginalsB`,
+  and its unit test passes only because it is handed a hand-built map containing him.
+  Every archetype uses `tfCrossGain`.
 - Arbitration not modeled beyond +$2/+$4 (star keeper costs slightly light).
 - Positional scarcity IS modeled for hitters now (`computePositionalOffsets` /
   `hitterSGP`): per-position HR/SLG/OBP offsets vs the slot-weighted average,

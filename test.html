@@ -620,6 +620,32 @@
         'calcPlayerSGP: at replacement innings the scaling is a no-op');
     })();
 
+    // ── Cross-team marginal ──────────────────────────────────────────────────
+    section('Cross-team value');
+    (function () {
+      function ch(n, pa, obp, slg, hr, r) {
+        return { name: n, fgId: n, type: 'H', positions: ['c'],
+                 proj: { pa: pa, ab: pa * 0.9, obp: obp, slg: slg, hr: hr, r: r } };
+      }
+      var star = ch('star', 500, 0.400, 0.550, 30, 90);
+      // Thin roster: no catcher at all — the star fills a hole.
+      var thin = [];
+      for (var i = 0; i < 3; i++) thin.push({ name: 'of' + i, fgId: 'of' + i, type: 'H',
+        positions: ['of'], proj: { pa: 500, ab: 450, obp: 0.330, slg: 0.430, hr: 15, r: 60 } });
+      // Deep roster: already has two better catchers.
+      var deep = [ch('c1', 550, 0.410, 0.570, 33, 95), ch('c2', 540, 0.405, 0.560, 32, 93)].concat(thin);
+
+      var addThin = tfMarginalOn(star, thin, tfDen, 400);
+      var addDeep = tfMarginalOn(star, deep, tfDen, 400);
+      assert(addThin > 0, 'tfMarginalOn: a star adds positive value to a roster with a hole');
+      assert(addThin > addDeep,
+        'tfMarginalOn: worth MORE to the team with the hole than to the deep team');
+
+      var deepMarg = tfRosterMarginals(deep, tfDen, 400);
+      assert(tfCrossGain(ch('c1', 550, 0.410, 0.570, 33, 95), deepMarg, thin, tfDen, 400) > 0,
+        'tfCrossGain: positive when the target roster values him more than his owner');
+    })();
+
     // ── Summary ──────────────────────────────────────────────────────────────
     const sumEl = document.getElementById('summary');
     sumEl.textContent = passed + ' passed, ' + failed + ' failed';

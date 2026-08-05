@@ -92,6 +92,24 @@ function tfGain(player, marginalsA, marginalsB) {
   return (marginalsB[key] || 0) - (marginalsA[key] || 0);
 }
 
+// What a player would ADD to a roster he is not currently on: re-optimize that
+// roster with him inserted and score the delta. This is the primitive every
+// archetype needs — tfGain() only compares within already-computed maps and
+// CANNOT answer it (a player absent from marginalsB reads as 0 there).
+function tfMarginalOn(player, roster, denoms, ipBudget) {
+  var budget = ipBudget || tfIpBudget();
+  var base    = tfTeamStats(roster, budget);
+  var withHim = roster.concat([player]);
+  return tfMarginalZ(tfTeamStats(withHim, budget), base, denoms) * TF_PTS_DOLLARS;
+}
+
+// How much MORE a player is worth on targetRoster than to his current owner.
+// Positive = the trade motivation exists.
+function tfCrossGain(player, ownerMarginals, targetRoster, denoms, ipBudget) {
+  return tfMarginalOn(player, targetRoster, denoms, ipBudget)
+       - ((ownerMarginals || {})[tfKey(player)] || 0);
+}
+
 var TF_BLOCK_MIN = 5;   // $ stranded before a player counts as a surplus asset
 var TF_NEED_MIN  = 5;   // $ below the league median before a slot counts as a hole
 var TF_GAIN_MIN  = 5;   // $ a player must gain by moving before it is worth proposing

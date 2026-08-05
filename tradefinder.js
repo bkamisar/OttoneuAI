@@ -82,7 +82,13 @@ function tfAllMarginals(rostersByTeam, denoms, ipBudget) {
 function tfBlockedness(player, ownerMarginals, valueMap) {
   var key = tfKey(player);
   var abs = (valueMap[key] && valueMap[key].projectedValue) || 0;
-  return abs - (ownerMarginals[key] || 0);
+  // Clamp the realized side at 0. A hitter with empty PA drags team OBP/SLG, so
+  // his marginal goes NEGATIVE — and `abs − negative` inflates rather than
+  // measuring anything ("stranded $93" for a $25 player contributing −$68).
+  // Blocked means "would help if he played"; a harmful player is a different
+  // problem and callers must not treat him as a trade asset. Clamped here rather
+  // than at each call site so every archetype inherits the correct semantics.
+  return abs - Math.max(0, ownerMarginals[key] || 0);
 }
 
 // How much MORE a player is worth to team B than to his current team A.
@@ -242,6 +248,66 @@ function tfLogjamCandidates(ctx, myTeam, theirTeam) {
                 ' of value you cannot field) and worth ' + tfDollars(a.gain) +
                 ' more to them; ' + tfName(b.p) + ' is the mirror image — ' +
                 tfDollars(b.gain) + ' more useful to you.',
+      });
+    });
+  });
+  return out;
+}
+
+// ARCHETYPE 2 — Rental / salary dump.
+// Their productive player on a bad contract (holdHorizon 0) is one they were
+// going to lose in October for nothing. Trading him beats cutting him: an
+// in-season cut costs half his salary in dead money, while a trade costs
+// nothing and returns an asset. I take the full salary for the stretch run and
+// cut free at season's end, so my future liability is genuinely zero.
+// GATE: holdHorizon === 0 alone is NOT enough. Roughly 60% of contracts resolve
+// there and about half of those are $1-3 fringe (MODEL.md §4) — "cut candidate"
+// is not the same as "rental target". Require real Y0 production.
+var TF_RENTAL_MIN_VALUE = 8;   // $ of Y0 value before a rental is worth pursuing
+
+function tfRentalCandidates(ctx, myTeam, theirTeam, myStatus, theirStatus) {
+  if (myStatus === 'rebuilder') return [];       // rentals are for teams trying to win now
+  if (theirStatus === 'contender') return [];    // contenders do not sell their production
+  var out = [];
+  var myMarg   = ctx.marginals[myTeam] || {};
+  var myRoster = ctx.rostersByTeam[myTeam] || [];
+  var thRoster = ctx.rostersByTeam[theirTeam] || [];
+
+  var rentals = thRoster.filter(function (q) {
+    if (!q.proj) return false;
+    var d = ctx.dynastyMap[tfKey(q)];
+    if (!d || d.holdHorizon !== 0) return false;
+    var v = (ctx.valueMap[tfKey(q)] || {}).projectedValue || 0;
+    if (v < TF_RENTAL_MIN_VALUE) return false;                       // skip fringe H0
+    return tfMarginalOn(q, myRoster, ctx.denoms, ctx.ipBudget) > 0;  // must actually help me
+  }).sort(function (a, b) {
+    return ((ctx.valueMap[tfKey(b)] || {}).projectedValue || 0)
+         - ((ctx.valueMap[tfKey(a)] || {}).projectedValue || 0);
+  }).slice(0, 3);
+
+  // What I send: a future asset I am not fielding now — low current marginal
+  // value, positive dynasty surplus.
+  var chips = myRoster.filter(function (p) {
+    if (!p.proj) return false;
+    var d = ctx.dynastyMap[tfKey(p)];
+    if (!d || (d.dynastySurplus || 0) <= 0) return false;
+    return (myMarg[tfKey(p)] || 0) < TF_GAIN_MIN;
+  }).sort(function (a, b) {
+    return ((ctx.dynastyMap[tfKey(b)] || {}).dynastySurplus || 0)
+         - ((ctx.dynastyMap[tfKey(a)] || {}).dynastySurplus || 0);
+  }).slice(0, 3);
+
+  rentals.forEach(function (q) {
+    chips.forEach(function (p) {
+      var sal = q.salary || 0;
+      out.push({
+        archetype: 'rental',
+        myPlayers: [p], theirPlayers: [q],
+        reason: tfName(q) + ' is a rental for you — you cut him free in October, so his ' +
+                tfDollars(sal) + ' salary is a stretch-run cost only. They were losing him ' +
+                'for nothing: cutting him in-season costs them ' + tfDollars(sal / 2) +
+                ' in dead money, while trading him costs nothing and returns ' +
+                tfName(p) + ', who you are not using now.',
       });
     });
   });

@@ -414,6 +414,11 @@
       'tfBlockedness: blocked player strands his full absolute value');
     assert(tfBlockedness(tfStar1, tfMarg, tfVals) < 40,
       'tfBlockedness: a starter strands less than his absolute value');
+    // A harmful player (negative marginal) must not read as MORE blocked than his
+    // own value — `abs − negative` would inflate him into a phantom trade asset.
+    assertEqual(tfBlockedness({ name: 'Harmful', fgId: 'Harmful' },
+      { 'Harmful': -68 }, { 'Harmful': { projectedValue: 25 } }), 25,
+      'tfBlockedness: negative marginal is clamped, never inflates blockedness');
 
     // Gain: worth more to a team that would actually start him.
     var tfThin = { 'Blocked Guy': 9 };
@@ -682,6 +687,40 @@
       var same = tfBuildContext({ A: A, B: clone }, vm2, {}, tfDen, 400);
       assertEqual(tfLogjamCandidates(same, 'A', 'B').length, 0,
         'tfLogjamCandidates: mirror-image rosters produce no candidates');
+    })();
+
+    // ── Archetype: rental / salary dump ──────────────────────────────────────
+    (function () {
+      function pl(n, sal, val, horizon, surplus, obp, slg, hr, r) {
+        return { name: n, fgId: n, type: 'H', positions: ['of'], salary: sal,
+                 proj: { pa: 500, ab: 450, obp: obp, slg: slg, hr: hr, r: r },
+                 _val: val, _h: horizon, _s: surplus };
+      }
+      // ME must be a REAL roster: on a one-player team that player carries the
+      // whole team's value, so his marginal is huge and he never reads as an
+      // unused chip. Six mediocre outfielders fill OF1-5 + UTIL; the prospect sits.
+      var fill = [];
+      for (var ri = 0; ri < 6; ri++) fill.push(pl('me-of' + ri, 5, 10, 2, 2, 0.330, 0.430, 15, 60));
+      var myChip     = pl('prospect',  3,  1, 2,  18, 0.250, 0.300,  4, 25);  // benched, future value
+      var theirGuy   = pl('overpaid', 30, 20, 0, -12, 0.380, 0.520, 26, 80);  // productive, bad contract
+      var theirScrub = pl('fringe',    2,  3, 0,  -1, 0.250, 0.300,  4, 25);  // H0 but worthless
+      var rost = { ME: fill.concat([myChip]), THEM: [theirGuy, theirScrub] };
+      var vm = {}, dm = {};
+      fill.concat([theirGuy, theirScrub, myChip]).forEach(function (p) {
+        vm[p.fgId] = { projectedValue: p._val };
+        dm[p.fgId] = { holdHorizon: p._h, dynastySurplus: p._s };
+      });
+      var ctx = tfBuildContext(rost, vm, dm, tfDen, 400);
+      var c = tfRentalCandidates(ctx, 'ME', 'THEM', 'contender', 'rebuilder');
+      assert(c.length > 0, 'tfRentalCandidates: finds the productive bad contract');
+      assert(c.every(function (x) { return x.theirPlayers[0].name === 'overpaid'; }),
+        'tfRentalCandidates: skips the $2 fringe H0 player (value gate)');
+      assert(c[0].reason.indexOf('dead money') > -1,
+        'tfRentalCandidates: reason states the seller-side motivation');
+      assertEqual(tfRentalCandidates(ctx, 'ME', 'THEM', 'rebuilder', 'rebuilder').length, 0,
+        'tfRentalCandidates: a rebuilder does not rent');
+      assertEqual(tfRentalCandidates(ctx, 'ME', 'THEM', 'contender', 'contender').length, 0,
+        'tfRentalCandidates: a contender does not sell its production');
     })();
 
     // ── Summary ──────────────────────────────────────────────────────────────

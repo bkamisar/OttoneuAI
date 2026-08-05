@@ -1417,8 +1417,17 @@
       // Without dynasty data the rental and window archetypes correctly go quiet
       // (they need holdHorizon / dynastySurplus).
       try {
+        // Roster objects MUST be enriched with getVm before they reach the
+        // generator. projValue / dynValue / dynastySurplus are attached here, not
+        // on the raw merged player, and everything downstream reads them:
+        // lensValue (so fairEnough silently passes EVERYTHING when they are
+        // missing — both sides compare as 0 and neither rejection branch can
+        // fire), dynastyDelta (utility's future half goes dead), and makeSide
+        // (renders "$0 now / $0 dyn").
         var tfTeamMap = {};
-        teamNames.forEach(function(t, i) { tfTeamMap[t] = allRosters[i]; });
+        teamNames.forEach(function(t, i) {
+          tfTeamMap[t] = allRosters[i].map(function(p) { return Object.assign({}, p, getVm(p)); });
+        });
         var tfBudget   = tfIpBudget();
         var tfStatsArr = teamNames.map(function(t) { return tfTeamStats(tfTeamMap[t], tfBudget); });
         tfCtx = tfBuildContext(tfTeamMap, valueMap, dynastyValueMap,

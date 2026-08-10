@@ -25,7 +25,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10758,"Misiorowski Index",23834,22515,sa3004693,"Heliot Ramos",NYY,OF,$5
 10758,"Misiorowski Index",20435,17998,sa827454,"Pete Fairbanks",MIA,RP,$4
 10758,"Misiorowski Index",42666,31776,sa3020593,"Orion Kerkering",PHI,RP,$4
-10758,"Misiorowski Index",44534,33850,sa3023499,"Brandon Sproat",MIL,SP,$3
+10758,"Misiorowski Index",44534,33850,sa3023499,"Brandon Sproat","MIL AAA",SP,$3
 10758,"Misiorowski Index",40266,30038,sa3017795,"Carson Williams",TBR,SS,$3
 10758,"Misiorowski Index",40870,30107,sa3017948,"Christian Scott",NYM,SP,$3
 10758,"Misiorowski Index",38404,27479,sa3014506,"Masyn Winn",STL,SS,$3
@@ -156,7 +156,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10764,"Wrecking Crews",40707,29960,sa3017690,"AJ Smith-Shawver","ATL AAA",SP,$3
 10764,"Wrecking Crews",26783,20308,sa3004621,"Jake Meyers",HOU,OF,$3
 10764,"Wrecking Crews",25806,23395,sa3002875,"Eric Wagaman",NYM,1B/OF,$3
-10764,"Wrecking Crews",35548,21267,sa3008097,"Jake Bird","WSN ST",RP,$3
+10764,"Wrecking Crews",35548,21267,sa3008097,"Jake Bird",WSN,RP,$3
 10764,"Wrecking Crews",35618,21504,sa3008223,"Jake Irvin",WSN,SP,$3
 10764,"Wrecking Crews",38043,26440,sa3011818,"Ryan Gusto",MIA,SP/RP,$3
 10764,"Wrecking Crews",26080,21897,sa3003171,"Christopher Morel","NYM AAA",1B/OF,$2
@@ -397,7 +397,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10925,"Bryce Krispies👨‍🍳",36671,25436,sa3011526,"George Kirby",SEA,SP,$35
 10925,"Bryce Krispies👨‍🍳",37806,26289,sa3011484,"Gunnar Henderson",BAL,SS,$34
 10925,"Bryce Krispies👨‍🍳",14934,11493,sa548155,"Manny Machado",SDP,3B,$33
-10925,"Bryce Krispies👨‍🍳",14982,11579,sa548033,"Bryce Harper",PHI,1B,$30
+10925,"Bryce Krispies👨‍🍳",14982,11579,sa548033,"Bryce Harper",PHI,1B/OF,$30
 10925,"Bryce Krispies👨‍🍳",19328,15998,sa737794,"Cody Bellinger",NYY,OF,$25
 10925,"Bryce Krispies👨‍🍳",35196,21390,sa3007584,"Joe Ryan",MIN,SP,$19
 10925,"Bryce Krispies👨‍🍳",15962,10310,sa500722,"Zack Wheeler",PHI,SP,$18
@@ -509,7 +509,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10974,"Ketel Corn",14864,11739,sa548255,"J.T. Realmuto",PHI,C,$4
 10974,"Ketel Corn",42991,,sa3021069,"Sebastian Walcott","TEX AA",SS,$3
 10974,"Ketel Corn",42304,31580,sa3020011,"Chase Meidroth",CHW,2B/SS,$3
-10974,"Ketel Corn",45721,35205,sa3025544,"Hagen Smith","CHW ST",SP/RP,$3
+10974,"Ketel Corn",45721,35205,sa3025544,"Hagen Smith",CHW,SP/RP,$3
 10974,"Ketel Corn",33325,21690,sa920423,"Edward Cabrera","CHC AAA",SP,$3
 10974,"Ketel Corn",40615,29921,sa3017537,"Spencer Arrighetti","TOR AAA",SP,$2
 10974,"Ketel Corn",38093,27702,sa3011887,"Brent Headrick",NYY,RP,$2

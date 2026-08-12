@@ -2,7 +2,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10758,"Misiorowski Index",18312,15640,sa549847,"Aaron Judge",NYY,OF,$60
 10758,"Misiorowski Index",23327,18401,sa877503,"Ronald Acuña Jr.",ATL,OF,$43
 10758,"Misiorowski Index",23859,19251,sa873981,"Pete Alonso",BAL,1B,$34
-10758,"Misiorowski Index",18460,13543,sa597786,"Blake Snell",LAD,SP,$27
+10758,"Misiorowski Index",18460,13543,sa597786,"Blake Snell","LAD AAA",SP,$27
 10758,"Misiorowski Index",33682,22250,sa3008598,"Logan Gilbert",SEA,SP,$22
 10758,"Misiorowski Index",5918,5417,sa455591,"Jose Altuve",HOU,2B/OF,$18
 10758,"Misiorowski Index",8626,7304,sa392995,"Salvador Perez",KCR,C/1B,$13
@@ -49,8 +49,8 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10759,"Juan Nation UndeGrom 🫡",43896,33333,sa3022654,"Wyatt Langford",TEX,OF,$16
 10759,"Juan Nation UndeGrom 🫡",37201,25880,sa3010571,"Hunter Brown",HOU,SP,$14
 10759,"Juan Nation UndeGrom 🫡",45716,35110,sa3025385,"Nick Kurtz",ATH,1B,$12
-10759,"Juan Nation UndeGrom 🫡",14294,10954,sa548447,"Jacob DeGrom",TEX,SP,$12
 10759,"Juan Nation UndeGrom 🫡",41042,30279,sa3018290,"Bryan Woo",SEA,SP,$12
+10759,"Juan Nation UndeGrom 🫡",14294,10954,sa548447,"Jacob DeGrom",TEX,SP,$12
 10759,"Juan Nation UndeGrom 🫡",22674,18360,sa874756,"Austin Riley",ATL,3B,$11
 10759,"Juan Nation UndeGrom 🫡",22559,21029,sa873347,"Jhoan Duran",PHI,RP,$10
 10759,"Juan Nation UndeGrom 🫡",23601,14710,sa657938,"Edwin Diaz",LAD,RP,$7
@@ -58,29 +58,28 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10759,"Juan Nation UndeGrom 🫡",42358,31505,sa3020130,"Sal Stewart",CIN,1B/2B/3B,$6
 10759,"Juan Nation UndeGrom 🫡",42737,31846,sa3020703,"Spencer Schwellenbach",ATL,SP,$5
 10759,"Juan Nation UndeGrom 🫡",44003,33266,sa3022538,"Jacob Wilson",ATH,SS,$5
-10759,"Juan Nation UndeGrom 🫡",43589,32095,sa3021981,"Cam Schlittler",NYY,SP,$5
 10759,"Juan Nation UndeGrom 🫡",23833,19918,sa3002838,"Daulton Varsho",HOU,OF,$5
-10759,"Juan Nation UndeGrom 🫡",34396,24017,sa3006373,"Jose A. Ferrer",SEA,RP,$4
+10759,"Juan Nation UndeGrom 🫡",43589,32095,sa3021981,"Cam Schlittler",NYY,SP,$5
 10759,"Juan Nation UndeGrom 🫡",39288,28824,sa3015716,"Samuel Basallo",BAL,C/1B,$4
 10759,"Juan Nation UndeGrom 🫡",27148,23335,sa3005246,"Joey Cantillo",CLE,SP/RP,$4
+10759,"Juan Nation UndeGrom 🫡",34396,24017,sa3006373,"Jose A. Ferrer",SEA,RP,$4
 10759,"Juan Nation UndeGrom 🫡",38367,27496,sa3014465,"Owen Caissie",MIA,OF,$4
+10759,"Juan Nation UndeGrom 🫡",23701,12447,sa599698,"Seth Lugo",KCR,SP,$3
+10759,"Juan Nation UndeGrom 🫡",44057,33321,sa3022614,"Luke Keaschall",MIN,2B/OF,$3
+10759,"Juan Nation UndeGrom 🫡",42221,31539,sa3019920,"Drake Baldwin",ATL,C,$3
+10759,"Juan Nation UndeGrom 🫡",44544,33927,sa3023634,"Grant Taylor",CHW,SP/RP,$3
 10759,"Juan Nation UndeGrom 🫡",26198,22799,sa3003290,"Geraldo Perdomo",ARI,SS,$3
 10759,"Juan Nation UndeGrom 🫡",23672,20039,sa969093,"Adrian Morejon",SDP,RP,$3
-10759,"Juan Nation UndeGrom 🫡",44057,33321,sa3022614,"Luke Keaschall",MIN,2B/OF,$3
-10759,"Juan Nation UndeGrom 🫡",35602,25327,sa3008177,"Abner Uribe",MIL,RP,$3
 10759,"Juan Nation UndeGrom 🫡",35874,24586,sa3008605,"Kyle Bradish",BAL,SP,$3
-10759,"Juan Nation UndeGrom 🫡",42221,31539,sa3019920,"Drake Baldwin",ATL,C,$3
-10759,"Juan Nation UndeGrom 🫡",23701,12447,sa599698,"Seth Lugo",KCR,SP,$3
-10759,"Juan Nation UndeGrom 🫡",44544,33927,sa3023634,"Grant Taylor",CHW,SP/RP,$3
-10759,"Juan Nation UndeGrom 🫡",44248,33575,sa3022923,"Colt Emerson",SEA,SS/3B,$2
-10759,"Juan Nation UndeGrom 🫡",33607,22286,sa3005423,"Trevor Rogers",BAL,SP,$2
-10759,"Juan Nation UndeGrom 🫡",46289,,sa3042374,"Mike Sirota","LAD AA",OF,$2
-10759,"Juan Nation UndeGrom 🫡",35541,21842,sa3008079,"Carlos Cortes",ATH,OF/RP,$2
+10759,"Juan Nation UndeGrom 🫡",35602,25327,sa3008177,"Abner Uribe",MIL,RP,$3
 10759,"Juan Nation UndeGrom 🫡",38313,27770,sa3014516,"Zac Veen","COL AAA",OF,$2
+10759,"Juan Nation UndeGrom 🫡",33607,22286,sa3005423,"Trevor Rogers",BAL,SP,$2
+10759,"Juan Nation UndeGrom 🫡",35541,21842,sa3008079,"Carlos Cortes",ATH,OF/RP,$2
+10759,"Juan Nation UndeGrom 🫡",44248,33575,sa3022923,"Colt Emerson",SEA,SS/3B,$2
+10759,"Juan Nation UndeGrom 🫡",46289,,sa3042374,"Mike Sirota","LAD AA",OF,$2
 10759,"Juan Nation UndeGrom 🫡",41160,,sa3018409,"Lazaro Montes","SEA AAA",OF,$1
-10759,"Juan Nation UndeGrom 🫡",33672,23550,sa3007225,"Aaron Ashby",MIL,RP,$1
-10759,"Juan Nation UndeGrom 🫡",2916,3096,sa295200,"Kenley Jansen",DET,RP,$1
 10759,"Juan Nation UndeGrom 🫡",38328,27468,sa3014425,"Reid Detmers",LAA,SP/RP,$1
+10759,"Juan Nation UndeGrom 🫡",33672,23550,sa3007225,"Aaron Ashby",MIL,RP,$1
 10761,"NBC Andy Pages Program",43894,33677,sa3023079,"Paul Skenes",PIT,SP,$60
 10761,"NBC Andy Pages Program",18284,13510,sa598784,"José Ramírez",CLE,3B,$47
 10761,"NBC Andy Pages Program",18122,12916,sa597754,"Francisco Lindor",NYM,SS,$43
@@ -434,7 +433,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10944,"Si Se Fuentes",23625,21846,sa917938,"Cole Ragans",KCR,SP,$22
 10944,"Si Se Fuentes",18216,13624,sa657913,"Corey Seager",TEX,SS,$19
 10944,"Si Se Fuentes",37094,27676,sa1115762,"Vinnie Pasquantino",KCR,1B,$16
-10944,"Si Se Fuentes",37257,26288,sa3011643,"Adley Rutschman",BOS,C,$16
+10944,"Si Se Fuentes",37257,26288,sa3011643,"Adley Rutschman","BOS AAA",C,$16
 10944,"Si Se Fuentes",23831,20036,sa920275,"Isaac Paredes",HOU,1B/3B,$16
 10944,"Si Se Fuentes",21039,17312,sa828960,"Justin Steele",CHC,RP,$12
 10944,"Si Se Fuentes",13117,12161,sa550735,"Xander Bogaerts",SDP,SS,$9

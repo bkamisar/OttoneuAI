@@ -2,7 +2,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10758,"Misiorowski Index",18312,15640,sa549847,"Aaron Judge",NYY,OF,$60
 10758,"Misiorowski Index",23327,18401,sa877503,"Ronald Acuña Jr.",ATL,OF,$43
 10758,"Misiorowski Index",23859,19251,sa873981,"Pete Alonso",BAL,1B,$34
-10758,"Misiorowski Index",18460,13543,sa597786,"Blake Snell","LAD AAA",SP,$27
+10758,"Misiorowski Index",18460,13543,sa597786,"Blake Snell",LAD,SP,$27
 10758,"Misiorowski Index",33682,22250,sa3008598,"Logan Gilbert",SEA,SP,$22
 10758,"Misiorowski Index",5918,5417,sa455591,"Jose Altuve",HOU,2B/OF,$18
 10758,"Misiorowski Index",8626,7304,sa392995,"Salvador Perez",KCR,C/1B,$13
@@ -72,7 +72,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10759,"Juan Nation UndeGrom 🫡",23672,20039,sa969093,"Adrian Morejon",SDP,RP,$3
 10759,"Juan Nation UndeGrom 🫡",35874,24586,sa3008605,"Kyle Bradish",BAL,SP,$3
 10759,"Juan Nation UndeGrom 🫡",35602,25327,sa3008177,"Abner Uribe",MIL,RP,$3
-10759,"Juan Nation UndeGrom 🫡",38313,27770,sa3014516,"Zac Veen","COL AAA",OF,$2
+10759,"Juan Nation UndeGrom 🫡",38313,27770,sa3014516,"Zac Veen","COL ST",OF,$2
 10759,"Juan Nation UndeGrom 🫡",33607,22286,sa3005423,"Trevor Rogers",BAL,SP,$2
 10759,"Juan Nation UndeGrom 🫡",35541,21842,sa3008079,"Carlos Cortes",ATH,OF/RP,$2
 10759,"Juan Nation UndeGrom 🫡",44248,33575,sa3022923,"Colt Emerson",SEA,SS/3B,$2
@@ -155,7 +155,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10764,"Wrecking Crews",22725,20070,sa875033,"Bailey Falter","ATL AAA",SP/RP,$3
 10764,"Wrecking Crews",40707,29960,sa3017690,"AJ Smith-Shawver","ATL AAA",SP,$3
 10764,"Wrecking Crews",26783,20308,sa3004621,"Jake Meyers",HOU,OF,$3
-10764,"Wrecking Crews",25806,23395,sa3002875,"Eric Wagaman",NYM,1B/OF,$3
+10764,"Wrecking Crews",25806,23395,sa3002875,"Eric Wagaman","NYM AAA",1B/OF,$3
 10764,"Wrecking Crews",35548,21267,sa3008097,"Jake Bird",WSN,RP,$3
 10764,"Wrecking Crews",35618,21504,sa3008223,"Jake Irvin",WSN,SP,$3
 10764,"Wrecking Crews",38043,26440,sa3011818,"Ryan Gusto",MIA,SP/RP,$3
@@ -173,7 +173,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10818,"Bureau of Gleyber Statistics",33654,21534,sa3008377,"Cal Raleigh",SEA,C,$20
 10818,"Bureau of Gleyber Statistics",14393,10603,sa392121,"Chris Sale",ATL,SP,$18
 10818,"Bureau of Gleyber Statistics",18487,16997,sa830372,"Gleyber Torres",DET,2B,$17
-10818,"Bureau of Gleyber Statistics",33647,21483,sa3008547,"Shane McClanahan",TBR,SP,$16
+10818,"Bureau of Gleyber Statistics",33647,21483,sa3008547,"Shane McClanahan","TBR AAA",SP,$16
 10818,"Bureau of Gleyber Statistics",18517,16578,sa823741,"Yandy Diaz",TBR,1B,$13
 10818,"Bureau of Gleyber Statistics",18113,12768,sa455516,"Sonny Gray",BOS,SP,$9
 10818,"Bureau of Gleyber Statistics",44336,33703,sa3023053,"Nolan McLean",NYM,SP,$7
@@ -433,7 +433,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10944,"Si Se Fuentes",23625,21846,sa917938,"Cole Ragans",KCR,SP,$22
 10944,"Si Se Fuentes",18216,13624,sa657913,"Corey Seager",TEX,SS,$19
 10944,"Si Se Fuentes",37094,27676,sa1115762,"Vinnie Pasquantino",KCR,1B,$16
-10944,"Si Se Fuentes",37257,26288,sa3011643,"Adley Rutschman","BOS AAA",C,$16
+10944,"Si Se Fuentes",37257,26288,sa3011643,"Adley Rutschman",BOS,C,$16
 10944,"Si Se Fuentes",23831,20036,sa920275,"Isaac Paredes",HOU,1B/3B,$16
 10944,"Si Se Fuentes",21039,17312,sa828960,"Justin Steele",CHC,RP,$12
 10944,"Si Se Fuentes",13117,12161,sa550735,"Xander Bogaerts",SDP,SS,$9
@@ -469,7 +469,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10944,"Si Se Fuentes",40097,30203,sa3018054,"Jackson Jobe",DET,SP,$1
 10944,"Si Se Fuentes",44512,33482,sa3023361,"Chase Dollander",COL,SP/RP,$1
 10944,"Si Se Fuentes",26800,22872,sa3004650,"Yoendrys Gomez",MIN,SP/RP,$1
-10944,"Si Se Fuentes",41419,30375,sa3018808,"Jarlin Susana","WSN AA",SP,$1
+10944,"Si Se Fuentes",41419,30375,sa3018808,"Jarlin Susana","WSN A+",SP,$1
 10944,"Si Se Fuentes",41452,30661,sa3018841,"Didier Fuentes",ATL,SP/RP,$1
 10944,"Si Se Fuentes",42741,31893,sa3020707,"Robby Snelling",MIA,SP/RP,$1
 10944,"Si Se Fuentes",8550,7048,sa389855,"Fernando Cruz",NYY,RP,$1
@@ -482,7 +482,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10974,"Ketel Corn",23824,22182,sa3005315,"Hunter Greene",CIN,SP,$17
 10974,"Ketel Corn",18196,14107,sa548347,"Kevin Gausman",CHC,SP,$15
 10974,"Ketel Corn",42723,31838,,"Kodai Senga",NYM,SP/RP,$11
-10974,"Ketel Corn",36686,26378,sa917947,"Nick Lodolo","CIN AAA",SP,$11
+10974,"Ketel Corn",36686,26378,sa917947,"Nick Lodolo",CIN,SP,$11
 10974,"Ketel Corn",18391,14212,sa658473,"Josh Hader",HOU,RP,$11
 10974,"Ketel Corn",44524,33824,sa3012640,"Jung Hoo Lee",SFG,OF,$10
 10974,"Ketel Corn",18255,13301,sa503373,"Max Muncy",LAD,3B,$9
@@ -502,12 +502,12 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10974,"Ketel Corn",18116,13125,sa454389,"Gerrit Cole",NYY,SP,$5
 10974,"Ketel Corn",27074,23590,sa3005122,"Ben Brown",CHC,SP/RP,$5
 10974,"Ketel Corn",45713,34985,sa3025154,"JJ Wetherholt",STL,2B/SS,$5
-10974,"Ketel Corn",23373,21052,sa877821,"Luis Gil",NYY,SP,$5
+10974,"Ketel Corn",23373,21052,sa877821,"Luis Gil","NYY A+",SP,$5
 10974,"Ketel Corn",14864,11739,sa548255,"J.T. Realmuto",PHI,C,$4
 10974,"Ketel Corn",42991,,sa3021069,"Sebastian Walcott","TEX AA",SS,$3
 10974,"Ketel Corn",42304,31580,sa3020011,"Chase Meidroth",CHW,2B/SS,$3
 10974,"Ketel Corn",45721,35205,sa3025544,"Hagen Smith",CHW,SP/RP,$3
-10974,"Ketel Corn",33325,21690,sa920423,"Edward Cabrera","CHC AAA",SP,$3
+10974,"Ketel Corn",33325,21690,sa920423,"Edward Cabrera","CHC AA",SP,$3
 10974,"Ketel Corn",40615,29921,sa3017537,"Spencer Arrighetti","TOR AAA",SP,$2
 10974,"Ketel Corn",38093,27702,sa3011887,"Brent Headrick",NYY,RP,$2
 10974,"Ketel Corn",41865,,sa3019390,"Carlos Lagrange","NYY AAA",SP/RP,$1

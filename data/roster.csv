@@ -48,35 +48,35 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10759,"Juan Nation UndeGrom 🫡",39108,28163,sa3015532,"Junior Caminero",TBR,3B,$20
 10759,"Juan Nation UndeGrom 🫡",43896,33333,sa3022654,"Wyatt Langford",TEX,OF,$16
 10759,"Juan Nation UndeGrom 🫡",37201,25880,sa3010571,"Hunter Brown",HOU,SP,$14
-10759,"Juan Nation UndeGrom 🫡",45716,35110,sa3025385,"Nick Kurtz",ATH,1B,$12
 10759,"Juan Nation UndeGrom 🫡",41042,30279,sa3018290,"Bryan Woo",SEA,SP,$12
+10759,"Juan Nation UndeGrom 🫡",45716,35110,sa3025385,"Nick Kurtz",ATH,1B,$12
 10759,"Juan Nation UndeGrom 🫡",14294,10954,sa548447,"Jacob DeGrom",TEX,SP,$12
 10759,"Juan Nation UndeGrom 🫡",22674,18360,sa874756,"Austin Riley",ATL,3B,$11
 10759,"Juan Nation UndeGrom 🫡",22559,21029,sa873347,"Jhoan Duran",PHI,RP,$10
-10759,"Juan Nation UndeGrom 🫡",23601,14710,sa657938,"Edwin Diaz",LAD,RP,$7
 10759,"Juan Nation UndeGrom 🫡",34788,22542,sa3006873,"Lawrence Butler",ATH,OF,$7
+10759,"Juan Nation UndeGrom 🫡",22655,18839,sa874243,"Josh Naylor",SEA,1B,$7
 10759,"Juan Nation UndeGrom 🫡",42358,31505,sa3020130,"Sal Stewart",CIN,1B/2B/3B,$6
 10759,"Juan Nation UndeGrom 🫡",42737,31846,sa3020703,"Spencer Schwellenbach",ATL,SP,$5
 10759,"Juan Nation UndeGrom 🫡",44003,33266,sa3022538,"Jacob Wilson",ATH,SS,$5
-10759,"Juan Nation UndeGrom 🫡",23833,19918,sa3002838,"Daulton Varsho",HOU,OF,$5
 10759,"Juan Nation UndeGrom 🫡",43589,32095,sa3021981,"Cam Schlittler",NYY,SP,$5
-10759,"Juan Nation UndeGrom 🫡",39288,28824,sa3015716,"Samuel Basallo",BAL,C/1B,$4
 10759,"Juan Nation UndeGrom 🫡",27148,23335,sa3005246,"Joey Cantillo",CLE,SP/RP,$4
 10759,"Juan Nation UndeGrom 🫡",34396,24017,sa3006373,"Jose A. Ferrer",SEA,RP,$4
+10759,"Juan Nation UndeGrom 🫡",39288,28824,sa3015716,"Samuel Basallo",BAL,C/1B,$4
 10759,"Juan Nation UndeGrom 🫡",38367,27496,sa3014465,"Owen Caissie",MIA,OF,$4
-10759,"Juan Nation UndeGrom 🫡",23701,12447,sa599698,"Seth Lugo",KCR,SP,$3
-10759,"Juan Nation UndeGrom 🫡",44057,33321,sa3022614,"Luke Keaschall",MIN,2B/OF,$3
 10759,"Juan Nation UndeGrom 🫡",42221,31539,sa3019920,"Drake Baldwin",ATL,C,$3
-10759,"Juan Nation UndeGrom 🫡",44544,33927,sa3023634,"Grant Taylor",CHW,SP/RP,$3
-10759,"Juan Nation UndeGrom 🫡",26198,22799,sa3003290,"Geraldo Perdomo",ARI,SS,$3
 10759,"Juan Nation UndeGrom 🫡",23672,20039,sa969093,"Adrian Morejon",SDP,RP,$3
+10759,"Juan Nation UndeGrom 🫡",44057,33321,sa3022614,"Luke Keaschall",MIN,2B/OF,$3
+10759,"Juan Nation UndeGrom 🫡",26198,22799,sa3003290,"Geraldo Perdomo",ARI,SS,$3
 10759,"Juan Nation UndeGrom 🫡",35874,24586,sa3008605,"Kyle Bradish",BAL,SP,$3
 10759,"Juan Nation UndeGrom 🫡",35602,25327,sa3008177,"Abner Uribe",MIL,RP,$3
-10759,"Juan Nation UndeGrom 🫡",38313,27770,sa3014516,"Zac Veen","COL ST",OF,$2
-10759,"Juan Nation UndeGrom 🫡",33607,22286,sa3005423,"Trevor Rogers",BAL,SP,$2
-10759,"Juan Nation UndeGrom 🫡",35541,21842,sa3008079,"Carlos Cortes",ATH,OF/RP,$2
+10759,"Juan Nation UndeGrom 🫡",44544,33927,sa3023634,"Grant Taylor",CHW,SP/RP,$3
+10759,"Juan Nation UndeGrom 🫡",23701,12447,sa599698,"Seth Lugo",KCR,SP,$3
 10759,"Juan Nation UndeGrom 🫡",44248,33575,sa3022923,"Colt Emerson",SEA,SS/3B,$2
 10759,"Juan Nation UndeGrom 🫡",46289,,sa3042374,"Mike Sirota","LAD AA",OF,$2
+10759,"Juan Nation UndeGrom 🫡",38313,27770,sa3014516,"Zac Veen",COL,OF,$2
+10759,"Juan Nation UndeGrom 🫡",36325,26546,sa3009276,"Agustin Ramirez",MIA,C,$2
+10759,"Juan Nation UndeGrom 🫡",35541,21842,sa3008079,"Carlos Cortes",ATH,OF/RP,$2
+10759,"Juan Nation UndeGrom 🫡",33607,22286,sa3005423,"Trevor Rogers",BAL,SP,$2
 10759,"Juan Nation UndeGrom 🫡",41160,,sa3018409,"Lazaro Montes","SEA AAA",OF,$1
 10759,"Juan Nation UndeGrom 🫡",38328,27468,sa3014425,"Reid Detmers",LAA,SP/RP,$1
 10759,"Juan Nation UndeGrom 🫡",33672,23550,sa3007225,"Aaron Ashby",MIL,RP,$1
@@ -154,7 +154,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10764,"Wrecking Crews",42206,31765,sa3019905,"Nacho Alvarez Jr.","LAA AAA",3B,$3
 10764,"Wrecking Crews",22725,20070,sa875033,"Bailey Falter","ATL AAA",SP/RP,$3
 10764,"Wrecking Crews",40707,29960,sa3017690,"AJ Smith-Shawver","ATL AAA",SP,$3
-10764,"Wrecking Crews",26783,20308,sa3004621,"Jake Meyers",HOU,OF,$3
+10764,"Wrecking Crews",26783,20308,sa3004621,"Jake Meyers","HOU AAA",OF,$3
 10764,"Wrecking Crews",25806,23395,sa3002875,"Eric Wagaman","NYM AAA",1B/OF,$3
 10764,"Wrecking Crews",35548,21267,sa3008097,"Jake Bird",WSN,RP,$3
 10764,"Wrecking Crews",35618,21504,sa3008223,"Jake Irvin",WSN,SP,$3

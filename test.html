@@ -702,11 +702,12 @@
       var fill = [];
       for (var ri = 0; ri < 6; ri++) fill.push(pl('me-of' + ri, 5, 10, 2, 2, 0.330, 0.430, 15, 60));
       var myChip     = pl('prospect',  3,  1, 2,  18, 0.250, 0.300,  4, 25);  // benched, future value
-      var theirGuy   = pl('overpaid', 30, 20, 0, -12, 0.380, 0.520, 26, 80);  // productive, bad contract
+      var theirGuy   = pl('overpaid', 30, 20, 0, -12, 0.380, 0.520, 26, 80);  // productive, UNDERWATER
       var theirScrub = pl('fringe',    2,  3, 0,  -1, 0.250, 0.300,  4, 25);  // H0 but worthless
-      var rost = { ME: fill.concat([myChip]), THEM: [theirGuy, theirScrub] };
+      var theirGem   = pl('bargain',   5, 28, 0,  23, 0.375, 0.515, 25, 78);  // H0 but a BARGAIN — not a dump
+      var rost = { ME: fill.concat([myChip]), THEM: [theirGuy, theirScrub, theirGem] };
       var vm = {}, dm = {};
-      fill.concat([theirGuy, theirScrub, myChip]).forEach(function (p) {
+      fill.concat([theirGuy, theirScrub, theirGem, myChip]).forEach(function (p) {
         vm[p.fgId] = { projectedValue: p._val };
         dm[p.fgId] = { holdHorizon: p._h, dynastySurplus: p._s };
       });
@@ -715,6 +716,8 @@
       assert(c.length > 0, 'tfRentalCandidates: finds the productive bad contract');
       assert(c.every(function (x) { return x.theirPlayers[0].name === 'overpaid'; }),
         'tfRentalCandidates: skips the $2 fringe H0 player (value gate)');
+      assert(c.every(function (x) { return x.theirPlayers[0].name !== 'bargain'; }),
+        'tfRentalCandidates: a cheap POSITIVE-surplus H0 player is a bargain, not a dump');
       assert(c[0].reason.indexOf('dead money') > -1,
         'tfRentalCandidates: reason states the seller-side motivation');
       assertEqual(tfRentalCandidates(ctx, 'ME', 'THEM', 'rebuilder', 'rebuilder').length, 0,

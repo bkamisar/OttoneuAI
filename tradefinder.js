@@ -295,6 +295,15 @@ function tfLogjamCandidates(ctx, myTeam, theirTeam) {
 // there and about half of those are $1-3 fringe (MODEL.md §4) — "cut candidate"
 // is not the same as "rental target". Require real Y0 production.
 var TF_RENTAL_MIN_VALUE = 8;   // $ of Y0 value before a rental is worth pursuing
+// The contract must actually be BAD. At holdHorizon 0 the dynasty surplus is
+// literally Y0 value minus salary, so <= 0 means the owner is overpaying him
+// right now — which is the whole premise: they were going to lose him for
+// nothing, and the dead-money cost of cutting him mid-season is real leverage.
+// Without this, holdHorizon 0 alone swept in bargains: measured Aug 2026, half
+// the 74-player pool had POSITIVE surplus, including Zack Wheeler ($18 salary,
+// +$41.9) and Alec Burleson ($5, +$22.9). Nobody dumps those, and "cutting him
+// costs you $2.50 in dead money" is not a pitch.
+var TF_RENTAL_MAX_SURPLUS = 0;
 
 function tfRentalCandidates(ctx, myTeam, theirTeam, myStatus, theirStatus) {
   if (myStatus === 'rebuilder') return [];       // rentals are for teams trying to win now
@@ -307,7 +316,8 @@ function tfRentalCandidates(ctx, myTeam, theirTeam, myStatus, theirStatus) {
   var rentals = thRoster.filter(function (q) {
     if (!q.proj) return false;
     var d = ctx.dynastyMap[tfKey(q)];
-    if (!d || d.holdHorizon !== 0) return false;
+    if (!d || d.holdHorizon !== 0) return false;                     // they will not keep him
+    if ((d.dynastySurplus || 0) > TF_RENTAL_MAX_SURPLUS) return false; // ...but a bargain is not a dump
     var v = (ctx.valueMap[tfKey(q)] || {}).projectedValue || 0;
     if (v < TF_RENTAL_MIN_VALUE) return false;                       // skip fringe H0
     return tfMarginalOn(q, myRoster, ctx.denoms, ctx.ipBudget) > 0;  // must actually help me
@@ -330,15 +340,17 @@ function tfRentalCandidates(ctx, myTeam, theirTeam, myStatus, theirStatus) {
 
   rentals.forEach(function (q) {
     chips.forEach(function (p) {
-      var sal = q.salary || 0;
+      var sal   = q.salary || 0;
+      var worth = (ctx.valueMap[tfKey(q)] || {}).projectedValue || 0;
       out.push({
         archetype: 'rental',
         myPlayers: [p], theirPlayers: [q],
-        reason: tfName(q) + ' is a rental for you — you cut him free in October, so his ' +
-                tfDollars(sal) + ' salary is a stretch-run cost only. They were losing him ' +
-                'for nothing: cutting him in-season costs them ' + tfDollars(sal / 2) +
-                ' in dead money, while trading him costs nothing and returns ' +
-                tfName(p) + ', who you are not using now.',
+        reason: tfName(q) + ' costs ' + tfDollars(sal) + ' and is worth about ' +
+                tfDollars(worth) + ' — an underwater contract they will not keep past ' +
+                'October, so today they lose him for nothing. Cutting him in-season costs ' +
+                'them ' + tfDollars(sal / 2) + ' in dead money; trading him costs nothing ' +
+                'and returns ' + tfName(p) + ', who you are not using now. For you he is a ' +
+                'pure rental: stretch-run production, then cut free at season’s end.',
       });
     });
   });

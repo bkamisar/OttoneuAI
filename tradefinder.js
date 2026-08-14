@@ -203,6 +203,28 @@ function tfBuildContext(rostersByTeam, valueMap, dynastyMap, denoms, ipBudget) {
 function tfDollars(n) { return '$' + Math.round(n); }
 function tfName(p) { return p.rawName || p.name; }
 
+// A player whose future value is this high is NOT a spare, however little he
+// contributes right now. Low rest-of-season marginal value has two very
+// different causes — genuinely fringe, or a young stud whose PA are cut short by
+// injury — and only the first is expendable. Measured Aug 2026: of 302
+// low-marginal players league-wide the MEDIAN dynasty surplus is $0.4, so this
+// guard costs almost nothing, while the tail above it is entirely young studs
+// and top prospects (Caglianone $55, Jesus Made $46, Kurtz $39, Basallo $42).
+var TF_SPARE_MAX_DYN_SURPLUS = 15;
+
+// The single definition of "expendable", shared by every archetype that gives a
+// player away. Do NOT re-derive this inline: an earlier version tested only
+// blockedness and nominated the roster's two best hitters.
+function tfIsSpare(player, ownerMarginals, ctx) {
+  var key = tfKey(player);
+  var own = (ownerMarginals || {})[key] || 0;
+  if (own < 0 || own >= TF_GAIN_MIN) return false;                    // must be idle, not harmful, not a contributor
+  if (tfBlockedness(player, ownerMarginals, ctx.valueMap) < TF_BLOCK_MIN) return false;
+  var d = ctx.dynastyMap[key];
+  if (d && (d.dynastySurplus || 0) > TF_SPARE_MAX_DYN_SURPLUS) return false;  // young stud, not a throw-in
+  return true;
+}
+
 // ARCHETYPE 1 — Logjam <-> Hole.
 // I have a bat stranded behind better ones; they would start him. Reciprocally
 // for one of theirs. This is exactly what the old slicing could never reach: a
@@ -222,19 +244,10 @@ function tfLogjamCandidates(ctx, myTeam, theirTeam) {
                  gain: addTo - own };
       })
       .filter(function (x) {
-        // The defining test is LOW MARGINAL TO ME — he is genuinely stranded.
-        // Blockedness alone is useless here: a player's marginal is essentially
-        // always below his absolute value (removing him promotes a bench bat who
-        // supplies something), so `blockedness >= 5` passes nearly the whole
-        // roster and this gate once nominated Caminero and Tatis — my two best
-        // hitters — as "stranded on the bench".
-        //   own >= 0            : benched, not actively harmful (an empty-PA bat
-        //                         drags team rates and is a different problem)
-        //   own <  TF_GAIN_MIN  : I genuinely will not miss him
-        //   addTo >= TF_GAIN_MIN: he would meaningfully help THEM
-        //   blocked >= BLOCK_MIN: he still carries real trade value
-        return x.own >= 0 && x.own < TF_GAIN_MIN &&
-               x.addTo >= TF_GAIN_MIN && x.blocked >= TF_BLOCK_MIN;
+        // tfIsSpare carries the full definition (idle now, real trade value, and
+        // NOT a future asset). All that is added here is that he must actually
+        // help the other side — "worth more to them" is meaningless otherwise.
+        return tfIsSpare(x.p, ownMarg, ctx) && x.addTo >= TF_GAIN_MIN;
       })
       .sort(function (a, b) { return b.gain - a.gain; })
       .slice(0, 4);
@@ -398,14 +411,7 @@ function tfConsolidationCandidates(ctx, myTeam, theirTeam) {
   var myRoster = ctx.rostersByTeam[myTeam] || [], thRoster = ctx.rostersByTeam[theirTeam] || [];
 
   var spares = myRoster.filter(function (p) {
-      // Same definition of "spare" the logjam matcher uses: LOW marginal to me.
-      // Blockedness alone passes nearly the whole roster, which once produced
-      // "you are deep enough to spare Fernando Tatis Jr. and Junior Caminero" —
-      // my two best hitters. `>= 0` (not `> 0`) keeps genuinely benched players
-      // in, since cashing in depth is exactly what consolidation is for.
-      var mg = myMarg[tfKey(p)] || 0;
-      return p.proj && mg >= 0 && mg < TF_GAIN_MIN &&
-             tfBlockedness(p, myMarg, ctx.valueMap) >= TF_BLOCK_MIN;
+      return p.proj && tfIsSpare(p, myMarg, ctx);
     }).sort(function (a, b) {
       return tfBlockedness(b, myMarg, ctx.valueMap) - tfBlockedness(a, myMarg, ctx.valueMap);
     }).slice(0, 4);

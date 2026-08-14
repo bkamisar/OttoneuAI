@@ -738,7 +738,8 @@
       // consolidation trades away, so the fixture needs a real bench.
       var prospect = of('w-prospect', 0.250, 0.300, 4, 25);
       var bench2   = of('w-bench2',   0.245, 0.295, 3, 22);
-      var ME = meFill.concat([prospect, bench2]);
+      var bench3   = of('w-bench3',   0.240, 0.290, 3, 20);
+      var ME = meFill.concat([prospect, bench2, bench3]);
       // THEM: one clearly better bat than anything I field.
       var stud = of('w-stud', 0.400, 0.560, 30, 95, 20);
       var THEM = [stud];
@@ -757,7 +758,7 @@
       assert(buy.every(function (c) { return c.archetype === 'buy-now'; }),
         'tfWindowCandidates: labelled buy-now');
       assert(buy.every(function (c) {
-        return ['w-prospect', 'w-bench2'].indexOf(c.myPlayers[0].name) > -1; }),
+        return ['w-prospect', 'w-bench2', 'w-bench3'].indexOf(c.myPlayers[0].name) > -1; }),
         'tfWindowCandidates: I only send assets I am not fielding');
       assert(buy.some(function (c) { return c.myPlayers[0].name === 'w-prospect'; }),
         'tfWindowCandidates: the highest-surplus future asset is among them');
@@ -779,6 +780,20 @@
       var keys = allC.map(function (c) {
         return c.myPlayers.map(tfKey).sort().join('|') + '/' + c.theirPlayers.map(tfKey).sort().join('|'); });
       assertEqual(keys.length, new Set(keys).size, 'tfGenerateCandidates: no duplicate pairings');
+
+      // THE KURTZ CASE: an injured young stud has near-zero marginal value this
+      // season but is not remotely expendable. Low RoS marginal has two very
+      // different causes and only "genuinely fringe" is tradeable.
+      var margME = ctx.marginals.ME;
+      assert(!tfIsSpare(prospect, margME, ctx),
+        'tfIsSpare: a high-dynasty-surplus player is NOT a spare despite ~0 marginal');
+      assert(tfIsSpare(bench2, margME, ctx),
+        'tfIsSpare: a genuinely fringe bench bat still qualifies');
+      assert(allC.every(function (c) {
+        return c.archetype === 'buy-now' ||
+               c.myPlayers.every(function (p) { return p.name !== 'w-prospect'; }); }),
+        'tfGenerateCandidates: the stud is never a logjam/consolidation throw-in ' +
+        '(buy-now may still send him — that archetype is deliberately selling the future)');
     })();
 
     // ── Summary ──────────────────────────────────────────────────────────────

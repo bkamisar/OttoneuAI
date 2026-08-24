@@ -223,8 +223,13 @@ function parseProspectsCSV(text) {
   var firstData = lines[headerIdx + 1] || '';
   var delim = firstData.includes('\t') ? '\t' : ',';
 
+  // Reuses the same quote-aware tokenizer parseCSV() uses elsewhere. The naive
+  // line.split(delim) this used to do breaks on any comma inside a quoted
+  // field — which the Report/TLDR scouting blurb reliably contains (ordinary
+  // English sentences have commas), silently shifting every column after it
+  // (Age, ETA, FV, and now the grade columns) for most prospects.
   function splitLine(line) {
-    return line.split(delim).map(function(c) { return c.trim().replace(/^"|"$/g, ''); });
+    return parseCSVLine(line, delim).map(function(c) { return c.trim().replace(/^"|"$/g, ''); });
   }
 
   var headers = splitLine(lines[headerIdx]);
@@ -251,8 +256,30 @@ function parseProspectsCSV(text) {
       fv,
       risk:    idx['Risk']         !== undefined ? (cols[idx['Risk']]         || '')              : '',
       age:     idx['Age']          !== undefined ? (parseFloat(cols[idx['Age']]) || null)         : null,
+      // Present/future scouting grades (20-80 scale). Optional — older-format
+      // prospects.csv files without these columns simply parse to null, same
+      // graceful-degradation pattern as risk/age above.
+      hitNow:  gradeCol(idx, cols, 'Hit_Now'),  hitFut:  gradeCol(idx, cols, 'Hit_Fut'),
+      gameNow: gradeCol(idx, cols, 'Game_Now'), gameFut: gradeCol(idx, cols, 'Game_Fut'),
+      rawNow:  gradeCol(idx, cols, 'Raw_Now'),  rawFut:  gradeCol(idx, cols, 'Raw_Fut'),
+      spdNow:  gradeCol(idx, cols, 'Spd_Now'),  spdFut:  gradeCol(idx, cols, 'Spd_Fut'),
+      fldNow:  gradeCol(idx, cols, 'Fld_Now'),  fldFut:  gradeCol(idx, cols, 'Fld_Fut'),
+      armNow:  gradeCol(idx, cols, 'Arm_Now'),  armFut:  gradeCol(idx, cols, 'Arm_Fut'),
+      fbNow:   gradeCol(idx, cols, 'FB_Now'),   fbFut:   gradeCol(idx, cols, 'FB_Fut'),
+      slNow:   gradeCol(idx, cols, 'SL_Now'),   slFut:   gradeCol(idx, cols, 'SL_Fut'),
+      cbNow:   gradeCol(idx, cols, 'CB_Now'),   cbFut:   gradeCol(idx, cols, 'CB_Fut'),
+      chNow:   gradeCol(idx, cols, 'CH_Now'),   chFut:   gradeCol(idx, cols, 'CH_Fut'),
+      splNow:  gradeCol(idx, cols, 'SPL_Now'),  splFut:  gradeCol(idx, cols, 'SPL_Fut'),
+      ctNow:   gradeCol(idx, cols, 'CT_Now'),   ctFut:   gradeCol(idx, cols, 'CT_Fut'),
+      cmdNow:  gradeCol(idx, cols, 'CMD_Now'),  cmdFut:  gradeCol(idx, cols, 'CMD_Fut'),
     };
   }).filter(Boolean);
+}
+
+function gradeCol(idx, cols, header) {
+  if (idx[header] === undefined) return null;
+  var n = parseInt(cols[idx[header]]);
+  return isNaN(n) ? null : n;
 }
 
 // ── SECURITY HELPER ──────────────────────────────────────────────────────────

@@ -47,6 +47,8 @@
     .badge-fv-high   { background: #e8f0fe; color: #1557b0; }
     .badge-fv-mid    { background: #e0f2f1; color: #00695c; }
     .badge-fv-low    { background: #f5f5f5; color: #666;    }
+    .grades-cell { text-align: left !important; white-space: nowrap; font-size: 0.76rem; color: #555; letter-spacing: 0.01em; }
+    .grades-cell .tool { color: #888; font-weight: 600; }
   </style>
   <link rel="stylesheet" href="theme.css">
 </head>
@@ -97,6 +99,7 @@
             <th data-col="level">Level</th>
             <th data-col="eta">ETA</th>
             <th data-col="age">Age</th>
+            <th class="grades-cell">Grades</th>
             <th data-col="value" id="thValue">Proj $</th>
             <th data-col="team">Ottoneu Team</th>
             <th data-col="salary">Salary</th>
@@ -144,6 +147,39 @@
       if (pos === 'rhp' || pos === 'lhp' || pos === 'p') return ['sp'];
       if (pos === 'lf' || pos === 'cf' || pos === 'rf') return ['of'];
       return [pos];
+    }
+
+    // Compact present→future scouting-grade line, e.g. "Hit 40→60  Pwr 50→70".
+    // Tools with no grade at all are skipped (a hitter has no pitch grades and
+    // vice versa); a tool with only one side graded shows just that number.
+    function gradePair(now, fut) {
+      if (now == null && fut == null) return null;
+      if (now != null && fut != null) return now + '→' + fut;
+      return now != null ? String(now) : ('→' + fut);
+    }
+    function buildGradesCell(pr) {
+      var isPitcher = inferType(pr.pos) === 'P';
+      var tools = isPitcher
+        ? [['FB', pr.fbNow, pr.fbFut], ['SL', pr.slNow, pr.slFut], ['CB', pr.cbNow, pr.cbFut],
+           ['CH', pr.chNow, pr.chFut], ['SPL', pr.splNow, pr.splFut], ['CT', pr.ctNow, pr.ctFut],
+           ['CMD', pr.cmdNow, pr.cmdFut]]
+        : [['Hit', pr.hitNow, pr.hitFut], ['Pwr', pr.gameNow, pr.gameFut], ['Raw', pr.rawNow, pr.rawFut],
+           ['Spd', pr.spdNow, pr.spdFut], ['Fld', pr.fldNow, pr.fldFut], ['Arm', pr.armNow, pr.armFut]];
+      var frag = document.createDocumentFragment();
+      var shown = 0;
+      tools.forEach(function(t) {
+        var val = gradePair(t[1], t[2]);
+        if (!val) return;
+        if (shown > 0) frag.appendChild(document.createTextNode('  '));
+        var toolSpan = document.createElement('span');
+        toolSpan.className = 'tool';
+        toolSpan.textContent = t[0] + ' ';
+        frag.appendChild(toolSpan);
+        frag.appendChild(document.createTextNode(val));
+        shown++;
+      });
+      if (!shown) frag.appendChild(document.createTextNode('—'));
+      return frag;
     }
 
     function fmt$(n) {
@@ -230,6 +266,11 @@
         tr.appendChild(td(pr.level || '—'));
         tr.appendChild(td(pr.eta   || '—'));
         tr.appendChild(td(pr.age   ? pr.age.toFixed(1) : '—'));
+
+        var gradesCell = document.createElement('td');
+        gradesCell.className = 'grades-cell';
+        gradesCell.appendChild(buildGradesCell(pr));
+        tr.appendChild(gradesCell);
 
         if (row.hasProj) {
           var valCls = isDynasty ? 'dynasty-val' : (val >= 10 ? 'surplus-pos' : '');

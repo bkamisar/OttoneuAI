@@ -799,6 +799,46 @@
         '(buy-now may still send him — that archetype is deliberately selling the future)');
     })();
 
+    // ── Prospect scouting grades ──────────────────────────────────────────────
+    section('Prospect grades');
+    (function () {
+      var header = 'Top 100,Org Rk,Name,Org,Pos,Current Level,ETA,FV,Risk,Trend,Age,Ht,Wt,B,T,' +
+        'Sign Yr,Sign Mkt,Sign Org,Bonus,Signed From,Report,Video,' +
+        'Hit_Now,Hit_Fut,Game_Now,Game_Fut,Raw_Now,Raw_Fut,Spd_Now,Spd_Fut,Fld_Now,Fld_Fut,Arm_Now,Arm_Fut,' +
+        'FB_Now,FB_Fut,SL_Now,SL_Fut,CB_Now,CB_Fut,CH_Now,CH_Fut,SPL_Now,SPL_Fut,CT_Now,CT_Fut,CMD_Now,CMD_Fut';
+      // Report fields MUST contain a comma inside the quotes — this is the exact
+      // shape that broke the naive line.split(delim) this function used to use.
+      // An earlier version of this very test used a comma-free placeholder and
+      // completely missed the bug that shipped to production.
+      var hitterRow = '2,1,Jesus Made,MIL,SS,AA,2027,65,Med,,17.9,"6\' 1""",180,S,R,2024,Intl15,MIL,950000,DR,' +
+        '"Made is a do-it-all, wunderkind infielder with plus contact, power, and defense.",vid,' +
+        '40,60,35,60,50,60,50,45,40,60,55,,,,,,,,,,,,,,,';
+      var pitcherRow = '11,1,Thomas White,MIA,P,AAA,2027,60,High,,20.5,"6\' 5""",210,L,L,2023,Draft,MIA,4100000,School,' +
+        '"White has plus stuff, questionable command, and no. 2 starter upside.",vid,' +
+        ',,,,,,,,,,,,60,60,60,70,,,50,60,,,,,30,40';
+      var rows = parseProspectsCSV([header, hitterRow, pitcherRow].join('\n'));
+      assertEqual(rows.length, 2, 'parseProspectsCSV: still parses two prospect rows with grade columns present');
+
+      var made = rows[0];
+      assertEqual(made.hitNow, 40, 'parseProspectsCSV: hitter Hit_Now parsed');
+      assertEqual(made.hitFut, 60, 'parseProspectsCSV: hitter Hit_Fut parsed');
+      assertEqual(made.gameNow, 35, 'parseProspectsCSV: comma inside a quoted Report field does not shift later columns');
+      assertEqual(made.armFut, null, 'parseProspectsCSV: blank grade cell parses to null, not 0 or NaN');
+      assertEqual(made.fbNow, null, 'parseProspectsCSV: a hitter has no pitch grades');
+
+      var white = rows[1];
+      assertEqual(white.fbNow, 60, 'parseProspectsCSV: pitcher FB_Now parsed');
+      assertEqual(white.cmdFut, 40, 'parseProspectsCSV: pitcher CMD_Fut parsed');
+      assertEqual(white.hitNow, null, 'parseProspectsCSV: a pitcher has no hit tool grades');
+
+      // Backward compatibility: an old-format CSV with no grade columns at all.
+      var oldHeader = 'Top 100,Org Rk,Name,Org,Pos,Current Level,ETA,FV,Risk,Age';
+      var oldRow    = '1,1,Old Format Guy,PIT,SS,MLB,2026,70,High,19';
+      var oldRows   = parseProspectsCSV([oldHeader, oldRow].join('\n'));
+      assertEqual(oldRows.length, 1, 'parseProspectsCSV: old-format CSV without grade columns still parses');
+      assertEqual(oldRows[0].hitNow, null, 'parseProspectsCSV: missing grade columns default to null, not a crash');
+    })();
+
     // ── Summary ──────────────────────────────────────────────────────────────
     const sumEl = document.getElementById('summary');
     sumEl.textContent = passed + ' passed, ' + failed + ' failed';

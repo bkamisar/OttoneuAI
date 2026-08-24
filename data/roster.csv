@@ -14,31 +14,33 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10758,"Misiorowski Index",37427,26121,sa3010862,"Francisco Alvarez",NYM,C,$7
 10758,"Misiorowski Index",23796,20437,sa3004259,"Royce Lewis",MIN,1B/2B/3B,$7
 10758,"Misiorowski Index",39978,29591,sa3017018,"Colton Cowser",BAL,OF,$6
-10758,"Misiorowski Index",42711,31623,sa3020644,"Jacob Misiorowski",MIL,SP,$6
 10758,"Misiorowski Index",40262,29712,sa3017170,"Colson Montgomery",CHW,SS/3B,$6
+10758,"Misiorowski Index",42711,31623,sa3020644,"Jacob Misiorowski",MIL,SP,$6
 10758,"Misiorowski Index",35922,25385,sa829799,"Drew Rasmussen",TBR,SP,$5
+10758,"Misiorowski Index",26857,22184,sa3004720,"Mark Vientos",NYM,1B/3B,$5
 10758,"Misiorowski Index",23693,16162,sa597893,"Brandon Woodruff",MIL,SP,$5
 10758,"Misiorowski Index",23834,22515,sa3004693,"Heliot Ramos",NYY,OF,$5
 10758,"Misiorowski Index",31541,20302,sa829588,"David Peterson",CHC,SP/RP,$5
-10758,"Misiorowski Index",26857,22184,sa3004720,"Mark Vientos",NYM,1B/3B,$5
-10758,"Misiorowski Index",20435,17998,sa827454,"Pete Fairbanks",MIA,RP,$4
 10758,"Misiorowski Index",42666,31776,sa3020593,"Orion Kerkering",PHI,RP,$4
-10758,"Misiorowski Index",38404,27479,sa3014506,"Masyn Winn",STL,SS,$3
-10758,"Misiorowski Index",44534,33850,sa3023499,"Brandon Sproat","MIL AAA",SP,$3
+10758,"Misiorowski Index",20435,17998,sa827454,"Pete Fairbanks",MIA,RP,$4
 10758,"Misiorowski Index",40266,30038,sa3017795,"Carson Williams","TBR AAA",SS,$3
-10758,"Misiorowski Index",40870,30107,sa3017948,"Christian Scott",NYM,SP,$3
 10758,"Misiorowski Index",42266,31532,sa3019969,"Spencer Jones",NYY,OF,$3
+10758,"Misiorowski Index",44534,33850,sa3023499,"Brandon Sproat","MIL AAA",SP,$3
+10758,"Misiorowski Index",38404,27479,sa3014506,"Masyn Winn",STL,SS,$3
+10758,"Misiorowski Index",44539,,sa3023363,"Leo De Vries","ATH AA",SS,$3
 10758,"Misiorowski Index",37239,25636,sa3010621,"Hunter Gaddis",CLE,RP,$3
 10758,"Misiorowski Index",35205,20423,sa3007594,"Ryan Walker","SFG AAA",RP,$3
-10758,"Misiorowski Index",35181,24729,sa3007519,"Logan O'Hoppe","TEX AAA",C,$3
-10758,"Misiorowski Index",44539,,sa3023363,"Leo De Vries","ATH AA",SS,$3
+10758,"Misiorowski Index",35181,24729,sa3007519,"Logan O'Hoppe",TEX,C,$3
+10758,"Misiorowski Index",40870,30107,sa3017948,"Christian Scott",NYM,SP,$3
 10758,"Misiorowski Index",33616,20492,sa3008444,"Casey Mize",SDP,SP,$3
-10758,"Misiorowski Index",18364,17432,sa709602,"Jeff Hoffman",MIN,RP,$2
-10758,"Misiorowski Index",19296,15711,sa737633,"Tyler O'Neill",BAL,OF,$2
 10758,"Misiorowski Index",23818,19574,sa917955,"JoJo Romero",MIL,RP,$2
 10758,"Misiorowski Index",27723,11861,sa548332,"Jason Adam",SDP,RP,$2
-10758,"Misiorowski Index",23752,19953,sa917926,"Josh Lowe",LAA,OF,$1
+10758,"Misiorowski Index",19296,15711,sa737633,"Tyler O'Neill",BAL,OF,$2
+10758,"Misiorowski Index",40607,29911,sa3017529,"Andrew Abbott",CIN,SP,$2
+10758,"Misiorowski Index",18364,17432,sa709602,"Jeff Hoffman",MIN,RP,$2
 10758,"Misiorowski Index",33622,21501,sa3008376,"Trevor Larnach",MIN,OF,$1
+10758,"Misiorowski Index",36900,25620,sa3010130,"Luis Mey",CIN,RP,$1
+10758,"Misiorowski Index",23752,19953,sa917926,"Josh Lowe",LAA,OF,$1
 10759,"Juan Nation UndeGrom 🫡",23717,20123,sa906282,"Juan Soto",NYM,OF,$65
 10759,"Juan Nation UndeGrom 🫡",23682,19709,sa919910,"Fernando Tatis Jr.",SDP,2B/OF,$52
 10759,"Juan Nation UndeGrom 🫡",18546,18345,sa874240,"Kyle Tucker",LAD,OF,$42
@@ -103,7 +105,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10761,"NBC Andy Pages Program",5644,10233,sa523977,"Aroldis Chapman",BOS,RP,$3
 10761,"NBC Andy Pages Program",42430,31991,sa3020243,"Rafael Flores Jr.",PIT,C/1B,$3
 10761,"NBC Andy Pages Program",35776,23793,sa3008470,"Braxton Ashcraft",PIT,SP/RP,$3
-10761,"NBC Andy Pages Program",31438,20253,sa738570,"Griffin Jax",TBR,SP/RP,$3
+10761,"NBC Andy Pages Program",31438,20253,sa738570,"Griffin Jax","TBR AAA",SP/RP,$3
 10761,"NBC Andy Pages Program",45769,35376,sa3065496,"Konnor Griffin",PIT,SS,$3
 10761,"NBC Andy Pages Program",38314,27490,sa3014510,"Nick Gonzales",PIT,2B/SS/3B,$3
 10761,"NBC Andy Pages Program",38308,27464,sa3014528,"Dillon Dingler",DET,C,$3
@@ -395,7 +397,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10925,"Bryce Krispies👨‍🍳",37806,26289,sa3011484,"Gunnar Henderson",BAL,SS,$34
 10925,"Bryce Krispies👨‍🍳",14934,11493,sa548155,"Manny Machado",SDP,3B,$33
 10925,"Bryce Krispies👨‍🍳",14982,11579,sa548033,"Bryce Harper",PHI,1B/OF,$30
-10925,"Bryce Krispies👨‍🍳",19328,15998,sa737794,"Cody Bellinger","NYY AAA",OF,$25
+10925,"Bryce Krispies👨‍🍳",19328,15998,sa737794,"Cody Bellinger",NYY,OF,$25
 10925,"Bryce Krispies👨‍🍳",35196,21390,sa3007584,"Joe Ryan",MIN,SP,$19
 10925,"Bryce Krispies👨‍🍳",15962,10310,sa500722,"Zack Wheeler",PHI,SP,$18
 10925,"Bryce Krispies👨‍🍳",35939,21636,sa876320,"Jeremy Pena",HOU,SS,$13

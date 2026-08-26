@@ -7,30 +7,29 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10758,"Misiorowski Index",8626,7304,sa392995,"Salvador Perez",KCR,C/1B,$13
 10758,"Misiorowski Index",23814,19427,sa873698,"Shane Bieber",TOR,SP,$10
 10758,"Misiorowski Index",37216,26323,sa3010586,"Spencer Steer",CIN,1B/2B/OF,$9
-10758,"Misiorowski Index",23792,20220,sa3004837,"Jo Adell",CLE,OF,$8
 10758,"Misiorowski Index",33907,24262,sa3005581,"Ceddanne Rafaela",BOS,2B/OF,$8
 10758,"Misiorowski Index",40095,29668,sa3017114,"Marcelo Mayer",SFG,2B/SS/3B,$8
 10758,"Misiorowski Index",20732,18684,sa828383,"Sandy Alcantara",MIA,SP,$8
-10758,"Misiorowski Index",37427,26121,sa3010862,"Francisco Alvarez",NYM,C,$7
+10758,"Misiorowski Index",23792,20220,sa3004837,"Jo Adell",CLE,OF,$8
 10758,"Misiorowski Index",23796,20437,sa3004259,"Royce Lewis",MIN,1B/2B/3B,$7
-10758,"Misiorowski Index",39978,29591,sa3017018,"Colton Cowser",BAL,OF,$6
-10758,"Misiorowski Index",40262,29712,sa3017170,"Colson Montgomery",CHW,SS/3B,$6
-10758,"Misiorowski Index",37841,26319,sa3011540,"Michael Busch",CHC,1B,$6
+10758,"Misiorowski Index",37427,26121,sa3010862,"Francisco Alvarez",NYM,C,$7
 10758,"Misiorowski Index",42711,31623,sa3020644,"Jacob Misiorowski",MIL,SP,$6
+10758,"Misiorowski Index",37841,26319,sa3011540,"Michael Busch",CHC,1B,$6
+10758,"Misiorowski Index",40262,29712,sa3017170,"Colson Montgomery",CHW,SS/3B,$6
+10758,"Misiorowski Index",39978,29591,sa3017018,"Colton Cowser",BAL,OF,$6
 10758,"Misiorowski Index",26857,22184,sa3004720,"Mark Vientos",NYM,1B/3B,$5
 10758,"Misiorowski Index",35922,25385,sa829799,"Drew Rasmussen",TBR,SP,$5
-10758,"Misiorowski Index",23693,16162,sa597893,"Brandon Woodruff",MIL,SP,$5
 10758,"Misiorowski Index",31541,20302,sa829588,"David Peterson",CHC,SP/RP,$5
 10758,"Misiorowski Index",23834,22515,sa3004693,"Heliot Ramos",NYY,OF,$5
-10758,"Misiorowski Index",20435,17998,sa827454,"Pete Fairbanks",MIA,RP,$4
+10758,"Misiorowski Index",23693,16162,sa597893,"Brandon Woodruff",MIL,SP,$5
 10758,"Misiorowski Index",42666,31776,sa3020593,"Orion Kerkering",PHI,RP,$4
-10758,"Misiorowski Index",40266,30038,sa3017795,"Carson Williams","TBR AAA",SS,$3
-10758,"Misiorowski Index",44534,33850,sa3023499,"Brandon Sproat","MIL AAA",SP,$3
+10758,"Misiorowski Index",20435,17998,sa827454,"Pete Fairbanks",MIA,RP,$4
 10758,"Misiorowski Index",42266,31532,sa3019969,"Spencer Jones",NYY,OF,$3
-10758,"Misiorowski Index",38404,27479,sa3014506,"Masyn Winn",STL,SS,$3
 10758,"Misiorowski Index",44539,,sa3023363,"Leo De Vries","ATH AA",SS,$3
+10758,"Misiorowski Index",44534,33850,sa3023499,"Brandon Sproat","MIL AAA",SP,$3
+10758,"Misiorowski Index",40266,30038,sa3017795,"Carson Williams","TBR AAA",SS,$3
+10758,"Misiorowski Index",38404,27479,sa3014506,"Masyn Winn",STL,SS,$3
 10758,"Misiorowski Index",38374,27899,sa3014474,"Colt Keith",DET,1B/2B/3B,$3
-10758,"Misiorowski Index",37239,25636,sa3010621,"Hunter Gaddis",CLE,RP,$3
 10758,"Misiorowski Index",35205,20423,sa3007594,"Ryan Walker",SFG,RP,$3
 10758,"Misiorowski Index",35181,24729,sa3007519,"Logan O'Hoppe",TEX,C,$3
 10758,"Misiorowski Index",40870,30107,sa3017948,"Christian Scott",NYM,SP,$3
@@ -84,42 +83,41 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10761,"NBC Andy Pages Program",18284,13510,sa598784,"José Ramírez",CLE,3B,$47
 10761,"NBC Andy Pages Program",18122,12916,sa597754,"Francisco Lindor",NYM,SS,$43
 10761,"NBC Andy Pages Program",23859,19251,sa873981,"Pete Alonso",BAL,1B,$34
-10761,"NBC Andy Pages Program",18236,14374,sa597835,"Tyler Glasnow",LAD,SP,$30
+10761,"NBC Andy Pages Program",18236,14374,sa597835,"Tyler Glasnow","LAD AAA",SP,$30
 10761,"NBC Andy Pages Program",39277,28806,sa3015704,"Jackson Chourio",MIL,OF,$25
 10761,"NBC Andy Pages Program",18276,13611,sa597889,"Mookie Betts",LAD,SS,$24
 10761,"NBC Andy Pages Program",32291,21711,sa917318,"Oneil Cruz",PIT,OF,$19
 10761,"NBC Andy Pages Program",31741,18882,sa874181,"Brandon Lowe",PIT,2B,$12
 10761,"NBC Andy Pages Program",40505,29478,sa3017339,"Carter Jensen",KCR,C,$9
 10761,"NBC Andy Pages Program",23790,13649,sa598167,"Clay Holmes",CHC,SP,$7
-10761,"NBC Andy Pages Program",33949,24816,sa3005625,"Andy Pages",LAD,OF,$6
 10761,"NBC Andy Pages Program",38388,27467,sa3014489,"Tyler Soderstrom",ATH,1B/OF,$6
-10761,"NBC Andy Pages Program",31951,19569,sa915715,"David Bednar",NYY,RP,$5
-10761,"NBC Andy Pages Program",14941,11486,sa549085,"Robbie Ray",SDP,SP,$5
+10761,"NBC Andy Pages Program",33949,24816,sa3005625,"Andy Pages",LAD,OF,$6
 10761,"NBC Andy Pages Program",33259,20373,sa919548,"Andres Munoz",SEA,RP,$5
+10761,"NBC Andy Pages Program",31951,19569,sa915715,"David Bednar",NYY,RP,$5
 10761,"NBC Andy Pages Program",38361,27863,sa3014459,"Jared Jones",PIT,SP,$5
-10761,"NBC Andy Pages Program",37091,26477,sa1115496,"Spencer Horwitz",PIT,1B,$5
+10761,"NBC Andy Pages Program",14941,11486,sa549085,"Robbie Ray",SDP,SP,$5
 10761,"NBC Andy Pages Program",18116,13125,sa454389,"Gerrit Cole",NYY,SP,$5
-10761,"NBC Andy Pages Program",45706,35333,sa3028086,"Chase Burns",CIN,SP/RP,$4
-10761,"NBC Andy Pages Program",38699,27782,sa3014983,"Brandon Pfaadt",ARI,SP/RP,$4
+10761,"NBC Andy Pages Program",37091,26477,sa1115496,"Spencer Horwitz",PIT,1B,$5
 10761,"NBC Andy Pages Program",40564,29868,sa3017428,"Bubba Chandler",PIT,SP,$4
 10761,"NBC Andy Pages Program",45720,35041,sa3025245,"Jac Caglianone",KCR,1B/OF,$4
-10761,"NBC Andy Pages Program",47657,,sa3031366,"Andrew Fischer","MIL AA",3B,$3
+10761,"NBC Andy Pages Program",38699,27782,sa3014983,"Brandon Pfaadt",ARI,SP/RP,$4
+10761,"NBC Andy Pages Program",45706,35333,sa3028086,"Chase Burns",CIN,SP/RP,$4
 10761,"NBC Andy Pages Program",45769,35376,sa3065496,"Konnor Griffin",PIT,SS,$3
+10761,"NBC Andy Pages Program",47657,,sa3031366,"Andrew Fischer","MIL AA",3B,$3
 10761,"NBC Andy Pages Program",42430,31991,sa3020243,"Rafael Flores Jr.",PIT,C/1B,$3
-10761,"NBC Andy Pages Program",5644,10233,sa523977,"Aroldis Chapman",BOS,RP,$3
-10761,"NBC Andy Pages Program",31438,20253,sa738570,"Griffin Jax","TBR AAA",SP/RP,$3
 10761,"NBC Andy Pages Program",38314,27490,sa3014510,"Nick Gonzales",PIT,2B/SS/3B,$3
+10761,"NBC Andy Pages Program",31438,20253,sa738570,"Griffin Jax","TBR AAA",SP/RP,$3
 10761,"NBC Andy Pages Program",38308,27464,sa3014528,"Dillon Dingler",DET,C,$3
 10761,"NBC Andy Pages Program",35776,23793,sa3008470,"Braxton Ashcraft",PIT,SP/RP,$3
+10761,"NBC Andy Pages Program",5644,10233,sa523977,"Aroldis Chapman",BOS,RP,$3
+10761,"NBC Andy Pages Program",38383,27577,sa3014484,"Casey Schmitt",SFG,1B/2B/3B/OF,$2
 10761,"NBC Andy Pages Program",20989,17722,sa828803,"Trevor Megill",MIL,RP,$2
 10761,"NBC Andy Pages Program",40456,29766,sa3017286,"Zack Gelof",ATH,2B/3B/OF,$2
-10761,"NBC Andy Pages Program",21075,17586,sa829027,"Tanner Scott",LAD,RP,$2
 10761,"NBC Andy Pages Program",37098,27684,sa1115910,"Michael Massey",KCR,2B/OF,$2
-10761,"NBC Andy Pages Program",38383,27577,sa3014484,"Casey Schmitt",SFG,1B/2B/3B/OF,$2
+10761,"NBC Andy Pages Program",21075,17586,sa829027,"Tanner Scott",LAD,RP,$2
 10761,"NBC Andy Pages Program",18522,15194,sa737848,"Jake Bauers",MIL,1B/OF/RP,$1
 10761,"NBC Andy Pages Program",18380,16918,sa599729,"Luke Weaver",PIT,RP,$1
 10761,"NBC Andy Pages Program",35928,21626,sa876060,"Griffin Conine",MIA,1B/OF,$1
-10761,"NBC Andy Pages Program",35532,25007,sa3008070,"Alex Vesia",LAD,RP,$1
 10761,"NBC Andy Pages Program",40472,29770,sa3017306,"Mason Montgomery",PIT,SP/RP,$1
 10761,"NBC Andy Pages Program",38410,27758,sa3014513,"Kyle Harrison",MIL,SP/RP,$1
 10761,"NBC Andy Pages Program",39340,29005,sa3015768,"Esmerlyn Valdez",PIT,OF,$1
@@ -226,7 +224,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10881,"Look Out Bello",33656,20633,,"Yusei Kikuchi",LAA,SP,$7
 10881,"Look Out Bello",33627,21479,sa3007867,"Nico Hoerner",CHC,2B/SS,$6
 10881,"Look Out Bello",40675,29958,sa3017627,"Harry Ford",WSN,C,$5
-10881,"Look Out Bello",40298,29622,sa3017047,"Sal Frelick",MIL,OF,$5
+10881,"Look Out Bello",40298,29622,sa3017047,"Sal Frelick","MIL AAA",OF,$5
 10881,"Look Out Bello",35808,24968,sa3008513,"Reese Olson",DET,SP,$5
 10881,"Look Out Bello",38378,28312,sa3014479,"Coby Mayo",BAL,1B/3B,$5
 10881,"Look Out Bello",27058,23772,sa3005082,"Wilyer Abreu",BOS,OF,$5

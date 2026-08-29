@@ -306,7 +306,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10899,"Prospects R Us",27207,22581,sa3005337,"Alejandro Kirk",TOR,C,$4
 10899,"Prospects R Us",36682,25977,sa3011297,"Quinn Priester",MIL,SP/RP,$4
 10899,"Prospects R Us",45771,,sa3025565,"Theo Gillen","TBR AA",OF,$4
-10899,"Prospects R Us",43966,33322,sa3022615,"Matt Shaw","CHC AAA",3B/OF,$4
+10899,"Prospects R Us",43966,33322,sa3022615,"Matt Shaw",CHC,3B/OF,$4
 10899,"Prospects R Us",37480,26151,sa1115829,"Kyle Stowers",MIA,1B/OF,$4
 10899,"Prospects R Us",49401,,sa3028866,"Roch Cholowsky","CHW A+",Util,$4
 10899,"Prospects R Us",39406,29218,sa3015834,"Pedro Ramirez",CHC,2B/3B,$3
@@ -345,7 +345,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10899,"Prospects R Us",34389,23974,sa3006366,"Randy Rodriguez",SFG,RP,$1
 10899,"Prospects R Us",42582,31680,sa3020459,"Cole Young",SEA,2B/SS,$1
 10899,"Prospects R Us",35030,24763,sa3007241,"Kyle Leahy",STL,SP/RP,$1
-10899,"Prospects R Us",35300,23789,sa3007742,"Blaze Alexander","BAL AAA",2B/SS/3B/OF,$1
+10899,"Prospects R Us",35300,23789,sa3007742,"Blaze Alexander",BAL,2B/SS/3B/OF,$1
 10899,"Prospects R Us",37171,27552,sa918274,"Graham Ashcraft",CIN,SP/RP,$1
 10899,"Prospects R Us",40261,29993,sa3017694,"Brady House",WSN,3B,$1
 10908,"South Side Shitshow",37182,25878,sa3010593,"Corbin Carroll",ARI,OF,$54
@@ -455,7 +455,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10944,"Si Se Fuentes",27148,23335,sa3005246,"Joey Cantillo",CLE,SP/RP,$4
 10944,"Si Se Fuentes",38409,27932,sa3014512,"Ian Seymour",TBR,SP/RP,$3
 10944,"Si Se Fuentes",44147,33390,sa3022757,"Bryce Eldridge",SFG,1B,$3
-10944,"Si Se Fuentes",43988,33571,sa3022894,"Walker Jenkins","MIN AAA",OF,$3
+10944,"Si Se Fuentes",43988,33571,sa3022894,"Walker Jenkins",MIN,OF,$3
 10944,"Si Se Fuentes",45018,,sa3023987,"Rainiel Rodriguez","STL AA",C/1B,$3
 10944,"Si Se Fuentes",48241,37124,sa3062955,"Tatsuya Imai",HOU,SP,$3
 10944,"Si Se Fuentes",45090,,sa3024134,"Luis Pena","MIL AA",2B/SS,$2

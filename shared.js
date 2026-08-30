@@ -144,6 +144,17 @@ async function autoLoadFromRepo() {
       const text = await res.text();
       const parsed = parse(text);
       console.log('[autoLoad]', file, '→', Array.isArray(parsed) ? parsed.length + ' rows' : typeof parsed);
+      // A non-empty file that parses to zero rows means the upstream export
+      // changed shape or came back blank — on 2026-08-30 proj_hitting.csv
+      // arrived with every counting stat empty, so the PA>0 filter dropped all
+      // 4874 rows. Overwriting good cached data with [] made every hitter show
+      // "No proj" and handed the entire $4800 pool to pitchers, with no error.
+      // Keep the last good copy and fail loudly instead.
+      if (Array.isArray(parsed) && parsed.length === 0 && text.trim()) {
+        console.error('[autoLoad] REJECTED:', file, '— file has content but parsed to 0 rows (bad/changed export). Keeping previous data.');
+        status[file] = false;
+        return;
+      }
       saveData(key, parsed);
       // Provisional freshness from the fetch (Last-Modified ≈ deploy time, else now).
       // For stamped files this is refined below to the real commit time.

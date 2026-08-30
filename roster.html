@@ -140,7 +140,14 @@
         errEl.appendChild(d);
       }
 
-      if (!roster || !projHit || !projPitch) { showErr('Missing data — upload CSVs on the', 'Data Hub.', 'index.html'); return; }
+      // Length checks matter as much as null checks: an empty array is truthy,
+      // so a projection file that parsed to zero rows used to slip through and
+      // render a valuation with every hitter unmatched and the whole salary
+      // pool absorbed by pitchers.
+      if (!roster || !roster.length || !projHit || !projHit.length || !projPitch || !projPitch.length) {
+        showErr('Missing or unreadable data — re-load CSVs on the', 'Data Hub.', 'index.html');
+        return;
+      }
       if (!myTeam) { showErr('Set your team on the', 'Data Hub.', 'index.html'); return; }
 
       // Base match

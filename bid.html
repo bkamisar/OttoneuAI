@@ -147,7 +147,7 @@
     var myTeam    = loadData('ottoneu_my_team') || '';
     var currData  = loadData('ottoneu_curr_standings');
 
-    if (!roster || !projHit || !projPitch) { showErr('Missing data — upload CSVs on the', 'Data Hub.', 'index.html'); return; }
+    if (!hasRows(roster) || !hasRows(projHit) || !hasRows(projPitch)) { showErr('Missing or unreadable data — re-load CSVs on the', 'Data Hub.', 'index.html'); return; }
     if (!myTeam) { showErr('Set your team on the', 'Data Hub.', 'index.html'); return; }
 
     var hitY1 = loadData('ottoneu_proj_hitting_y1');

@@ -371,7 +371,10 @@
       var valueMap        = {};
       var dynastyValueMap = {};
 
-      if (roster && projHit && projPitch) {
+      // Skip valuation entirely if either projection pool is empty — the values
+      // would be computed against half a league. The table still renders with
+      // scouting data; the dollar columns just stay blank.
+      if (hasRows(roster) && hasRows(projHit) && hasRows(projPitch)) {
         var merged = matchPlayers(roster, projHit, projPitch);
         if (hitY1 || pitY1) merged = attachYearProjections(merged, hitY1, pitY1, 'proj_y1');
         if (hitY2 || pitY2) merged = attachYearProjections(merged, hitY2, pitY2, 'proj_y2');

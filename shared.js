@@ -137,7 +137,7 @@ async function fetchLastCommitTs(path, key) {
 async function autoLoadFromRepo() {
   if (window.location.protocol === 'file:') return {};
   const status = {};
-  await Promise.all(REPO_FILES.map(async function({ file, key, parse }) {
+  async function loadOne({ file, key, parse }) {
     try {
       const res = await fetchWithRetry('./data/' + file);
       if (!res.ok) { console.warn('[autoLoad] 404:', file); status[file] = false; return; }
@@ -166,6 +166,15 @@ async function autoLoadFromRepo() {
       console.error('[autoLoad] ERROR:', file, e);
       status[file] = false;
     }
+  }
+
+  // Bounded concurrency. Firing all ~9 uncached requests at once reliably makes
+  // a simple static server (python -m http.server locally) reset connections,
+  // and a dropped file now means the page runs on stale or partial data. Three
+  // at a time is still fast and stops the stampede.
+  const queue = REPO_FILES.slice();
+  await Promise.all([0, 1, 2].map(async function worker() {
+    while (queue.length) await loadOne(queue.shift());
   }));
 
   // Refine the stamped files' timestamps to the REAL last-commit time so the UI
@@ -318,6 +327,14 @@ function loadData(key) {
   const raw = localStorage.getItem(key);
   if (!raw) return null;
   try { return JSON.parse(raw); } catch (e) { console.warn('loadData: bad JSON for key', key); return null; }
+}
+
+// True when a parsed dataset actually has rows. Pages must use this rather than
+// a bare truthiness check: a projection file that parses to zero rows yields [],
+// which is truthy, so `if (!projHit)` lets an empty player pool through and the
+// page renders a valuation with half the league missing (see 2026-08-30).
+function hasRows(data) {
+  return Array.isArray(data) && data.length > 0;
 }
 
 function clearAllData() {

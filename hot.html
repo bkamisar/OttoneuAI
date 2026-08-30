@@ -317,8 +317,16 @@
       roster.forEach(function (p) {
         if (p && p.name && p.team && p.team !== 'Free Agent') ownerMap[normalizeName(p.name)] = p.team;
       });
-      projHitMap  = buildProjMap(loadData('ottoneu_proj_hitting'));
-      projPitMap  = buildProjMap(loadData('ottoneu_proj_pitching'));
+      var projHitRows = loadData('ottoneu_proj_hitting');
+      var projPitRows = loadData('ottoneu_proj_pitching');
+      // Projections only drive the breakout badge here, so an empty set costs
+      // badges rather than corrupting numbers — but say so, since silently
+      // missing badges look identical to "nobody is breaking out".
+      if (!hasRows(projHitRows) || !hasRows(projPitRows)) {
+        console.warn('[hot] projection data missing or unreadable — breakout badges disabled.');
+      }
+      projHitMap  = buildProjMap(projHitRows);
+      projPitMap  = buildProjMap(projPitRows);
 
       try {
         var resp = await fetch('./data/hot.json?t=' + Date.now());

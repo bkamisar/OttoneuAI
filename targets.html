@@ -1372,14 +1372,18 @@
         errEl.appendChild(d);
       }
 
-      if (!roster)  { showErr('No roster data — upload CSVs on the', 'Data Hub.', 'index.html'); return; }
+      if (!hasRows(roster))  { showErr('No roster data — upload CSVs on the', 'Data Hub.', 'index.html'); return; }
       if (!myTeam)  { showErr('Set your team on the', 'Data Hub.', 'index.html'); return; }
       myTeamName = myTeam;
 
       var projHit   = loadData('ottoneu_proj_hitting');
       var projPitch = loadData('ottoneu_proj_pitching');
       var currData  = loadData('ottoneu_curr_standings');
-      if (!projHit && !projPitch) { showErr('No projection data — upload CSVs on the', 'Data Hub.', 'index.html'); return; }
+      // Both pools are required, not just one. Valuation splits a fixed league
+      // dollar pool between hitting and pitching by SGP share, so running with
+      // one side empty hands the entire pool to the other and every trade the
+      // finder proposes is priced off a fictional market.
+      if (!hasRows(projHit) || !hasRows(projPitch)) { showErr('Missing or unreadable projection data — re-load CSVs on the', 'Data Hub.', 'index.html'); return; }
 
       var hitY1 = loadData('ottoneu_proj_hitting_y1');
       var pitY1 = loadData('ottoneu_proj_pitching_y1');

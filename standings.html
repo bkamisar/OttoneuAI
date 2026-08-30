@@ -121,10 +121,10 @@
       var myTeam    = loadData('ottoneu_my_team') || '';
       var currData  = loadData('ottoneu_curr_standings');   // may be null
 
-      if (!roster || !projHit || !projPitch) {
+      if (!hasRows(roster) || !hasRows(projHit) || !hasRows(projPitch)) {
         var errDiv = document.createElement('div');
         errDiv.className   = 'error';
-        errDiv.textContent = 'Missing data \u2014 please upload the roster and both projection CSVs on the ';
+        errDiv.textContent = 'Missing or unreadable data \u2014 please re-load the roster and both projection CSVs on the ';
         var link = document.createElement('a');
         link.href = 'index.html'; link.textContent = 'Data Hub';
         errDiv.appendChild(link);

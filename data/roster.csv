@@ -154,7 +154,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10764,"Wrecking Crews",22725,20070,sa875033,"Bailey Falter","ATL AAA",SP/RP,$3
 10764,"Wrecking Crews",25806,23395,sa3002875,"Eric Wagaman",NYM,1B/OF,$3
 10764,"Wrecking Crews",35618,21504,sa3008223,"Jake Irvin",WSN,SP,$3
-10764,"Wrecking Crews",35548,21267,sa3008097,"Jake Bird",WSN,RP,$3
+10764,"Wrecking Crews",35548,21267,sa3008097,"Jake Bird","WSN AAA",RP,$3
 10764,"Wrecking Crews",38043,26440,sa3011818,"Ryan Gusto",MIA,SP/RP,$3
 10764,"Wrecking Crews",26783,20308,sa3004621,"Jake Meyers","HOU AAA",OF,$3
 10764,"Wrecking Crews",26080,21897,sa3003171,"Christopher Morel",NYM,1B/OF,$2
@@ -167,43 +167,41 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10818,"Bureau of Gleyber Statistics",18347,16478,sa709545,"Kyle Schwarber",PHI,OF,$55
 10818,"Bureau of Gleyber Statistics",21015,17995,sa828873,"Logan Webb",SFG,SP,$31
 10818,"Bureau of Gleyber Statistics",18344,17350,sa828312,"Rafael Devers",SFG,1B,$31
+10818,"Bureau of Gleyber Statistics",19328,15998,sa737794,"Cody Bellinger",NYY,OF,$25
 10818,"Bureau of Gleyber Statistics",23840,19290,sa914549,"Randy Arozarena",SEA,OF,$24
 10818,"Bureau of Gleyber Statistics",48239,37123,sa3063134,"Kazuma Okamoto",TOR,1B/3B,$22
 10818,"Bureau of Gleyber Statistics",33654,21534,sa3008377,"Cal Raleigh",SEA,C,$20
 10818,"Bureau of Gleyber Statistics",14393,10603,sa392121,"Chris Sale",ATL,SP,$18
 10818,"Bureau of Gleyber Statistics",18487,16997,sa830372,"Gleyber Torres",DET,2B,$17
-10818,"Bureau of Gleyber Statistics",33647,21483,sa3008547,"Shane McClanahan",TBR,SP,$16
 10818,"Bureau of Gleyber Statistics",18517,16578,sa823741,"Yandy Diaz",TBR,1B,$13
 10818,"Bureau of Gleyber Statistics",18113,12768,sa455516,"Sonny Gray",BOS,SP,$9
 10818,"Bureau of Gleyber Statistics",20545,18568,sa828153,"Luis Arraez",PHI,1B/2B,$8
 10818,"Bureau of Gleyber Statistics",44336,33703,sa3023053,"Nolan McLean",NYM,SP,$7
 10818,"Bureau of Gleyber Statistics",33685,24617,sa3006786,"Jarren Duran",BOS,OF,$6
-10818,"Bureau of Gleyber Statistics",27208,22210,sa3005339,"Jeremiah Estrada",SDP,RP,$5
 10818,"Bureau of Gleyber Statistics",42176,32127,sa3021053,"Chase DeLauter",CLE,OF,$5
-10818,"Bureau of Gleyber Statistics",44310,,sa3023013,"Ralphy Velazquez","CLE AAA",1B/OF,$4
 10818,"Bureau of Gleyber Statistics",33548,20391,sa962605,"Luis García Jr.",NYY,1B/2B,$4
-10818,"Bureau of Gleyber Statistics",42765,31986,sa3020748,"Parker Messick",CLE,SP,$3
-10818,"Bureau of Gleyber Statistics",40972,30182,sa3018149,"Will Warren",NYY,SP,$3
-10818,"Bureau of Gleyber Statistics",35487,20572,sa3008002,"Kody Clemens",MIN,1B/2B/OF,$3
 10818,"Bureau of Gleyber Statistics",37797,26368,sa3011642,"JJ Bleday",CIN,OF,$3
-10818,"Bureau of Gleyber Statistics",26134,22664,sa3003226,"Gabriel Moreno",ARI,C,$3
+10818,"Bureau of Gleyber Statistics",35487,20572,sa3008002,"Kody Clemens",MIN,1B/2B/OF,$3
+10818,"Bureau of Gleyber Statistics",40972,30182,sa3018149,"Will Warren",NYY,SP,$3
+10818,"Bureau of Gleyber Statistics",42765,31986,sa3020748,"Parker Messick",CLE,SP,$3
 10818,"Bureau of Gleyber Statistics",12379,9777,sa500816,"Nolan Arenado",ARI,3B,$3
+10818,"Bureau of Gleyber Statistics",31958,20352,sa915732,"Ernie Clement",TOR,1B/2B/SS/3B,$3
+10818,"Bureau of Gleyber Statistics",26134,22664,sa3003226,"Gabriel Moreno",ARI,C,$3
 10818,"Bureau of Gleyber Statistics",20291,19858,sa826671,"Luis Rengifo",SDP,2B/3B/OF,$3
 10818,"Bureau of Gleyber Statistics",23201,17982,sa876140,"Ty France",SDP,1B,$3
-10818,"Bureau of Gleyber Statistics",31958,20352,sa915732,"Ernie Clement",TOR,1B/2B/SS/3B,$3
+10818,"Bureau of Gleyber Statistics",44046,33312,sa3022603,"Brett Bateman",TOR,OF,$2
 10818,"Bureau of Gleyber Statistics",38780,24978,sa3015121,"Erik Sabrowski",CLE,RP,$2
 10818,"Bureau of Gleyber Statistics",33954,24878,sa3005630,"Heriberto Hernandez",MIA,OF,$2
-10818,"Bureau of Gleyber Statistics",19394,14771,sa737885,"Emilio Pagan",CIN,RP,$1
-10818,"Bureau of Gleyber Statistics",44274,33568,sa3022951,"Brandyn Garcia",ARI,RP,$1
-10818,"Bureau of Gleyber Statistics",18421,13580,sa550187,"Steven Okert",HOU,RP,$1
-10818,"Bureau of Gleyber Statistics",32710,22361,sa918172,"Colin Holderman",CLE,RP,$1
-10818,"Bureau of Gleyber Statistics",21041,16939,sa828962,"Lane Thomas",ATL,OF,$1
-10818,"Bureau of Gleyber Statistics",40214,29539,sa3016926,"Abimelec Ortiz",WSN,1B/OF,$1
-10818,"Bureau of Gleyber Statistics",32804,20000,sa918346,"Tyler Wells",TBR,SP/RP,$1
-10818,"Bureau of Gleyber Statistics",38325,27555,sa3014438,"Garrett Mitchell",MIL,OF,$1
 10818,"Bureau of Gleyber Statistics",37202,27691,sa3010572,"Louis Varland",TOR,RP,$1
+10818,"Bureau of Gleyber Statistics",18153,12564,sa597765,"Trevor Story","BOS AAA",SS,$1
+10818,"Bureau of Gleyber Statistics",44274,33568,sa3022951,"Brandyn Garcia",ARI,RP,$1
+10818,"Bureau of Gleyber Statistics",32710,22361,sa918172,"Colin Holderman",CLE,RP,$1
+10818,"Bureau of Gleyber Statistics",18421,13580,sa550187,"Steven Okert",HOU,RP,$1
+10818,"Bureau of Gleyber Statistics",19394,14771,sa737885,"Emilio Pagan",CIN,RP,$1
+10818,"Bureau of Gleyber Statistics",40214,29539,sa3016926,"Abimelec Ortiz",WSN,1B/OF,$1
 10818,"Bureau of Gleyber Statistics",23311,17480,sa877364,"Daniel Duarte",NYM,SP/RP,$1
-10818,"Bureau of Gleyber Statistics",18153,12564,sa597765,"Trevor Story",BOS,SS,$1
+10818,"Bureau of Gleyber Statistics",21041,16939,sa828962,"Lane Thomas",ATL,OF,$1
+10818,"Bureau of Gleyber Statistics",32804,20000,sa918346,"Tyler Wells",TBR,SP/RP,$1
 10881,"Look Out Bello",38736,27498,sa3015059,"Spencer Strider",ATL,SP,$22
 10881,"Look Out Bello",23767,19612,sa917949,"Bo Bichette",NYM,SS/3B,$20
 10881,"Look Out Bello",22391,20503,sa872847,"William Contreras",MIL,C,$20
@@ -249,7 +247,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10881,"Look Out Bello",31505,21306,sa829008,"Jacob Latz",TEX,SP/RP,$1
 10881,"Look Out Bello",41265,30675,sa3018514,"Luis Lara",MIL,OF,$1
 10881,"Look Out Bello",26446,19769,sa3004101,"Will Vest",DET,RP,$1
-10881,"Look Out Bello",33669,21537,sa3007588,"Daniel Lynch IV",KCR,RP,$1
+10881,"Look Out Bello",33669,21537,sa3007588,"Daniel Lynch IV",KCR,SP/RP,$1
 10881,"Look Out Bello",35675,21448,sa3008311,"Davis Martin","CHW AAA",SP,$1
 10881,"Look Out Bello",38352,27814,sa3014447,"Shane Drohan",MIL,SP/RP,$1
 10897,"Five-cent head",33625,23697,sa3005720,"Julio Rodriguez",SEA,OF,$52
@@ -293,37 +291,35 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10897,"Five-cent head",44083,,sa3022672,"Yohandy Morales","WSN AAA",1B/3B,$1
 10897,"Five-cent head",13335,13164,sa548722,"Eduardo Rodriguez",ARI,SP,$1
 10897,"Five-cent head",40748,30011,sa3017756,"Christian Encarnacion-Strand",BAL,1B/3B,$1
-10897,"Five-cent head",41926,31204,sa3019501,"Justin Wrobleski",LAD,SP/RP,$1
+10897,"Five-cent head",41926,31204,sa3019501,"Justin Wrobleski","LAD AAA",SP/RP,$1
 10899,"Prospects R Us",40142,29490,sa3016829,"Jackson Merrill",SDP,OF,$19
 10899,"Prospects R Us",31194,17277,sa659551,"Ranger Suarez",BOS,SP,$8
 10899,"Prospects R Us",23813,19361,sa873673,"Corbin Burnes",ARI,SP,$8
-10899,"Prospects R Us",35824,24610,sa3008536,"Steven Kwan",CLE,OF,$7
 10899,"Prospects R Us",18160,14162,sa657850,"Carlos Correa",HOU,SS/3B,$7
-10899,"Prospects R Us",47555,,sa3069247,"Seth Hernandez","PIT A+",SP,$5
+10899,"Prospects R Us",35824,24610,sa3008536,"Steven Kwan",CLE,OF,$7
 10899,"Prospects R Us",49442,,sa3031459,"Jackson Flora",,RP,$5
 10899,"Prospects R Us",46310,35466,sa3043900,"Payton Tolle",BOS,SP,$5
-10899,"Prospects R Us",27207,22581,sa3005337,"Alejandro Kirk",TOR,C,$4
+10899,"Prospects R Us",47555,,sa3069247,"Seth Hernandez","PIT A+",SP,$5
+10899,"Prospects R Us",43966,33322,sa3022615,"Matt Shaw",CHC,3B/OF,$4
 10899,"Prospects R Us",36682,25977,sa3011297,"Quinn Priester",MIL,SP/RP,$4
 10899,"Prospects R Us",45771,,sa3025565,"Theo Gillen","TBR AA",OF,$4
-10899,"Prospects R Us",43966,33322,sa3022615,"Matt Shaw",CHC,3B/OF,$4
 10899,"Prospects R Us",37480,26151,sa1115829,"Kyle Stowers",MIA,1B/OF,$4
 10899,"Prospects R Us",49401,,sa3028866,"Roch Cholowsky","CHW A+",Util,$4
-10899,"Prospects R Us",39406,29218,sa3015834,"Pedro Ramirez",CHC,2B/3B,$3
+10899,"Prospects R Us",27207,22581,sa3005337,"Alejandro Kirk",TOR,C,$4
 10899,"Prospects R Us",38398,27815,sa3014499,"Jordan Westburg",BAL,2B/3B,$3
 10899,"Prospects R Us",35566,21455,sa3008128,"Kris Bubic",LAD,SP,$3
 10899,"Prospects R Us",43893,33381,sa3022683,"Max Clark",DET,OF,$3
-10899,"Prospects R Us",40807,30063,sa3017851,"Tristan Peters",CHW,OF,$3
+10899,"Prospects R Us",39406,29218,sa3015834,"Pedro Ramirez",CHC,2B/3B,$3
 10899,"Prospects R Us",44487,33435,sa3023268,"Thomas White","MIA AAA",SP,$3
 10899,"Prospects R Us",45064,,sa3024108,"Jesus Made","MIL AA",SS,$3
 10899,"Prospects R Us",18462,12970,sa597766,"Joe Musgrove",SDP,RP,$3
 10899,"Prospects R Us",33616,20492,sa3008444,"Casey Mize",SDP,SP,$3
 10899,"Prospects R Us",45789,35061,sa3025261,"Ryan Waldschmidt",ARI,OF,$3
-10899,"Prospects R Us",41335,,sa3018584,"Josue Briceno","DET AAA",C/1B,$2
-10899,"Prospects R Us",42598,31621,sa3020475,"Spencer Miles",TOR,SP/RP,$2
 10899,"Prospects R Us",45947,35177,sa3025452,"Carson Benge",NYM,OF,$2
-10899,"Prospects R Us",42716,,sa3020659,"Karson Milbrandt","MIA AAA",SP,$2
-10899,"Prospects R Us",33609,21618,sa3007284,"Alec Bohm",PHI,1B/3B,$2
+10899,"Prospects R Us",41335,,sa3018584,"Josue Briceno","DET AAA",C/1B,$2
 10899,"Prospects R Us",45715,,sa3025257,"Charlie Condon","COL AAA",1B/OF,$2
+10899,"Prospects R Us",42598,31621,sa3020475,"Spencer Miles",TOR,SP/RP,$2
+10899,"Prospects R Us",42716,,sa3020659,"Karson Milbrandt","MIA AAA",SP,$2
 10899,"Prospects R Us",44248,33575,sa3022923,"Colt Emerson",SEA,SS/3B,$2
 10899,"Prospects R Us",19242,20666,sa737480,"Felix Bautista",BAL,RP,$2
 10899,"Prospects R Us",22654,17988,sa874242,"Tyler Stephenson",CIN,C,$2
@@ -331,22 +327,24 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10899,"Prospects R Us",32655,19354,sa918048,"Luke Raley",SEA,1B/OF,$2
 10899,"Prospects R Us",34817,24598,sa3006910,"Addison Barger",TOR,3B/OF,$2
 10899,"Prospects R Us",34879,24607,sa3006973,"Jonathan Bowlan",PHI,RP,$2
-10899,"Prospects R Us",36539,26944,sa3009613,"Edgardo Henriquez",LAD,RP,$2
 10899,"Prospects R Us",35725,23986,sa3008392,"Curtis Mead",BOS,1B/2B/3B,$2
-10899,"Prospects R Us",43569,,sa3021845,"Franklin Arias","BOS AAA",SS,$1
+10899,"Prospects R Us",36539,26944,sa3009613,"Edgardo Henriquez",LAD,RP,$2
+10899,"Prospects R Us",33609,21618,sa3007284,"Alec Bohm",PHI,1B/3B,$2
+10899,"Prospects R Us",42582,31680,sa3020459,"Cole Young",SEA,2B/SS,$1
 10899,"Prospects R Us",21961,17920,sa856266,"Cody Ponce",TOR,SP/RP,$1
-10899,"Prospects R Us",41050,29357,sa3018298,"Walbert Urena",LAA,SP/RP,$1
-10899,"Prospects R Us",39279,28811,sa3015706,"Angel Genao",CLE,2B/SS/3B,$1
+10899,"Prospects R Us",40261,29993,sa3017694,"Brady House",WSN,3B,$1
 10899,"Prospects R Us",32492,21924,sa917772,"Juan Morillo",ARI,RP,$1
 10899,"Prospects R Us",45884,35101,sa3025363,"Sam Antonacci",CHW,2B/3B/OF,$1
-10899,"Prospects R Us",42219,31394,sa3019918,"Brooks Baldwin",CHW,2B/SS/3B/OF,$1
+10899,"Prospects R Us",37599,26108,sa3011186,"Andre Pallante",STL,SP,$1
+10899,"Prospects R Us",41050,29357,sa3018298,"Walbert Urena",LAA,SP/RP,$1
 10899,"Prospects R Us",25866,22630,sa3002956,"Keider Montero",DET,SP/RP,$1
 10899,"Prospects R Us",34389,23974,sa3006366,"Randy Rodriguez",SFG,RP,$1
-10899,"Prospects R Us",42582,31680,sa3020459,"Cole Young",SEA,2B/SS,$1
+10899,"Prospects R Us",37171,27552,sa918274,"Graham Ashcraft",CIN,SP/RP,$1
+10899,"Prospects R Us",42219,31394,sa3019918,"Brooks Baldwin",CHW,2B/SS/3B/OF,$1
 10899,"Prospects R Us",35030,24763,sa3007241,"Kyle Leahy",STL,SP/RP,$1
 10899,"Prospects R Us",35300,23789,sa3007742,"Blaze Alexander",BAL,2B/SS/3B/OF,$1
-10899,"Prospects R Us",37171,27552,sa918274,"Graham Ashcraft",CIN,SP/RP,$1
-10899,"Prospects R Us",40261,29993,sa3017694,"Brady House",WSN,3B,$1
+10899,"Prospects R Us",43569,,sa3021845,"Franklin Arias","BOS AAA",SS,$1
+10899,"Prospects R Us",39279,28811,sa3015706,"Angel Genao",CLE,2B/SS/3B,$1
 10908,"South Side Shitshow",37182,25878,sa3010593,"Corbin Carroll",ARI,OF,$54
 10908,"South Side Shitshow",18786,17085,sa736473,"Pablo Lopez",MIN,SP,$29
 10908,"South Side Shitshow",21052,18525,sa829000,"Dylan Cease",TOR,SP,$24
@@ -398,39 +396,39 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10925,"Bryce Krispies👨‍🍳",37806,26289,sa3011484,"Gunnar Henderson",BAL,SS,$34
 10925,"Bryce Krispies👨‍🍳",14934,11493,sa548155,"Manny Machado",SDP,3B,$33
 10925,"Bryce Krispies👨‍🍳",14982,11579,sa548033,"Bryce Harper",PHI,1B/OF,$30
-10925,"Bryce Krispies👨‍🍳",19328,15998,sa737794,"Cody Bellinger",NYY,OF,$25
 10925,"Bryce Krispies👨‍🍳",35196,21390,sa3007584,"Joe Ryan",MIN,SP,$19
 10925,"Bryce Krispies👨‍🍳",15962,10310,sa500722,"Zack Wheeler",PHI,SP,$18
+10925,"Bryce Krispies👨‍🍳",33647,21483,sa3008547,"Shane McClanahan",TBR,SP,$16
 10925,"Bryce Krispies👨‍🍳",35939,21636,sa876320,"Jeremy Pena",HOU,SS,$13
 10925,"Bryce Krispies👨‍🍳",20975,20778,sa828749,"Cristopher Sanchez",PHI,SP,$8
 10925,"Bryce Krispies👨‍🍳",33949,24816,sa3005625,"Andy Pages",LAD,OF,$6
 10925,"Bryce Krispies👨‍🍳",33217,21837,sa919293,"Jonathan Aranda",TBR,1B,$5
-10925,"Bryce Krispies👨‍🍳",40829,30091,sa3017880,"Andrew Painter",PHI,SP,$4
 10925,"Bryce Krispies👨‍🍳",18257,15873,sa709610,"Sean Manaea",NYM,SP/RP,$4
+10925,"Bryce Krispies👨‍🍳",44310,,sa3023013,"Ralphy Velazquez","CLE AAA",1B/OF,$4
+10925,"Bryce Krispies👨‍🍳",40829,30091,sa3017880,"Andrew Painter",PHI,SP,$4
 10925,"Bryce Krispies👨‍🍳",37660,26202,sa3011255,"Jake Mangum",PIT,OF,$3
+10925,"Bryce Krispies👨‍🍳",40807,30063,sa3017851,"Tristan Peters",CHW,OF,$3
+10925,"Bryce Krispies👨‍🍳",38661,27819,sa3014926,"Brandon Young",BAL,SP,$3
 10925,"Bryce Krispies👨‍🍳",38308,27464,sa3014528,"Dillon Dingler",DET,C,$3
 10925,"Bryce Krispies👨‍🍳",38334,27473,sa3014421,"Cade Cavalli",WSN,SP,$3
-10925,"Bryce Krispies👨‍🍳",38661,27819,sa3014926,"Brandon Young",BAL,SP,$3
 10925,"Bryce Krispies👨‍🍳",47657,,sa3031366,"Andrew Fischer","MIL AA",3B,$3
 10925,"Bryce Krispies👨‍🍳",18375,16944,sa828669,"Grant Holmes",ATL,SP,$3
 10925,"Bryce Krispies👨‍🍳",21156,16442,sa829141,"Ryan O'Hearn",PIT,1B/OF,$3
-10925,"Bryce Krispies👨‍🍳",26570,19608,sa3004268,"Otto Lopez",MIA,2B/SS,$2
-10925,"Bryce Krispies👨‍🍳",44052,,sa3022609,"Aidan Miller","PHI AAA",SS,$2
 10925,"Bryce Krispies👨‍🍳",40541,29844,sa3017400,"Liam Hicks",TBR,C/1B,$2
 10925,"Bryce Krispies👨‍🍳",38307,27474,sa3014430,"Max Meyer",MIA,SP,$2
-10925,"Bryce Krispies👨‍🍳",37599,26108,sa3011186,"Andre Pallante",STL,SP,$1
+10925,"Bryce Krispies👨‍🍳",26570,19608,sa3004268,"Otto Lopez",MIA,2B/SS,$2
+10925,"Bryce Krispies👨‍🍳",44052,,sa3022609,"Aidan Miller","PHI AAA",SS,$2
 10925,"Bryce Krispies👨‍🍳",47549,,sa3069164,"Eli Willits","WSN A+",SS,$1
 10925,"Bryce Krispies👨‍🍳",45797,,sa3066592,"Bryce Rainer","DET A+",SS,$1
-10925,"Bryce Krispies👨‍🍳",23868,20202,sa917944,"Brandon Marsh",PHI,OF,$1
-10925,"Bryce Krispies👨‍🍳",18365,16376,sa709038,"Michael Conforto",CHC,OF,$1
-10925,"Bryce Krispies👨‍🍳",23714,13620,sa657963,"Carson Kelly",CHC,C,$1
-10925,"Bryce Krispies👨‍🍳",22219,19610,sa872528,"Keibert Ruiz",WSN,C,$1
 10925,"Bryce Krispies👨‍🍳",18449,12730,sa599574,"Nick Martinez",TBR,SP/RP,$1
 10925,"Bryce Krispies👨‍🍳",18491,17901,sa738659,"Andrew Benintendi",CHW,OF,$1
-10925,"Bryce Krispies👨‍🍳",37536,26438,sa1115890,"Dominic Canzone",SEA,OF,$1
-10925,"Bryce Krispies👨‍🍳",37946,25911,sa3011688,"Yennier Cano",BAL,RP,$1
-10925,"Bryce Krispies👨‍🍳",19197,19753,sa737372,"Jonathan Loaisiga",ARI,RP,$1
+10925,"Bryce Krispies👨‍🍳",23868,20202,sa917944,"Brandon Marsh",PHI,OF,$1
 10925,"Bryce Krispies👨‍🍳",19649,16530,sa738378,"Mauricio Dubon",ATL,2B/SS/3B/OF,$1
+10925,"Bryce Krispies👨‍🍳",37536,26438,sa1115890,"Dominic Canzone",SEA,OF,$1
+10925,"Bryce Krispies👨‍🍳",38325,27555,sa3014438,"Garrett Mitchell",MIL,OF,$1
+10925,"Bryce Krispies👨‍🍳",22219,19610,sa872528,"Keibert Ruiz",WSN,C,$1
+10925,"Bryce Krispies👨‍🍳",37946,25911,sa3011688,"Yennier Cano",BAL,RP,$1
+10925,"Bryce Krispies👨‍🍳",23714,13620,sa657963,"Carson Kelly",CHC,C,$1
 10925,"Bryce Krispies👨‍🍳",4374,9218,sa501577,"Paul Goldschmidt",NYY,1B,$1
 10944,"Si Se Fuentes",23625,21846,sa917938,"Cole Ragans",KCR,SP,$22
 10944,"Si Se Fuentes",37094,27676,sa1115762,"Vinnie Pasquantino",KCR,1B,$16
@@ -440,7 +438,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10944,"Si Se Fuentes",13117,12161,sa550735,"Xander Bogaerts",SDP,SS,$9
 10944,"Si Se Fuentes",23794,22264,sa3004765,"Shane Baz",BAL,SP,$8
 10944,"Si Se Fuentes",22655,18839,sa874243,"Josh Naylor",SEA,1B,$7
-10944,"Si Se Fuentes",42409,31812,sa3020211,"Roman Anthony",BOS,OF,$6
+10944,"Si Se Fuentes",42409,31812,sa3020211,"Roman Anthony","BOS AAA",OF,$6
 10944,"Si Se Fuentes",33670,23796,sa3008436,"Ryan Weathers",NYY,SP,$6
 10944,"Si Se Fuentes",40978,30134,sa3018170,"Tanner Bibee",CLE,SP,$5
 10944,"Si Se Fuentes",33645,22266,sa3007018,"Xavier Edwards",MIA,2B/SS,$5

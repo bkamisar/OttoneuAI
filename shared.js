@@ -79,7 +79,12 @@ async function fetchWithRetry(url, attempts) {
   let lastErr;
   for (let i = 0; i < attempts; i++) {
     try {
-      const res = await fetch(url);
+      // no-store: these CSVs are auto-updated in the repo throughout the day,
+      // and the browser's default HTTP cache has silently served stale copies
+      // of individual files before (e.g. proj_hitting.csv) while everything
+      // else on the page refreshed fine — surfacing as unmatched/"No Proj"
+      // players with no visible error.
+      const res = await fetch(url, { cache: 'no-store' });
       if (res.ok || res.status === 404) return res;
       lastErr = new Error('HTTP ' + res.status);
     } catch (e) {

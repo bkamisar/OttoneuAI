@@ -413,9 +413,21 @@ simulation, status auto-detect).
   `hitterSGP`): per-position HR/SLG/OBP offsets vs the slot-weighted average,
   each hitter graded at his best eligible position; nets ~0 on the pool
   (redistribution only). FAs carry no position data → general baseline, so the
-  bid advisor / FA finder aren't position-adjusted. In THIS league catchers are
-  OBP-rich, so the effect is a power-scarcity credit (C/2B/SS up on HR/SLG,
-  1B/corners down), not on-base.
+  bid advisor / FA finder aren't position-adjusted.
+  **Counting-stat offsets are per-PA rates, never raw totals** (fixed
+  2026-08-30). Replacement cohorts differ in playing time — the catcher cohort
+  averaged 78 PA against ~110 for 1B — so differencing raw HR/R totals imported
+  that PA gap as if it were a hitting-quality gap. `calcPlayerSGP` already
+  consumes `repl.hr`/`repl.r` as rates (it scales them by `pa/repl.pa`), so raw
+  totals were a unit mismatch: the catcher R offset came out 6.7× too large
+  (−2.47 vs −0.37) and the HR offset had the wrong sign (−0.53, a boost, vs
+  +0.06). Every catcher collected a flat ~$8 subsidy — 4 of the top 20 hitters
+  and mean $14.1 vs $11.2 for everyone else. Corrected, catchers sit at mean
+  $9.8 (1 in the top 20) and the premium moves to SS/2B, whose replacement
+  cohorts are genuinely weak-hitting (SS cohort SLG .392) rather than merely
+  rested. Regression-tested in `test.html` ("Positional offsets (rate vs
+  volume)"): equal rates at half the PA must earn zero offset, while a genuinely
+  lower rate at equal PA must still earn one.
 - Games/IP in standings.csv uniform across teams (source has no better data).
 - SGP denominators from a 12-team stdev are noisy year to year.
 - Prospect floors are expected values; the true outcome distribution is huge.

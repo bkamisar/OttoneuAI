@@ -839,6 +839,51 @@
       assertEqual(oldRows[0].hitNow, null, 'parseProspectsCSV: missing grade columns default to null, not a crash');
     })();
 
+    // ── Positional offsets: playing time must not read as hitting quality ────
+    // Regression for the catcher bug: replacement cohorts differ in PA (catchers
+    // rest), and differencing RAW counting totals imported that PA gap as if it
+    // were a talent gap, handing every catcher a flat ~$8 bonus. Offsets for
+    // HR/R are per-PA rates, so two positions whose cohorts hit identically per
+    // PA must come out even no matter how much playing time separates them.
+    section('Positional offsets (rate vs volume)');
+    (function () {
+      // Same rates throughout; only PA differs. c = 300 PA, 1b/2b/ss/3b/of = 600.
+      function bat(pa) {
+        return { pa: pa, ab: pa, hr: pa * 0.04, r: pa * 0.12, obp: 0.320, slg: 0.400, h: 0, bb: 0, hbp: 0 };
+      }
+      function squad(pos, n, pa) {
+        const out = [];
+        for (let i = 0; i < n; i++) {
+          out.push({ name: pos + i, fgId: pos + i, type: 'H', positions: [pos], salary: 1, proj: bat(pa) });
+        }
+        return out;
+      }
+      // Deep enough that every position clears its HIT_POS_DEPTH cohort slice.
+      const squads = [].concat(
+        squad('c', 24, 300), squad('1b', 24, 600), squad('2b', 28, 600),
+        squad('ss', 28, 600), squad('3b', 24, 600), squad('of', 72, 600));
+      const offs = computePositionalOffsets([squads]);
+
+      assert(offs.c && typeof offs.c.hrRate === 'number' && typeof offs.c.rRate === 'number',
+        'offsets expose per-PA hrRate/rRate, not raw totals');
+      // Half the playing time, identical rates → no scarcity credit.
+      assert(Math.abs(offs.c.hrRate) < 1e-9, 'half-PA cohort earns no HR offset when rates match',
+        'hrRate ' + (offs.c && offs.c.hrRate));
+      assert(Math.abs(offs.c.rRate) < 1e-9, 'half-PA cohort earns no R offset when rates match',
+        'rRate ' + (offs.c && offs.c.rRate));
+
+      // A genuinely weaker-hitting cohort (same PA) still earns a real offset.
+      const weakSS = squads.map(function (p) {
+        if (p.positions[0] !== 'ss') return p;
+        const q = JSON.parse(JSON.stringify(p));
+        q.proj.hr = 600 * 0.02; q.proj.r = 600 * 0.06;   // half the rate, same PA
+        return q;
+      });
+      const offs2 = computePositionalOffsets([weakSS]);
+      assert(offs2.ss.hrRate < -0.005, 'genuinely weak cohort still lowers replacement (real scarcity survives)',
+        'hrRate ' + offs2.ss.hrRate);
+    })();
+
     // ── Summary ──────────────────────────────────────────────────────────────
     const sumEl = document.getElementById('summary');
     sumEl.textContent = passed + ' passed, ' + failed + ' failed';

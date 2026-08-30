@@ -1431,19 +1431,30 @@ function computePositionalOffsets(allTeamRosters) {
     const d = HIT_POS_DEPTH[pos];
     let cohort = elig.slice(d, d + 8);
     if (cohort.length < 3) cohort = elig.slice(-6);   // thin position fallback
-    raw[pos] = avgCohortStats(cohort.map(p => p.proj), ['obp', 'slg', 'hr', 'r']);
+    raw[pos] = avgCohortStats(cohort.map(p => p.proj), ['obp', 'slg', 'hr', 'r', 'pa']);
   });
-  const present = Object.keys(raw).filter(p => raw[p]);
+  const present = Object.keys(raw).filter(p => raw[p] && raw[p].pa > 0);
   if (!present.length) return {};
   const totW = present.reduce((s, p) => s + HIT_POS_DEPTH[p], 0);
-  const avg = {};
-  ['obp', 'slg', 'hr', 'r'].forEach(k => {
-    avg[k] = present.reduce((s, p) => s + raw[p][k] * HIT_POS_DEPTH[p], 0) / totW;
-  });
+  const wavg = k => present.reduce((s, p) => s + raw[p][k] * HIT_POS_DEPTH[p], 0) / totW;
+  const avgOBP = wavg('obp'), avgSLG = wavg('slg'), avgPA = wavg('pa');
+  // Counting stats are compared as PER-PA RATES, not raw totals. Replacement
+  // cohorts differ in playing time (catchers rest: their cohort averages ~78 PA
+  // vs ~110 for 1B), and calcPlayerSGP consumes repl.hr/repl.r as a rate anyway
+  // — it scales them by pa/repl.pa. Differencing raw totals therefore imported
+  // the cohort's PA gap as if it were a hitting-quality gap. It handed every
+  // catcher a flat ~$8 bonus: the R offset came out 6.7x too large (-2.47 vs
+  // -0.37) and the HR offset had the wrong sign (-0.53, a boost, vs +0.06).
+  const avgHRRate = wavg('hr') / avgPA;
+  const avgRRate  = wavg('r')  / avgPA;
   const offsets = {};
   present.forEach(p => {
-    offsets[p] = {};
-    ['obp', 'slg', 'hr', 'r'].forEach(k => { offsets[p][k] = raw[p][k] - avg[k]; });
+    offsets[p] = {
+      obp:    raw[p].obp - avgOBP,
+      slg:    raw[p].slg - avgSLG,
+      hrRate: raw[p].hr / raw[p].pa - avgHRRate,
+      rRate:  raw[p].r  / raw[p].pa - avgRRate,
+    };
   });
   return offsets;
 }
@@ -1459,7 +1470,15 @@ function hitterSGP(player, b, replH, posOffsets, sgpDenom, avgPA, avgIP) {
   let best = -Infinity;
   for (const pos of positions) {
     const o = posOffsets[pos];
-    const adj = { ...replH, obp: replH.obp + o.obp, slg: replH.slg + o.slg, hr: replH.hr + o.hr, r: replH.r + o.r };
+    // hrRate/rRate are per-PA deltas, so they scale onto the baseline's own PA
+    // before calcPlayerSGP re-scales the result to this player's playing time.
+    const adj = {
+      ...replH,
+      obp: replH.obp + o.obp,
+      slg: replH.slg + o.slg,
+      hr: Math.max(0, replH.hr + o.hrRate * (replH.pa || 0)),
+      r:  Math.max(0, replH.r  + o.rRate  * (replH.pa || 0)),
+    };
     const s = calcPlayerSGP(player, b, adj, sgpDenom, avgPA, avgIP);
     if (s > best) best = s;
   }

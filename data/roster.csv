@@ -17,7 +17,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10758,"Misiorowski Index",37841,26319,sa3011540,"Michael Busch",CHC,1B,$6
 10758,"Misiorowski Index",40262,29712,sa3017170,"Colson Montgomery",CHW,SS/3B,$6
 10758,"Misiorowski Index",39978,29591,sa3017018,"Colton Cowser",BAL,OF,$6
-10758,"Misiorowski Index",26857,22184,sa3004720,"Mark Vientos","NYM AAA",1B/3B,$5
+10758,"Misiorowski Index",26857,22184,sa3004720,"Mark Vientos",NYM,1B/3B,$5
 10758,"Misiorowski Index",35922,25385,sa829799,"Drew Rasmussen",TBR,SP,$5
 10758,"Misiorowski Index",31541,20302,sa829588,"David Peterson",CHC,SP/RP,$5
 10758,"Misiorowski Index",23834,22515,sa3004693,"Heliot Ramos",NYY,OF,$5
@@ -63,23 +63,24 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10759,"Juan Nation UndeGrom 🫡",42358,31505,sa3020130,"Sal Stewart",CIN,1B/2B/3B,$6
 10759,"Juan Nation UndeGrom 🫡",43589,32095,sa3021981,"Cam Schlittler",NYY,SP,$5
 10759,"Juan Nation UndeGrom 🫡",39288,28824,sa3015716,"Samuel Basallo",BAL,C/1B,$4
-10759,"Juan Nation UndeGrom 🫡",42221,31539,sa3019920,"Drake Baldwin",ATL,C,$3
-10759,"Juan Nation UndeGrom 🫡",35602,25327,sa3008177,"Abner Uribe","MIL A+",RP,$3
 10759,"Juan Nation UndeGrom 🫡",44057,33321,sa3022614,"Luke Keaschall",MIN,2B/OF,$3
-10759,"Juan Nation UndeGrom 🫡",44544,33927,sa3023634,"Grant Taylor",CHW,SP/RP,$3
 10759,"Juan Nation UndeGrom 🫡",23672,20039,sa969093,"Adrian Morejon",SDP,RP,$3
+10759,"Juan Nation UndeGrom 🫡",42221,31539,sa3019920,"Drake Baldwin",ATL,C,$3
 10759,"Juan Nation UndeGrom 🫡",37531,26294,sa3011443,"Bryson Stott",PHI,2B/SS/3B,$3
 10759,"Juan Nation UndeGrom 🫡",37469,26197,sa3011226,"Andrew Vaughn",MIL,1B/3B,$3
 10759,"Juan Nation UndeGrom 🫡",26198,22799,sa3003290,"Geraldo Perdomo",ARI,SS,$3
+10759,"Juan Nation UndeGrom 🫡",44544,33927,sa3023634,"Grant Taylor",CHW,SP/RP,$3
 10759,"Juan Nation UndeGrom 🫡",35874,24586,sa3008605,"Kyle Bradish",BAL,SP,$3
+10759,"Juan Nation UndeGrom 🫡",35602,25327,sa3008177,"Abner Uribe","MIL ST",RP,$3
+10759,"Juan Nation UndeGrom 🫡",33607,22286,sa3005423,"Trevor Rogers",BAL,SP,$2
 10759,"Juan Nation UndeGrom 🫡",36325,26546,sa3009276,"Agustin Ramirez",MIA,C,$2
 10759,"Juan Nation UndeGrom 🫡",35541,21842,sa3008079,"Carlos Cortes",ATH,OF/RP,$2
-10759,"Juan Nation UndeGrom 🫡",33607,22286,sa3005423,"Trevor Rogers",BAL,SP,$2
-10759,"Juan Nation UndeGrom 🫡",34132,24453,sa3005864,"Justin Martinez",ARI,RP,$1
-10759,"Juan Nation UndeGrom 🫡",38328,27468,sa3014425,"Reid Detmers",LAA,SP/RP,$1
+10759,"Juan Nation UndeGrom 🫡",27165,22207,sa3005282,"DL Hall",MIL,RP,$1
 10759,"Juan Nation UndeGrom 🫡",42850,32026,sa3020885,"Drew Sommers",DET,RP,$1
 10759,"Juan Nation UndeGrom 🫡",32719,19996,sa918185,"Dylan Lee",ATL,RP,$1
+10759,"Juan Nation UndeGrom 🫡",34132,24453,sa3005864,"Justin Martinez",ARI,RP,$1
 10759,"Juan Nation UndeGrom 🫡",33672,23550,sa3007225,"Aaron Ashby",MIL,RP,$1
+10759,"Juan Nation UndeGrom 🫡",38328,27468,sa3014425,"Reid Detmers",LAA,SP/RP,$1
 10761,"Meet The Pressmerlyn",33600,19755,,"Shohei Ohtani",LAD,Util/SP,$78
 10761,"Meet The Pressmerlyn",43894,33677,sa3023079,"Paul Skenes",PIT,SP,$60
 10761,"Meet The Pressmerlyn",18284,13510,sa598784,"José Ramírez",CLE,3B,$47
@@ -302,7 +303,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10899,"Prospects R Us",49442,,sa3031459,"Jackson Flora",,RP,$5
 10899,"Prospects R Us",46310,35466,sa3043900,"Payton Tolle",BOS,SP,$5
 10899,"Prospects R Us",47555,,sa3069247,"Seth Hernandez","PIT A+",SP,$5
-10899,"Prospects R Us",43966,33322,sa3022615,"Matt Shaw",CHC,3B/OF,$4
+10899,"Prospects R Us",43966,33322,sa3022615,"Matt Shaw",CHC,2B/3B/OF,$4
 10899,"Prospects R Us",36682,25977,sa3011297,"Quinn Priester",MIL,SP/RP,$4
 10899,"Prospects R Us",45771,,sa3025565,"Theo Gillen","TBR AA",OF,$4
 10899,"Prospects R Us",37480,26151,sa1115829,"Kyle Stowers",MIA,1B/OF,$4
@@ -356,7 +357,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10908,"South Side Shitshow",42156,31347,sa3019855,"Zach Neto",LAA,SS,$9
 10908,"South Side Shitshow",40941,30122,sa3018106,"Gavin Williams",CLE,SP,$7
 10908,"South Side Shitshow",34619,24679,sa3006675,"Brendan Donovan",SEA,2B/SS/3B/OF,$7
-10908,"South Side Shitshow",23780,20043,sa3003396,"Luis Robert Jr.",NYM,OF,$7
+10908,"South Side Shitshow",23780,20043,sa3003396,"Luis Robert Jr.",BAL,OF,$7
 10908,"South Side Shitshow",38754,27867,sa3015086,"Cade Smith",CLE,RP,$5
 10908,"South Side Shitshow",42737,31846,sa3020703,"Spencer Schwellenbach",ATL,SP,$5
 10908,"South Side Shitshow",43949,33549,sa3022886,"Kyle Teel",CHW,C,$4
@@ -501,7 +502,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10974,"Ketel Corn",26099,20599,sa3003191,"Ivan Herrera",STL,C,$6
 10974,"Ketel Corn",23745,19287,sa908695,"Adolis García",PHI,OF,$6
 10974,"Ketel Corn",45713,34985,sa3025154,"JJ Wetherholt",STL,2B/SS,$5
-10974,"Ketel Corn",23373,21052,sa877821,"Luis Gil","NYY ST",SP,$5
+10974,"Ketel Corn",23373,21052,sa877821,"Luis Gil",NYY,SP,$5
 10974,"Ketel Corn",27074,23590,sa3005122,"Ben Brown",CHC,SP/RP,$5
 10974,"Ketel Corn",47553,37238,sa3026056,"Kade Anderson",SEA,SP/RP,$5
 10974,"Ketel Corn",37635,28080,sa3014696,"Jasson Dominguez","NYY AAA",OF,$5
@@ -515,7 +516,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10974,"Ketel Corn",40615,29921,sa3017537,"Spencer Arrighetti",TOR,SP,$2
 10974,"Ketel Corn",38093,27702,sa3011887,"Brent Headrick",NYY,RP,$2
 10974,"Ketel Corn",46289,,sa3042374,"Mike Sirota","LAD AA",OF,$2
-10974,"Ketel Corn",42727,,sa3020881,"Ethan Salas","SDP AAA",C,$2
+10974,"Ketel Corn",42727,32051,sa3020881,"Ethan Salas","SDP AAA",C,$2
 10974,"Ketel Corn",18303,15518,sa732115,"Amed Rosario",NYY,2B/3B,$1
 10974,"Ketel Corn",41865,,sa3019390,"Carlos Lagrange","NYY AAA",SP/RP,$1
 10974,"Ketel Corn",41160,30361,sa3018409,"Lazaro Montes","SEA AAA",OF,$1

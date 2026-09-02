@@ -45,8 +45,8 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10759,"Juan Nation UndeGrom 🫡",18549,19611,sa920245,"Vladimir Guerrero Jr.",TOR,1B,$53
 10759,"Juan Nation UndeGrom 🫡",23682,19709,sa919910,"Fernando Tatis Jr.",SDP,2B/OF,$52
 10759,"Juan Nation UndeGrom 🫡",18546,18345,sa874240,"Kyle Tucker",LAD,OF,$42
-10759,"Juan Nation UndeGrom 🫡",44525,33825,sa3023345,"Yoshinobu Yamamoto",LAD,SP,$33
 10759,"Juan Nation UndeGrom 🫡",5680,5361,sa390291,"Freddie Freeman",LAD,1B,$33
+10759,"Juan Nation UndeGrom 🫡",44525,33825,sa3023345,"Yoshinobu Yamamoto",LAD,SP,$33
 10759,"Juan Nation UndeGrom 🫡",18124,12856,sa526414,"George Springer",TOR,OF,$23
 10759,"Juan Nation UndeGrom 🫡",36509,25976,sa3010694,"Riley Greene",DET,OF,$22
 10759,"Juan Nation UndeGrom 🫡",6305,10155,sa500736,"Mike Trout",LAA,OF,$22
@@ -54,33 +54,34 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10759,"Juan Nation UndeGrom 🫡",18216,13624,sa657913,"Corey Seager",TEX,SS,$19
 10759,"Juan Nation UndeGrom 🫡",43896,33333,sa3022654,"Wyatt Langford",TEX,OF,$16
 10759,"Juan Nation UndeGrom 🫡",37201,25880,sa3010571,"Hunter Brown",HOU,SP,$14
+10759,"Juan Nation UndeGrom 🫡",14294,10954,sa548447,"Jacob DeGrom",TEX,SP,$12
 10759,"Juan Nation UndeGrom 🫡",41042,30279,sa3018290,"Bryan Woo",SEA,SP,$12
 10759,"Juan Nation UndeGrom 🫡",45716,35110,sa3025385,"Nick Kurtz",ATH,1B,$12
-10759,"Juan Nation UndeGrom 🫡",14294,10954,sa548447,"Jacob DeGrom",TEX,SP,$12
 10759,"Juan Nation UndeGrom 🫡",22674,18360,sa874756,"Austin Riley",ATL,3B,$11
 10759,"Juan Nation UndeGrom 🫡",22559,21029,sa873347,"Jhoan Duran",PHI,RP,$10
 10759,"Juan Nation UndeGrom 🫡",34788,22542,sa3006873,"Lawrence Butler",ATH,OF,$7
 10759,"Juan Nation UndeGrom 🫡",42358,31505,sa3020130,"Sal Stewart",CIN,1B/2B/3B,$6
 10759,"Juan Nation UndeGrom 🫡",43589,32095,sa3021981,"Cam Schlittler",NYY,SP,$5
 10759,"Juan Nation UndeGrom 🫡",39288,28824,sa3015716,"Samuel Basallo",BAL,C/1B,$4
-10759,"Juan Nation UndeGrom 🫡",44057,33321,sa3022614,"Luke Keaschall",MIN,2B/OF,$3
+10759,"Juan Nation UndeGrom 🫡",44544,33927,sa3023634,"Grant Taylor",CHW,SP/RP,$3
 10759,"Juan Nation UndeGrom 🫡",23672,20039,sa969093,"Adrian Morejon",SDP,RP,$3
+10759,"Juan Nation UndeGrom 🫡",44057,33321,sa3022614,"Luke Keaschall",MIN,2B/OF,$3
+10759,"Juan Nation UndeGrom 🫡",26198,22799,sa3003290,"Geraldo Perdomo",ARI,SS,$3
 10759,"Juan Nation UndeGrom 🫡",42221,31539,sa3019920,"Drake Baldwin",ATL,C,$3
+10759,"Juan Nation UndeGrom 🫡",35602,25327,sa3008177,"Abner Uribe","MIL ST",RP,$3
+10759,"Juan Nation UndeGrom 🫡",35874,24586,sa3008605,"Kyle Bradish",BAL,SP,$3
 10759,"Juan Nation UndeGrom 🫡",37531,26294,sa3011443,"Bryson Stott",PHI,2B/SS/3B,$3
 10759,"Juan Nation UndeGrom 🫡",37469,26197,sa3011226,"Andrew Vaughn",MIL,1B/3B,$3
-10759,"Juan Nation UndeGrom 🫡",26198,22799,sa3003290,"Geraldo Perdomo",ARI,SS,$3
-10759,"Juan Nation UndeGrom 🫡",44544,33927,sa3023634,"Grant Taylor",CHW,SP/RP,$3
-10759,"Juan Nation UndeGrom 🫡",35874,24586,sa3008605,"Kyle Bradish",BAL,SP,$3
-10759,"Juan Nation UndeGrom 🫡",35602,25327,sa3008177,"Abner Uribe","MIL ST",RP,$3
-10759,"Juan Nation UndeGrom 🫡",33607,22286,sa3005423,"Trevor Rogers",BAL,SP,$2
 10759,"Juan Nation UndeGrom 🫡",36325,26546,sa3009276,"Agustin Ramirez",MIA,C,$2
+10759,"Juan Nation UndeGrom 🫡",35304,24759,sa3007747,"Mickey Gasper",BOS,C,$2
+10759,"Juan Nation UndeGrom 🫡",33607,22286,sa3005423,"Trevor Rogers",BAL,SP,$2
 10759,"Juan Nation UndeGrom 🫡",35541,21842,sa3008079,"Carlos Cortes",ATH,OF/RP,$2
-10759,"Juan Nation UndeGrom 🫡",27165,22207,sa3005282,"DL Hall",MIL,RP,$1
-10759,"Juan Nation UndeGrom 🫡",42850,32026,sa3020885,"Drew Sommers",DET,RP,$1
-10759,"Juan Nation UndeGrom 🫡",32719,19996,sa918185,"Dylan Lee",ATL,RP,$1
-10759,"Juan Nation UndeGrom 🫡",34132,24453,sa3005864,"Justin Martinez",ARI,RP,$1
-10759,"Juan Nation UndeGrom 🫡",33672,23550,sa3007225,"Aaron Ashby",MIL,RP,$1
 10759,"Juan Nation UndeGrom 🫡",38328,27468,sa3014425,"Reid Detmers",LAA,SP/RP,$1
+10759,"Juan Nation UndeGrom 🫡",42850,32026,sa3020885,"Drew Sommers",DET,RP,$1
+10759,"Juan Nation UndeGrom 🫡",27165,22207,sa3005282,"DL Hall",MIL,RP,$1
+10759,"Juan Nation UndeGrom 🫡",33672,23550,sa3007225,"Aaron Ashby",MIL,RP,$1
+10759,"Juan Nation UndeGrom 🫡",34132,24453,sa3005864,"Justin Martinez",ARI,RP,$1
+10759,"Juan Nation UndeGrom 🫡",32719,19996,sa918185,"Dylan Lee",ATL,RP,$1
 10761,"Meet The Pressmerlyn",33600,19755,,"Shohei Ohtani",LAD,Util/SP,$78
 10761,"Meet The Pressmerlyn",43894,33677,sa3023079,"Paul Skenes",PIT,SP,$60
 10761,"Meet The Pressmerlyn",18284,13510,sa598784,"José Ramírez",CLE,3B,$47
@@ -186,25 +187,25 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10818,"Bureau of Gleyber Statistics",40972,30182,sa3018149,"Will Warren",NYY,SP,$3
 10818,"Bureau of Gleyber Statistics",42765,31986,sa3020748,"Parker Messick",CLE,SP,$3
 10818,"Bureau of Gleyber Statistics",37797,26368,sa3011642,"JJ Bleday",CIN,OF,$3
-10818,"Bureau of Gleyber Statistics",23201,17982,sa876140,"Ty France",SDP,1B,$3
 10818,"Bureau of Gleyber Statistics",12379,9777,sa500816,"Nolan Arenado",ARI,3B,$3
 10818,"Bureau of Gleyber Statistics",31958,20352,sa915732,"Ernie Clement",TOR,1B/2B/SS/3B,$3
 10818,"Bureau of Gleyber Statistics",26134,22664,sa3003226,"Gabriel Moreno",ARI,C,$3
-10818,"Bureau of Gleyber Statistics",44046,33312,sa3022603,"Brett Bateman",TOR,OF,$2
+10818,"Bureau of Gleyber Statistics",23201,17982,sa876140,"Ty France",SDP,1B,$3
 10818,"Bureau of Gleyber Statistics",38780,24978,sa3015121,"Erik Sabrowski",CLE,RP,$2
+10818,"Bureau of Gleyber Statistics",44046,33312,sa3022603,"Brett Bateman",TOR,OF,$2
+10818,"Bureau of Gleyber Statistics",40854,30109,sa3017917,"Nate Lavender",NYM,RP,$2
 10818,"Bureau of Gleyber Statistics",33954,24878,sa3005630,"Heriberto Hernandez",MIA,OF,$2
 10818,"Bureau of Gleyber Statistics",18153,12564,sa597765,"Trevor Story",BOS,SS,$1
-10818,"Bureau of Gleyber Statistics",44274,33568,sa3022951,"Brandyn Garcia",ARI,RP,$1
 10818,"Bureau of Gleyber Statistics",18421,13580,sa550187,"Steven Okert",HOU,RP,$1
 10818,"Bureau of Gleyber Statistics",19197,19753,sa737372,"Jonathan Loaisiga",ARI,RP,$1
+10818,"Bureau of Gleyber Statistics",44274,33568,sa3022951,"Brandyn Garcia",ARI,RP,$1
 10818,"Bureau of Gleyber Statistics",19394,14771,sa737885,"Emilio Pagan",CIN,RP,$1
 10818,"Bureau of Gleyber Statistics",40251,29571,sa3016970,"Tim Tawa",ARI,1B/2B/3B/OF,$1
 10818,"Bureau of Gleyber Statistics",40214,29539,sa3016926,"Abimelec Ortiz",WSN,1B/OF,$1
-10818,"Bureau of Gleyber Statistics",32804,20000,sa918346,"Tyler Wells",TBR,SP/RP,$1
 10818,"Bureau of Gleyber Statistics",21041,16939,sa828962,"Lane Thomas",ATL,OF,$1
 10818,"Bureau of Gleyber Statistics",37202,27691,sa3010572,"Louis Varland",TOR,RP,$1
 10818,"Bureau of Gleyber Statistics",23311,17480,sa877364,"Daniel Duarte",NYM,SP/RP,$1
-10818,"Bureau of Gleyber Statistics",32710,22361,sa918172,"Colin Holderman",CLE,RP,$1
+10818,"Bureau of Gleyber Statistics",32804,20000,sa918346,"Tyler Wells",TBR,SP/RP,$1
 10881,"Look Out Bello",38736,27498,sa3015059,"Spencer Strider",ATL,SP,$22
 10881,"Look Out Bello",23767,19612,sa917949,"Bo Bichette",NYM,SS/3B,$20
 10881,"Look Out Bello",22391,20503,sa872847,"William Contreras",MIL,C,$20
@@ -244,7 +245,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10881,"Look Out Bello",44039,33253,sa3022596,"Cole Carrigg",COL,SS/OF,$2
 10881,"Look Out Bello",42538,31760,sa3020395,"JR Ritchie","ATL AAA",SP/RP,$2
 10881,"Look Out Bello",40398,29646,sa3017183,"Caleb Durbin",BOS,2B/3B,$2
-10881,"Look Out Bello",37309,25999,sa3010700,"Victor Mesa Jr.",TBR,OF,$1
+10881,"Look Out Bello",37309,25999,sa3010700,"Victor Mesa Jr.","TBR AAA",OF,$1
 10881,"Look Out Bello",18152,13145,sa597768,"Josh Bell",MIN,1B,$1
 10881,"Look Out Bello",23787,13619,sa602414,"Jakob Junis",TEX,RP,$1
 10881,"Look Out Bello",31505,21306,sa829008,"Jacob Latz",TEX,SP/RP,$1

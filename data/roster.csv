@@ -298,58 +298,59 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10897,"Five-cent head",40748,30011,sa3017756,"Christian Encarnacion-Strand",BAL,1B/3B,$1
 10897,"Five-cent head",41926,31204,sa3019501,"Justin Wrobleski",LAD,SP/RP,$1
 10899,"Prospects R Us",40142,29490,sa3016829,"Jackson Merrill",SDP,OF,$19
-10899,"Prospects R Us",31194,17277,sa659551,"Ranger Suarez",BOS,SP,$8
 10899,"Prospects R Us",23813,19361,sa873673,"Corbin Burnes",ARI,SP,$8
+10899,"Prospects R Us",31194,17277,sa659551,"Ranger Suarez",BOS,SP,$8
 10899,"Prospects R Us",18160,14162,sa657850,"Carlos Correa",HOU,SS/3B,$7
 10899,"Prospects R Us",35824,24610,sa3008536,"Steven Kwan",CLE,OF,$7
 10899,"Prospects R Us",49442,,sa3031459,"Jackson Flora",,RP,$5
 10899,"Prospects R Us",46310,35466,sa3043900,"Payton Tolle",BOS,SP,$5
 10899,"Prospects R Us",47555,,sa3069247,"Seth Hernandez","PIT A+",SP,$5
-10899,"Prospects R Us",43966,33322,sa3022615,"Matt Shaw",CHC,2B/3B/OF,$4
-10899,"Prospects R Us",36682,25977,sa3011297,"Quinn Priester",MIL,SP/RP,$4
 10899,"Prospects R Us",45771,,sa3025565,"Theo Gillen","TBR AA",OF,$4
+10899,"Prospects R Us",43966,33322,sa3022615,"Matt Shaw",CHC,2B/3B/OF,$4
 10899,"Prospects R Us",37480,26151,sa1115829,"Kyle Stowers",MIA,1B/OF,$4
 10899,"Prospects R Us",49401,,sa3028866,"Roch Cholowsky","CHW A+",Util,$4
+10899,"Prospects R Us",36682,25977,sa3011297,"Quinn Priester",MIL,SP/RP,$4
 10899,"Prospects R Us",27207,22581,sa3005337,"Alejandro Kirk",TOR,C,$4
-10899,"Prospects R Us",38398,27815,sa3014499,"Jordan Westburg",BAL,2B/3B,$3
-10899,"Prospects R Us",35566,21455,sa3008128,"Kris Bubic",LAD,SP,$3
-10899,"Prospects R Us",43893,33381,sa3022683,"Max Clark",DET,OF,$3
+10899,"Prospects R Us",18462,12970,sa597766,"Joe Musgrove",SDP,RP,$3
 10899,"Prospects R Us",39406,29218,sa3015834,"Pedro Ramirez",CHC,2B/3B,$3
+10899,"Prospects R Us",38398,27815,sa3014499,"Jordan Westburg",BAL,2B/3B,$3
+10899,"Prospects R Us",43893,33381,sa3022683,"Max Clark",DET,OF,$3
 10899,"Prospects R Us",44487,33435,sa3023268,"Thomas White","MIA AAA",SP,$3
 10899,"Prospects R Us",45064,,sa3024108,"Jesus Made","MIL AA",SS,$3
-10899,"Prospects R Us",18462,12970,sa597766,"Joe Musgrove",SDP,RP,$3
-10899,"Prospects R Us",33616,20492,sa3008444,"Casey Mize",SDP,SP,$3
+10899,"Prospects R Us",35566,21455,sa3008128,"Kris Bubic",LAD,SP,$3
 10899,"Prospects R Us",45789,35061,sa3025261,"Ryan Waldschmidt",ARI,OF,$3
-10899,"Prospects R Us",45947,35177,sa3025452,"Carson Benge",NYM,OF,$2
-10899,"Prospects R Us",41335,,sa3018584,"Josue Briceno","DET AAA",C/1B,$2
+10899,"Prospects R Us",33616,20492,sa3008444,"Casey Mize",SDP,SP,$3
 10899,"Prospects R Us",45715,,sa3025257,"Charlie Condon","COL AAA",1B/OF,$2
+10899,"Prospects R Us",41335,,sa3018584,"Josue Briceno","DET AAA",C/1B,$2
 10899,"Prospects R Us",42598,31621,sa3020475,"Spencer Miles",TOR,SP/RP,$2
-10899,"Prospects R Us",42716,,sa3020659,"Karson Milbrandt","MIA AAA",SP,$2
-10899,"Prospects R Us",44248,33575,sa3022923,"Colt Emerson",SEA,SS/3B,$2
 10899,"Prospects R Us",19242,20666,sa737480,"Felix Bautista",BAL,RP,$2
+10899,"Prospects R Us",20291,19858,sa826671,"Luis Rengifo",SDP,2B/3B/OF,$2
+10899,"Prospects R Us",45947,35177,sa3025452,"Carson Benge",NYM,OF,$2
 10899,"Prospects R Us",22654,17988,sa874242,"Tyler Stephenson",CIN,C,$2
-10899,"Prospects R Us",27162,23733,sa3005271,"Ezequiel Duran",TEX,1B/2B/SS/3B/OF,$2
+10899,"Prospects R Us",44248,33575,sa3022923,"Colt Emerson",SEA,SS/3B,$2
+10899,"Prospects R Us",36539,26944,sa3009613,"Edgardo Henriquez",LAD,RP,$2
+10899,"Prospects R Us",42716,,sa3020659,"Karson Milbrandt","MIA AAA",SP,$2
 10899,"Prospects R Us",32655,19354,sa918048,"Luke Raley",SEA,1B/OF,$2
+10899,"Prospects R Us",33609,21618,sa3007284,"Alec Bohm",PHI,1B/3B,$2
+10899,"Prospects R Us",35725,23986,sa3008392,"Curtis Mead",BOS,1B/2B/3B,$2
 10899,"Prospects R Us",34817,24598,sa3006910,"Addison Barger",TOR,3B/OF,$2
 10899,"Prospects R Us",34879,24607,sa3006973,"Jonathan Bowlan",PHI,RP,$2
-10899,"Prospects R Us",35725,23986,sa3008392,"Curtis Mead",BOS,1B/2B/3B,$2
-10899,"Prospects R Us",36539,26944,sa3009613,"Edgardo Henriquez",LAD,RP,$2
-10899,"Prospects R Us",33609,21618,sa3007284,"Alec Bohm",PHI,1B/3B,$2
-10899,"Prospects R Us",42582,31680,sa3020459,"Cole Young",SEA,2B/SS,$1
+10899,"Prospects R Us",27162,23733,sa3005271,"Ezequiel Duran",TEX,1B/2B/SS/3B/OF,$2
 10899,"Prospects R Us",21961,17920,sa856266,"Cody Ponce",TOR,SP/RP,$1
+10899,"Prospects R Us",37599,26108,sa3011186,"Andre Pallante",STL,SP,$1
+10899,"Prospects R Us",35300,23789,sa3007742,"Blaze Alexander",BAL,2B/SS/3B/OF,$1
+10899,"Prospects R Us",34389,23974,sa3006366,"Randy Rodriguez",SFG,RP,$1
 10899,"Prospects R Us",40261,29993,sa3017694,"Brady House",WSN,3B,$1
+10899,"Prospects R Us",35030,24763,sa3007241,"Kyle Leahy",STL,SP/RP,$1
+10899,"Prospects R Us",25866,22630,sa3002956,"Keider Montero",DET,SP/RP,$1
+10899,"Prospects R Us",42219,31394,sa3019918,"Brooks Baldwin",CHW,2B/SS/3B/OF,$1
+10899,"Prospects R Us",42582,31680,sa3020459,"Cole Young",SEA,2B/SS,$1
+10899,"Prospects R Us",39279,28811,sa3015706,"Angel Genao",CLE,2B/SS/3B,$1
+10899,"Prospects R Us",41050,29357,sa3018298,"Walbert Urena",LAA,SP/RP,$1
+10899,"Prospects R Us",43569,,sa3021845,"Franklin Arias","BOS AAA",SS,$1
+10899,"Prospects R Us",37171,27552,sa918274,"Graham Ashcraft",CIN,SP/RP,$1
 10899,"Prospects R Us",32492,21924,sa917772,"Juan Morillo",ARI,RP,$1
 10899,"Prospects R Us",45884,35101,sa3025363,"Sam Antonacci",CHW,2B/3B/OF,$1
-10899,"Prospects R Us",37599,26108,sa3011186,"Andre Pallante",STL,SP,$1
-10899,"Prospects R Us",41050,29357,sa3018298,"Walbert Urena",LAA,SP/RP,$1
-10899,"Prospects R Us",25866,22630,sa3002956,"Keider Montero",DET,SP/RP,$1
-10899,"Prospects R Us",34389,23974,sa3006366,"Randy Rodriguez",SFG,RP,$1
-10899,"Prospects R Us",37171,27552,sa918274,"Graham Ashcraft",CIN,SP/RP,$1
-10899,"Prospects R Us",42219,31394,sa3019918,"Brooks Baldwin",CHW,2B/SS/3B/OF,$1
-10899,"Prospects R Us",35030,24763,sa3007241,"Kyle Leahy",STL,SP/RP,$1
-10899,"Prospects R Us",35300,23789,sa3007742,"Blaze Alexander",BAL,2B/SS/3B/OF,$1
-10899,"Prospects R Us",43569,,sa3021845,"Franklin Arias","BOS AAA",SS,$1
-10899,"Prospects R Us",39279,28811,sa3015706,"Angel Genao",CLE,2B/SS/3B,$1
 10908,"South Side Shitshow",37182,25878,sa3010593,"Corbin Carroll",ARI,OF,$54
 10908,"South Side Shitshow",18786,17085,sa736473,"Pablo Lopez",MIN,SP,$29
 10908,"South Side Shitshow",21052,18525,sa829000,"Dylan Cease",TOR,SP,$24

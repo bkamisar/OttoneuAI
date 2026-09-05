@@ -1,14 +1,38 @@
 {
- "generatedAt": "2026-09-04T09:09:01.299Z",
- "dateLabel": "Friday, September 4",
+ "generatedAt": "2026-09-05T09:09:01.428Z",
+ "dateLabel": "Saturday, September 5",
  "teamId": "10759",
  "yesterday": {
   "note": "",
   "hitters": [
    {
-    "name": "Vladimir Guerrero Jr.",
-    "mlb": "TOR",
-    "line": "0-3, 1 RBI, 1 R, 1 BB",
+    "name": "Riley Greene",
+    "mlb": "DET",
+    "line": "0-3, 1 R, 1 BB",
+    "blurb": ""
+   },
+   {
+    "name": "Sal Stewart",
+    "mlb": "CIN",
+    "line": "1-4, 1 RBI",
+    "blurb": ""
+   },
+   {
+    "name": "Drake Baldwin",
+    "mlb": "ATL",
+    "line": "1-5",
+    "blurb": ""
+   },
+   {
+    "name": "Austin Riley",
+    "mlb": "ATL",
+    "line": "1-4, 1 RBI, 1 R",
+    "blurb": ""
+   },
+   {
+    "name": "Mike Trout",
+    "mlb": "LAA",
+    "line": "1-4",
     "blurb": ""
    },
    {
@@ -20,69 +44,117 @@
    {
     "name": "Mickey Gasper",
     "mlb": "BOS",
-    "line": "0-3",
+    "line": "2-4, 1 HR, 1 RBI, 1 R",
     "blurb": ""
    },
    {
-    "name": "Andrew Vaughn",
-    "mlb": "MIL",
-    "line": "1-4, 1 HR, 1 RBI, 1 R",
+    "name": "Juan Soto",
+    "mlb": "NYM",
+    "line": "0-4, 1 RBI, 1 R, 1 BB, 1 SB",
     "blurb": ""
    },
    {
     "name": "Agustin Ramirez",
     "mlb": "MIA",
-    "line": "1-4, 1 HR, 1 RBI, 1 R",
+    "line": "0-4",
+    "blurb": ""
+   },
+   {
+    "name": "Luke Keaschall",
+    "mlb": "MIN",
+    "line": "0-5",
     "blurb": ""
    },
    {
     "name": "Wyatt Langford",
     "mlb": "TEX",
-    "line": "1-3, 2 R, 1 BB",
+    "line": "0-4",
     "blurb": ""
    },
    {
     "name": "Corey Seager",
     "mlb": "TEX",
-    "line": "1-4, 1 HR, 2 RBI, 1 R",
+    "line": "2-4",
     "blurb": ""
    },
    {
     "name": "Junior Caminero",
     "mlb": "TB",
-    "line": "0-4",
+    "line": "2-5, 2 RBI, 1 R",
     "blurb": ""
    },
    {
-    "name": "Lawrence Butler",
-    "mlb": "ATH",
-    "line": "2-5, 2 RBI",
+    "name": "Geraldo Perdomo",
+    "mlb": "AZ",
+    "line": "1-3, 1 BB, 1 SB",
+    "blurb": ""
+   },
+   {
+    "name": "George Springer",
+    "mlb": "TOR",
+    "line": "1-5, 2 RBI",
+    "blurb": ""
+   },
+   {
+    "name": "Vladimir Guerrero Jr.",
+    "mlb": "TOR",
+    "line": "2-4, 1 R",
+    "blurb": ""
+   },
+   {
+    "name": "Fernando Tatis Jr.",
+    "mlb": "SD",
+    "line": "0-4",
     "blurb": ""
    },
    {
     "name": "Kyle Tucker",
     "mlb": "LAD",
-    "line": "0-3, 1 BB",
+    "line": "1-2, 1 HR, 1 RBI, 2 R, 1 BB",
     "blurb": ""
    },
    {
-    "name": "Freddie Freeman",
-    "mlb": "LAD",
-    "line": "0-4",
+    "name": "Lawrence Butler",
+    "mlb": "ATH",
+    "line": "1-4, 1 RBI",
+    "blurb": ""
+   },
+   {
+    "name": "Carlos Cortes",
+    "mlb": "ATH",
+    "line": "1-4",
     "blurb": ""
    }
   ],
   "pitchers": [
    {
-    "name": "Hunter Brown",
-    "mlb": "HOU",
-    "line": "6.0 IP, 2 ER, 7 K (W, 5-3)",
+    "name": "Drew Sommers",
+    "mlb": "DET",
+    "line": "1.0 IP, 1 ER, 1 K (L, 1-4)",
     "blurb": ""
    },
    {
-    "name": "DL Hall",
+    "name": "Aaron Ashby",
     "mlb": "MIL",
-    "line": "1.0 IP, 0 ER, 0 K",
+    "line": "1.0 IP, 0 ER, 2 K (H, 15)",
+    "blurb": ""
+   },
+   {
+    "name": "Grant Taylor",
+    "mlb": "CWS",
+    "line": "1.0 IP, 1 ER, 0 K",
+    "blurb": ""
+   },
+   {
+    "name": "Justin Martinez",
+    "mlb": "AZ",
+    "line": "1.0 IP, 0 ER, 2 K",
+    "blurb": ""
+   },
+   {
+    "name": "Adrian Morejon",
+    "mlb": "SD",
+    "line": "1.0 IP, 0 ER, 3 K",
     "blurb": ""
    }
   ]
@@ -105,19 +177,19 @@
     "players": [
      "Mike Trout"
     ],
-    "game": "LAA @ PIT 6:45 PM",
-    "opp": "vs RP Jared Jones",
-    "era": 4.83,
-    "flag": "target"
+    "game": "LAA @ PIT 6:40 PM",
+    "opp": "vs RP Braxton Ashcraft",
+    "era": 3.59,
+    "flag": ""
    },
    {
     "mlb": "AZ",
     "players": [
      "Geraldo Perdomo"
     ],
-    "game": "AZ @ HOU 8:10 PM",
-    "opp": "vs RP Cristian Javier",
-    "era": 6.45,
+    "game": "AZ @ HOU 7:15 PM",
+    "opp": "vs RP Ethan Pecko",
+    "era": 6.23,
     "flag": "target"
    },
    {
@@ -126,9 +198,9 @@
      "Samuel Basallo"
     ],
     "game": "BAL vs BOS 7:05 PM",
-    "opp": "vs LP Ranger Suarez",
-    "era": 3.64,
-    "flag": ""
+    "opp": "vs RP Sonny Gray",
+    "era": 2.82,
+    "flag": "tough"
    },
    {
     "mlb": "BOS",
@@ -136,28 +208,28 @@
      "Mickey Gasper"
     ],
     "game": "BOS @ BAL 7:05 PM",
-    "opp": "vs RP Shane Baz",
-    "era": 4.01,
-    "flag": ""
+    "opp": "vs RP Chris Bassitt",
+    "era": 4.97,
+    "flag": "target"
    },
    {
     "mlb": "CIN",
     "players": [
      "Sal Stewart"
     ],
-    "game": "CIN vs MIL 6:10 PM",
-    "opp": "vs LP Shane Drohan",
-    "era": 3.75,
-    "flag": ""
+    "game": "CIN vs MIL 6:40 PM",
+    "opp": "vs RP Dustin May",
+    "era": 6.41,
+    "flag": "target"
    },
    {
     "mlb": "DET",
     "players": [
      "Riley Greene"
     ],
-    "game": "DET @ CLE 7:15 PM",
-    "opp": "vs LP Foster Griffin",
-    "era": 3.06,
+    "game": "DET @ CLE 6:10 PM",
+    "opp": "vs LP Parker Messick",
+    "era": 2.46,
     "flag": "tough"
    },
    {
@@ -166,19 +238,19 @@
      "Kyle Tucker",
      "Freddie Freeman"
     ],
-    "game": "LAD vs WSH 10:10 PM",
-    "opp": "vs LP Jackson Kent",
-    "era": 5.59,
-    "flag": "target"
+    "game": "LAD vs WSH 9:10 PM",
+    "opp": "vs RP Cade Cavalli",
+    "era": 3.12,
+    "flag": "tough"
    },
    {
     "mlb": "NYM",
     "players": [
      "Juan Soto"
     ],
-    "game": "NYM vs SF 7:10 PM",
-    "opp": "vs LP Matt Wilkinson",
-    "era": 4.63,
+    "game": "NYM vs SF 4:10 PM",
+    "opp": "vs RP Anthony Molina",
+    "era": 5.4,
     "flag": "target"
    },
    {
@@ -188,9 +260,9 @@
      "Lawrence Butler",
      "Carlos Cortes"
     ],
-    "game": "ATH @ SEA 10:10 PM",
-    "opp": "vs RP Logan Gilbert",
-    "era": 3.42,
+    "game": "ATH @ SEA 9:40 PM",
+    "opp": "vs RP George Kirby",
+    "era": 4.19,
     "flag": ""
    },
    {
@@ -198,9 +270,9 @@
     "players": [
      "Fernando Tatis Jr."
     ],
-    "game": "SD vs NYY 9:40 PM",
-    "opp": "vs LP Max Fried",
-    "era": 2.8,
+    "game": "SD vs NYY 7:15 PM",
+    "opp": "vs LP Carlos Rodón",
+    "era": 3.2,
     "flag": "tough"
    },
    {
@@ -208,10 +280,10 @@
     "players": [
      "Junior Caminero"
     ],
-    "game": "TB @ TEX 8:05 PM",
-    "opp": "vs RP Trevor Williams",
-    "era": 20.25,
-    "flag": "target"
+    "game": "TB @ TEX 7:05 PM",
+    "opp": "vs RP Jacob deGrom",
+    "era": 4,
+    "flag": ""
    },
    {
     "mlb": "TEX",
@@ -219,9 +291,9 @@
      "Corey Seager",
      "Wyatt Langford"
     ],
-    "game": "TEX vs TB 8:05 PM",
-    "opp": "vs RP Nick Martinez",
-    "era": 2.99,
+    "game": "TEX vs TB 7:05 PM",
+    "opp": "vs RP Drew Rasmussen",
+    "era": 2.95,
     "flag": "tough"
    },
    {
@@ -230,19 +302,19 @@
      "Vladimir Guerrero Jr.",
      "George Springer"
     ],
-    "game": "TOR @ KC 8:10 PM",
-    "opp": "vs LP Daniel Lynch IV",
-    "era": 3.06,
-    "flag": "tough"
+    "game": "TOR @ KC 7:10 PM",
+    "opp": "vs RP Seth Lugo",
+    "era": 5.03,
+    "flag": "target"
    },
    {
     "mlb": "MIN",
     "players": [
      "Luke Keaschall"
     ],
-    "game": "MIN @ CWS 7:40 PM",
-    "opp": "vs RP Erick Fedde",
-    "era": 4.16,
+    "game": "MIN @ CWS 7:10 PM",
+    "opp": "vs LP Anthony Kay",
+    "era": 4.28,
     "flag": ""
    },
    {
@@ -250,9 +322,9 @@
     "players": [
      "Bryson Stott"
     ],
-    "game": "PHI vs ATL 6:40 PM",
-    "opp": "vs LP Chris Sale",
-    "era": 2.06,
+    "game": "PHI vs ATL 6:05 PM",
+    "opp": "vs LP Martín Pérez",
+    "era": 3.05,
     "flag": "tough"
    },
    {
@@ -261,19 +333,19 @@
      "Austin Riley",
      "Drake Baldwin"
     ],
-    "game": "ATL @ PHI 6:40 PM",
-    "opp": "vs LP Cristopher Sánchez",
-    "era": 2.52,
-    "flag": "tough"
+    "game": "ATL @ PHI 6:05 PM",
+    "opp": "vs RP Zack Wheeler",
+    "era": 3.31,
+    "flag": ""
    },
    {
     "mlb": "MIA",
     "players": [
      "Agustin Ramirez"
     ],
-    "game": "MIA vs CHC 7:10 PM",
-    "opp": "vs LP Shota Imanaga",
-    "era": 4.01,
+    "game": "MIA vs CHC 4:10 PM",
+    "opp": "vs RP Javier Assad",
+    "era": 3.46,
     "flag": ""
    },
    {
@@ -281,13 +353,23 @@
     "players": [
      "Andrew Vaughn"
     ],
-    "game": "MIL @ CIN 6:10 PM",
-    "opp": "vs RP Rhett Lowder",
-    "era": 5.14,
-    "flag": "target"
+    "game": "MIL @ CIN 6:40 PM",
+    "opp": "vs LP Andrew Abbott",
+    "era": 4.49,
+    "flag": ""
    }
   ],
-  "myStarters": [],
+  "myStarters": [
+   {
+    "name": "Jacob DeGrom",
+    "era": 4,
+    "game": "TEX vs TB (home)",
+    "oppTeam": "TB",
+    "oppOffRank": 7,
+    "oppOffTotal": 30,
+    "flag": "tough"
+   }
+  ],
   "note": ""
  },
  "errors": []

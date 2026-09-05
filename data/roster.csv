@@ -105,7 +105,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10761,"Meet The Pressmerlyn",45706,35333,sa3028086,"Chase Burns",CIN,SP/RP,$4
 10761,"Meet The Pressmerlyn",40564,29868,sa3017428,"Bubba Chandler",PIT,SP,$4
 10761,"Meet The Pressmerlyn",38699,27782,sa3014983,"Brandon Pfaadt",ARI,SP/RP,$4
-10761,"Meet The Pressmerlyn",45769,35376,sa3065496,"Konnor Griffin","PIT AAA",SS,$3
+10761,"Meet The Pressmerlyn",45769,35376,sa3065496,"Konnor Griffin",PIT,SS,$3
 10761,"Meet The Pressmerlyn",38314,27490,sa3014510,"Nick Gonzales",PIT,2B/SS/3B,$3
 10761,"Meet The Pressmerlyn",5644,10233,sa523977,"Aroldis Chapman",BOS,RP,$3
 10761,"Meet The Pressmerlyn",35776,23793,sa3008470,"Braxton Ashcraft",PIT,SP/RP,$3
@@ -166,7 +166,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10764,"Wrecking Crews",40301,29630,sa3017050,"Joey Loperfido","HOU AAA",OF,$1
 10764,"Wrecking Crews",42416,31912,sa3020219,"Chandler Simpson",TBR,OF,$1
 10764,"Wrecking Crews",20917,16432,sa828674,"Foster Griffin",CLE,SP,$1
-10764,"Wrecking Crews",46223,35462,sa3035282,"Jackson Kent",WSN,SP/RP,$1
+10764,"Wrecking Crews",46223,35462,sa3035282,"Jackson Kent",WSN,SP,$1
 10818,"Bureau of Gleyber Statistics",36668,25764,sa3011225,"Bobby Witt Jr.",KCR,SS,$68
 10818,"Bureau of Gleyber Statistics",18347,16478,sa709545,"Kyle Schwarber",PHI,1B/OF,$55
 10818,"Bureau of Gleyber Statistics",21015,17995,sa828873,"Logan Webb",SFG,SP,$31
@@ -362,7 +362,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10908,"South Side Shitshow",23780,20043,sa3003396,"Luis Robert Jr.",BAL,OF,$7
 10908,"South Side Shitshow",38754,27867,sa3015086,"Cade Smith",CLE,RP,$5
 10908,"South Side Shitshow",42737,31846,sa3020703,"Spencer Schwellenbach",ATL,SP,$5
-10908,"South Side Shitshow",43949,33549,sa3022886,"Kyle Teel","CHW AAA",C,$4
+10908,"South Side Shitshow",43949,33549,sa3022886,"Kyle Teel",CHW,C,$4
 10908,"South Side Shitshow",40714,29995,sa3017698,"Daylen Lile",WSN,OF,$4
 10908,"South Side Shitshow",40181,29514,sa3016863,"River Ryan","DET AAA",SP/RP,$3
 10908,"South Side Shitshow",18465,15440,sa621603,"Matthew Boyd",CHC,SP,$3

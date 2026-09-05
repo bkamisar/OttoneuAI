@@ -95,36 +95,35 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10761,"Meet The Pressmerlyn",40505,29478,sa3017339,"Carter Jensen",KCR,C,$9
 10761,"Meet The Pressmerlyn",23790,13649,sa598167,"Clay Holmes",CHC,SP,$7
 10761,"Meet The Pressmerlyn",38388,27467,sa3014489,"Tyler Soderstrom",ATH,1B/OF,$6
-10761,"Meet The Pressmerlyn",14941,11486,sa549085,"Robbie Ray",SDP,SP,$5
 10761,"Meet The Pressmerlyn",33259,20373,sa919548,"Andres Munoz",SEA,RP,$5
-10761,"Meet The Pressmerlyn",31951,19569,sa915715,"David Bednar",NYY,RP,$5
-10761,"Meet The Pressmerlyn",37091,26477,sa1115496,"Spencer Horwitz",PIT,1B,$5
+10761,"Meet The Pressmerlyn",14941,11486,sa549085,"Robbie Ray",SDP,SP,$5
 10761,"Meet The Pressmerlyn",18116,13125,sa454389,"Gerrit Cole",NYY,SP,$5
 10761,"Meet The Pressmerlyn",38361,27863,sa3014459,"Jared Jones",PIT,SP,$5
-10761,"Meet The Pressmerlyn",38699,27782,sa3014983,"Brandon Pfaadt",ARI,SP/RP,$4
+10761,"Meet The Pressmerlyn",31951,19569,sa915715,"David Bednar",NYY,RP,$5
+10761,"Meet The Pressmerlyn",37091,26477,sa1115496,"Spencer Horwitz",PIT,1B,$5
 10761,"Meet The Pressmerlyn",45720,35041,sa3025245,"Jac Caglianone",KCR,1B/OF,$4
 10761,"Meet The Pressmerlyn",45706,35333,sa3028086,"Chase Burns",CIN,SP/RP,$4
 10761,"Meet The Pressmerlyn",40564,29868,sa3017428,"Bubba Chandler",PIT,SP,$4
-10761,"Meet The Pressmerlyn",42430,31991,sa3020243,"Rafael Flores Jr.",PIT,C/1B,$3
-10761,"Meet The Pressmerlyn",5644,10233,sa523977,"Aroldis Chapman",BOS,RP,$3
-10761,"Meet The Pressmerlyn",45769,35376,sa3065496,"Konnor Griffin",PIT,SS,$3
-10761,"Meet The Pressmerlyn",31438,20253,sa738570,"Griffin Jax",TBR,SP/RP,$3
-10761,"Meet The Pressmerlyn",35776,23793,sa3008470,"Braxton Ashcraft",PIT,SP/RP,$3
+10761,"Meet The Pressmerlyn",38699,27782,sa3014983,"Brandon Pfaadt",ARI,SP/RP,$4
+10761,"Meet The Pressmerlyn",45769,35376,sa3065496,"Konnor Griffin","PIT AAA",SS,$3
 10761,"Meet The Pressmerlyn",38314,27490,sa3014510,"Nick Gonzales",PIT,2B/SS/3B,$3
-10761,"Meet The Pressmerlyn",38383,27577,sa3014484,"Casey Schmitt",SFG,1B/2B/3B/OF,$2
+10761,"Meet The Pressmerlyn",5644,10233,sa523977,"Aroldis Chapman",BOS,RP,$3
+10761,"Meet The Pressmerlyn",35776,23793,sa3008470,"Braxton Ashcraft",PIT,SP/RP,$3
+10761,"Meet The Pressmerlyn",31438,20253,sa738570,"Griffin Jax",TBR,SP/RP,$3
 10761,"Meet The Pressmerlyn",37700,26252,sa3011336,"Erik Miller",BOS,RP,$2
 10761,"Meet The Pressmerlyn",20989,17722,sa828803,"Trevor Megill",MIL,RP,$2
 10761,"Meet The Pressmerlyn",21075,17586,sa829027,"Tanner Scott",LAD,RP,$2
 10761,"Meet The Pressmerlyn",40456,29766,sa3017286,"Zack Gelof",ATH,2B/3B/OF,$2
 10761,"Meet The Pressmerlyn",39140,28253,sa3015564,"Javier Sanoja",MIA,2B/SS/3B/OF/RP,$2
-10761,"Meet The Pressmerlyn",39340,29005,sa3015768,"Esmerlyn Valdez",PIT,OF,$1
-10761,"Meet The Pressmerlyn",35928,21626,sa876060,"Griffin Conine",MIA,1B/OF,$1
+10761,"Meet The Pressmerlyn",38383,27577,sa3014484,"Casey Schmitt",SFG,1B/2B/3B/OF,$2
 10761,"Meet The Pressmerlyn",38410,27758,sa3014513,"Kyle Harrison",MIL,SP/RP,$1
 10761,"Meet The Pressmerlyn",37458,26143,sa3010899,"Troy Johnston",COL,1B/OF,$1
+10761,"Meet The Pressmerlyn",40472,29770,sa3017306,"Mason Montgomery",PIT,SP/RP,$1
+10761,"Meet The Pressmerlyn",35928,21626,sa876060,"Griffin Conine",MIA,1B/OF,$1
 10761,"Meet The Pressmerlyn",19136,19677,sa737262,"Gregory Soto",PIT,RP,$1
 10761,"Meet The Pressmerlyn",18522,15194,sa737848,"Jake Bauers",MIL,1B/OF/RP,$1
 10761,"Meet The Pressmerlyn",18380,16918,sa599729,"Luke Weaver",PIT,RP,$1
-10761,"Meet The Pressmerlyn",40472,29770,sa3017306,"Mason Montgomery",PIT,SP/RP,$1
+10761,"Meet The Pressmerlyn",39340,29005,sa3015768,"Esmerlyn Valdez",PIT,OF,$1
 10764,"Wrecking Crews",18164,13743,sa657860,"Max Fried",NYY,SP,$39
 10764,"Wrecking Crews",22426,17295,sa873146,"Framber Valdez",DET,SP,$34
 10764,"Wrecking Crews",23762,20454,sa919327,"Jazz Chisholm Jr.",NYY,2B/3B,$27

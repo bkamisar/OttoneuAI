@@ -189,24 +189,24 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10818,"Bureau of Gleyber Statistics",40972,30182,sa3018149,"Will Warren",NYY,SP,$3
 10818,"Bureau of Gleyber Statistics",37797,26368,sa3011642,"JJ Bleday",CIN,OF,$3
 10818,"Bureau of Gleyber Statistics",35487,20572,sa3008002,"Kody Clemens",MIN,1B/2B/OF,$3
-10818,"Bureau of Gleyber Statistics",12379,9777,sa500816,"Nolan Arenado",ARI,3B,$3
 10818,"Bureau of Gleyber Statistics",23201,17982,sa876140,"Ty France",SDP,1B,$3
+10818,"Bureau of Gleyber Statistics",12379,9777,sa500816,"Nolan Arenado",ARI,3B,$3
 10818,"Bureau of Gleyber Statistics",31958,20352,sa915732,"Ernie Clement",TOR,1B/2B/SS/3B,$3
-10818,"Bureau of Gleyber Statistics",38780,24978,sa3015121,"Erik Sabrowski",CLE,RP,$2
 10818,"Bureau of Gleyber Statistics",44046,33312,sa3022603,"Brett Bateman",TOR,OF,$2
-10818,"Bureau of Gleyber Statistics",33954,24878,sa3005630,"Heriberto Hernandez",MIA,OF,$2
 10818,"Bureau of Gleyber Statistics",40854,30109,sa3017917,"Nate Lavender",NYM,RP,$2
-10818,"Bureau of Gleyber Statistics",44274,33568,sa3022951,"Brandyn Garcia",ARI,RP,$1
+10818,"Bureau of Gleyber Statistics",33954,24878,sa3005630,"Heriberto Hernandez",MIA,OF,$2
+10818,"Bureau of Gleyber Statistics",38780,24978,sa3015121,"Erik Sabrowski",CLE,RP,$2
+10818,"Bureau of Gleyber Statistics",23679,18655,sa659284,"A.J. Minter",MIN,RP,$1
 10818,"Bureau of Gleyber Statistics",18153,12564,sa597765,"Trevor Story",BOS,SS,$1
+10818,"Bureau of Gleyber Statistics",44274,33568,sa3022951,"Brandyn Garcia",ARI,RP,$1
+10818,"Bureau of Gleyber Statistics",23311,17480,sa877364,"Daniel Duarte",NYM,SP/RP,$1
+10818,"Bureau of Gleyber Statistics",36046,26540,sa3008762,"Angel Martinez",CLE,2B/OF,$1
 10818,"Bureau of Gleyber Statistics",18421,13580,sa550187,"Steven Okert",HOU,RP,$1
 10818,"Bureau of Gleyber Statistics",32804,20000,sa918346,"Tyler Wells",TBR,SP/RP,$1
-10818,"Bureau of Gleyber Statistics",40251,29571,sa3016970,"Tim Tawa",ARI,1B/2B/3B/OF,$1
-10818,"Bureau of Gleyber Statistics",40214,29539,sa3016926,"Abimelec Ortiz",WSN,1B/OF,$1
-10818,"Bureau of Gleyber Statistics",23311,17480,sa877364,"Daniel Duarte",NYM,SP/RP,$1
-10818,"Bureau of Gleyber Statistics",37202,27691,sa3010572,"Louis Varland",TOR,RP,$1
 10818,"Bureau of Gleyber Statistics",19197,19753,sa737372,"Jonathan Loaisiga",ARI,RP,$1
-10818,"Bureau of Gleyber Statistics",36046,26540,sa3008762,"Angel Martinez",CLE,2B/OF,$1
-10818,"Bureau of Gleyber Statistics",19394,14771,sa737885,"Emilio Pagan",CIN,RP,$1
+10818,"Bureau of Gleyber Statistics",37202,27691,sa3010572,"Louis Varland",TOR,RP,$1
+10818,"Bureau of Gleyber Statistics",40214,29539,sa3016926,"Abimelec Ortiz",WSN,1B/OF,$1
+10818,"Bureau of Gleyber Statistics",40251,29571,sa3016970,"Tim Tawa",ARI,1B/2B/3B/OF,$1
 10881,"Look Out Bello",38736,27498,sa3015059,"Spencer Strider",ATL,SP,$22
 10881,"Look Out Bello",23767,19612,sa917949,"Bo Bichette",NYM,SS/3B,$20
 10881,"Look Out Bello",22391,20503,sa872847,"William Contreras",MIL,C,$20
@@ -301,7 +301,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10899,"Prospects R Us",31194,17277,sa659551,"Ranger Suarez",BOS,SP,$8
 10899,"Prospects R Us",18160,14162,sa657850,"Carlos Correa",HOU,SS/3B,$7
 10899,"Prospects R Us",35824,24610,sa3008536,"Steven Kwan",CLE,OF,$7
-10899,"Prospects R Us",49442,,sa3031459,"Jackson Flora",,RP,$5
+10899,"Prospects R Us",49442,,sa3031459,"Jackson Flora","SFG A",RP,$5
 10899,"Prospects R Us",46310,35466,sa3043900,"Payton Tolle",BOS,SP,$5
 10899,"Prospects R Us",47555,,sa3069247,"Seth Hernandez","PIT A+",SP,$5
 10899,"Prospects R Us",45771,,sa3025565,"Theo Gillen","TBR AA",OF,$4

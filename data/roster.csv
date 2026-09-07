@@ -288,7 +288,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10897,"Five-cent head",44554,33851,sa3023407,"Quinn Mathews",STL,SP,$2
 10897,"Five-cent head",45770,,sa3025414,"Seaver King","WSN AAA",SS,$2
 10897,"Five-cent head",34921,21622,sa3007015,"Jake McCarthy",COL,OF,$2
-10897,"Five-cent head",41180,30384,sa3018429,"Michael Arroyo","SEA AAA",2B/OF,$2
+10897,"Five-cent head",41180,30384,sa3018429,"Michael Arroyo",SEA,2B/OF,$2
 10897,"Five-cent head",14895,11899,sa549081,"Joc Pederson",TEX,1B,$2
 10897,"Five-cent head",44470,33433,sa3023233,"George Lombard Jr.",NYY,SS,$2
 10897,"Five-cent head",44083,33361,sa3022672,"Yohandy Morales",WSN,1B/3B,$1
@@ -347,7 +347,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10899,"Prospects R Us",39279,28811,sa3015706,"Angel Genao",CLE,2B/SS/3B,$1
 10899,"Prospects R Us",41050,29357,sa3018298,"Walbert Urena",LAA,SP/RP,$1
 10899,"Prospects R Us",43569,,sa3021845,"Franklin Arias","BOS AAA",SS,$1
-10899,"Prospects R Us",37171,27552,sa918274,"Graham Ashcraft","CIN AAA",SP/RP,$1
+10899,"Prospects R Us",37171,27552,sa918274,"Graham Ashcraft",CIN,SP/RP,$1
 10899,"Prospects R Us",32492,21924,sa917772,"Juan Morillo",ARI,RP,$1
 10899,"Prospects R Us",45884,35101,sa3025363,"Sam Antonacci",CHW,2B/3B/OF,$1
 10908,"South Side Shitshow",37182,25878,sa3010593,"Corbin Carroll",ARI,OF,$54
@@ -357,51 +357,52 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10908,"South Side Shitshow",37295,25931,sa3010684,"Michael Harris II",ATL,OF,$15
 10908,"South Side Shitshow",48240,37120,sa3063258,"Munetaka Murakami",CHW,1B/3B,$15
 10908,"South Side Shitshow",42156,31347,sa3019855,"Zach Neto",LAA,SS,$9
-10908,"South Side Shitshow",40941,30122,sa3018106,"Gavin Williams",CLE,SP,$7
 10908,"South Side Shitshow",34619,24679,sa3006675,"Brendan Donovan",SEA,2B/SS/3B/OF,$7
+10908,"South Side Shitshow",40941,30122,sa3018106,"Gavin Williams",CLE,SP,$7
 10908,"South Side Shitshow",23780,20043,sa3003396,"Luis Robert Jr.",BAL,OF,$7
-10908,"South Side Shitshow",38754,27867,sa3015086,"Cade Smith",CLE,RP,$5
 10908,"South Side Shitshow",42737,31846,sa3020703,"Spencer Schwellenbach",ATL,SP,$5
+10908,"South Side Shitshow",38754,27867,sa3015086,"Cade Smith",CLE,RP,$5
 10908,"South Side Shitshow",43949,33549,sa3022886,"Kyle Teel",CHW,C,$4
 10908,"South Side Shitshow",40714,29995,sa3017698,"Daylen Lile",WSN,OF,$4
-10908,"South Side Shitshow",40181,29514,sa3016863,"River Ryan","DET AAA",SP/RP,$3
 10908,"South Side Shitshow",18465,15440,sa621603,"Matthew Boyd",CHC,SP,$3
 10908,"South Side Shitshow",44308,33644,sa3023011,"Kristian Campbell","BOS AAA",1B/2B/OF,$3
 10908,"South Side Shitshow",44630,33891,sa3023505,"Zach Thornton",NYM,SP,$3
+10908,"South Side Shitshow",40181,29514,sa3016863,"River Ryan","DET AAA",SP/RP,$3
+10908,"South Side Shitshow",37234,25756,sa3010616,"Matt Brash",SEA,RP,$2
+10908,"South Side Shitshow",42279,31695,sa3019983,"Dylan Beavers",BAL,OF,$2
+10908,"South Side Shitshow",42299,31448,sa3020006,"Henry Bolte",ATH,OF,$2
+10908,"South Side Shitshow",44349,33708,sa3023069,"Cooper Ingle","CLE AAA",C/OF,$2
 10908,"South Side Shitshow",42873,32056,sa3020949,"Noah Schultz","CHW AAA",SP,$2
 10908,"South Side Shitshow",43841,32157,sa3022324,"Jonah Tong","NYM AAA",SP,$2
-10908,"South Side Shitshow",42299,31448,sa3020006,"Henry Bolte",ATH,OF,$2
-10908,"South Side Shitshow",42279,31695,sa3019983,"Dylan Beavers",BAL,OF,$2
+10908,"South Side Shitshow",38781,27914,sa3015122,"Daniel Palencia",CHC,RP,$2
 10908,"South Side Shitshow",47533,,sa3030545,"Liam Doyle","STL AA",SP,$2
-10908,"South Side Shitshow",44349,33708,sa3023069,"Cooper Ingle","CLE AAA",C/OF,$2
-10908,"South Side Shitshow",37234,25756,sa3010616,"Matt Brash",SEA,RP,$2
 10908,"South Side Shitshow",37649,26221,sa3011244,"Ryan Pepiot",TBR,SP,$2
 10908,"South Side Shitshow",37786,26299,sa3011468,"Josh Jung",TEX,3B,$2
-10908,"South Side Shitshow",38781,27914,sa3015122,"Daniel Palencia",CHC,RP,$2
-10908,"South Side Shitshow",40147,29596,sa3017022,"Joshua Baez",STL,OF,$1
-10908,"South Side Shitshow",47552,,sa3069100,"Ethan Holliday","COL A",SS,$1
-10908,"South Side Shitshow",33679,19899,sa3007582,"Clarke Schmidt",NYY,SP,$1
-10908,"South Side Shitshow",46397,,sa3067043,"Caleb Bonemer","CHW AA",SS/3B,$1
-10908,"South Side Shitshow",45903,35121,sa3025386,"Joshua Kuroda-Grauer",ATH,2B/SS/3B,$1
-10908,"South Side Shitshow",41400,30249,sa3018789,"Jack Dreyer",LAD,SP/RP,$1
-10908,"South Side Shitshow",45862,,sa3025333,"James Tibbs III","LAD AAA",1B/OF,$1
 10908,"South Side Shitshow",44975,,sa3023944,"Edward Florentino","PIT A+",OF,$1
-10908,"South Side Shitshow",44659,33573,sa3023557,"Travis Sykora","WSN AA",SP,$1
-10908,"South Side Shitshow",36825,25679,sa3009999,"Kevin Kelly",TBR,RP,$1
-10908,"South Side Shitshow",40568,29878,sa3017461,"Sean Burke",CHW,SP/RP,$1
-10908,"South Side Shitshow",40520,29780,sa3017374,"Joe Mack",MIA,C,$1
-10908,"South Side Shitshow",44202,33530,sa3022867,"Cooper Pratt",MIL,SS,$1
-10908,"South Side Shitshow",40496,29805,sa3017330,"TJ Rumfield",COL,1B,$1
-10908,"South Side Shitshow",42310,31461,sa3020078,"Ben Joyce",LAA,RP,$1
-10908,"South Side Shitshow",39557,29107,sa3016035,"Bradgley Rodriguez",SDP,RP,$1
+10908,"South Side Shitshow",46397,,sa3067043,"Caleb Bonemer","CHW AA",SS/3B,$1
 10908,"South Side Shitshow",45881,35111,sa3025360,"Kaelen Culpepper",MIN,SS,$1
+10908,"South Side Shitshow",33679,19899,sa3007582,"Clarke Schmidt",NYY,SP,$1
+10908,"South Side Shitshow",45862,,sa3025333,"James Tibbs III","LAD AAA",1B/OF,$1
+10908,"South Side Shitshow",44659,33573,sa3023557,"Travis Sykora","WSN AA",SP,$1
+10908,"South Side Shitshow",47552,,sa3069100,"Ethan Holliday","COL A",SS,$1
+10908,"South Side Shitshow",45903,35121,sa3025386,"Joshua Kuroda-Grauer",ATH,2B/SS/3B,$1
+10908,"South Side Shitshow",44202,33530,sa3022867,"Cooper Pratt",MIL,SS,$1
+10908,"South Side Shitshow",18153,12564,sa597765,"Trevor Story",BOS,SS,$1
+10908,"South Side Shitshow",39557,29107,sa3016035,"Bradgley Rodriguez",SDP,RP,$1
+10908,"South Side Shitshow",40147,29596,sa3017022,"Joshua Baez",STL,OF,$1
+10908,"South Side Shitshow",40496,29805,sa3017330,"TJ Rumfield",COL,1B,$1
+10908,"South Side Shitshow",40520,29780,sa3017374,"Joe Mack",MIA,C,$1
+10908,"South Side Shitshow",40568,29878,sa3017461,"Sean Burke",CHW,SP/RP,$1
+10908,"South Side Shitshow",41400,30249,sa3018789,"Jack Dreyer",LAD,SP/RP,$1
+10908,"South Side Shitshow",42310,31461,sa3020078,"Ben Joyce",LAA,RP,$1
+10908,"South Side Shitshow",36825,25679,sa3009999,"Kevin Kelly",TBR,RP,$1
 10925,"Bryce Krispies👨‍🍳",23795,19556,sa943524,"Yordan Alvarez",HOU,OF,$51
 10925,"Bryce Krispies👨‍🍳",35204,22267,sa3007593,"Tarik Skubal",LAD,SP,$46
 10925,"Bryce Krispies👨‍🍳",36671,25436,sa3011526,"George Kirby",SEA,SP,$35
 10925,"Bryce Krispies👨‍🍳",37806,26289,sa3011484,"Gunnar Henderson",BAL,SS,$34
 10925,"Bryce Krispies👨‍🍳",14934,11493,sa548155,"Manny Machado",SDP,3B,$33
 10925,"Bryce Krispies👨‍🍳",14982,11579,sa548033,"Bryce Harper",PHI,1B/OF,$30
-10925,"Bryce Krispies👨‍🍳",35196,21390,sa3007584,"Joe Ryan","MIN AAA",SP,$19
+10925,"Bryce Krispies👨‍🍳",35196,21390,sa3007584,"Joe Ryan","MIN ST",SP,$19
 10925,"Bryce Krispies👨‍🍳",15962,10310,sa500722,"Zack Wheeler",PHI,SP,$18
 10925,"Bryce Krispies👨‍🍳",33647,21483,sa3008547,"Shane McClanahan",TBR,SP,$16
 10925,"Bryce Krispies👨‍🍳",35939,21636,sa876320,"Jeremy Pena",HOU,SS,$13
@@ -416,7 +417,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10925,"Bryce Krispies👨‍🍳",38661,27819,sa3014926,"Brandon Young",BAL,SP,$3
 10925,"Bryce Krispies👨‍🍳",38308,27464,sa3014528,"Dillon Dingler",DET,C,$3
 10925,"Bryce Krispies👨‍🍳",38334,27473,sa3014421,"Cade Cavalli",WSN,SP,$3
-10925,"Bryce Krispies👨‍🍳",47657,,sa3031366,"Andrew Fischer","MIL AA",3B,$3
+10925,"Bryce Krispies👨‍🍳",47657,,sa3031366,"Andrew Fischer","MIL AA",1B/3B,$3
 10925,"Bryce Krispies👨‍🍳",18375,16944,sa828669,"Grant Holmes",ATL,SP,$3
 10925,"Bryce Krispies👨‍🍳",21156,16442,sa829141,"Ryan O'Hearn",PIT,1B/OF,$3
 10925,"Bryce Krispies👨‍🍳",40541,29844,sa3017400,"Liam Hicks",TBR,C/1B,$2

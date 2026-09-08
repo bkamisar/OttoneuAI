@@ -26,7 +26,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10758,"Misiorowski Index",20435,17998,sa827454,"Pete Fairbanks",MIA,RP,$4
 10758,"Misiorowski Index",42266,31532,sa3019969,"Spencer Jones",NYY,OF,$3
 10758,"Misiorowski Index",44539,,sa3023363,"Leo De Vries","ATH AA",SS,$3
-10758,"Misiorowski Index",44534,33850,sa3023499,"Brandon Sproat","MIL AAA",SP,$3
+10758,"Misiorowski Index",44534,33850,sa3023499,"Brandon Sproat","MIL ST",SP,$3
 10758,"Misiorowski Index",40266,30038,sa3017795,"Carson Williams","TBR AAA",SS,$3
 10758,"Misiorowski Index",38404,27479,sa3014506,"Masyn Winn",STL,SS,$3
 10758,"Misiorowski Index",38374,27899,sa3014474,"Colt Keith",DET,1B/2B/3B,$3
@@ -208,53 +208,52 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10818,"Bureau of Gleyber Statistics",23311,17480,sa877364,"Daniel Duarte",NYM,SP/RP,$1
 10818,"Bureau of Gleyber Statistics",19197,19753,sa737372,"Jonathan Loaisiga",ARI,RP,$1
 10881,"Look Out Bello",38736,27498,sa3015059,"Spencer Strider",ATL,SP,$22
-10881,"Look Out Bello",23767,19612,sa917949,"Bo Bichette",NYM,SS/3B,$20
 10881,"Look Out Bello",22391,20503,sa872847,"William Contreras",MIL,C,$20
+10881,"Look Out Bello",23767,19612,sa917949,"Bo Bichette",NYM,SS/3B,$20
 10881,"Look Out Bello",18163,14161,sa657851,"Byron Buxton",MIN,OF,$18
 10881,"Look Out Bello",18479,17919,sa827194,"Ian Happ",CHC,OF,$17
 10881,"Look Out Bello",23741,19959,sa917981,"Jesus Luzardo",PHI,SP,$16
-10881,"Look Out Bello",44526,33829,sa3023346,"Shota Imanaga",CHC,SP,$15
 10881,"Look Out Bello",38559,27768,sa3014807,"Eury Perez",MIA,SP,$15
+10881,"Look Out Bello",44526,33829,sa3023346,"Shota Imanaga",CHC,SP,$15
+10881,"Look Out Bello",18359,16137,sa598286,"Carlos Rodon",NYY,SP,$14
 10881,"Look Out Bello",19168,18679,sa737343,"Freddy Peralta",TBR,SP,$14
 10881,"Look Out Bello",18126,12927,sa597760,"Brandon Nimmo",TEX,OF,$14
-10881,"Look Out Bello",18359,16137,sa598286,"Carlos Rodon",NYY,SP,$14
 10881,"Look Out Bello",23613,14542,sa598491,"Carlos Estevez",KCR,RP,$9
-10881,"Look Out Bello",19398,15454,sa737889,"Nick Pivetta","SDP AAA",SP,$8
+10881,"Look Out Bello",19398,15454,sa737889,"Nick Pivetta",SDP,SP,$8
 10881,"Look Out Bello",18378,16505,sa828672,"Matt Chapman",SFG,3B,$8
 10881,"Look Out Bello",33767,23920,sa3005436,"Brayan Bello",BOS,SP/RP,$8
 10881,"Look Out Bello",18506,18314,sa659260,"Dansby Swanson",CHC,SS,$7
 10881,"Look Out Bello",33656,20633,,"Yusei Kikuchi",LAA,SP,$7
 10881,"Look Out Bello",33627,21479,sa3007867,"Nico Hoerner",CHC,2B/SS,$6
-10881,"Look Out Bello",40675,29958,sa3017627,"Harry Ford",WSN,C,$5
-10881,"Look Out Bello",40298,29622,sa3017047,"Sal Frelick",MIL,OF,$5
 10881,"Look Out Bello",35808,24968,sa3008513,"Reese Olson",DET,SP,$5
-10881,"Look Out Bello",38378,28312,sa3014479,"Coby Mayo",BAL,1B/3B,$5
 10881,"Look Out Bello",27058,23772,sa3005082,"Wilyer Abreu",BOS,OF,$5
+10881,"Look Out Bello",38378,28312,sa3014479,"Coby Mayo",BAL,1B/3B,$5
 10881,"Look Out Bello",23809,22275,sa915698,"Jake Burger",TEX,1B,$5
-10881,"Look Out Bello",32009,22100,sa916702,"Jose Soriano",TOR,SP,$4
-10881,"Look Out Bello",20900,16609,sa828588,"Bryan Abreu",HOU,RP,$4
-10881,"Look Out Bello",27185,20191,sa3005306,"Garrett Whitlock",BOS,RP,$4
+10881,"Look Out Bello",40675,29958,sa3017627,"Harry Ford",WSN,C,$5
 10881,"Look Out Bello",40389,29715,sa3017173,"Hunter Goodman",COL,C,$4
-10881,"Look Out Bello",38330,27756,sa3014534,"Mick Abel",MIN,SP,$3
-10881,"Look Out Bello",23639,19956,sa917920,"Mickey Moniak",COL,OF,$3
-10881,"Look Out Bello",37181,26123,sa3010869,"Brett Baty",NYM,1B/2B/3B/OF,$3
-10881,"Look Out Bello",18459,16943,sa709548,"Sean Newcomb",CHW,SP/RP,$3
+10881,"Look Out Bello",20900,16609,sa828588,"Bryan Abreu",HOU,RP,$4
+10881,"Look Out Bello",32009,22100,sa916702,"Jose Soriano",TOR,SP,$4
+10881,"Look Out Bello",27185,20191,sa3005306,"Garrett Whitlock",BOS,RP,$4
 10881,"Look Out Bello",42754,31959,sa3020737,"Jake Bennett",BOS,SP,$3
-10881,"Look Out Bello",34804,20178,sa3006896,"Miguel Vargas",CHW,1B/3B,$3
-10881,"Look Out Bello",34103,24094,sa3005835,"Ronny Henriquez",MIA,RP,$3
+10881,"Look Out Bello",18459,16943,sa709548,"Sean Newcomb",CHW,SP/RP,$3
 10881,"Look Out Bello",31572,19901,sa829797,"Gavin Sheets",SDP,1B/OF,$3
+10881,"Look Out Bello",38330,27756,sa3014534,"Mick Abel",MIN,SP,$3
+10881,"Look Out Bello",34103,24094,sa3005835,"Ronny Henriquez",MIA,RP,$3
+10881,"Look Out Bello",37181,26123,sa3010869,"Brett Baty",NYM,1B/2B/3B/OF,$3
+10881,"Look Out Bello",34804,20178,sa3006896,"Miguel Vargas",CHW,1B/3B,$3
+10881,"Look Out Bello",23639,19956,sa917920,"Mickey Moniak",COL,OF,$3
 10881,"Look Out Bello",44039,33253,sa3022596,"Cole Carrigg",COL,SS/OF,$2
-10881,"Look Out Bello",42538,31760,sa3020395,"JR Ritchie","ATL AAA",SP/RP,$2
 10881,"Look Out Bello",40398,29646,sa3017183,"Caleb Durbin",BOS,2B/3B,$2
-10881,"Look Out Bello",37309,25999,sa3010700,"Victor Mesa Jr.",TBR,OF,$1
-10881,"Look Out Bello",18152,13145,sa597768,"Josh Bell",MIN,1B,$1
-10881,"Look Out Bello",23787,13619,sa602414,"Jakob Junis",TEX,RP,$1
-10881,"Look Out Bello",31505,21306,sa829008,"Jacob Latz",TEX,SP/RP,$1
+10881,"Look Out Bello",42538,31760,sa3020395,"JR Ritchie","ATL AAA",SP/RP,$2
 10881,"Look Out Bello",41265,30675,sa3018514,"Luis Lara",MIL,OF,$1
-10881,"Look Out Bello",26446,19769,sa3004101,"Will Vest",DET,RP,$1
-10881,"Look Out Bello",33669,21537,sa3007588,"Daniel Lynch IV",KCR,SP/RP,$1
-10881,"Look Out Bello",35675,21448,sa3008311,"Davis Martin",CHW,SP,$1
+10881,"Look Out Bello",23787,13619,sa602414,"Jakob Junis",TEX,RP,$1
 10881,"Look Out Bello",38352,27814,sa3014447,"Shane Drohan",MIL,SP/RP,$1
+10881,"Look Out Bello",37309,25999,sa3010700,"Victor Mesa Jr.",TBR,OF,$1
+10881,"Look Out Bello",35675,21448,sa3008311,"Davis Martin",CHW,SP,$1
+10881,"Look Out Bello",26446,19769,sa3004101,"Will Vest",DET,RP,$1
+10881,"Look Out Bello",31505,21306,sa829008,"Jacob Latz",TEX,SP/RP,$1
+10881,"Look Out Bello",33669,21537,sa3007588,"Daniel Lynch IV",KCR,SP/RP,$1
+10881,"Look Out Bello",18152,13145,sa597768,"Josh Bell",MIN,1B,$1
 10897,"Five-cent head",33625,23697,sa3005720,"Julio Rodriguez",SEA,OF,$52
 10897,"Five-cent head",36338,26668,sa3009289,"Elly De La Cruz",CIN,SS,$43
 10897,"Five-cent head",40927,30116,sa3018052,"Seiya Suzuki",CHC,OF,$31
@@ -284,7 +283,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10897,"Five-cent head",38315,27470,sa3014456,"Emerson Hancock",SEA,SP/RP,$3
 10897,"Five-cent head",22668,18383,sa874715,"Michael Soroka",ARI,SP/RP,$3
 10897,"Five-cent head",26531,20348,sa3004210,"Riley O'Brien",STL,RP,$3
-10897,"Five-cent head",44012,33252,sa3022559,"Kyle Karros","COL AA",3B,$2
+10897,"Five-cent head",44012,33252,sa3022559,"Kyle Karros","COL ST",3B,$2
 10897,"Five-cent head",44554,33851,sa3023407,"Quinn Mathews",STL,SP,$2
 10897,"Five-cent head",45770,,sa3025414,"Seaver King","WSN AAA",SS,$2
 10897,"Five-cent head",34921,21622,sa3007015,"Jake McCarthy",COL,OF,$2
@@ -373,7 +372,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10908,"South Side Shitshow",42299,31448,sa3020006,"Henry Bolte",ATH,OF,$2
 10908,"South Side Shitshow",44349,33708,sa3023069,"Cooper Ingle","CLE AAA",C/OF,$2
 10908,"South Side Shitshow",42873,32056,sa3020949,"Noah Schultz","CHW AAA",SP,$2
-10908,"South Side Shitshow",43841,32157,sa3022324,"Jonah Tong","NYM AAA",SP,$2
+10908,"South Side Shitshow",43841,32157,sa3022324,"Jonah Tong",NYM,SP,$2
 10908,"South Side Shitshow",38781,27914,sa3015122,"Daniel Palencia",CHC,RP,$2
 10908,"South Side Shitshow",47533,,sa3030545,"Liam Doyle","STL AA",SP,$2
 10908,"South Side Shitshow",37649,26221,sa3011244,"Ryan Pepiot",TBR,SP,$2
@@ -402,7 +401,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10925,"Bryce Krispies👨‍🍳",37806,26289,sa3011484,"Gunnar Henderson",BAL,SS,$34
 10925,"Bryce Krispies👨‍🍳",14934,11493,sa548155,"Manny Machado",SDP,3B,$33
 10925,"Bryce Krispies👨‍🍳",14982,11579,sa548033,"Bryce Harper",PHI,1B/OF,$30
-10925,"Bryce Krispies👨‍🍳",35196,21390,sa3007584,"Joe Ryan","MIN ST",SP,$19
+10925,"Bryce Krispies👨‍🍳",35196,21390,sa3007584,"Joe Ryan",MIN,SP,$19
 10925,"Bryce Krispies👨‍🍳",15962,10310,sa500722,"Zack Wheeler",PHI,SP,$18
 10925,"Bryce Krispies👨‍🍳",33647,21483,sa3008547,"Shane McClanahan",TBR,SP,$16
 10925,"Bryce Krispies👨‍🍳",35939,21636,sa876320,"Jeremy Pena",HOU,SS,$13

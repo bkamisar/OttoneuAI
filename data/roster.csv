@@ -283,7 +283,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10897,"Five-cent head",38315,27470,sa3014456,"Emerson Hancock",SEA,SP/RP,$3
 10897,"Five-cent head",22668,18383,sa874715,"Michael Soroka",ARI,SP/RP,$3
 10897,"Five-cent head",26531,20348,sa3004210,"Riley O'Brien",STL,RP,$3
-10897,"Five-cent head",44012,33252,sa3022559,"Kyle Karros","COL ST",3B,$2
+10897,"Five-cent head",44012,33252,sa3022559,"Kyle Karros",COL,3B,$2
 10897,"Five-cent head",44554,33851,sa3023407,"Quinn Mathews",STL,SP,$2
 10897,"Five-cent head",45770,,sa3025414,"Seaver King","WSN AAA",SS,$2
 10897,"Five-cent head",34921,21622,sa3007015,"Jake McCarthy",COL,OF,$2
@@ -296,7 +296,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10897,"Five-cent head",40748,30011,sa3017756,"Christian Encarnacion-Strand",BAL,1B/3B,$1
 10897,"Five-cent head",41926,31204,sa3019501,"Justin Wrobleski",LAD,SP/RP,$1
 10899,"Prospects R Us",40142,29490,sa3016829,"Jackson Merrill",SDP,OF,$19
-10899,"Prospects R Us",23813,19361,sa873673,"Corbin Burnes","ARI AAA",SP,$8
+10899,"Prospects R Us",23813,19361,sa873673,"Corbin Burnes",ARI,SP,$8
 10899,"Prospects R Us",31194,17277,sa659551,"Ranger Suarez",BOS,SP,$8
 10899,"Prospects R Us",18160,14162,sa657850,"Carlos Correa",HOU,SS/3B,$7
 10899,"Prospects R Us",35824,24610,sa3008536,"Steven Kwan",CLE,OF,$7
@@ -421,8 +421,8 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10925,"Bryce Krispies👨‍🍳",40541,29844,sa3017400,"Liam Hicks",TBR,C/1B,$2
 10925,"Bryce Krispies👨‍🍳",38307,27474,sa3014430,"Max Meyer",MIA,SP,$2
 10925,"Bryce Krispies👨‍🍳",26570,19608,sa3004268,"Otto Lopez",MIA,2B/SS,$2
-10925,"Bryce Krispies👨‍🍳",44052,,sa3022609,"Aidan Miller","PHI A",SS,$2
-10925,"Bryce Krispies👨‍🍳",47549,,sa3069164,"Eli Willits","WSN A+",SS,$1
+10925,"Bryce Krispies👨‍🍳",44052,,sa3022609,"Aidan Miller","PHI AA",SS,$2
+10925,"Bryce Krispies👨‍🍳",47549,,sa3069164,"Eli Willits","WSN AA",SS,$1
 10925,"Bryce Krispies👨‍🍳",45797,,sa3066592,"Bryce Rainer","DET A+",SS,$1
 10925,"Bryce Krispies👨‍🍳",18449,12730,sa599574,"Nick Martinez",TBR,SP/RP,$1
 10925,"Bryce Krispies👨‍🍳",18491,17901,sa738659,"Andrew Benintendi",CHW,OF,$1

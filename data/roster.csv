@@ -26,7 +26,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10758,"Misiorowski Index",20435,17998,sa827454,"Pete Fairbanks",MIA,RP,$4
 10758,"Misiorowski Index",42266,31532,sa3019969,"Spencer Jones",NYY,OF,$3
 10758,"Misiorowski Index",44539,,sa3023363,"Leo De Vries","ATH AA",SS,$3
-10758,"Misiorowski Index",44534,33850,sa3023499,"Brandon Sproat","MIL ST",SP,$3
+10758,"Misiorowski Index",44534,33850,sa3023499,"Brandon Sproat",MIL,SP,$3
 10758,"Misiorowski Index",40266,30038,sa3017795,"Carson Williams","TBR AAA",SS,$3
 10758,"Misiorowski Index",38404,27479,sa3014506,"Masyn Winn",STL,SS,$3
 10758,"Misiorowski Index",38374,27899,sa3014474,"Colt Keith",DET,1B/2B/3B,$3
@@ -134,7 +134,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10764,"Wrecking Crews",43950,33541,sa3022882,"Dylan Crews",WSN,OF,$17
 10764,"Wrecking Crews",40188,29518,sa3016870,"James Wood",WSN,OF,$16
 10764,"Wrecking Crews",23810,22201,sa3005068,"MacKenzie Gore",TEX,SP,$15
-10764,"Wrecking Crews",23779,19291,sa857550,"Zac Gallen","ARI ST",SP,$12
+10764,"Wrecking Crews",23779,19291,sa857550,"Zac Gallen",ARI,SP,$12
 10764,"Wrecking Crews",23793,19627,sa3003172,"Brent Rooker",ATH,OF,$10
 10764,"Wrecking Crews",22048,17548,sa858832,"Taylor Ward",SEA,OF,$10
 10764,"Wrecking Crews",38389,27790,sa3014490,"Evan Carter",TEX,OF,$10
@@ -155,7 +155,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10764,"Wrecking Crews",42206,31765,sa3019905,"Nacho Alvarez Jr.","LAA AAA",3B,$3
 10764,"Wrecking Crews",33147,19392,sa918920,"Zach McKinstry",DET,2B/SS/3B/OF,$3
 10764,"Wrecking Crews",40707,29960,sa3017690,"AJ Smith-Shawver",ATL,SP,$3
-10764,"Wrecking Crews",22725,20070,sa875033,"Bailey Falter","ATL ST",SP/RP,$3
+10764,"Wrecking Crews",22725,20070,sa875033,"Bailey Falter",ATL,SP/RP,$3
 10764,"Wrecking Crews",25806,23395,sa3002875,"Eric Wagaman","NYM AAA",1B/OF,$3
 10764,"Wrecking Crews",35618,21504,sa3008223,"Jake Irvin",WSN,SP,$3
 10764,"Wrecking Crews",35548,21267,sa3008097,"Jake Bird","WSN AAA",RP,$3
@@ -457,7 +457,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10944,"Si Se Fuentes",38409,27932,sa3014512,"Ian Seymour",TBR,SP/RP,$3
 10944,"Si Se Fuentes",44147,33390,sa3022757,"Bryce Eldridge",SFG,1B,$3
 10944,"Si Se Fuentes",45018,,sa3023987,"Rainiel Rodriguez","STL AA",C/1B,$3
-10944,"Si Se Fuentes",48241,37124,sa3062955,"Tatsuya Imai",HOU,SP,$3
+10944,"Si Se Fuentes",48241,37124,sa3062955,"Tatsuya Imai",HOU,SP/RP,$3
 10944,"Si Se Fuentes",43988,33571,sa3022894,"Walker Jenkins",MIN,OF,$3
 10944,"Si Se Fuentes",44286,33656,sa3022963,"A.J. Ewing",NYM,OF,$2
 10944,"Si Se Fuentes",45090,,sa3024134,"Luis Pena","MIL AA",2B/SS,$2
@@ -480,7 +480,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10944,"Si Se Fuentes",41452,30661,sa3018841,"Didier Fuentes",ATL,SP/RP,$1
 10944,"Si Se Fuentes",39400,29189,sa3015828,"Hector Rodriguez",CIN,OF,$1
 10974,"Ketel Corn",18466,13613,sa597026,"Ketel Marte",ARI,2B,$28
-10974,"Ketel Corn",36922,25768,sa3010152,"CJ Abrams",WSN,SS,$25
+10974,"Ketel Corn",36922,25768,sa3010152,"CJ Abrams",WSN,2B/SS,$25
 10974,"Ketel Corn",23825,19326,sa873683,"Bryan Reynolds",PIT,OF,$22
 10974,"Ketel Corn",12398,11609,sa508176,"Willson Contreras",BOS,1B,$18
 10974,"Ketel Corn",23824,22182,sa3005315,"Hunter Greene",CIN,SP,$17

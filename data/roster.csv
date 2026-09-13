@@ -145,7 +145,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10764,"Wrecking Crews",9668,12552,sa505033,"Eugenio Suarez",CIN,3B,$6
 10764,"Wrecking Crews",39285,28820,sa3015713,"Moises Ballesteros",LAA,C,$6
 10764,"Wrecking Crews",33620,25377,sa3008613,"Brady Singer",CIN,SP,$6
-10764,"Wrecking Crews",36669,25816,sa3010329,"Shea Langeliers",ATH,C,$5
+10764,"Wrecking Crews",36669,25816,sa3010329,"Shea Langeliers","ATH AAA",C,$5
 10764,"Wrecking Crews",33395,20539,sa921576,"Edwin Uceta",TBR,RP,$5
 10764,"Wrecking Crews",40820,30076,sa3017869,"Landen Roupp",SFG,SP,$5
 10764,"Wrecking Crews",32611,19716,sa917992,"Dustin May",MIL,SP,$5
@@ -278,7 +278,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10897,"Five-cent head",18547,18564,sa874246,"Trent Grisham",NYY,OF,$4
 10897,"Five-cent head",46221,35418,sa3034986,"Gage Jump",ATH,SP,$3
 10897,"Five-cent head",42312,31475,sa3020080,"Logan Henderson",MIL,SP,$3
-10897,"Five-cent head",38456,28084,sa3014693,"Emmanuel Rodriguez","MIN AAA",OF,$3
+10897,"Five-cent head",38456,28084,sa3014693,"Emmanuel Rodriguez","MIN ST",OF,$3
 10897,"Five-cent head",38339,27889,sa3014428,"J.T. Ginn",ATH,SP/RP,$3
 10897,"Five-cent head",38315,27470,sa3014456,"Emerson Hancock",SEA,SP/RP,$3
 10897,"Five-cent head",22668,18383,sa874715,"Michael Soroka",ARI,SP/RP,$3
@@ -369,7 +369,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10908,"South Side Shitshow",42279,31695,sa3019983,"Dylan Beavers",BAL,OF,$2
 10908,"South Side Shitshow",37234,25756,sa3010616,"Matt Brash",SEA,RP,$2
 10908,"South Side Shitshow",37649,26221,sa3011244,"Ryan Pepiot",TBR,SP,$2
-10908,"South Side Shitshow",37786,26299,sa3011468,"Josh Jung",TEX,3B,$2
+10908,"South Side Shitshow",37786,26299,sa3011468,"Josh Jung","TEX AAA",3B,$2
 10908,"South Side Shitshow",47533,,sa3030545,"Liam Doyle","STL AA",SP,$2
 10908,"South Side Shitshow",42873,32056,sa3020949,"Noah Schultz","CHW AAA",SP,$2
 10908,"South Side Shitshow",43841,32157,sa3022324,"Jonah Tong",NYM,SP,$2

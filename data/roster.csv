@@ -163,7 +163,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10764,"Wrecking Crews",26783,20308,sa3004621,"Jake Meyers","HOU AAA",OF,$3
 10764,"Wrecking Crews",26080,21897,sa3003171,"Christopher Morel",NYM,1B/OF,$2
 10764,"Wrecking Crews",38317,27562,sa3014440,"Austin Wells",NYY,C,$2
-10764,"Wrecking Crews",40301,29630,sa3017050,"Joey Loperfido","HOU ST",OF,$1
+10764,"Wrecking Crews",40301,29630,sa3017050,"Joey Loperfido",HOU,OF,$1
 10764,"Wrecking Crews",42416,31912,sa3020219,"Chandler Simpson",TBR,OF,$1
 10764,"Wrecking Crews",20917,16432,sa828674,"Foster Griffin",CLE,SP,$1
 10764,"Wrecking Crews",46223,35462,sa3035282,"Jackson Kent",WSN,SP,$1
@@ -245,7 +245,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10881,"Look Out Bello",23639,19956,sa917920,"Mickey Moniak",COL,OF,$3
 10881,"Look Out Bello",44039,33253,sa3022596,"Cole Carrigg",COL,SS/OF,$2
 10881,"Look Out Bello",40398,29646,sa3017183,"Caleb Durbin",BOS,2B/3B,$2
-10881,"Look Out Bello",42538,31760,sa3020395,"JR Ritchie","ATL ST",SP/RP,$2
+10881,"Look Out Bello",42538,31760,sa3020395,"JR Ritchie",ATL,SP/RP,$2
 10881,"Look Out Bello",41265,30675,sa3018514,"Luis Lara",MIL,OF,$1
 10881,"Look Out Bello",23787,13619,sa602414,"Jakob Junis",TEX,RP,$1
 10881,"Look Out Bello",38352,27814,sa3014447,"Shane Drohan",MIL,SP/RP,$1
@@ -316,7 +316,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10899,"Prospects R Us",43893,33381,sa3022683,"Max Clark",DET,OF,$3
 10899,"Prospects R Us",44487,33435,sa3023268,"Thomas White","MIA AAA",SP,$3
 10899,"Prospects R Us",45064,,sa3024108,"Jesus Made","MIL AA",SS,$3
-10899,"Prospects R Us",35566,21455,sa3008128,"Kris Bubic","LAD AAA",SP/RP,$3
+10899,"Prospects R Us",35566,21455,sa3008128,"Kris Bubic",LAD,SP/RP,$3
 10899,"Prospects R Us",33616,20492,sa3008444,"Casey Mize",SDP,SP,$3
 10899,"Prospects R Us",18462,12970,sa597766,"Joe Musgrove",SDP,RP,$3
 10899,"Prospects R Us",45715,,sa3025257,"Charlie Condon","COL AAA",1B/OF,$2
@@ -368,7 +368,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10908,"South Side Shitshow",42279,31695,sa3019983,"Dylan Beavers",BAL,OF,$2
 10908,"South Side Shitshow",47533,,sa3030545,"Liam Doyle","STL AA",SP,$2
 10908,"South Side Shitshow",42299,31448,sa3020006,"Henry Bolte",ATH,OF,$2
-10908,"South Side Shitshow",42873,32056,sa3020949,"Noah Schultz","CHW ST",SP,$2
+10908,"South Side Shitshow",42873,32056,sa3020949,"Noah Schultz",CHW,SP,$2
 10908,"South Side Shitshow",43841,32157,sa3022324,"Jonah Tong",NYM,SP,$2
 10908,"South Side Shitshow",44349,33708,sa3023069,"Cooper Ingle","CLE AAA",C/OF,$2
 10908,"South Side Shitshow",37234,25756,sa3010616,"Matt Brash",SEA,RP,$2
@@ -377,7 +377,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10908,"South Side Shitshow",44659,33573,sa3023557,"Travis Sykora","WSN AA",SP,$1
 10908,"South Side Shitshow",44975,,sa3023944,"Edward Florentino","PIT A+",OF,$1
 10908,"South Side Shitshow",45862,,sa3025333,"James Tibbs III","LAD AAA",1B/OF,$1
-10908,"South Side Shitshow",33679,19899,sa3007582,"Clarke Schmidt","NYY ST",SP,$1
+10908,"South Side Shitshow",33679,19899,sa3007582,"Clarke Schmidt",NYY,SP,$1
 10908,"South Side Shitshow",45903,35121,sa3025386,"Joshua Kuroda-Grauer",ATH,2B/SS/3B,$1
 10908,"South Side Shitshow",46397,,sa3067043,"Caleb Bonemer","CHW AA",SS/3B,$1
 10908,"South Side Shitshow",36825,25679,sa3009999,"Kevin Kelly",TBR,RP,$1

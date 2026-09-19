@@ -402,6 +402,23 @@
           return { name: name, curr: currByName[name.trim()] || null, proj: projectTeam(teamMap[name]) };
         });
       }
+
+      // Next Season: current rosters on ZiPS Y1, full-season budgets — the same
+      // construction calculateAllValues uses for future years.
+      var hitY1 = loadData('ottoneu_proj_hitting_y1');
+      var pitY1 = loadData('ottoneu_proj_pitching_y1');
+      if (hasRows(hitY1) || hasRows(pitY1)) {
+        var y1 = attachYearProjections(merged, hitY1, pitY1, 'proj_y1');
+        if (y1.some(function(p) { return p.proj_y1; })) {
+          var y1Map = {};
+          y1.forEach(function(p) { (y1Map[p.team] = y1Map[p.team] || []).push(p); });
+          var y1Rosters = cloneForYear(names.map(function(nm) { return y1Map[nm] || []; }), 'proj_y1');
+          inputs.full = names.map(function(name, i) {
+            var withProj = y1Rosters[i].filter(function(p) { return p.proj; });
+            return { name: name, curr: null, proj: projectTeam(withProj, PA_PER_SLOT, IP_MAX) };
+          });
+        }
+      }
       return inputs;
     }
 

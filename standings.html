@@ -39,6 +39,11 @@
     .data-stamp { font-size: 0.78rem; color: #888; margin: -6px 0 16px; display: flex; flex-wrap: wrap; gap: 14px; }
     .data-stamp .ds-val { color: #555; font-weight: 600; }
     .data-stamp .stale .ds-val { color: #c62828; }
+    .odds-toggle { display: flex; gap: 8px; margin: 0 0 10px; }
+    .odds-row { cursor: pointer; }
+    .odds-detail td { background: #f8fafe; text-align: left; font-size: 0.82rem; color: #444; padding: 8px 14px; }
+    .odds-detail .path-line { margin: 2px 0; }
+    .odds-note { font-size: 0.75rem; color: #888; margin-top: 8px; }
   </style>
   <link rel="stylesheet" href="theme.css">
 </head>
@@ -67,9 +72,11 @@
   <div id="error"></div>
   <div class="data-stamp" id="dataStamp"></div>
   <div class="tbl-wrap" id="tblWrap"></div>
+  <div id="oddsWrap"></div>
   <div id="mgrWrap"></div>
 
   <script src="shared.js"></script>
+  <script src="standingsim.js"></script>
   <script>
     var activeMode = 'curr';   // 'curr' | 'ros' | 'proj'
     // Rough PA-per-team-game, used only to prorate projections to games played
@@ -159,10 +166,7 @@
       var teamNames = Object.keys(teamMap).filter(function(t) { return t !== 'Free Agent'; });
 
       var projStatsArr = teamNames.map(function(name) {
-        var players  = teamMap[name];
-        var lineup   = optimizeHitterLineup(players.filter(function(p) { return p.type === 'H'; }));
-        var pitPool  = selectPitchers(players.filter(function(p) { return p.type === 'P'; }));
-        return { name: name, stats: computeTeamStats(lineup, pitPool) };
+        return { name: name, stats: projectTeam(teamMap[name]) };
       });
 
       // Build the stats used for standings based on the active mode.
@@ -362,9 +366,187 @@
       mgrWrap.appendChild(section);
     }
 
+    // ── Finish odds (standingsim.js) ─────────────────────────────────────────
+    var ODDS_SEED  = 20260919;  // fixed: a given data set gives the same odds on every reload
+    var oddsMode   = null;      // 'ros' | 'full'
+    var oddsInputs = {};        // mode → simulateStandings team inputs
+    var oddsCache  = {};        // mode → result (the table's mode buttons don't re-simulate)
+
+    // One team's projected stat line. The Rest-of-Season table and the odds
+    // simulator must build it identically, or the simulation's most likely
+    // finish drifts from the table above it. Budgets default to the prorated
+    // rest-of-season ones; Next Season passes full-season budgets.
+    function projectTeam(players, paBudget, ipBudget) {
+      var lineup  = optimizeHitterLineup(players.filter(function(p) { return p.type === 'H'; }), paBudget);
+      var pitPool = selectPitchers(players.filter(function(p) { return p.type === 'P'; }), ipBudget);
+      return computeTeamStats(lineup, pitPool);
+    }
+
+    function buildOddsInputs() {
+      var inputs    = {};
+      var roster    = loadData('ottoneu_roster');
+      var projHit   = loadData('ottoneu_proj_hitting');
+      var projPitch = loadData('ottoneu_proj_pitching');
+      var currData  = loadData('ottoneu_curr_standings');
+      if (!hasRows(roster) || !hasRows(projHit) || !hasRows(projPitch)) return inputs;
+
+      var merged  = matchPlayers(roster, projHit, projPitch);
+      var teamMap = {};
+      merged.forEach(function(p) { (teamMap[p.team] = teamMap[p.team] || []).push(p); });
+      var names = Object.keys(teamMap).filter(function(t) { return t !== 'Free Agent'; });
+
+      if (hasRows(currData)) {
+        var currByName = {};
+        currData.forEach(function(row) { currByName[row.name.trim()] = row; });
+        inputs.ros = names.map(function(name) {
+          return { name: name, curr: currByName[name.trim()] || null, proj: projectTeam(teamMap[name]) };
+        });
+      }
+      return inputs;
+    }
+
+    function fmtOdds(p) {
+      if (p <= 0) return '—';
+      if (p >= 1) return '100%';
+      if (p > 0.99) return '>99%';
+      if (p < 0.01) return '<1%';
+      return Math.round(p * 100) + '%';
+    }
+
+    function pathText(goal, path) {
+      if (!path) return 'Path to ' + goal + ': no realistic path (under 1% of simulations).';
+      var odds  = (path.odds * 100).toFixed(1) + '%';
+      var gains = path.gains.length
+        ? path.gains.map(function(g) { return '+' + g.delta.toFixed(1) + ' pts ' + g.cat; }).join(', ')
+        : 'no single category stands out';
+      var s = 'Path to ' + goal + ' (' + odds + ' of runs): ' + gains + '.';
+      if (path.rivals.length) {
+        s += ' ' + path.rivals[0].team + ': ' +
+          path.rivals.map(function(r) { return r.delta.toFixed(1) + ' pts ' + r.cat; }).join(', ') + '.';
+      }
+      return s;
+    }
+
+    function buildPathRow(name, t, leader, top3, numCols) {
+      var tr = document.createElement('tr');
+      tr.className = 'odds-detail';
+      var td = document.createElement('td');
+      td.colSpan = numCols;
+      function line(text) {
+        var d = document.createElement('div');
+        d.className = 'path-line';
+        d.textContent = text;
+        td.appendChild(d);
+      }
+      line(name === leader ? 'Projected leader.' : pathText('1st', t.paths.first));
+      if (top3.indexOf(name) === -1) line(pathText('top 3', t.paths.top3));
+      tr.appendChild(td);
+      return tr;
+    }
+
+    function renderOdds() {
+      var wrap = document.getElementById('oddsWrap');
+      while (wrap.firstChild) wrap.removeChild(wrap.firstChild);
+      var modes = ['ros', 'full'].filter(function(m) { return oddsInputs[m] && oddsInputs[m].length; });
+      if (!modes.length) return;
+      if (modes.indexOf(oddsMode) === -1) oddsMode = modes[0];
+      if (!oddsCache[oddsMode]) {
+        oddsCache[oddsMode] = simulateStandings(oddsInputs[oddsMode],
+          { mode: oddsMode, n: SIM_DEFAULT_RUNS, seed: ODDS_SEED });
+      }
+      var res    = oddsCache[oddsMode];
+      var myTeam = loadData('ottoneu_my_team') || '';
+
+      var section = document.createElement('div');
+      section.className = 'mgr-section';
+      var h2 = document.createElement('h2');
+      h2.textContent = 'Finish Odds';
+      var sub = document.createElement('p');
+      sub.className = 'subtitle';
+      sub.textContent = (oddsMode === 'ros'
+        ? 'Chance of each final place, simulating the rest of this season on top of current standings.'
+        : 'Chance of each final place over a full 2027 season on ZiPS Y1 projections.') +
+        ' Click a team for its path up the table.';
+      section.appendChild(h2);
+      section.appendChild(sub);
+
+      if (modes.length > 1) {
+        var tog = document.createElement('div');
+        tog.className = 'odds-toggle';
+        modes.forEach(function(m) {
+          var b = document.createElement('button');
+          b.className = 'toggle-btn' + (m === oddsMode ? ' on' : '');
+          b.textContent = m === 'ros' ? 'This Season' : 'Next Season';
+          b.addEventListener('click', function() { oddsMode = m; renderOdds(); });
+          tog.appendChild(b);
+        });
+        section.appendChild(tog);
+      }
+
+      var headers = ['#', 'Team', '1st', '2nd', '3rd', 'Top 3', 'Avg Pts'];
+      var tbl = document.createElement('table');
+      var thead = document.createElement('thead');
+      var htr = document.createElement('tr');
+      headers.forEach(function(h) { var th = document.createElement('th'); th.textContent = h; htr.appendChild(th); });
+      thead.appendChild(htr);
+      tbl.appendChild(thead);
+
+      var leader = res.baseline.length ? res.baseline[0].name : '';
+      var top3   = res.baseline.slice(0, 3).map(function(t) { return t.name; });
+      var order  = Object.keys(res.teams).sort(function(a, b) {
+        var ta = res.teams[a], tb = res.teams[b];
+        return (tb.place[0] - ta.place[0]) || (tb.top3 - ta.top3) || (tb.avgPts - ta.avgPts);
+      });
+
+      var tbody = document.createElement('tbody');
+      order.forEach(function(name, idx) {
+        var t  = res.teams[name];
+        var tr = document.createElement('tr');
+        tr.className = 'odds-row' + (name === myTeam ? ' mine' : '');
+        function td(text, cls) {
+          var c = document.createElement('td');
+          c.textContent = text;
+          if (cls) c.className = cls;
+          return c;
+        }
+        tr.appendChild(td(String(idx + 1), 'rank'));
+        tr.appendChild(td(name));
+        tr.appendChild(td(fmtOdds(t.place[0]), 'pts'));
+        tr.appendChild(td(fmtOdds(t.place[1])));
+        tr.appendChild(td(fmtOdds(t.place[2])));
+        tr.appendChild(td(fmtOdds(t.top3)));
+        tr.appendChild(td(t.avgPts.toFixed(1)));
+        tr.addEventListener('click', function() {
+          var next = tr.nextElementSibling;
+          if (next && next.classList.contains('odds-detail')) { tbody.removeChild(next); return; }
+          tbody.insertBefore(buildPathRow(name, t, leader, top3, headers.length), tr.nextSibling);
+        });
+        tbody.appendChild(tr);
+      });
+      tbl.appendChild(tbody);
+      var tw = document.createElement('div');
+      tw.className = 'tbl-wrap';
+      tw.appendChild(tbl);
+      section.appendChild(tw);
+
+      var note = document.createElement('div');
+      note.className = 'odds-note';
+      note.textContent = res.n.toLocaleString() + ' simulated ' +
+        (oddsMode === 'ros' ? 'finishes' : 'seasons') +
+        '. Includes luck and projection error (assumed sizes, see MODEL.md §3b).' +
+        (oddsMode === 'full'
+          ? ' Uses current rosters as they stand; offseason cuts, auctions and trades are not modeled.'
+          : '');
+      section.appendChild(note);
+      wrap.appendChild(section);
+    }
+
     (async function() {
       await autoLoadFromRepo();
       render();
+      // Simulate after the table has painted so it never waits on the odds.
+      oddsInputs = buildOddsInputs();
+      setTimeout(renderOdds, 0);
     })();
   </script>
 </body>

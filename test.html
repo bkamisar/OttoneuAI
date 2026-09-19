@@ -926,6 +926,105 @@
       } catch (e) { assert(false, 'standings sim primitives threw', e.message); }
     })();
 
+    section('Standings sim — odds');
+    (function () {
+      try {
+        // Four teams strictly ordered in every category → totals 32/24/16/8.
+        const ordered = [0, 1, 2, 3].map(i => simTeam('T' + i, simAvg({
+          OBP: .350 - i * .01, SLG: .450 - i * .01, HR: 260 - i * 10, R: 900 - i * 20,
+          ERA: 3.5 + i * .2, WHIP: 1.15 + i * .03, HR9: 1.0 + i * .05, SO: 1400 - i * 50 })));
+        const det = simulateStandings(ordered, { mode: 'full', n: 50, seed: 1, luckMult: 0, errorMult: 0 });
+        const expected = buildStandings(ordered.map(t => ({ name: t.name, stats: t.proj })));
+        assert(expected.every((t, idx) => det.teams[t.name].place[idx] === 1),
+          'zero noise reproduces buildStandings exactly');
+        assertEqual(det.baseline.map(t => t.name), expected.map(t => t.name), 'baseline matches buildStandings order');
+
+        // Twelve identical teams.
+        const same = [];
+        for (let i = 0; i < 12; i++) same.push(simTeam('S' + i, simAvg()));
+        const sym = simulateStandings(same, { mode: 'full', n: 6000, seed: 3 });
+        const rowOk = same.every(t => Math.abs(sym.teams[t.name].place.reduce((a, p) => a + p, 0) - 1) < 1e-9);
+        let colOk = true;
+        for (let k = 0; k < 12; k++) {
+          colOk = colOk && Math.abs(same.reduce((a, t) => a + sym.teams[t.name].place[k], 0) - 1) < 1e-9;
+        }
+        assert(rowOk && colOk, 'conservation: each team and each place sums to 100%');
+        const firsts = same.map(t => sym.teams[t.name].place[0]);
+        assert(firsts.every(p => Math.abs(p - 1 / 12) < 0.025), 'symmetry: identical teams each win ≈1/12',
+          firsts.map(p => p.toFixed(3)).join(' '));
+        assert(same.every(t => {
+          const x = sym.teams[t.name];
+          return Math.abs(x.top3 - (x.place[0] + x.place[1] + x.place[2])) < 1e-12;
+        }), 'top3 = p1 + p2 + p3');
+
+        // One team far better in every category.
+        const dom = same.slice(1).concat([simTeam('Dom', simAvg({
+          OBP: .380, SLG: .500, HR: 330, R: 1050, ERA: 2.9, WHIP: 1.02, HR9: .80, SO: 1700 }))]);
+        // Luck alone can never dethrone a team this far ahead. Projection error
+        // can, rarely: at the assumed full-season size (1.5x) a team that is
+        // ~3 SD better in every category still loses ~1.6% of simulated
+        // seasons, which is the model working as intended, not a defect.
+        const dLuck = simulateStandings(dom, { mode: 'full', n: 4000, seed: 5, errorMult: 0 });
+        assert(dLuck.teams.Dom.place[0] > 0.999, 'dominant team wins ~100% on luck alone',
+          dLuck.teams.Dom.place[0].toFixed(4));
+        const dFull = simulateStandings(dom, { mode: 'full', n: 4000, seed: 5 });
+        assert(dFull.teams.Dom.place[0] > 0.95 && dFull.teams.Dom.place[0] < 1,
+          'dominant team wins ~98% with full-season projection error (upsets possible)',
+          dFull.teams.Dom.place[0].toFixed(4));
+
+        // Two teams each winning four categories → 12–12 → half credit each.
+        const tA = simTeam('A', simAvg({ OBP: .340, SLG: .430, HR: 240, R: 870, ERA: 4.2, WHIP: 1.30, HR9: 1.3, SO: 1200 }));
+        const tB = simTeam('B', simAvg({ OBP: .320, SLG: .410, HR: 220, R: 830, ERA: 3.6, WHIP: 1.14, HR9: 1.0, SO: 1400 }));
+        const tie = simulateStandings([tA, tB], { mode: 'full', n: 10, seed: 1, luckMult: 0, errorMult: 0 });
+        assert(tie.teams.A.place[0] === 0.5 && tie.teams.B.place[0] === 0.5, 'tied totals split place credit',
+          JSON.stringify(tie.teams.A.place));
+
+        // Season over: nothing left to play, so odds collapse onto current standings.
+        function done(name, c) {
+          return { name: name, curr: Object.assign({ games: 162, ip: IP_MAX }, c),
+            proj: { OBP: .330, SLG: .420, HR: 0, R: 0, ERA: 4.0, WHIP: 1.2, HR9: 1.1, SO: 0,
+                    _ip: 50, _totPA: 0, _totAB: 0, _pitchingValid: true } };
+        }
+        const fin = simulateStandings([
+          done('Up',   { r: 900, hr: 250, obp: .340, slg: .430, k: 1400, hr9: 1.0, era: 3.6, whip: 1.15 }),
+          done('Down', { r: 850, hr: 230, obp: .320, slg: .410, k: 1300, hr9: 1.2, era: 4.0, whip: 1.25 }),
+        ], { mode: 'ros', n: 500, seed: 9 });
+        assert(fin.teams.Up.place[0] === 1, 'season over: odds collapse to current standings', fin.teams.Up.place[0]);
+
+        const again = simulateStandings(same, { mode: 'full', n: 6000, seed: 3 });
+        assertEqual(again.teams.S0.place, sym.teams.S0.place, 'same seed → identical odds');
+      } catch (e) { assert(false, 'standings sim odds threw', e.message); }
+    })();
+
+    section('Standings sim — paths');
+    (function () {
+      try {
+        // A wins OBP/SLG/R/ERA by a mile and HR by a hair; B wins WHIP/HR9/SO by
+        // a mile. A leads 13–11; flipping HR ties it 12–12. HR is B's only route.
+        const A = simTeam('A', simAvg({ OBP: .350, SLG: .470, HR: 201, R: 1000, ERA: 3.0, WHIP: 1.40, HR9: 1.6, SO: 1000 }));
+        const B = simTeam('B', simAvg({ OBP: .300, SLG: .370, HR: 200, R: 600,  ERA: 4.5, WHIP: 1.10, HR9: 0.8, SO: 1400 }));
+        const res = simulateStandings([A, B], { mode: 'full', n: 4000, seed: 11, errorMult: 0 });
+        const pB = res.teams.B.paths.first;
+        assert(pB && pB.gains.length > 0 && pB.gains[0].cat === 'HR', 'path to 1st names the one flippable category',
+          JSON.stringify(pB));
+        assert(pB && pB.rivals.some(r => r.team === 'A' && r.cat === 'HR'),
+          'path to 1st shows the leader giving ground there');
+        assert(pB && Math.abs(pB.odds - res.teams.B.place[0]) < 1e-9, 'path-to-1st odds equal P(1st)');
+        assertEqual(res.teams.A.paths.first, null, 'the baseline leader has no path-to-1st');
+
+        // Twelve-team league with one hopeless team.
+        const pack = [];
+        for (let i = 0; i < 11; i++) pack.push(simTeam('P' + i, simAvg()));
+        pack.push(simTeam('Weak', simAvg({ OBP: .290, SLG: .360, HR: 150, R: 650, ERA: 5.0, WHIP: 1.45, HR9: 1.6, SO: 1000 })));
+        const w = simulateStandings(pack, { mode: 'full', n: 3000, seed: 13 });
+        assert(w.teams.Weak.place[0] < SIM_PATH_MIN_ODDS && w.teams.Weak.paths.first === null,
+          'below 1% odds → no path to 1st');
+        assert(w.teams.Weak.paths.top3 === null, 'below 1% odds → no path to top 3');
+        const inTop3 = w.baseline.slice(0, 3).map(t => t.name);
+        assert(inTop3.every(nm => w.teams[nm].paths.top3 === null), 'baseline top-3 teams have no path-to-top-3');
+      } catch (e) { assert(false, 'standings sim paths threw', e.message); }
+    })();
+
     // ── Summary ──────────────────────────────────────────────────────────────
     const sumEl = document.getElementById('summary');
     sumEl.textContent = passed + ' passed, ' + failed + ' failed';

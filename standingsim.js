@@ -90,3 +90,177 @@ function simLuckSD(proj, period) {
     HR9:  ip > 0 ? Math.sqrt(9 * Math.max(0, proj.HR9 || 0) / ip) : 0,
   };
 }
+
+// One simulated line for a team's period: projection + luck + projection error.
+// Projection error is correlated within a side: one team-wide draw per side
+// (hitting / pitching) carries SIM_ERR_RHO of the variance, signed so a
+// positive draw is better in every category of that side.
+function simDrawStats(proj, period, luck, errMult, luckMult, rng) {
+  const out = Object.assign({}, proj);
+  const E = SIM_PROJ_ERR;
+  const a = Math.sqrt(SIM_ERR_RHO), b = Math.sqrt(1 - SIM_ERR_RHO);
+  const zSide = { H: rng.normal(), P: rng.normal() };
+  const soEff = Math.max(0, (proj.SO || 0) * period.ipScale);
+  const errScale = {
+    HR: E.HR * Math.max(0, proj.HR || 0),
+    R:  E.R  * Math.max(0, proj.R  || 0),
+    SO: E.SO * soEff,
+    OBP: E.OBP, SLG: E.SLG, ERA: E.ERA, WHIP: E.WHIP, HR9: E.HR9,
+  };
+  CATS.forEach(cat => {
+    const side = SIM_HIT_CATS[cat] ? 'H' : 'P';
+    const zCat = rng.normal(), zLuck = rng.normal();   // always drawn: keeps the RNG stream aligned
+    if (side === 'P' && proj._pitchingValid === false) return;
+    const better = LOWER_BETTER.has(cat) ? -1 : 1;
+    let delta = errMult * errScale[cat] * (a * zSide[side] + b * zCat) * better
+              + luckMult * luck[cat] * zLuck;
+    // blendStats multiplies the projected SO by ipScale; pre-divide so the
+    // noise lands at its intended size on the innings that count.
+    if (cat === 'SO') delta = period.ipScale > 0 ? delta / period.ipScale : 0;
+    const v = (proj[cat] || 0) + delta;
+    out[cat] = Number.isFinite(v) ? v : (proj[cat] || 0);
+  });
+  out.HR = Math.max(0, out.HR || 0);
+  out.R  = Math.max(0, out.R  || 0);
+  out.SO = Math.max(0, out.SO || 0);
+  out.OBP = Math.min(1, Math.max(0, out.OBP || 0));
+  out.SLG  = Math.max(0, out.SLG  || 0);
+  out.ERA  = Math.max(0, out.ERA  || 0);
+  out.WHIP = Math.max(0, out.WHIP || 0);
+  out.HR9  = Math.max(0, out.HR9  || 0);
+  return out;
+}
+
+// Finishing-place spans with ties on total points. `standings` is
+// buildStandings output (sorted by points desc). A team tied across places
+// lo..hi gets 1/(hi−lo+1) credit for each of them, so every team's odds and
+// every place's odds still sum to 1.
+function simPlaceSpans(standings) {
+  const spans = {};
+  let i = 0;
+  while (i < standings.length) {
+    let j = i;
+    while (j + 1 < standings.length && standings[j + 1].points === standings[i].points) j++;
+    for (let k = i; k <= j; k++) spans[standings[k].name] = { lo: i, hi: j };
+    i = j + 1;
+  }
+  return spans;
+}
+
+function simNewAcc(names) {
+  const sum = {};
+  names.forEach(nm => { sum[nm] = {}; CATS.forEach(c => { sum[nm][c] = 0; }); });
+  return { w: 0, sum: sum };
+}
+
+// Adds one run's category-point changes vs the baseline, for every team,
+// weighted by how much credit the condition earned in this run.
+function simAccumulate(acc, w, ranks, baseRanks) {
+  acc.w += w;
+  for (const team in acc.sum) {
+    const s = acc.sum[team], r = ranks[team], r0 = baseRanks[team];
+    CATS.forEach(cat => { s[cat] += w * ((r[cat] || 0) - (r0[cat] || 0)); });
+  }
+}
+
+// Mean category-point moves in the runs where the condition held. null when
+// the condition is too rare to average honestly.
+function simPath(acc, team, rival, n) {
+  if (!acc || acc.w / n < SIM_PATH_MIN_ODDS) return null;
+  const mean = (t, cat) => acc.sum[t][cat] / acc.w;
+  const gains = CATS.map(cat => ({ cat: cat, delta: mean(team, cat) }))
+    .filter(g => g.delta >= SIM_PATH_MIN_DELTA)
+    .sort((x, y) => y.delta - x.delta)
+    .slice(0, 3);
+  const rivals = rival
+    ? CATS.map(cat => ({ team: rival, cat: cat, delta: mean(rival, cat) }))
+        .filter(r => r.delta <= -SIM_PATH_MIN_DELTA)
+        .sort((x, y) => x.delta - y.delta)
+        .slice(0, 3)
+    : [];
+  return { odds: acc.w / n, gains: gains, rivals: rivals };
+}
+
+// teams: [{ name, curr (parseCurrStandings row or null), proj (computeTeamStats shape) }]
+// opts:  { mode: 'ros'|'full', n, seed, errorMult, luckMult }
+function simulateStandings(teams, opts) {
+  opts = opts || {};
+  const mode = opts.mode === 'full' ? 'full' : 'ros';
+  const n = opts.n || SIM_DEFAULT_RUNS;
+  const rng = simRng(opts.seed == null ? 1 : opts.seed);
+  const errMult  = opts.errorMult != null ? opts.errorMult : SIM_ERROR_MULT[mode];
+  const luckMult = opts.luckMult  != null ? opts.luckMult  : 1;
+  const names = teams.map(t => t.name);
+  const T = names.length;
+  if (!T) return { n: n, mode: mode, baseline: [], teams: {} };
+
+  function finalize(t, stats) {
+    return (mode === 'ros' && t.curr) ? blendStats(t.curr, stats) : stats;
+  }
+  const prep = teams.map(t => {
+    const period = simPeriod(t.curr, t.proj, mode);
+    return { t: t, period: period, luck: simLuckSD(t.proj, period) };
+  });
+
+  // Zero-noise pass: the "most likely" standings the paths are measured from.
+  const baseline = buildStandings(teams.map(t => ({ name: t.name, stats: finalize(t, t.proj) })));
+  const baseRanks = {};
+  baseline.forEach(t => { baseRanks[t.name] = t.ranks; });
+  const leader = baseline[0].name;
+  const baseTop3 = baseline.slice(0, 3).map(t => t.name);
+
+  const place = {}, ptsSum = {}, accFirst = {}, accTop3 = {}, displaced = {};
+  names.forEach(nm => {
+    place[nm] = new Array(T).fill(0);
+    ptsSum[nm] = 0;
+    displaced[nm] = {};
+    if (nm !== leader) accFirst[nm] = simNewAcc(names);
+    if (baseTop3.indexOf(nm) === -1) accTop3[nm] = simNewAcc(names);
+  });
+
+  for (let run = 0; run < n; run++) {
+    const st = buildStandings(prep.map(p => ({
+      name: p.t.name,
+      stats: finalize(p.t, simDrawStats(p.t.proj, p.period, p.luck, errMult, luckMult, rng)),
+    })));
+    const spans = simPlaceSpans(st);
+    const ranks = {};
+    st.forEach(t => { ranks[t.name] = t.ranks; ptsSum[t.name] += t.points; });
+
+    const top3Credit = {};
+    names.forEach(nm => {
+      const s = spans[nm], share = 1 / (s.hi - s.lo + 1);
+      for (let k = s.lo; k <= s.hi; k++) place[nm][k] += share;
+      top3Credit[nm] = Math.max(0, Math.min(s.hi, 2) - s.lo + 1) * share;
+    });
+    names.forEach(nm => {
+      const s = spans[nm];
+      const wFirst = s.lo === 0 ? 1 / (s.hi - s.lo + 1) : 0;
+      if (wFirst > 0 && accFirst[nm]) simAccumulate(accFirst[nm], wFirst, ranks, baseRanks);
+      const w3 = top3Credit[nm];
+      if (w3 > 0 && accTop3[nm]) {
+        simAccumulate(accTop3[nm], w3, ranks, baseRanks);
+        baseTop3.forEach(x => { displaced[nm][x] = (displaced[nm][x] || 0) + w3 * (1 - top3Credit[x]); });
+      }
+    });
+  }
+
+  const result = { n: n, mode: mode, baseline: baseline, teams: {} };
+  names.forEach(nm => {
+    const p = place[nm].map(c => c / n);
+    // For the top-3 path, the rival is the baseline top-3 team this team most
+    // often pushes out.
+    let rival3 = null, most = 0;
+    baseTop3.forEach(x => { const v = displaced[nm][x] || 0; if (v > most) { most = v; rival3 = x; } });
+    result.teams[nm] = {
+      place: p,
+      top3: p[0] + (p[1] || 0) + (p[2] || 0),
+      avgPts: ptsSum[nm] / n,
+      paths: {
+        first: accFirst[nm] ? simPath(accFirst[nm], nm, leader, n) : null,
+        top3:  accTop3[nm]  ? simPath(accTop3[nm],  nm, rival3, n) : null,
+      },
+    };
+  });
+  return result;
+}

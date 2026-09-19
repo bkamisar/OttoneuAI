@@ -18,6 +18,7 @@
   <script src="shared.js"></script>
   <script src="hotboard.js"></script>
   <script src="tradefinder.js"></script>
+  <script src="standingsim.js"></script>
   <script>
     let passed = 0, failed = 0;
     const out = document.getElementById('output');
@@ -882,6 +883,47 @@
       const offs2 = computePositionalOffsets([weakSS]);
       assert(offs2.ss.hrRate < -0.005, 'genuinely weak cohort still lowers replacement (real scarcity survives)',
         'hrRate ' + offs2.ss.hrRate);
+    })();
+
+    // ── Standings finish odds (standingsim.js) ───────────────────────────────
+    // Shared fixtures for the three standings-sim sections.
+    const SIM_AVG = { OBP: .330, SLG: .420, HR: 230, R: 850, ERA: 3.90, WHIP: 1.22, HR9: 1.15, SO: 1300 };
+    function simAvg(extra) { return Object.assign({}, SIM_AVG, extra || {}); }
+    function simTeam(name, s) {
+      return { name: name, curr: null, proj: {
+        OBP: s.OBP, SLG: s.SLG, HR: s.HR, R: s.R, ERA: s.ERA, WHIP: s.WHIP, HR9: s.HR9, SO: s.SO,
+        _ip: 1400, _totPA: 6000, _totAB: 5340, _pitchingValid: true } };
+    }
+
+    section('Standings sim — primitives');
+    (function () {
+      try {
+        const r1 = simRng(42), r2 = simRng(42);
+        assertEqual([r1.normal(), r1.normal(), r1.uni()], [r2.normal(), r2.normal(), r2.uni()],
+          'simRng: same seed → same sequence');
+        const r3 = simRng(7); let s = 0, s2 = 0; const N = 20000;
+        for (let i = 0; i < N; i++) { const z = r3.normal(); s += z; s2 += z * z; }
+        assert(Math.abs(s / N) < 0.03 && Math.abs(s2 / N - 1) < 0.05, 'simRng: normals have mean≈0, var≈1',
+          'mean ' + (s / N).toFixed(3) + ' var ' + (s2 / N).toFixed(3));
+
+        const proj = { OBP: .330, SLG: .420, HR: 230, R: 850, ERA: 3.9, WHIP: 1.22, HR9: 1.15, SO: 1300,
+          _ip: 1400, _totPA: 6000, _totAB: 5340 };
+        const full = simPeriod(null, proj, 'full');
+        assertEqual([full.pa, full.ab, full.ip, full.ipScale], [6000, 5340, 1400, 1],
+          'simPeriod full: the whole projection is the period');
+        const ros = simPeriod({ ip: 1300 }, Object.assign({}, proj, { _ip: 300 }), 'ros');
+        assert(Math.abs(ros.ip - 200) < 1e-9 && Math.abs(ros.ipScale - 200 / 300) < 1e-9,
+          'simPeriod ros: innings capped at IP_MAX − thrown, as blendStats does', 'ip ' + ros.ip);
+
+        const zero = simLuckSD({ OBP: .33, SLG: .42, HR: 0, R: 0, ERA: 4, WHIP: 1.2, HR9: 1.1, SO: 0 },
+          { pa: 0, ab: 0, ip: 0, ipScale: 0 });
+        assert(CATS.every(c => zero[c] === 0), 'simLuckSD: no playing time → zero luck everywhere (no NaN)',
+          JSON.stringify(zero));
+        const big = simLuckSD(proj, full);
+        const small = simLuckSD(Object.assign({}, proj, { HR: 23 }), { pa: 600, ab: 534, ip: 140, ipScale: 1 });
+        assert(small.HR < big.HR && small.OBP > big.OBP,
+          'simLuckSD: counting luck grows with volume, rate luck shrinks with it');
+      } catch (e) { assert(false, 'standings sim primitives threw', e.message); }
     })();
 
     // ── Summary ──────────────────────────────────────────────────────────────

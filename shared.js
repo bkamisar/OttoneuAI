@@ -746,6 +746,29 @@ function computeContractHorizon(y0, y1, y2, s0, w1, w2, floor) {
   return options.reduce((best, o) => (o.dynastySurplus > best.dynastySurplus ? o : best));
 }
 
+// Clone rosters swapping proj → a different year's projection. Top-level so
+// the standings odds simulator's Next Season mode reuses the exact cloning the
+// dynasty values use (including the two-way pitching line) instead of a copy.
+// fbKey (optional) is a fallback year used when the primary year is missing:
+// Y2 projection files cover only ~half the league (almost no pitchers), so a
+// player with a Y1 line but no Y2 line reuses Y1 — the w2 weight already
+// discounts it. Without this, every ace contributed $0 for Y2 AND the fixed
+// pool spread over half as many players, inflating everyone who remained.
+// Also forward projP from the year-specific pitching field so two-way players
+// (Ohtani) get the correct pitching projection for each dynasty year, not Y0's.
+function yearProjP(p, yearKey, fbKey) {
+  if (p[yearKey + '_P'] != null) return p[yearKey + '_P'];
+  if (fbKey && p[fbKey + '_P'] != null) return p[fbKey + '_P'];
+  return p[yearKey + '_P'] !== undefined ? p[yearKey + '_P'] : p.projP;
+}
+function cloneForYear(rosters, yearKey, fbKey) {
+  return rosters.map(r => r.map(p => ({
+    ...p,
+    proj:  p[yearKey] || (fbKey ? p[fbKey] : null) || null,
+    projP: yearProjP(p, yearKey, fbKey),
+  })));
+}
+
 // Computes dynasty value by running the SGP model across up to three projection
 // years and combining with weighted discounting.
 // weights: { y1: 0.90, y2: 0.81 }  (defaults; pass null to use Y0 only)
@@ -753,27 +776,6 @@ function computeContractHorizon(y0, y1, y2, s0, w1, w2, floor) {
 function calculateDynastyValues(allRosters, weights, extraPlayers) {
   const w1 = weights ? (weights.y1 || 0) : 0;
   const w2 = weights ? (weights.y2 || 0) : 0;
-
-  // Helper: clone rosters swapping proj → a different year's projection.
-  // fbKey (optional) is a fallback year used when the primary year is missing:
-  // Y2 projection files cover only ~half the league (almost no pitchers), so a
-  // player with a Y1 line but no Y2 line reuses Y1 — the w2 weight already
-  // discounts it. Without this, every ace contributed $0 for Y2 AND the fixed
-  // pool spread over half as many players, inflating everyone who remained.
-  // Also forward projP from the year-specific pitching field so two-way players
-  // (Ohtani) get the correct pitching projection for each dynasty year, not Y0's.
-  function yearProjP(p, yearKey, fbKey) {
-    if (p[yearKey + '_P'] != null) return p[yearKey + '_P'];
-    if (fbKey && p[fbKey + '_P'] != null) return p[fbKey + '_P'];
-    return p[yearKey + '_P'] !== undefined ? p[yearKey + '_P'] : p.projP;
-  }
-  function cloneForYear(rosters, yearKey, fbKey) {
-    return rosters.map(r => r.map(p => ({
-      ...p,
-      proj:  p[yearKey] || (fbKey ? p[fbKey] : null) || null,
-      projP: yearProjP(p, yearKey, fbKey),
-    })));
-  }
   function cloneExtras(extras, yearKey, fbKey) {
     return extras ? extras.map(p => ({
       ...p,

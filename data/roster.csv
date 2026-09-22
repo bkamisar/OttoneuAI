@@ -8,7 +8,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10758,"Misiorowski Index",23814,19427,sa873698,"Shane Bieber",TOR,SP,$10
 10758,"Misiorowski Index",37216,26323,sa3010586,"Spencer Steer",CIN,1B/2B/OF,$9
 10758,"Misiorowski Index",33907,24262,sa3005581,"Ceddanne Rafaela",BOS,2B/OF,$8
-10758,"Misiorowski Index",40095,29668,sa3017114,"Marcelo Mayer","SFG AAA",2B/SS/3B,$8
+10758,"Misiorowski Index",40095,29668,sa3017114,"Marcelo Mayer",SFG,2B/SS/3B,$8
 10758,"Misiorowski Index",20732,18684,sa828383,"Sandy Alcantara",MIA,SP,$8
 10758,"Misiorowski Index",23792,20220,sa3004837,"Jo Adell",CLE,OF,$8
 10758,"Misiorowski Index",23796,20437,sa3004259,"Royce Lewis",MIN,1B/2B/3B,$7
@@ -26,7 +26,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10758,"Misiorowski Index",20435,17998,sa827454,"Pete Fairbanks",MIA,RP,$4
 10758,"Misiorowski Index",42266,31532,sa3019969,"Spencer Jones",NYY,OF,$3
 10758,"Misiorowski Index",44539,,sa3023363,"Leo De Vries","ATH AA",SS,$3
-10758,"Misiorowski Index",44534,33850,sa3023499,"Brandon Sproat","MIL AAA",SP,$3
+10758,"Misiorowski Index",44534,33850,sa3023499,"Brandon Sproat","MIL AAA",SP/RP,$3
 10758,"Misiorowski Index",40266,30038,sa3017795,"Carson Williams","TBR AAA",SS,$3
 10758,"Misiorowski Index",38404,27479,sa3014506,"Masyn Winn",STL,SS,$3
 10758,"Misiorowski Index",38374,27899,sa3014474,"Colt Keith",DET,1B/2B/3B,$3
@@ -269,11 +269,10 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10897,"Five-cent head",21708,17338,sa830274,"Willi Castro",COL,1B/2B/SS/3B/OF,$8
 10897,"Five-cent head",40550,29837,sa3017414,"Bryce Miller",SEA,SP,$8
 10897,"Five-cent head",18171,14078,sa621625,"Michael Wacha",KCR,SP,$6
-10897,"Five-cent head",45790,35456,sa3045705,"Trey Yesavage","TOR AAA",SP,$5
+10897,"Five-cent head",45790,35456,sa3045705,"Trey Yesavage",TOR,SP,$5
 10897,"Five-cent head",33652,24618,sa3007051,"Ryan Jeffers",MIN,C,$5
 10897,"Five-cent head",38368,27615,sa3014466,"Alec Burleson",STL,1B/OF,$5
 10897,"Five-cent head",26154,22715,sa3003246,"Maikel Garcia",KCR,2B/SS/3B/OF,$5
-10897,"Five-cent head",22331,19913,sa872787,"Jesus Sanchez",ARI,OF,$5
 10897,"Five-cent head",42146,31595,sa3019973,"Brooks Lee",MIN,2B/SS/3B,$4
 10897,"Five-cent head",42712,31807,sa3020652,"Troy Melton",DET,SP/RP,$4
 10897,"Five-cent head",18547,18564,sa874246,"Trent Grisham",NYY,OF,$4
@@ -281,20 +280,21 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10897,"Five-cent head",42312,31475,sa3020080,"Logan Henderson",MIL,SP,$3
 10897,"Five-cent head",38456,28084,sa3014693,"Emmanuel Rodriguez",MIN,OF,$3
 10897,"Five-cent head",38339,27889,sa3014428,"J.T. Ginn",ATH,SP/RP,$3
-10897,"Five-cent head",38315,27470,sa3014456,"Emerson Hancock",SEA,SP/RP,$3
 10897,"Five-cent head",22668,18383,sa874715,"Michael Soroka",ARI,SP/RP,$3
 10897,"Five-cent head",26531,20348,sa3004210,"Riley O'Brien",STL,RP,$3
-10897,"Five-cent head",44012,33252,sa3022559,"Kyle Karros",COL,3B,$2
-10897,"Five-cent head",44554,33851,sa3023407,"Quinn Mathews",STL,SP,$2
-10897,"Five-cent head",45770,,sa3025414,"Seaver King","WSN AAA",SS,$2
+10897,"Five-cent head",38315,27470,sa3014456,"Emerson Hancock",SEA,SP/RP,$3
 10897,"Five-cent head",34921,21622,sa3007015,"Jake McCarthy",COL,OF,$2
-10897,"Five-cent head",41180,30384,sa3018429,"Michael Arroyo",SEA,2B/OF,$2
 10897,"Five-cent head",14895,11899,sa549081,"Joc Pederson",TEX,1B,$2
+10897,"Five-cent head",45770,,sa3025414,"Seaver King","WSN AAA",SS,$2
+10897,"Five-cent head",44554,33851,sa3023407,"Quinn Mathews",STL,SP,$2
 10897,"Five-cent head",44470,33433,sa3023233,"George Lombard Jr.",NYY,SS,$2
-10897,"Five-cent head",44083,33361,sa3022672,"Yohandy Morales",WSN,1B/3B,$1
+10897,"Five-cent head",44012,33252,sa3022559,"Kyle Karros",COL,3B,$2
+10897,"Five-cent head",41322,,sa3018571,"Jefferson Rojas","NYM AAA",2B/SS/3B,$2
+10897,"Five-cent head",41180,30384,sa3018429,"Michael Arroyo",SEA,2B/OF,$2
 10897,"Five-cent head",19422,16358,sa737914,"Tyler Mahle",ATL,SP,$1
-10897,"Five-cent head",13335,13164,sa548722,"Eduardo Rodriguez",ARI,SP,$1
+10897,"Five-cent head",44083,33361,sa3022672,"Yohandy Morales",WSN,1B/3B,$1
 10897,"Five-cent head",40748,30011,sa3017756,"Christian Encarnacion-Strand",BAL,1B/3B,$1
+10897,"Five-cent head",13335,13164,sa548722,"Eduardo Rodriguez",ARI,SP,$1
 10897,"Five-cent head",41926,31204,sa3019501,"Justin Wrobleski",LAD,SP/RP,$1
 10899,"Prospects R Us",40142,29490,sa3016829,"Jackson Merrill",SDP,OF,$19
 10899,"Prospects R Us",31194,17277,sa659551,"Ranger Suarez",BOS,SP,$8
@@ -364,7 +364,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10908,"South Side Shitshow",43949,33549,sa3022886,"Kyle Teel",CHW,C,$4
 10908,"South Side Shitshow",18465,15440,sa621603,"Matthew Boyd",CHC,SP,$3
 10908,"South Side Shitshow",44630,33891,sa3023505,"Zach Thornton",NYM,SP,$3
-10908,"South Side Shitshow",40181,29514,sa3016863,"River Ryan","DET AAA",SP/RP,$3
+10908,"South Side Shitshow",40181,29514,sa3016863,"River Ryan",DET,SP/RP,$3
 10908,"South Side Shitshow",42279,31695,sa3019983,"Dylan Beavers",BAL,OF,$2
 10908,"South Side Shitshow",47533,,sa3030545,"Liam Doyle","STL AA",SP,$2
 10908,"South Side Shitshow",42299,31448,sa3020006,"Henry Bolte",ATH,OF,$2

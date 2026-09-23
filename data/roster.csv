@@ -141,7 +141,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10764,"Wrecking Crews",19904,15541,sa739036,"Tyler Rogers",TOR,RP,$8
 10764,"Wrecking Crews",33634,22186,sa3008294,"Brice Turang",MIL,2B,$7
 10764,"Wrecking Crews",38327,27769,sa3014458,"Pete Crow-Armstrong",CHC,OF,$7
-10764,"Wrecking Crews",22078,30115,sa869798,"Robert Suarez",ATL,RP,$6
+10764,"Wrecking Crews",22078,30115,sa869798,"Robert Suarez","ATL AAA",RP,$6
 10764,"Wrecking Crews",9668,12552,sa505033,"Eugenio Suarez",CIN,3B,$6
 10764,"Wrecking Crews",39285,28820,sa3015713,"Moises Ballesteros",LAA,C/1B,$6
 10764,"Wrecking Crews",33620,25377,sa3008613,"Brady Singer",CIN,SP,$6
@@ -382,7 +382,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10908,"South Side Shitshow",45862,,sa3025333,"James Tibbs III","LAD AAA",1B/OF,$1
 10908,"South Side Shitshow",44659,33573,sa3023557,"Travis Sykora","WSN AA",SP,$1
 10908,"South Side Shitshow",47552,,sa3069100,"Ethan Holliday","COL A",SS,$1
-10908,"South Side Shitshow",45903,35121,sa3025386,"Joshua Kuroda-Grauer","ATH AAA",2B/SS/3B,$1
+10908,"South Side Shitshow",45903,35121,sa3025386,"Joshua Kuroda-Grauer",ATH,2B/SS/3B,$1
 10908,"South Side Shitshow",44202,33530,sa3022867,"Cooper Pratt",MIL,SS,$1
 10908,"South Side Shitshow",18153,12564,sa597765,"Trevor Story",BOS,SS,$1
 10908,"South Side Shitshow",39557,29107,sa3016035,"Bradgley Rodriguez",SDP,RP,$1

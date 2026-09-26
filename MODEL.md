@@ -134,6 +134,44 @@ simulation, status auto-detect).
   (~24% of a starter's rank score). Measured Aug 2026: 37 of 181 filled slots
   shared (20%).
 
+## 3b. Standings finish odds (`standingsim.js`)
+
+Seeded Monte Carlo (10,000 runs, ~0.5–0.9 s in the browser) behind the Finish
+Odds panel on standings.html. Spec:
+`docs/superpowers/specs/2026-09-19-standings-odds-design.md`.
+
+- **Team-level.** Each run adds noise to every team's projected category line
+  for the simulated period, then `blendStats` (This Season) or the line as a
+  whole season (Next Season), then `buildStandings`. The zero-noise pass is the
+  baseline and equals the Rest of Season table (verified: same 12-team order,
+  identical points) — both are built by `projectTeam` in standings.html, and
+  must stay that way.
+- **Noise = luck + projection error.** Luck is sampling variance on the
+  period's playing time (HR/R/K ≈ √count with dispersion, OBP/SLG/ERA/WHIP/HR9
+  ≈ 1/√PA or IP). Pitching luck is sized on the innings that survive the IP cap,
+  and the K noise is pre-divided by `ipScale` because `blendStats` multiplies
+  the projected K by it. Projection error is a one-SD full-season team miss
+  (`SIM_PROJ_ERR`), 60% of it shared across a team's hitting categories and
+  60% across its pitching (`SIM_ERR_RHO`), scaled ×0.75 This Season (RoS
+  projections have absorbed five months) and ×1.5 Next Season (injuries,
+  churn).
+- **These sizes are assumptions,** not fitted to league history. They are the
+  main lever on how confident the odds look — Next Season especially. Effect
+  measured on a team ~3 SD ahead in every category: luck alone never dethrones
+  it, RoS-sized projection error doesn't either, full-season-sized projection
+  error does ~1.6% of the time. That residual is the model, not a defect.
+- **Ties** on total points split place credit, so rows and columns sum to 1.
+- **Paths** are conditional means over the runs where a team reaches 1st / the
+  top 3: its category-point gains vs baseline, and the leader's (or the
+  most-displaced top-3 team's) drops. Reported only at ≥1% odds and ≥0.3-point
+  moves; below that the UI says "no realistic path".
+- **No recent-form tuning, deliberately.** 7/15/30-day results add little
+  signal over a daily-updated RoS projection; blending them in adds noise.
+- **Limitations:** PA/IP volume isn't randomized; Next Season uses current
+  rosters (no cuts/auctions/trades) and ignores prospects without Y1 lines;
+  standings.csv Games/IP are uniform across teams, so the season-elapsed
+  weighting is identical for all.
+
 ## 4. Dynasty values (`calculateDynastyValues`)
 
 `dynasty = Y0 + 0.90×Y1 + 0.81×Y2` (weights user-tunable, ~10%/yr discount).
@@ -288,6 +326,11 @@ simulation, status auto-detect).
 | `TF_NEED_MIN` | tradefinder.js | 5 | $ below median before a slot is a hole |
 | `TF_GAIN_MIN` | tradefinder.js | 5 | $ a player must gain by moving to be worth proposing; also the ceiling on a "spare" player's own marginal |
 | `TF_RENTAL_MIN_VALUE` | tradefinder.js | 8 | $ of Y0 value before an H0 contract is a rental target rather than a cut candidate |
+| `SIM_PROJ_ERR` | standingsim.js | HR 10% / R 6% / SO 7% / OBP .008 / SLG .015 / ERA .30 / WHIP .035 / HR9 .12 | one-SD full-season team projection miss |
+| `SIM_ERROR_MULT` | standingsim.js | ros 0.75 / full 1.5 | projection-error scale per odds mode |
+| `SIM_ERR_RHO` | standingsim.js | 0.6 | share of a side's projection error that is team-wide |
+| `SIM_LUCK` | standingsim.js | see file | sampling-variance constants |
+| `SIM_PATH_MIN_ODDS`, `SIM_PATH_MIN_DELTA` | standingsim.js | 1% / 0.3 pts | thresholds for reporting a path |
 
 ## 7. Invariants — do not re-break
 

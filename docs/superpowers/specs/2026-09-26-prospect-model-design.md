@@ -24,6 +24,9 @@ where that diverges from conventional prospect valuation) and the **edge list**
 | Stack | Python + sklearn in `prospects-model/`, output committed for the site | sklearn is the right tool and matches the NFLU workflow; one repo, one push |
 | Statcast role | MLB-calibrated **bridge**, plus a provisional AAA overlay | Minors tracking is too recent to fit on directly (see Constraints) |
 | Edge metric | model value − existing FV/rank dynasty value | Both already exist; needs no historical grade data |
+| History depth | **MiLB snapshots 2016–2025** (~10 years) | The game changed: velocity/K-rate drift, 2023 pitch clock and shift ban, 2021 MiLB contraction. Row count isn't the binding constraint — independent cohort *years* are, and this yields ~6 complete ones (NFLU had 5) |
+| Early production | Reported as a **second output**, not treated as bias | The goal is players who produce well *and soon*; a 19-year-old with a 5-year ceiling and a 24-year-old who helps next April must not collapse into one number |
+| Stat authority | **StatsAPI canonical** for counting/rate stats; Savant only for expected + tracking metrics | Measured: Soto 2026 is 477 PA / .278 in StatsAPI vs 472 / .276 in Savant. Savant counts tracked PAs. Never blend the two for the same quantity |
 
 ## Measured facts (verified 2026-09-26, not assumed)
 
@@ -56,6 +59,34 @@ League and Charlotte home games for **2022**, and Florida State League
 with 200+ PA in 2023, **120 (30%)** reached MLB with 100+ PA in 2024–26,
 averaging **2.05** seasons of MLB data. Enough for a hypothesis check; not
 enough for model selection.
+
+**Source depth** (measured):
+
+| Source | Earliest usable | Volume |
+|---|---|---|
+| StatsAPI AAA | 2005 or earlier | 1,428–1,665 player-seasons/yr; ~500 with 200+ PA |
+| StatsAPI AAA 2023+ | — | ~930/yr, ~390 qualified (2021 MiLB contraction) |
+| Savant Statcast | **2015** (2014 returns 0 rows) | ~960–990 batters/yr |
+
+**Statcast metric availability tiers** (measured on `leaderboard/custom`):
+- **2015+ (deep, ~11k MLB player-seasons — calibratable):** `xba`, `xslg`,
+  `xwoba`, `xobp`, `xiso`, `avg_best_speed`, `barrel_batted_rate`,
+  `hard_hit_percent`, `sweet_spot_percent`, `k_percent`, `bb_percent`,
+  `whiff_percent`, `swing_percent`, GB/FB/LD/PU%, `sprint_speed`
+- **2023+ only (bat tracking — provisional on both ends):** `avg_swing_speed`,
+  `attack_angle`, and the squared-up / swing-length family
+- Raw avg and max exit velocity, squared-up rate and swing length are **not on
+  the `custom` endpoint** under those names — they live on the dedicated
+  `bat-tracking` and `exit_velocity` leaderboards, joined by `player_id`.
+- **To investigate before using 2026 as a training year:** Savant's 2026 file
+  returns 662 rows vs ~990 in prior seasons.
+
+**Spot-checks passed** (user-verified 2026-09-26): Soto MLB 2026, Bobby Witt Jr.
+2021 AA *and* AAA (age 21, two levels in one season — exactly the multi-level
+case the features must handle), Nate Pearson 2019 AA, Savant Soto 2026 and
+Trout 2019.
+> A name-substring search for "Witt" during probing matched **Jantzen Witte**, a
+> 31-year-old in Tacoma. Live proof of why the join is on `player.id` only.
 
 ## Constraints this creates
 
@@ -124,6 +155,20 @@ Per MiLB player-season, from StatsAPI. All candidates; the sweep decides.
   *finding*, not an assumption.
 - Pitchers: K%, BB%, K−BB%, HR/9, ERA, WHIP, role (GS share), level, age
 
+**Normalize within level-season.** A prospect's K% is expressed relative to his
+own league-year average, not raw. This handles era drift directly (velocity and
+K-rate creep, the 2023 rule changes) and keeps the option of extending history
+backward cheap if the model turns out data-starved.
+
+**Two structural facts the feature builder must handle explicitly:**
+- **2020 has no minor-league season.** Snapshot years are 2016–2019 and
+  2021–2025 — nine usable years with a hole. Any year-over-year delta must treat
+  a 2021 player's previous season as **2019**, not "missing" and not 2020.
+- **Multi-level seasons are the norm, not the exception.** Witt Jr. 2021 is 279
+  PA at AA *and* 285 at AAA. A player-season is therefore (player × season ×
+  level) rows that must be combined deliberately — highest level reached,
+  weighted blend, or both as separate features — never silently deduplicated.
+
 **Forbidden features (leakage):** anything knowable only later, e.g. "highest
 level ever reached." Only what was true **through the snapshot season**.
 
@@ -139,6 +184,13 @@ level ever reached." Only what was true **through the snapshot season**.
   the assert is free.
 - **Report top-N precision** ("of the top 20 flagged, how many became useful"),
   not just R². That matches how the list is actually used.
+
+**Second output: time to contribution.** Alongside peak value, predict how soon
+a prospect reaches a peak-eligible season. The league is dynasty but the planning
+horizon is not 5–10 years — the goal is players who produce well *and soon*, so a
+model that favors quick contributors is measuring something wanted, not a bias to
+correct. Keeping it a separate number is what stops a distant high ceiling and an
+imminent solid regular from collapsing into one score.
 
 **Statcast bridge (the well-powered use):** learn which tracking metrics predict
 4×4 value from **MLB Statcast 2015+** (thousands of player-seasons), then apply
@@ -203,8 +255,20 @@ prospects-model/
 
 ## Open questions for the plan
 
-1. How far back does StatsAPI MiLB coverage actually go with usable stat lines?
-   (Verify at build time; assumed ~2006+.)
-2. The minors Statcast level parameter (above).
-3. Exact roster-slot counts to use for the rank-based replacement level per
-   season — should mirror this league's lineup structure.
+1. **The minors Statcast level parameter.** `hfLevel` is not it; resolve by
+   capturing the real request from the browser network panel.
+2. **Savant 2026 returns 662 rows vs ~990** in prior seasons — understand before
+   using 2026 as a training year.
+3. Exact roster-slot counts for the rank-based replacement level per season —
+   should mirror this league's lineup structure.
+4. Correct Savant field names for raw/max exit velocity and the squared-up
+   family on the `bat-tracking` and `exit_velocity` leaderboards.
+
+## Historical scouting grades — now has a concrete path
+
+The Board URL (from `fetchBoard`, Apps Script) carries
+`season=2026&seasonend=2026&draft=2026prospect&quickleaderboard=2026all`.
+Those are exactly the parameters a historical probe would vary. Given the
+`season=` no-op precedent with ZiPS, the probe must **assert that returned FVs
+and player names actually differ by season** rather than trusting HTTP 200.
+If history exists, grades become a testable feature family on the same cohorts.

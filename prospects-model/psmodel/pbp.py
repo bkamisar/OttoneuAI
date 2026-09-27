@@ -61,7 +61,10 @@ def list_games(season, sport_id):
 
 
 def game_path(season, sport_id, game_pk):
-    return os.path.join(PBP_DIR, str(season), str(sport_id), f"{game_pk}.json.gz")
+    """Every path component is forced to an integer. game_pk comes from MLB's
+    response, so a tampered value like '../../x' must never reach the filesystem
+    as a path -- int() raises on it instead."""
+    return os.path.join(PBP_DIR, str(int(season)), str(int(sport_id)), f"{int(game_pk)}.json.gz")
 
 
 def validate(text):

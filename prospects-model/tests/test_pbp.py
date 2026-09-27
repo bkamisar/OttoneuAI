@@ -71,6 +71,13 @@ class TestFetchGame(unittest.TestCase):
         self.assertEqual(pbp.game_path(2019, 12, 555),
                          os.path.join(self.tmp.name, "2019", "12", "555.json.gz"))
 
+    def test_tampered_game_id_cannot_escape_the_cache(self):
+        """game_pk comes from a network response; a path-traversal value must
+        raise rather than become a file path outside the cache."""
+        for bad in ("../../evil", "555/../../x", "..\\evil", "", None):
+            with self.assertRaises((ValueError, TypeError)):
+                pbp.game_path(2019, 12, bad)
+
     def test_fetch_then_checkpoint_skip(self):
         self.assertEqual(pbp.fetch_game(2019, 12, 555), "fetched")
         self.assertEqual(pbp.fetch_game(2019, 12, 555), "skipped")

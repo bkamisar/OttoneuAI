@@ -68,12 +68,31 @@ class TestDecisions(unittest.TestCase):
     def _m(self, rank, t50=0.5, t100=0.5):
         return {"rank": rank, "top50": t50, "top100": t100}
 
-    def test_adopt_needs_two_wins_without_top_losses(self):
-        win = {"base": self._m(0.3), "fam": self._m(0.4)}
-        top_loss = {"base": self._m(0.3, t50=0.6), "fam": self._m(0.4, t50=0.5)}
-        self.assertEqual(W.adopt({1: win, 2: win, 3: top_loss})[:2], (True, 2))
-        self.assertEqual(W.adopt({1: win, 2: top_loss, 3: top_loss})[:2], (False, 1))
-        self.assertFalse(W.adopt({1: win, 2: None, 3: None})[0])     # only one vantage available
+    def _r(self, d, se=0.01, t50b=0.5, t50f=0.5):
+        return {"base": self._m(0.3, t50=t50b), "fam": self._m(0.3 + d, t50=t50f), "d": d, "se": se}
+
+    def test_adopt_counts_only_gains_beyond_the_noise(self):
+        real, noise = self._r(0.02), self._r(0.001)
+        self.assertEqual(W.adopt({1: real, 2: real, 3: noise})[:2], (True, 2))
+        self.assertEqual(W.adopt({1: real, 2: noise, 3: noise})[:2], (False, 1))
+        self.assertFalse(W.adopt({1: real, 2: None, 3: None})[0])     # only one vantage available
+
+    def test_adopt_vetoes_a_clearly_worse_year_and_a_top50_collapse(self):
+        real, harm = self._r(0.02), self._r(-0.03)
+        self.assertFalse(W.adopt({1: real, 2: real, 3: harm})[0])
+        slump = self._r(0.02, t50b=0.6, t50f=0.5)
+        self.assertFalse(W.adopt({1: slump, 2: slump, 3: slump})[0])
+        small = self._r(0.02, t50b=0.52, t50f=0.50)                     # one player, tolerated
+        self.assertTrue(W.adopt({1: small, 2: small, 3: small})[0])
+
+    def test_paired_gain(self):
+        rng = np.random.default_rng(1)
+        test = [{"player_id": i, "y": float(v)} for i, v in enumerate(rng.normal(size=300))]
+        y = np.array([r["y"] for r in test])
+        d, se = W.paired_gain(test, rng.normal(size=300), y, "rating", n_boot=100)
+        self.assertGreater(d, 0.9)
+        self.assertGreater(se, 0.0)
+        self.assertEqual(W.paired_gain(test, y, y, "rating", n_boot=50), (0.0, 0.0))
 
     def test_pick_kind_prefers_simple_unless_complex_wins_twice(self):
         s, c = self._m(0.4), self._m(0.5)

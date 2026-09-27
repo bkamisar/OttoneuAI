@@ -10,6 +10,7 @@ Writes cache/model3c_base_report.txt and cache/model3c_choice.json (gitignored).
 import json
 import os
 import statistics
+import warnings
 
 import numpy as np
 
@@ -20,12 +21,15 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 CACHE = os.path.join(HERE, "cache")
 REPORT = os.path.join(CACHE, "model3c_base_report.txt")
 CHOICE = os.path.join(CACHE, "model3c_choice.json")
+# sklearn 1.9 deprecation notices from LogisticRegressionCV: harmless, and they buried the report.
+warnings.filterwarnings("ignore", category=FutureWarning, module="sklearn")
 
 
 def fmt(res):
     return "; ".join(f"{v}: n/a" if r is None else
-                     f"{v}: {r['base']['rank']:.3f}->{r['fam']['rank']:.3f} "
-                     f"top50 {r['base']['top50']:.2f}->{r['fam']['top50']:.2f}"
+                     f"{v}: {r['d']:+.4f} (z {W.z_score(r['d'], r['se']):+.1f}) "
+                     f"t50 {r['base']['top50']:.2f}->{r['fam']['top50']:.2f} "
+                     f"t100 {r['base']['top100']:.2f}->{r['fam']['top100']:.2f}"
                      for v, r in res.items())
 
 
@@ -48,7 +52,8 @@ def main():
         L.append(f"model: {kind}  (" + "; ".join(
             f"{v}: n/a" if r is None else f"{v}: {simple} {r[0]['rank']:.3f} vs {complex_} {r[1]['rank']:.3f}"
             for v, r in kres.items()) + ")")
-        L.append("groups -- drop-and-refit; KEEP if dropping it hurts at >=2 vantages:")
+        L.append(f"groups -- drop-and-refit; KEEP = rank gain >= {W.WIN_Z:g} SE at >=2 vantages, none <= "
+                 f"{W.HARM_Z:g} SE, mean top-50 change >= -{W.TOP50_TOLERANCE:g}:")
         adopted = set()
         for gs, res in W.group_importance(rows, cohorts.GROUPS, target, kind, bars, vantages).items():
             ok, wins, avail = W.adopt(res)
@@ -71,10 +76,12 @@ def main():
             L.append("calibration, pooled test cohorts (predicted -> actual):")
             L += [f"  {mp:.2f} -> {act:.2f}  (n={n})" for mp, act, n in W.calibration(test, pred)]
         hits = W.interactions_by_vantage(rows, keys, target, bars, vantages)
-        L.append("interactions (trees; finding = top-10 at >=2 vantages):")
+        tree_wins = sum(1 for r in kres.values() if r is not None and r[1]["rank"] > r[0]["rank"])
+        L.append(f"patterns the TREE model leans on ({complex_} beat {simple} at {tree_wins}/{len(vantages)} "
+                 f"vantages; leads to test as explicit terms, not findings; 'replicated' = top-10 at >=2):")
         for (a, b), vs in sorted(hits.items(), key=lambda t: (-len(t[1]), -statistics.fmean(h for _, h in t[1])))[:10]:
             L.append(f"  {a} x {b}: {len(vs)} vantage(s), strength {statistics.fmean(h for _, h in vs):.3f} "
-                     f"-> {'finding' if len(vs) >= 2 else 'hypothesis'}")
+                     f"-> {'replicated' if len(vs) >= 2 else 'one vantage'}")
         wp = hits.get(("whiff", "iso"))
         L.append(f"  whiff x power rematch (whiff x iso): "
                  + (f"top-10 at {len(wp)} vantage(s)" if wp else "not in any vantage's top 10"

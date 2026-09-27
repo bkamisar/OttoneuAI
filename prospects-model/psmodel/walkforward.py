@@ -21,6 +21,14 @@ SOON_VANTAGES = (2021, 2022, 2023)
 KINDS = {"rating": ("ridge", "gbm"), "soon": ("logit", "gbm")}   # (simple, complex)
 MIN_TRAIN = 300
 TOP_NS = (25, 50, 100)
+# Adoption: a year is a win only if the rank gain beats its own noise (>= 1 SE,
+# player-level paired bootstrap); a year >= 2 SE worse vetoes; top-50 may not fall
+# by more than ~2 players on average. The first rule counted any +0.001 as a win and
+# let 50-player top-N swings veto real gains (plan A review, 2026-09-27).
+WIN_Z = 1.0
+HARM_Z = -2.0
+TOP50_TOLERANCE = 0.04
+N_BOOT = 300
 
 
 def _y(r, target, bar):
@@ -63,8 +71,7 @@ def fit_predict(train, test, keys, target, kind):
 def metrics(test, pred, target, bar):
     """Rank accuracy (Spearman for rating, AUC for soon) and top-N precision,
     counting PLAYERS: each player's best-predicted row only."""
-    y = [r["y"] for r in test]
-    rank = roc_auc_score(y, pred) if target == "soon" else spearmanr(pred, y).statistic
+    rank = _rank(target, [r["y"] for r in test], pred)
     best = {}
     for r, p in zip(test, pred):
         useful = r["y"] >= bar if target == "rating" else r["y"] == 1.0
@@ -78,9 +85,36 @@ def metrics(test, pred, target, bar):
     return out
 
 
+def _rank(target, y, p):
+    return roc_auc_score(y, p) if target == "soon" else spearmanr(p, y).statistic
+
+
+def paired_gain(test, pb, pf, target, n_boot=N_BOOT, seed=0):
+    """(rank(fam) - rank(base), its SE) from a bootstrap over PLAYERS, both
+    predictions scored on the same resampled players."""
+    y = np.array([r["y"] for r in test])
+    pids = np.array([r["player_id"] for r in test])
+    uniq = np.unique(pids)
+    rows_of = {p: np.where(pids == p)[0] for p in uniq}
+    rng = np.random.default_rng(seed)
+    diffs = []
+    for _ in range(n_boot):
+        i = np.concatenate([rows_of[p] for p in rng.choice(uniq, len(uniq))])
+        if target == "soon" and len(set(y[i])) < 2:
+            continue
+        diffs.append(_rank(target, y[i], pf[i]) - _rank(target, y[i], pb[i]))
+    return float(_rank(target, y, pf) - _rank(target, y, pb)), float(np.std(diffs))
+
+
+def z_score(d, se):
+    if se > 0:
+        return d / se
+    return float("inf") if d > 0 else float("-inf") if d < 0 else 0.0
+
+
 def compare(rows, base, family, target, kind, bars, vantages, unseal=False):
-    """{v: {'base': metrics, 'fam': metrics} | None}, both fits on IDENTICAL rows
-    (complete on base + family)."""
+    """{v: {'base': metrics, 'fam': metrics, 'd': gain, 'se': its SE} | None},
+    both fits on IDENTICAL rows (complete on base + family)."""
     union = base + [k for k in family if k not in base]
     res = {}
     for v in vantages:
@@ -88,20 +122,27 @@ def compare(rows, base, family, target, kind, bars, vantages, unseal=False):
         if len(train) < MIN_TRAIN or not test:
             res[v] = None
             continue
-        res[v] = {}
+        preds = {}
         for name, keys in (("base", base), ("fam", union)):
             evaluate.guard_features(train, keys)
-            res[v][name] = metrics(test, fit_predict(train, test, keys, target, kind)[1], target, bars[v])
+            preds[name] = fit_predict(train, test, keys, target, kind)[1]
+        d, se = paired_gain(test, preds["base"], preds["fam"], target)
+        res[v] = {name: metrics(test, p, target, bars[v]) for name, p in preds.items()}
+        res[v].update(d=d, se=se)
     return res
 
 
 def adopt(res, min_wins=2):
-    """(adopted, wins, vantages available). A win = better rank accuracy without a
-    lower top-50 or top-100. Needs >=2 available vantages."""
+    """(adopted, wins, vantages available). A win = rank gain >= WIN_Z standard
+    errors. Adopted if >=2 wins among >=2 available vantages, no vantage at or
+    below HARM_Z, and the mean top-50 change is no worse than -TOP50_TOLERANCE."""
     avail = [r for r in res.values() if r is not None]
-    wins = sum(1 for r in avail if r["fam"]["rank"] > r["base"]["rank"]
-               and r["fam"]["top50"] >= r["base"]["top50"] and r["fam"]["top100"] >= r["base"]["top100"])
-    return len(avail) >= 2 and wins >= min_wins, wins, len(avail)
+    zs = [z_score(r["d"], r["se"]) for r in avail]
+    wins = sum(1 for z in zs if z >= WIN_Z)
+    harmed = any(z <= HARM_Z for z in zs)
+    top50 = float(np.mean([r["fam"]["top50"] - r["base"]["top50"] for r in avail])) if avail else 0.0
+    ok = len(avail) >= 2 and wins >= min_wins and not harmed and top50 >= -TOP50_TOLERANCE
+    return ok, wins, len(avail)
 
 
 def pick_kind(res, target):

@@ -86,9 +86,16 @@ won both earlier tests.
   **2024 is sealed**, trained on cohorts ≤ 2022, and opened once at the very end
   as the honest final check.
 
-**Adoption (2-of-3):** a group, model choice or combination is adopted only if it
-wins at ≥2 of the 3 vantages on **rank accuracy (Spearman for the rating, AUC for
-the yes/no "soon") without lowering top-50 or top-100 precision**. Group importance uses drop-the-group-and-refit.
+**Adoption (2-of-3), revised after the plan A review.** Rank accuracy is Spearman
+for the rating and AUC for the yes/no "soon". A vantage counts as a **win only if
+the rank gain is ≥1 standard error**, measured by a paired bootstrap over the test
+players. A group is adopted if it wins at ≥2 of 3 vantages, **no vantage is ≥2 SE
+worse**, and the average top-50 change is no worse than −0.04 (about 2 players).
+A group with no real effect passes by chance about 7% of the time.
+*Why revised:* the first version counted any positive change as a win (+0.001
+kept "approach" on noise) and let 50/100-player top-N swings veto real gains (it
+dropped "contact" despite z +2.7/+3.1/+1.7). The flaw was visible in the rule's
+own mechanics. 2024 stayed sealed, so the final check is untouched by the change. Group importance uses drop-the-group-and-refit.
 If two groups each fail alone, they are tested jointly. **Top-25** is reported
 but never decides anything: about 25 players per cohort is too noisy.
 
@@ -164,6 +171,53 @@ smallest source.
   for both outputs.
 - **Plan B** (written after plan A's results): the as-of tracking layer, the
   pulled-air parity check, the sealed 2024 check, and `hitter_ratings.csv`.
+
+## Plan A result (run 2026-09-27, reviewed on Opus)
+
+**Data:** swing data exists from 2012 (`WHIFF_FIRST = 2012`), so the whiff features
+are judged at all three rating vantages. Labels run 2013–2026, with 2026 refreshed
+after the season's last games; the new replacement level moved top 2026 values by
+about 0.2–0.3 SGP. 21,574 hitter-season-levels, 7,108 players, about 1,500 per
+season.
+
+**Rating** (best season in the next 4): **ridge** beat trees at all 3 vantages.
+Kept (z = rank gain in noise-widths, 2019 / 2021 / 2022):
+- **age/level**: +7.5 / +4.4 / +6.1
+- **power**: +4.2 / +4.6 / +3.8
+- **contact**: +2.7 / +3.1 / +1.7
+- **speed**: +1.3 / +1.2 / +1.7 — small but consistent: speed pays a little
+  through runs, even with no SB category.
+
+Dropped: approach and trajectory (noise). Final model: Spearman 0.431 / 0.432 /
+0.446, top-50 hit rate 0.54 / 0.52 / 0.54.
+
+**Soon** (starter-quality season within 2): **logistic** beat trees at all 3
+vantages. Kept: **age/level** (z +2.7 / +5.6 / +5.5) and **power**
+(+4.0 / +4.5 / +2.1). **Contact + approach was adopted only as a pair, and
+marginally** (+1.1 / −0.5 / +1.9, pooled z ≈ 1.4). It is one of 10 pair tests, so
+it may be chance. **The sealed 2024 check (plan B) must test "soon" with vs
+without it**; that out-of-sample verdict decides whether it stays. Final model:
+AUC 0.884 / 0.921 / 0.935. The AUC is flattered by easy "no" cases (young
+Single-A hitters); the top-50 hit rate, 0.38 / 0.50 / 0.34, is the honest
+number. Calibration is good, with the top bucket slightly under (0.25 predicted
+vs 0.28 actual).
+
+**Contact vs the whiff test: consistent.** Whiff on top of K% adds a sliver here
+too (rating z +0.4 / +2.4 / +0.8), matching 3a's "real but small". What clearly
+matters is the contact group as a whole, and only for how good, not how soon.
+
+**Tree patterns are leads, not findings.** Trees lost to the linear models at
+every vantage for both outputs. Replicated in the trees' top 10 at all 3
+vantages: **age × SLG** (both outputs, the strongest), age × level, age × HR/PA,
+and **swinging-strike rate × SLG** (rating). The last is the whiff × power
+question in another form. Plan B tests the top leads as explicit terms under the
+same rule.
+
+**Review corrections to the first run (recorded so they aren't repeated):**
+- The original adoption rule counted +0.001 as a win and let top-N swings of 1–2
+  players veto real gains; it kept approach and trajectory on noise and dropped
+  contact (see the revised rule in Part 2).
+- The first write-up called tree interactions "findings".
 
 ## Revisit trigger: Statcast into the base model
 

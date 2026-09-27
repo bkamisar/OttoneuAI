@@ -83,5 +83,50 @@ class TestLive(unittest.TestCase):
         self.assertEqual(aaa[0]["pa"], 285)
 
 
+class TestPitchCountFields(unittest.TestCase):
+    def test_pitcher_keeps_pitches_strikes_and_batters_faced(self):
+        split = {"player": {"id": 7, "fullName": "p"},
+                 "stat": {"inningsPitched": "100.0", "numberOfPitches": 1600,
+                          "strikes": 1020, "battersFaced": 420}}
+        r = statsapi.normalize_pitcher(split, 2018, 12)
+        self.assertEqual((r["np"], r["strikes"], r["bf"]), (1600, 1020, 420))
+
+    def test_hitter_keeps_pitches_seen(self):
+        split = {"player": {"id": 8, "fullName": "h"}, "stat": {"numberOfPitches": 2111}}
+        self.assertEqual(statsapi.normalize_hitter(split, 2019, 12)["np"], 2111)
+
+
+class TestSeasonAdvanced(unittest.TestCase):
+    def setUp(self):
+        self._orig = statsapi.http.fetch_json
+
+    def tearDown(self):
+        statsapi.http.fetch_json = self._orig
+
+    def test_sums_team_splits_per_player(self):
+        """A player traded within a level can appear as several splits."""
+        payload = {"stats": [{"splits": [
+            {"player": {"id": 1}, "stat": {"totalSwings": 500, "swingAndMisses": 120}},
+            {"player": {"id": 1}, "stat": {"totalSwings": 300, "swingAndMisses": 60}},
+            {"player": {"id": 2}, "stat": {"totalSwings": 900, "swingAndMisses": 200}}]}]}
+        statsapi.http.fetch_json = lambda url: payload
+        got = statsapi.season_advanced(2018, "hitting", 12)
+        self.assertEqual(got[1], {"swings": 800, "whiffs": 180})
+        self.assertEqual(got[2], {"swings": 900, "whiffs": 200})
+
+    def test_empty_is_an_error(self):
+        statsapi.http.fetch_json = lambda url: {"stats": [{"splits": []}]}
+        with self.assertRaises(statsapi.http.DataError):
+            statsapi.season_advanced(2018, "hitting", 12)
+
+
+@unittest.skipUnless(os.environ.get("PROSPECTS_LIVE") == "1", "set PROSPECTS_LIVE=1 for network tests")
+class TestSeasonAdvancedLive(unittest.TestCase):
+    def test_aa_2019_is_populated_and_sane(self):
+        got = statsapi.season_advanced(2019, "hitting", 12)
+        self.assertGreater(len(got), 500)
+        self.assertTrue(all(v["whiffs"] <= v["swings"] for v in got.values()))
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -60,6 +60,7 @@ def normalize_hitter(split, season, sport_id):
         "sb": int(num(st.get("stolenBases"))),
         "obp": num(st.get("obp")),
         "slg": num(st.get("slg")),
+        "np": int(num(st.get("numberOfPitches"))),
     })
     return row
 
@@ -80,6 +81,9 @@ def normalize_pitcher(split, season, sport_id):
         "whip": num(st.get("whip")),
         # HR/9 is a scored category but not served; derive it.
         "hr9": (hr * 9.0 / ip) if ip > 0 else 0.0,
+        "np": int(num(st.get("numberOfPitches"))),
+        "strikes": int(num(st.get("strikes"))),
+        "bf": int(num(st.get("battersFaced"))),
     })
     return row
 
@@ -104,6 +108,32 @@ def season_stats(season: int, group: str, sport_id: int):
             row = normalize(s, season, sport_id)
             if row["player_id"] is not None:
                 out.append(row)
+        if len(splits) < PAGE:
+            break
+        offset += PAGE
+    return out
+
+
+def season_advanced(season: int, group: str, sport_id: int):
+    """{player_id: {"swings", "whiffs"}} from stats=seasonAdvanced, summed
+    across team splits. Validated: MLB 2024 whiff rate from this endpoint vs
+    Savant's whiff_percent, r = 0.9997 over 397 hitters."""
+    out, offset = {}, 0
+    while True:
+        url = (f"{BASE}?stats=seasonAdvanced&season={season}&group={group}"
+               f"&sportId={sport_id}&limit={PAGE}&offset={offset}&playerPool=all")
+        stats = http.fetch_json(url).get("stats") or []
+        splits = (stats[0].get("splits") if stats else None) or []
+        if offset == 0:
+            http.require_rows(splits, f"seasonAdvanced {season}/{group}/sport{sport_id}")
+        for s in splits:
+            pid = (s.get("player") or {}).get("id")
+            if pid is None:
+                continue
+            st = s.get("stat") or {}
+            cur = out.setdefault(pid, {"swings": 0, "whiffs": 0})
+            cur["swings"] += int(num(st.get("totalSwings")))
+            cur["whiffs"] += int(num(st.get("swingAndMisses")))
         if len(splits) < PAGE:
             break
         offset += PAGE

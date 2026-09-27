@@ -289,7 +289,37 @@ Reusable pieces already in the repo, for when that work happens:
 4. Correct Savant field names for raw/max exit velocity and the squared-up
    family on the `bat-tracking` and `exit_velocity` leaderboards.
 
-## Historical scouting grades — now has a concrete path
+## Historical scouting grades — BLOCKED at the source (tested 2026-09-26)
+
+`probeBoardSeasons` run from Apps Script returned **HTTP 403 with a Cloudflare
+"Just a moment..." challenge for every season tried (2026, 2025, 2022, 2019)**.
+So the question below is not merely unanswered — the endpoint is unreachable.
+
+**The block is selective.** `/api/projections` still works from the same script
+(hitting and pitching projections pulled 2026-09-25), while
+`/api/prospects/board/prospects-list-combined` is challenged. It last succeeded
+on **2026-08-24**, which is exactly when `data/prospects.csv` stopped updating —
+so that file is frozen at the August snapshot, and `updateProspects` would now
+fail if triggered.
+
+**It fails safe:** `fetchBoard` throws on any non-200, so `updateProspects` dies
+before `pushFile` and no challenge page can overwrite good data.
+
+**Consequences:**
+- Grades history for training is not obtainable via the API. If the grades phase
+  is ever wanted, the path is **manual export from the website** (which is where
+  `prospects.csv` originally came from) for whatever seasons the UI exposes.
+- Current in-app grades sit at the 2026-08-24 snapshot. Acceptable — FVs move
+  slowly — but it should be a known number, not a surprise.
+- Do **not** work around the challenge with logged-in session cookies. Fragile,
+  and circumventing an explicit block is categorically different from using a
+  public endpoint.
+- Worth a periodic retry; Cloudflare rules change.
+
+This is why grades were scoped as deferred and non-blocking. Sub-project 1 is
+unaffected: it is entirely MLB StatsAPI.
+
+## The original probe rationale (superseded by the 403 above)
 
 The Board URL (from `fetchBoard`, Apps Script) carries
 `season=2026&seasonend=2026&draft=2026prospect&quickleaderboard=2026all`.

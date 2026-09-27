@@ -169,8 +169,46 @@ smallest source.
 - **Plan A** (`plans/2026-09-27-3c-hitters-base.md`): the data extension, labels
   from 2013, as-of targets, the walk-forward harness, and the base-model backtests
   for both outputs.
-- **Plan B** (written after plan A's results): the as-of tracking layer, the
-  pulled-air parity check, the sealed 2024 check, and `hitter_ratings.csv`.
+- **Plan B** (`plans/2026-09-27-3c-hitters-final.md`): the as-of tracking layer,
+  the pulled-air parity check, the sealed 2024 check, and `hitter_ratings.csv`.
+- **Plan C: the consensus gate** (below). It runs after plan B and **must pass
+  before the shopping list trusts the model.**
+
+## Consensus gate: does the model beat just following FV? (user, 2026-09-27)
+
+The NFLU test. If blindly following FanGraphs' rankings predicts outcomes as well
+as the model does, the shopping list's "edge" column is noise.
+
+**Test.** For each past cohort, rank the same FV-graded prospects three ways,
+scored on the same targets, vantages and metrics as the backtests (rank accuracy
++ top-50/top-100 hit rate):
+1. **FV alone.** Ties broken by overall rank, then org rank.
+2. **Model alone** (plan B's production recipe, refit as-of each vantage).
+3. **Model + FV.** Does the model add to consensus?
+
+**As-of FV.** Cohort Y uses the Board list published for season Y+1 (preseason
+Y+1, built from information through season Y).
+- Rating vantages 2019/2021/2022 → lists 2020, 2022, 2023.
+- "Soon" vantages 2021–2024 → lists 2022–2025.
+- Five lists in all: **2020, 2022, 2023, 2024, 2025.**
+
+**Reading the result:**
+- **Model beats FV:** the shopping list leads with the model.
+- **FV wins, but model + FV beats FV:** the model is a tiebreaker, used where it
+  disagrees.
+- **FV wins outright:** follow FV, and use the model only for hitters FanGraphs
+  doesn't grade.
+
+**Data.** Manual FanGraphs Board CSV exports by the user. Automated access returns
+a Cloudflare 403, which is not to be bypassed. Saved under
+`prospects-model/cache/fv/board_<year>.csv` (gitignored: third-party data, never
+committed).
+- **Export one year first (2023)** to settle the ID join. Check whether the
+  export has an MLBAM id column (see "The FanGraphs ↔ StatsAPI id gap" in the
+  parent spec). If it does, the join is exact. If not, the fallback is a name +
+  birth-year + org match, with every ambiguous match listed for review, never
+  guessed (the Witt → Witte lesson).
+- Only then export the other four years.
 
 ## Plan A result (run 2026-09-27, reviewed on Opus)
 

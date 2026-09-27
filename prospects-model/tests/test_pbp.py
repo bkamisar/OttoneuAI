@@ -32,6 +32,16 @@ class TestListGames(unittest.TestCase):
             game(4, 117, state="Preview"), game(2, 117))          # 2 again: resumed game
         self.assertEqual([g["game_pk"] for g in pbp.list_games(2019, 11)], [1, 2])
 
+    def test_include_leagues_keeps_only_those(self):
+        """Tracking in 2022 AAA exists only in the Pacific Coast League (112)."""
+        http.fetch_json = lambda url: schedule(game(1, 112), game(2, 117), game(3, 112))
+        self.assertEqual([g["game_pk"] for g in pbp.list_games(2022, 11, include_leagues={112})], [1, 3])
+
+    def test_include_leagues_never_readmits_the_mexican_league(self):
+        http.fetch_json = lambda url: schedule(game(1, 112), game(2, pbp.MEXICAN_LEAGUE_ID))
+        got = pbp.list_games(2019, 11, include_leagues={112, pbp.MEXICAN_LEAGUE_ID})
+        self.assertEqual([g["game_pk"] for g in got], [1])
+
     def test_empty_schedule_is_an_error_not_an_empty_season(self):
         http.fetch_json = lambda url: {"dates": []}
         with self.assertRaises(http.DataError):

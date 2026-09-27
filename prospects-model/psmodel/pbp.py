@@ -37,11 +37,14 @@ SCHEDULE = ("https://statsapi.mlb.com/api/v1/schedule?sportId={sport}&season={se
 PLAY_BY_PLAY = "https://statsapi.mlb.com/api/v1/game/{pk}/playByPlay?fields=" + FIELDS
 
 
-def list_games(season, sport_id):
+def list_games(season, sport_id, include_leagues=None):
     """Final regular-season games for one level-season, Mexican League excluded.
 
     Excluded by league id rather than an allowlist, because every affiliated
-    league was renamed and several changed levels in 2021.
+    league was renamed and several changed levels in 2021. `include_leagues`
+    optionally narrows to a set of home-league ids -- ball tracking in 2022 AAA
+    exists only in the Pacific Coast League (112). The Mexican League stays out
+    even if listed.
     """
     d = http.fetch_json(SCHEDULE.format(sport=sport_id, season=season))
     seen, out = set(), []
@@ -53,6 +56,8 @@ def list_games(season, sport_id):
             league = ((((g.get("teams") or {}).get("home") or {}).get("team") or {})
                       .get("league") or {}).get("id")
             if league == MEXICAN_LEAGUE_ID:
+                continue
+            if include_leagues is not None and league not in include_leagues:
                 continue
             seen.add(pk)
             out.append({"game_pk": pk, "home_league_id": league})

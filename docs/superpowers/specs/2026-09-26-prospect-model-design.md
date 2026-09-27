@@ -243,6 +243,50 @@ prospects-model/
   cache/                # gitignored raw pulls
 ```
 
+## Sub-project 2 — what the data actually offers (probed 2026-09-26)
+
+**Pitch-level data comes from StatsAPI play-by-play** (`/api/v1/game/{pk}/playByPlay`),
+one game per request, clean JSON, joined on the same `player.id`.
+
+| Feature family | Levels | Years |
+|---|---|---|
+| Season stats (K%, BB%, ISO, OBP, SLG, SB, GO/AO, pitches/PA, age) | all four | 2016–25 |
+| **Pitch-result family** — whiff, swinging-strike, swing, contact, called-strike, foul rate; **CSW%** for pitchers | **all four** | **2016–25** |
+| Ball tracking — exit velo, launch angle, distance; pitch velo, spin, extension, movement, zone | **AAA 2023+, Florida State League (Single-A) 2021+** | recent only |
+| Bat speed, squared-up | none in MiLB | — |
+
+- Pitch descriptions ("Swinging Strike", "Called Strike", "Foul"…) exist for every
+  pitch at every level back to 2016, with no tracking hardware required. Verified on
+  sampled games at AA, High-A, Single-A and AAA in 2016, 2018 and 2024.
+- **Chase rate is not available** before tracking: it needs pitch location (`zone`).
+- AA and High-A have **no** ball tracking in any year sampled.
+- `?fields=` cuts payloads **5.5×** (591 KB → 108 KB) with identical content.
+- Full scope is **~80,700 games** (2016–19, 2021–25, four levels): ~22 h at 1 req/s.
+
+**The Mexican League contaminates AAA before 2021.** In 2019, 162 of 510 "AAA"
+hitters with 200+ PA (32%) were in the Mexican League, median age **29** vs 26 in
+the affiliated leagues, and 993 of 3,192 AAA games. Left in, it inflates the AAA
+age baseline and drags every level-normalized rate toward an older, hitter-friendly
+league. **Exclude league id 125 everywhere** — at fetch time and in season stats.
+> Correction to an earlier claim in this doc: the post-2021 drop in AAA volume is
+> mostly the Mexican League leaving the AAA classification, not the MiLB contraction.
+> The affiliated qualified pool went 348 → 380, essentially flat.
+
+**Leagues changed levels in 2021.** The Florida State League was High-A (sportId 13)
+in 2019 and Single-A (sportId 14) from 2021, and every league was renamed. So
+normalize **within (sportId, season)**, never within a league name across years.
+AA, High-A and Single-A contain only affiliated leagues.
+
+**Decision: prove the pitch-result family before paying for the full backfill.**
+First vertical slice = **AA + affiliated AAA, 2016–2019 (~17,600 games, ~5 h)**,
+extracting the whole pitch-result family, then testing whether it predicts MLB value
+beyond K% and BB%. The skeptical hypothesis is that whiff rate is a noisier K%, since
+both come from the same plate appearances. AAA is included because it is where
+near-term targets sit and because its players debut sooner, so their outcome windows
+are more complete. The test needs the feature builder, the label join and two simple
+models — a small end-to-end slice of sub-projects 2 and 3 — so the pipeline gets
+built either way; only the 22-hour backfill depends on the result.
+
 ## The FanGraphs ↔ StatsAPI id gap (found 2026-09-26)
 
 `roster.csv` carries `FG MajorLeagueID` and `FG MinorLeagueID` (494 and 522 of

@@ -243,6 +243,31 @@ prospects-model/
   cache/                # gitignored raw pulls
 ```
 
+## The FanGraphs ↔ StatsAPI id gap (found 2026-09-26)
+
+`roster.csv` carries `FG MajorLeagueID` and `FG MinorLeagueID` (494 and 522 of
+526 rows populated), but these are **FanGraphs' own ids, not MLBAM**: Soto is
+`20123` there against `665742` in StatsAPI. So there is **no free bridge** from
+the FanGraphs side (Board grades, `prospects.csv`, Ottoneu rosters) to StatsAPI.
+
+Sub-project 1 is unaffected — it is entirely StatsAPI with exact id joins. But
+the **tool surface** and the **grades phase** both need this mapping, and the
+fallback is name matching, which already produced a live failure during design
+(a "Witt" substring matched Jantzen Witte, a 31-year-old in Tacoma).
+
+**Cheapest possible fix, to check first:** whether the Board payload carries an
+MLBAM id. `probeBoardShape` in Apps Script already logs every `dataScout` key —
+if one is `xMLBAMID` or equivalent, the bridge is exact and free for precisely
+the population we care about. Check this before building any name matcher.
+
+Reusable pieces already in the repo, for when that work happens:
+- `normalizeName` (shared.js) — accent folding and punctuation stripping, the
+  right starting point for any name fallback.
+- `PROSPECT_RANK_CURVE`, `FV_DYNASTY_FLOORS`, `prospectDynastyValue` — the
+  consensus FV→dollars mapping that the edge metric subtracts against.
+- `computeContractHorizon` / `holdHorizon` — turns a predicted value into
+  surplus under Ottoneu's +$2/+$4 salary escalation.
+
 ## Deferred (recorded so it isn't silently lost)
 
 - **Scouting grades as features** — needs historical FanGraphs Board data;

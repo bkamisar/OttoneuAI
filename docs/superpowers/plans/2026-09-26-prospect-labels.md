@@ -1346,6 +1346,19 @@ def main():
               f"obp={repl_h['obp']:.3f} | top: " +
               ", ".join(f"{t['name']} {t['value']:.1f}" for t in top))
 
+    # Never overwrite a good artifact with a partial one. Borrowed from
+    # autoLoadFromRepo in shared.js, which learned this the hard way: a blank
+    # upstream export parsed to zero rows, silently replaced good cached data,
+    # and every hitter in the tool showed "No proj" with no error anywhere.
+    expected_seasons = LAST - FIRST + 1
+    seasons_seen = len({r["season"] for r in rows})
+    if seasons_seen < expected_seasons:
+        raise SystemExit(f"REFUSING TO WRITE: only {seasons_seen}/{expected_seasons} "
+                         f"seasons produced rows. Existing {OUT} left untouched.")
+    if len(rows) < expected_seasons * 500:
+        raise SystemExit(f"REFUSING TO WRITE: {len(rows)} rows is implausibly few for "
+                         f"{expected_seasons} seasons. Existing {OUT} left untouched.")
+
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     with open(OUT, "w", newline="", encoding="utf-8") as fh:
         w = csv.DictWriter(fh, fieldnames=["player_id", "name", "season", "type", "pa", "ip", "value"])

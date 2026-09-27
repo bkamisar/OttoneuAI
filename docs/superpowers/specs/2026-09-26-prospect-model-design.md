@@ -277,7 +277,26 @@ in 2019 and Single-A (sportId 14) from 2021, and every league was renamed. So
 normalize **within (sportId, season)**, never within a league name across years.
 AA, High-A and Single-A contain only affiliated leagues.
 
-**Decision: prove the pitch-result family before paying for the full backfill.**
+**REVISED (same day): the pitch-result family comes from season stats, not game logs.**
+StatsAPI `stats=seasonAdvanced` carries `totalSwings` and `swingAndMisses` per
+player-season for hitters AND pitchers (pitchers also get `whiffPercentage` and
+`strikePercentage`) at every MiLB level back to at least 2016. Validated against an
+independent source: MLB 2024 whiff rate from `seasonAdvanced` vs Savant's
+`whiff_percent` correlates **0.9997** across 397 hitters (mean gap 0.10 pts); swing
+rate 0.9974 (0.22 pts). So whiff, swing, swinging-strike and contact rates cost a
+few dozen requests covering **all four levels and all nine seasons**, instead of
+17,600 game downloads covering two levels and four seasons. The backfill was
+stopped after 1,375 games (atomic writes held: 0 temp files, 0 unreadable).
+`seasonAdvanced` returns exactly 1,000 rows per page, so it must be paginated.
+
+**What still needs play-by-play** (the fetcher stays for these): **CSW% and
+called-strike rate** (no called-strike count at season level), and **ball
+tracking** (exit velocity, launch angle, pitch velo/spin) for AAA 2023+ and the
+FSL 2021+. Neither is needed to test whether the whiff family adds signal.
+> Lesson: check every stat TYPE an API offers before building a per-game crawl.
+> The first season endpoint lacked the field; a sibling endpoint had it.
+
+**Original decision (superseded by the above):** prove the pitch-result family before paying for the full backfill.
 First vertical slice = **AA + affiliated AAA, 2016–2019 (~17,600 games, ~5 h)**,
 extracting the whole pitch-result family, then testing whether it predicts MLB value
 beyond K% and BB%. The skeptical hypothesis is that whiff rate is a noisier K%, since

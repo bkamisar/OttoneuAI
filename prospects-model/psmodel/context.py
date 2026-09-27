@@ -30,6 +30,7 @@ fell back to 1.0 and hitter replacement collapsed to 2.2 PA.
 import statistics
 
 NUM_TEAMS = 12
+FULL_SEASON_GAMES = 162
 HITTER_SLOTS = 12            # C,1B,2B,SS,3B,MI,OF1-5,UTIL (shared.js HITTER_SLOTS)
 STARTING_HITTERS = NUM_TEAMS * HITTER_SLOTS          # 144 -- used for synthetic teams
 TEAM_IP_BUDGET = 1500                                # shared.js IP_MAX
@@ -54,6 +55,19 @@ FA_MIN_IP = 30               # excludes elite rates on no playing time
 ROSTERED_H = 295
 ROSTERED_P = 231
 
+# What a 12-slot team's starters typically total in PA over a full season
+# (2015-2019, measured: 7,106-7,376). Fixed rather than data-derived -- see
+# league_averages.
+TEAM_PA = 7200.0
+
+# Seasons shorter than 162 games. 2020 was 60 games; every counting stat and
+# every volume floor scales with it.
+SEASON_GAMES = {2020: 60}
+
+
+def season_fraction(season):
+    return SEASON_GAMES.get(season, FULL_SEASON_GAMES) / float(FULL_SEASON_GAMES)
+
 
 def _hitter_rank(row):
     """Crude quality proxy for ordering only: volume x rate."""
@@ -65,7 +79,6 @@ def _pitcher_rank(row):
     return row["ip"] * (1.0 / era + row["so"] / 1000.0)
 
 
-FULL_SEASON_GAMES = 162
 _COUNTING = {"HR": "HR", "R": "R", "SO": "K"}            # our name -> standings column
 _RATES = {"OBP": "OBP", "SLG": "SLG", "ERA": "ERA", "WHIP": "WHIP", "HR9": "HR/9"}
 
@@ -115,42 +128,47 @@ def load_league_denominators(path, games=None):
         return denominators_from_standings(list(csv.DictReader(fh)), games=games)
 
 
-def hitter_replacement(hitter_rows):
+def hitter_replacement(hitter_rows, season_fraction=1.0):
     """Average of the cohort just past what the league rosters.
 
     Mirrors computeFABaselines' future-year branch: apply the volume floor, rank,
-    skip ROSTERED_H, average the next FA_COHORT_H.
+    skip ROSTERED_H, average the next FA_COHORT_H. The floor prorates with the
+    season length, so a 60-game season is not asked for 100 PA.
     """
-    pool = [r for r in hitter_rows if (r.get("pa") or 0) >= FA_MIN_PA]
+    floor = FA_MIN_PA * season_fraction
+    pool = [r for r in hitter_rows if (r.get("pa") or 0) >= floor]
     ranked = sorted(pool, key=_hitter_rank, reverse=True)
     need = ROSTERED_H + FA_COHORT_H
     if len(ranked) < need:
-        raise ValueError(f"need >= {need} hitters over {FA_MIN_PA} PA, got {len(ranked)}")
+        raise ValueError(f"need >= {need} hitters over {floor:g} PA, got {len(ranked)}")
     cohort = ranked[ROSTERED_H:need]
     n = len(cohort)
     return {k: sum(r[k] for r in cohort) / n for k in ("pa", "ab", "hr", "r", "obp", "slg")}
 
 
-def league_averages(hitter_rows, pitcher_rows):
-    """avgPA / avgIP as calcPlayerSGP means them: per-TEAM totals for the
-    players who actually start, NOT league-wide totals.
-
-    Getting this wrong silently rescales every rate category. League-wide MLB PA
-    divided by 12 is roughly double a 12-team fantasy team's starter PA, which
+def league_averages():
+    """avgPA / avgIP as calcPlayerSGP means them: per-TEAM totals for the players
+    who actually start -- NOT league-wide totals, which are roughly double and
     would halve the weight of OBP and SLG against HR and R.
+
+    Both are FIXED constants rather than derived from the season's data. A
+    data-derived avg_pa is ~37% in the 60-game 2020 season, which cancels out of
+    the rate terms ((obp - repl) x pa/avgPA) while the counting terms stay 37%:
+    a hitter's OBP/SLG contribution would be full-sized and his HR/R 37%-sized.
+    Fixed constants make a shortened season uniformly worth ~37% of a full one.
+    avg_ip was already fixed at the 1,500 IP cap.
     """
-    ranked = sorted(hitter_rows, key=_hitter_rank, reverse=True)[:STARTING_HITTERS]
-    avg_pa = sum(r["pa"] for r in ranked) / NUM_TEAMS
-    return avg_pa, float(TEAM_IP_BUDGET)
+    return TEAM_PA, float(TEAM_IP_BUDGET)
 
 
-def pitcher_replacement(pitcher_rows):
+def pitcher_replacement(pitcher_rows, season_fraction=1.0):
     """Same construction as hitters, with the pitcher floor, count and cohort."""
-    pool = [r for r in pitcher_rows if (r.get("ip") or 0.0) >= FA_MIN_IP]
+    floor = FA_MIN_IP * season_fraction
+    pool = [r for r in pitcher_rows if (r.get("ip") or 0.0) >= floor]
     ranked = sorted(pool, key=_pitcher_rank, reverse=True)
     need = ROSTERED_P + FA_COHORT_P
     if len(ranked) < need:
-        raise ValueError(f"need >= {need} pitchers over {FA_MIN_IP} IP, got {len(ranked)}")
+        raise ValueError(f"need >= {need} pitchers over {floor:g} IP, got {len(ranked)}")
     cohort = ranked[ROSTERED_P:need]
     n = len(cohort)
     return {k: sum(r[k] for r in cohort) / n for k in ("ip", "so", "era", "whip", "hr9")}

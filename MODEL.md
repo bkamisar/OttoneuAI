@@ -18,8 +18,9 @@ Because it's 4 hitting + 4 pitching categories, scoring opportunity is split
 | `data/proj_hitting.csv` / `proj_pitching.csv` | Google Apps Script → FanGraphs Steamer **rest-of-season** (`steamerr`) | daily ~8:57 ET |
 | `data/standings.csv` | Apps Script → Ottoneu `standingsMeter` AJAX | daily ~7:32 ET |
 | `data/roster.csv` | Apps Script → Ottoneu `rosterexport?csv=1` | daily (trigger) |
-| `proj_*_y1/y2.csv` | manual upload (full-season projections) | occasional |
-| `data/prospects.csv` | manual (FanGraphs The Board export) | occasional |
+| `proj_*_y1/y2.csv` | Apps Script → FanGraphs ZiPS `zipsp1`/`zipsp2` (full-season) | weekly (trigger) |
+| `data/prospects.csv` | Apps Script → FanGraphs Board `prospects-list-combined`. **Board is Cloudflare-blocked (403) since ~2026-08-24; file frozen at that snapshot** | manual export until it reopens |
+| `data/prospects_stats_hitting.csv` / `_pitching.csv` | same Board call (`dataStats`); frozen with it | see above |
 
 Key fact that shapes everything: **Y0 projections are REST-OF-SEASON** (what's
 left, not the full year), while **Y1/Y2 files are full-season**. Several past

@@ -27,6 +27,15 @@ class TestWindow(unittest.TestCase):
         t = targets.build_target([season(2024, 3.0, pa=30)], current_season=CURRENT)
         self.assertEqual(t["peak_value"], 0.0)
 
+    def test_below_replacement_debut_is_floored_at_zero(self):
+        """A marginal MLB player must never score WORSE than someone who never
+        reached the majors (a labeled 0). shared.js floors value with
+        Math.max(0, sgp); the median pitcher label is below replacement (-0.33),
+        so without this floor a mediocre debut would rank under a non-arrival."""
+        rows = [season(2022, -0.8), season(2023, -0.3)]
+        t = targets.build_target(rows, current_season=CURRENT)
+        self.assertEqual(t["peak_value"], 0.0)
+
     def test_pitcher_volume_uses_innings(self):
         """A pitcher has no PA; eligibility must come from IP, not be zero."""
         rows = [season(2022, 20.0, pa=0, ip=150.0)]

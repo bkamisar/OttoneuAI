@@ -115,13 +115,46 @@ class TestReplacement(unittest.TestCase):
 
 
 class TestLeagueAverages(unittest.TestCase):
-    def test_avg_pa_is_per_team_starters_not_league_wide(self):
-        """144 starters at 600 PA is 86,400 league PA; per team that is 7,200.
-        League-wide/12 over a 300-player pool would give 15,000 -- roughly
-        double -- and would halve the weight of OBP and SLG."""
-        avg_pa, avg_ip = context.league_averages(hitters(300), pitchers(250))
-        self.assertAlmostEqual(avg_pa, 144 * 600 / 12, places=6)
+    def test_averages_are_fixed_team_constants(self):
+        """Both are fixed, not derived from the season's data. A data-derived
+        avg_pa is ~37% in the 60-game 2020 season, which cancels out of the rate
+        terms (obp diff x pa/avgPA) while the counting terms stay 37%: a hitter's
+        OBP/SLG contribution would be full-sized and his HR/R 37%-sized. Fixed
+        constants make a shortened season uniformly worth ~37% of a full one.
+        7,200 is what a 12-slot team's starters typically total (2015-19: 7,106-7,376)."""
+        avg_pa, avg_ip = context.league_averages()
+        self.assertAlmostEqual(avg_pa, 7200.0, places=6)
         self.assertAlmostEqual(avg_ip, 1500.0, places=6)
+
+    def test_same_constants_regardless_of_season(self):
+        self.assertEqual(context.league_averages(), context.league_averages())
+
+
+class TestShortenedSeasons(unittest.TestCase):
+    def test_2020_is_a_sixty_game_season(self):
+        self.assertAlmostEqual(context.season_fraction(2020), 60 / 162, places=9)
+
+    def test_normal_seasons_are_full(self):
+        for y in (2015, 2019, 2021, 2024, 2026):
+            self.assertEqual(context.season_fraction(y), 1.0)
+
+    def test_volume_floor_prorates_with_the_season(self):
+        """At 100 PA the 2020 hitter pool is too thin; at the prorated ~37 it is
+        not. Without proration, 2020 dies with 'need >= 303 hitters'."""
+        pool = [{"player_id": i, "pa": 50, "ab": 45, "hr": 1, "r": 5,
+                 "obp": 0.300 + i * 0.0001, "slg": 0.400} for i in range(1, 400)]
+        with self.assertRaises(ValueError):
+            context.hitter_replacement(pool)                       # full season: floor 100
+        repl = context.hitter_replacement(pool, season_fraction=60 / 162)
+        self.assertGreater(repl["pa"], 0)
+
+    def test_pitcher_floor_prorates_too(self):
+        pool = [{"player_id": i, "ip": 15.0, "so": 14, "era": 4.0 + i * 0.001,
+                 "whip": 1.3, "hr9": 1.2} for i in range(1, 400)]
+        with self.assertRaises(ValueError):
+            context.pitcher_replacement(pool)                      # full season: floor 30
+        repl = context.pitcher_replacement(pool, season_fraction=60 / 162)
+        self.assertGreater(repl["ip"], 0)
 
 
 if __name__ == "__main__":

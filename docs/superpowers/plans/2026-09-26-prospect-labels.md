@@ -1294,6 +1294,26 @@ Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
 
 ### Task 7: Build the real labels; document
 
+> **DEVIATIONS (built 2026-09-26) — the code in this task is superseded by
+> `prospects-model/build_labels.py`:**
+> 1. **Denominators** load from `data/standings.csv` (Task 4 deviation), not a
+>    reference season.
+> 2. **2020 (60 games) broke the first run** — only 158 pitchers cleared a 30-IP
+>    floor when replacement needs 241, and the write-guard correctly refused to
+>    emit a partial file. Fix: `context.season_fraction()` prorates the volume
+>    floors, and `league_averages()` now returns FIXED constants (7,200 PA,
+>    1,500 IP) instead of data-derived ones. A data-derived avg_pa is ~37% in
+>    2020, which cancels out of the rate terms while counting terms stay 37% —
+>    OBP/SLG contributions full-sized, HR/R 37%-sized. Result: 2020 comes out at
+>    ~40-45% of a normal season, as it should.
+> 3. **Target floored at zero** (`targets.py`): the median pitcher label is below
+>    replacement (-0.33), so an unfloored peak would rank a marginal MLB player
+>    under a labeled non-arrival. Mirrors `Math.max(0, sgp)` in shared.js.
+> 4. **CSV sanitizer applies to text fields only.** The plan's numeric-aware
+>    version would prefix `-1e-05` with an apostrophe and corrupt the column.
+> 5. `league_averages` and the replacement functions changed signature; see
+>    `context.py`. Final count: 52 tests (2 live-only skipped), parity 10/10.
+
 **Files:**
 - Create: `prospects-model/build_labels.py`
 - Modify: `MODEL.md` (fix the stale §1 data-feeds table)

@@ -35,7 +35,9 @@ def build_target(mlb_seasons, current_season, snapshot_season=None):
 
     return {
         "debut_season": debut,
-        "peak_value": peak["value"] if peak else 0.0,
+        # Floored at 0 like shared.js (Math.max(0, sgp)): a below-replacement
+        # debut must not rank under a labeled non-arrival.
+        "peak_value": max(0.0, peak["value"]) if peak else 0.0,
         "peak_season": peak["season"] if peak else None,
         "completeness": max(MIN_WEIGHT, observed / WINDOW),
         "years_to_contribute": (first["season"] - snapshot_season)

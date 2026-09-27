@@ -45,6 +45,15 @@ class TestBuildRows(unittest.TestCase):
         keys = {k for g in cohorts.GROUPS.values() for k in g}
         self.assertEqual(keys, set(self.by[(1, 2018, 12)]["f"]))
 
+    def test_raw_age_kept_beside_the_standardized_one(self):
+        self.assertEqual(self.by[(1, 2018, 12)]["age_raw"], 22)
+
+    def test_lead_products(self):
+        rows = [{"f": {"age": 2.0, "slg": 1.5, "swstr": None}}]
+        cohorts.add_products(rows)
+        self.assertEqual(rows[0]["f"]["age_x_slg"], 3.0)
+        self.assertIsNone(rows[0]["f"]["swstr_x_slg"])
+
 
 if __name__ == "__main__":
     unittest.main()

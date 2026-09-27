@@ -26,6 +26,17 @@ GROUPS = {
 BINARY = {"is_aaa", "is_aa", "is_higha", "repeat_level", "multi_level"}
 _BOX = ("age", "pa", "k", "bb", "iso", "hr_pa", "obp", "slg", "sb_pa", "whiff", "swing", "swstr")
 
+# Tree patterns from plan A, tested as explicit terms (products of standardized features).
+LEADS = {"age_x_slg": ("age", "slg"), "swstr_x_slg": ("swstr", "slg")}
+
+
+def add_products(rows):
+    for r in rows:
+        f = r["f"]
+        for name, (a, b) in LEADS.items():
+            f[name] = f[a] * f[b] if f.get(a) is not None and f.get(b) is not None else None
+    return rows
+
 
 def mlb_pa_history(first=PA_HISTORY_FIRST, last=CURRENT_SEASON):
     """{player_id: {season: MLB PA}}."""
@@ -72,6 +83,6 @@ def build_rows(milb_rows, pa_history, mlb_seasons):
         f["repeat_level"] = 1.0 if r["sport_id"] in seen.get((pid, previous_season(s)), ()) else 0.0
         f["multi_level"] = 1.0 if len(seen[(pid, s)]) > 1 else 0.0
         rows.append({"player_id": pid, "name": r["name"], "season": s, "sport_id": r["sport_id"],
-                     "f": f, "mlb": mlb_seasons.get(pid, [])})
+                     "age_raw": r.get("age"), "f": f, "mlb": mlb_seasons.get(pid, [])})
     F.standardize_within(rows, [k for g in GROUPS.values() for k in g if k not in BINARY])
     return rows

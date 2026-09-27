@@ -1,0 +1,8 @@
+# Versions observed already installed on 2026-09-26. Pinned for reproducibility,
+# NOT to be installed -- a silent upgrade could change model output.
+numpy==2.4.3
+pandas==3.0.1
+scikit-learn==1.8.0
+scipy==1.17.1
+requests==2.33.1
+# tests use stdlib unittest; no test dependency

@@ -78,9 +78,11 @@ question; playing-time risk belongs to 3c.
 season, 2023–26** (`cache/aaa_tracking.csv` vs `cache/mlb_tracking.csv`). Each needs
 a minimum sample at both levels (default ≥50 batted balls each). The plan's first
 task counts how many qualify, and if the count is too thin for a metric, the plan
-reports it. Per metric: a **flat offset** by default (e.g. AAA EV reads about
-1 mph high → subtract it). A scaling factor is added only if its bootstrap
-interval excludes 1 **and** it improves the fit on held-out players. Same player
+reports it. Per metric: a **flat offset** (e.g. AAA EV reads about 1 mph high →
+subtract it). The MLB-on-AAA slope is **reported, not applied**: sampling noise in
+call-up-sized samples pulls it below 1 (errors-in-variables) whether or not the
+levels truly scale differently, so a held-out test can't tell a real scale from
+noise. Same player
 in the same season, so selection largely cancels. Constant method biases
 between our AAA code and Savant's (plan A) are absorbed by the offset.
 

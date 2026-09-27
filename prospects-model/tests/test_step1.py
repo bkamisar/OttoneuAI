@@ -71,5 +71,50 @@ class TestMlbRows(unittest.TestCase):
                          ["whiff_percent", "iz_contact_percent", "oz_contact_percent"])
 
 
+class TestTranslation(unittest.TestCase):
+    def test_offset_from_same_season_pairs(self):
+        aaa = {(p, 2024): {"bbe": 100.0, "exit_velocity_avg": 90.0 + p} for p in range(10)}
+        mlb = {(p, 2024): {"bbe": 60.0, "exit_velocity_avg": 89.0 + p} for p in range(10)}
+        aaa[(99, 2024)] = {"bbe": 100.0, "exit_velocity_avg": 95.0}
+        mlb[(99, 2024)] = {"bbe": 10.0, "exit_velocity_avg": 80.0}   # too few MLB batted balls
+        t = step1.fit_translation(aaa, mlb, ["exit_velocity_avg"], n_boot=200)["exit_velocity_avg"]
+        self.assertEqual(t["n"], 10)
+        self.assertAlmostEqual(t["offset"], -1.0)
+        self.assertAlmostEqual(t["lo"], -1.0)
+        self.assertAlmostEqual(t["hi"], -1.0)
+        self.assertAlmostEqual(t["slope"], 1.0)
+
+    def test_metric_with_no_pairs(self):
+        t = step1.fit_translation({}, {}, ["whiff_percent"])["whiff_percent"]
+        self.assertEqual((t["n"], t["offset"]), (0, None))
+
+    def test_translate_moves_only_translated_metrics(self):
+        f = step1.translate({"exit_velocity_avg": 90.0, "obp": 0.35, "whiff_percent": None},
+                            {"exit_velocity_avg": {"offset": -1.0}, "whiff_percent": {"offset": 2.0}})
+        self.assertEqual(f, {"exit_velocity_avg": 89.0, "obp": 0.35, "whiff_percent": None})
+
+
+class TestProspects(unittest.TestCase):
+    def test_later_outcome_uses_only_later_qualifying_seasons(self):
+        seasons = {7: {2022: (5.0, 600), 2024: (0.5, 300), 2025: (0.2, 80)}}
+        self.assertEqual(step1.later_outcome(seasons, 7, 2022), (True, 1.0))
+        self.assertEqual(step1.later_outcome(seasons, 8, 2022), (False, None))
+
+    def test_aaa_rows_first_cohort_only(self):
+        table = {(7, 2022): metrics_row(), (7, 2023): metrics_row(), (8, 2023): metrics_row(bbe=50.0)}
+        stats = {k: stat(*k) for k in table}
+        rows = step1.aaa_rows(table, stats, {7: {2024: (0.9, 600)}}, (2022, 2023), threshold=0.61)
+        self.assertEqual([(r["player_id"], r["season"]) for r in rows], [(7, 2022)])
+        self.assertTrue(rows[0]["arrived"])
+        self.assertTrue(rows[0]["useful"])
+        self.assertAlmostEqual(rows[0]["target"], 0.9)
+
+    def test_spearman_ci(self):
+        x = np.arange(50, dtype=float)
+        rho, lo, hi = step1.spearman_ci(x, x * 2 + 1, n_boot=200)
+        self.assertAlmostEqual(rho, 1.0)
+        self.assertGreater(lo, 0.99)
+
+
 if __name__ == "__main__":
     unittest.main()

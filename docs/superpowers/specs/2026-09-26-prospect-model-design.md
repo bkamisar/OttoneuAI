@@ -481,6 +481,18 @@ Remaining biases (e.g. chase +1.1 pts, distance +1.4 ft) are constant method
 offsets; the bridge's AAA→MLB translation, learned from same-season two-level
 players, absorbs a constant. The gate is on r for that reason.
 
+## Tracking tables built (2026-09-27, Task 5)
+
+`build_tracking.py` on the parity-chosen variant (foul tip = whiff, bunts
+count as swings): **3,911 AAA hitter-seasons** (2022 PCL-only 336, 2023–2026
+~865–909 each) and **9,835 MLB hitter-seasons** (2015–2026 from Savant, all
+12 present and distinct) → `cache/aaa_tracking.csv` / `cache/mlb_tracking.csv`
+(gitignored). Hitters with 100+ batted balls: AAA 150 (2022) / 445–456
+(2023–26). Median avg exit velocity 87.7–89.9 mph across both levels and all
+years, AAA at or slightly below MLB as expected; 2020 has no 300+-PA median
+(60-game season). **Plan A is complete.** Next: design plan B (the bridge
+model) on Opus.
+
 ## The FanGraphs ↔ StatsAPI id gap (found 2026-09-26)
 
 `roster.csv` carries `FG MajorLeagueID` and `FG MinorLeagueID` (494 and 522 of

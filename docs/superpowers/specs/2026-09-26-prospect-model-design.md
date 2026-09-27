@@ -10,7 +10,7 @@
 |---|---|---|---|
 | 1 | **Answer key** | Every MLB season 2015–2026 valued in this league's 4×4 (`build_labels.py`) | ✅ done |
 | 2 | **Minor-league data** | Season stats + whiff/CSW (season-level, validated); exit velocity (AAA 2022–26 game records, downloaded) | ✅ gathered |
-| 3 | **What predicts value** | First test: does whiff/CSW add signal beyond K%/BB%? (`plans/2026-09-27-whiff-test.md`). Then the exit-velocity bridge, then the full backtest | ⏭ **current** |
+| 3 | **What predicts value** | Whiff test ✅ → step 1 tracking score ✅ (`2026-09-27-step1-tracking-score-design.md`) → **3c-hitters** (`2026-09-27-3c-hitters-design.md`) → pitcher step 1 → 3c-pitchers | ⏭ **current: 3c-hitters** |
 | 4 | **Shopping list** | `prospects.html` shows the model's rating vs FanGraphs FV; the gap is the bargain | ⏭ later |
 
 ## Goal

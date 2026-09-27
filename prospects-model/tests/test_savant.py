@@ -27,13 +27,21 @@ class Base(unittest.TestCase):
 
 class TestSeason(Base):
     def test_parses_and_merges(self):
-        self.pages["custom"] = lambda url: custom_csv(2024, [(10, {"exit_velocity_avg": "91.2", "whiff_percent": ""})])
+        self.pages["custom"] = lambda url: custom_csv(2024, [(10, {"exit_velocity_avg": "91.2", "whiff_percent": "",
+                                                                  "pull_percent": "40.5"})])
         self.pages["ev"] = lambda url: ev_csv([(10, 300, 115.1, 180.5)])
         got = savant.hitter_season(2024)
         self.assertAlmostEqual(got[10]["exit_velocity_avg"], 91.2)
         self.assertIsNone(got[10]["whiff_percent"])
         self.assertAlmostEqual(got[10]["max_hit_speed"], 115.1)
         self.assertAlmostEqual(got[10]["avg_distance"], 180.5)
+        self.assertAlmostEqual(got[10]["pull_percent"], 40.5)
+        self.assertEqual(got[10]["bbe"], 300.0)
+
+    def test_custom_only_player_has_no_bbe(self):
+        self.pages["custom"] = lambda url: custom_csv(2024, [(10, {}), (11, {})])
+        self.pages["ev"] = lambda url: ev_csv([(10, 5, 100, 100)])
+        self.assertIsNone(savant.hitter_season(2024)[11]["bbe"])
 
     def test_wrong_year_in_payload_is_an_error(self):
         """Savant has silently ignored parameters before; the payload must

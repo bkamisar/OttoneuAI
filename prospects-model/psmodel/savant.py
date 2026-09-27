@@ -13,7 +13,10 @@ from . import http
 from .metrics import HITTER_METRICS
 
 EV_FIELDS = ("max_hit_speed", "avg_distance")
-CUSTOM_FIELDS = [m for m in HITTER_METRICS if m not in EV_FIELDS] + ["pa"]
+# Savant's spray comes from tracked launch direction: usable for MLB history, but
+# our AAA game records can't reproduce it (plan A parity), so these are MLB-only.
+SPRAY_FIELDS = ["pull_percent", "straightaway_percent", "opposite_percent"]
+CUSTOM_FIELDS = [m for m in HITTER_METRICS if m not in EV_FIELDS] + SPRAY_FIELDS + ["pa"]
 CUSTOM_URL = ("https://baseballsavant.mlb.com/leaderboard/custom?year={year}&type=batter&min=1"
               "&selections={sel}&csv=true")
 EV_URL = ("https://baseballsavant.mlb.com/leaderboard/statcast?type=batter&year={year}"
@@ -52,8 +55,9 @@ def hitter_season(year, _seen=None):
     for r in erows:
         d = out.setdefault(int(r["player_id"]), {f: None for f in CUSTOM_FIELDS})
         d.update({f: _num(r.get(f)) for f in EV_FIELDS})
+        d["bbe"] = _num(r.get("attempts"))
     for d in out.values():
-        for f in EV_FIELDS:
+        for f in EV_FIELDS + ("bbe",):
             d.setdefault(f, None)
     return out
 

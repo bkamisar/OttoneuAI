@@ -18,7 +18,8 @@ AAA_OUT = os.path.join(HERE, "cache", "aaa_tracking.csv")
 MLB_OUT = os.path.join(HERE, "cache", "mlb_tracking.csv")
 AAA_SEASONS = (2022, 2023, 2024, 2025, 2026)     # 2022 was tracked only in the PCL
 MLB_FIRST, MLB_LAST = 2015, 2026
-COLS = ["player_id", "season", "level", "bbe", "swings", "pitches", "pa"] + metrics.HITTER_METRICS
+COLS = (["player_id", "season", "level", "bbe", "swings", "pitches", "pa"]
+        + metrics.HITTER_METRICS + savant.SPRAY_FIELDS)
 
 
 def write(path, rows):

@@ -609,16 +609,16 @@ from psmodel import context
 
 
 def hitters(n, base_hr=20):
-    """n synthetic hitters, descending quality."""
+    """n synthetic hitters, DESCENDING quality (player 1 is best)."""
     return [{"player_id": i, "pa": 600, "ab": 540, "hr": base_hr + (n - i) // 3,
-             "r": 70 + (n - i) // 3, "obp": 0.300 + i * 0.0002,
-             "slg": 0.380 + i * 0.0003} for i in range(1, n + 1)]
+             "r": 70 + (n - i) // 3, "obp": 0.400 - i * 0.0003,
+             "slg": 0.560 - i * 0.0005} for i in range(1, n + 1)]
 
 
 def pitchers(n):
-    return [{"player_id": i, "ip": 180.0, "so": 200 - i, "bb": 50, "hr": 18,
-             "era": 3.0 + i * 0.01, "whip": 1.05 + i * 0.002,
-             "hr9": 0.9 + i * 0.002} for i in range(1, n + 1)]
+    return [{"player_id": i, "ip": 180.0, "so": 220 - i // 2, "bb": 50, "hr": 18,
+             "era": 3.0 + i * 0.008, "whip": 1.05 + i * 0.0015,
+             "hr9": 0.9 + i * 0.0015} for i in range(1, n + 1)]
 
 
 class TestDenominators(unittest.TestCase):
@@ -640,24 +640,39 @@ class TestDenominators(unittest.TestCase):
 
 class TestReplacement(unittest.TestCase):
     def test_hitter_replacement_is_a_real_regular(self):
-        """12 slots x 12 teams = 144 starters, so replacement sits past there
-        and must look like a real player -- not the 2.2 PA the live tool gave."""
-        repl = context.hitter_replacement(hitters(300))
+        """Must look like an actual player -- not the 2.2 PA the live tool
+        produced from exhausted September projections."""
+        repl = context.hitter_replacement(hitters(400))
         self.assertGreater(repl["pa"], 100)
         self.assertGreater(repl["obp"], 0.200)
         self.assertLess(repl["obp"], 0.400)
 
-    def test_hitter_replacement_is_worse_than_the_starters(self):
-        pool = hitters(300)
+    def test_replacement_sits_past_everyone_rostered(self):
+        """Mirrors computeFABaselines' future branch: skip ROSTERED_H, then take
+        the next FA_COHORT_H. Skipping only the 144 starting slots would set
+        replacement far too high."""
+        pool = hitters(400)
         repl = context.hitter_replacement(pool)
-        top = sorted(pool, key=lambda r: r["obp"] + r["slg"], reverse=True)[:144]
-        best_avg = sum(r["obp"] + r["slg"] for r in top) / len(top)
-        self.assertLess(repl["obp"] + repl["slg"], best_avg)
+        ranked = sorted(pool, key=lambda r: r["pa"] * (r["obp"] + r["slg"]), reverse=True)
+        expected = ranked[context.ROSTERED_H:context.ROSTERED_H + context.FA_COHORT_H]
+        self.assertAlmostEqual(repl["obp"],
+                               sum(r["obp"] for r in expected) / len(expected), places=9)
+        # and it is worse than the starters
+        starters = ranked[:context.STARTING_HITTERS]
+        self.assertLess(repl["obp"] + repl["slg"],
+                        sum(r["obp"] + r["slg"] for r in starters) / len(starters))
 
-    def test_pitcher_replacement_uses_innings_budget(self):
-        """No PITCHER_SLOTS exists; the constraint is 12 x 1500 = 18000 IP."""
-        repl = context.pitcher_replacement(pitchers(250))
-        self.assertGreater(repl["ip"], 10)
+    def test_volume_floor_excludes_tiny_samples(self):
+        """FA_MIN_PA keeps a 12-PA hot streak out of the replacement cohort."""
+        pool = hitters(400)
+        pool.append({"player_id": 9999, "pa": 12, "ab": 10, "hr": 4, "r": 6,
+                     "obp": 0.900, "slg": 1.800})
+        repl = context.hitter_replacement(pool)
+        self.assertLess(repl["obp"], 0.500)
+
+    def test_pitcher_replacement_uses_rostered_count_and_floor(self):
+        repl = context.pitcher_replacement(pitchers(300))
+        self.assertGreaterEqual(repl["ip"], context.FA_MIN_IP)
         self.assertGreater(repl["era"], 0.0)
 
     def test_too_small_a_pool_raises(self):
@@ -703,10 +718,28 @@ import statistics
 
 NUM_TEAMS = 12
 HITTER_SLOTS = 12            # C,1B,2B,SS,3B,MI,OF1-5,UTIL (shared.js HITTER_SLOTS)
-STARTING_HITTERS = NUM_TEAMS * HITTER_SLOTS          # 144
+STARTING_HITTERS = NUM_TEAMS * HITTER_SLOTS          # 144 — used for synthetic teams
 TEAM_IP_BUDGET = 1500                                # shared.js IP_MAX
 LEAGUE_IP_BUDGET = NUM_TEAMS * TEAM_IP_BUDGET        # 18000
-REPL_COHORT = 12             # players averaged at the replacement boundary
+
+# Replacement level mirrors the FUTURE-YEAR branch of computeFABaselines in
+# shared.js, which is the case that matches ours: it abandons "who is actually a
+# free agent" (undefined for a historical season) and instead skips the top N
+# the league rosters, taking the cohort at the boundary of what remains. Its
+# comment: "the roster boundary dissolves each October ... the league re-rosters
+# the best available."
+#
+# Constants are shared.js's, not invented here:
+FA_COHORT_H = 8              # hitters averaged into the baseline
+FA_COHORT_P = 10             # pitchers averaged into the baseline
+FA_MIN_PA = 100              # role floor: excludes stashed prospects / injured
+FA_MIN_IP = 30               # excludes elite rates on no playing time
+# Rostered counts measured from this league's roster.csv on 2026-09-26 (526
+# players across 12 teams). Skipping only the 144 STARTING slots would set
+# replacement far too high -- teams roster ~25 hitters each, and the genuinely
+# free alternative sits past all of them.
+ROSTERED_H = 295
+ROSTERED_P = 231
 
 
 def _hitter_rank(row):
@@ -771,11 +804,17 @@ def build_denominators(hitter_rows, pitcher_rows):
 
 
 def hitter_replacement(hitter_rows):
-    """Average of the cohort just past the last starting slot."""
-    ranked = sorted(hitter_rows, key=_hitter_rank, reverse=True)
-    if len(ranked) < STARTING_HITTERS + REPL_COHORT:
-        raise ValueError(f"need >= {STARTING_HITTERS + REPL_COHORT} hitters, got {len(ranked)}")
-    cohort = ranked[STARTING_HITTERS:STARTING_HITTERS + REPL_COHORT]
+    """Average of the cohort just past what the league rosters.
+
+    Mirrors computeFABaselines' future-year branch: apply the volume floor, rank,
+    skip ROSTERED_H, average the next FA_COHORT_H.
+    """
+    pool = [r for r in hitter_rows if (r.get("pa") or 0) >= FA_MIN_PA]
+    ranked = sorted(pool, key=_hitter_rank, reverse=True)
+    need = ROSTERED_H + FA_COHORT_H
+    if len(ranked) < need:
+        raise ValueError(f"need >= {need} hitters over {FA_MIN_PA} PA, got {len(ranked)}")
+    cohort = ranked[ROSTERED_H:need]
     n = len(cohort)
     return {k: sum(r[k] for r in cohort) / n for k in ("pa", "ab", "hr", "r", "obp", "slg")}
 
@@ -794,27 +833,20 @@ def league_averages(hitter_rows, pitcher_rows):
 
 
 def pitcher_replacement(pitcher_rows):
-    """Walk the ranked pitchers until the league innings budget is consumed;
-    replacement is the cohort immediately past that line."""
-    ranked = sorted(pitcher_rows, key=_pitcher_rank, reverse=True)
-    used, cut = 0.0, len(ranked)
-    for i, row in enumerate(ranked):
-        used += row["ip"]
-        if used >= LEAGUE_IP_BUDGET:
-            cut = i + 1
-            break
-    cohort = ranked[cut:cut + REPL_COHORT]
-    if len(cohort) < 3:
-        cohort = ranked[-REPL_COHORT:]
-    if not cohort:
-        raise ValueError("no pitchers available for replacement cohort")
+    """Same construction as hitters, with the pitcher floor, count and cohort."""
+    pool = [r for r in pitcher_rows if (r.get("ip") or 0.0) >= FA_MIN_IP]
+    ranked = sorted(pool, key=_pitcher_rank, reverse=True)
+    need = ROSTERED_P + FA_COHORT_P
+    if len(ranked) < need:
+        raise ValueError(f"need >= {need} pitchers over {FA_MIN_IP} IP, got {len(ranked)}")
+    cohort = ranked[ROSTERED_P:need]
     n = len(cohort)
     return {k: sum(r[k] for r in cohort) / n for k in ("ip", "so", "era", "whip", "hr9")}
 ```
 
 - [ ] **Step 4: Run the tests**
 
-Expected: 20 tests, `OK`.
+Expected: 21 tests, `OK`.
 
 - [ ] **Step 5: Commit**
 
@@ -948,7 +980,7 @@ def pitcher_sgp(row, repl, den, avg_ip):
 
 - [ ] **Step 4: Run the tests**
 
-Expected: 26 tests, `OK`.
+Expected: 27 tests, `OK`.
 
 - [ ] **Step 5: Write the parity harness**
 
@@ -1223,7 +1255,7 @@ def build_target(mlb_seasons, current_season, snapshot_season=None):
 
 - [ ] **Step 4: Run the tests**
 
-Expected: 36 tests, `OK`.
+Expected: 37 tests, `OK`.
 
 - [ ] **Step 5: Commit**
 
@@ -1362,7 +1394,7 @@ with:
 - [ ] **Step 5: Run the full suite**
 
 Run: `cd prospects-model && python -m unittest discover -s tests -v`
-Expected: 36 tests, `OK`.
+Expected: 37 tests, `OK`.
 
 - [ ] **Step 6: Commit**
 

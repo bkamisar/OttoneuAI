@@ -53,7 +53,7 @@ near-duplicates share a group; otherwise each would hide the other when dropped
 | Approach | BB%, OBP, swing rate |
 | Power | ISO, HR/PA, SLG |
 | Speed | SB/PA (no SB category exists; whether speed pays through runs is a finding) |
-| Trajectory | repeating the level; played ≥2 levels this season |
+| Trajectory | repeating the level; played ≥2 levels this season; PA at the level |
 
 **Targets.** Both use total season SGP from `labels.csv`, because an 80-PA
 call-up doesn't help a fantasy roster:
@@ -87,8 +87,8 @@ won both earlier tests.
   as the honest final check.
 
 **Adoption (2-of-3):** a group, model choice or combination is adopted only if it
-wins at ≥2 of the 3 vantages on **Spearman rank accuracy without lowering
-top-50 or top-100 precision**. Group importance uses drop-the-group-and-refit.
+wins at ≥2 of the 3 vantages on **rank accuracy (Spearman for the rating, AUC for
+the yes/no "soon") without lowering top-50 or top-100 precision**. Group importance uses drop-the-group-and-refit.
 If two groups each fail alone, they are tested jointly. **Top-25** is reported
 but never decides anything: about 25 players per cohort is too noisy.
 
@@ -156,6 +156,25 @@ smallest source.
 - **Security audit before every network step.** Stdlib + installed packages
   only; hosts `statsapi.mlb.com` and `baseballsavant.mlb.com`; cache untracked;
   no credentials. No bulk downloads.
+
+## Plans
+
+- **Plan A** (`plans/2026-09-27-3c-hitters-base.md`): the data extension, labels
+  from 2013, as-of targets, the walk-forward harness, and the base-model backtests
+  for both outputs.
+- **Plan B** (written after plan A's results): the as-of tracking layer, the
+  pulled-air parity check, the sealed 2024 check, and `hitter_ratings.csv`.
+
+## Revisit trigger: Statcast into the base model
+
+Tracking stays a layer until a fair as-of backtest can judge it as a base
+feature: three test years whose training sets already contain at least two
+tracked AAA cohorts (full-AAA tracking began in 2023). For "soon" (2-year answers)
+that means vantages 2026–28, answerable around **2030**. For the rating (4-year
+answers), vantages 2028–30, answerable in the **early 2030s**. Until then, the
+layer's trust weight is re-estimated each year as cohorts mature. Tracking exists
+only in AAA (below AAA, only a partial FSL sample), so the layer may remain the
+right structure for AA and below even after that.
 
 ## Out of scope
 

@@ -1,0 +1,50 @@
+"""Pitch-level events from complete game records (cache/pbp_live).
+
+One parser for MLB and AAA, so a metric computed from these events means the
+same thing at both levels -- which parity_tracking.py then proves against
+Baseball Savant's published numbers.
+"""
+import glob
+import os
+
+from . import pbp
+
+
+def iter_events(game):
+    """One dict per PITCH: ids, handedness, result code, zone, and batted-ball
+    fields when the pitch was put in play (None otherwise)."""
+    plays = (((game or {}).get("liveData") or {}).get("plays") or {}).get("allPlays") or []
+    for play in plays:
+        m = play.get("matchup") or {}
+        batter = (m.get("batter") or {}).get("id")
+        pitcher = (m.get("pitcher") or {}).get("id")
+        side = (m.get("batSide") or {}).get("code")
+        hand = (m.get("pitchHand") or {}).get("code")
+        for e in play.get("playEvents") or []:
+            if not e.get("isPitch"):
+                continue
+            det = e.get("details") or {}
+            pd = e.get("pitchData") or {}
+            hd = e.get("hitData") or {}
+            co = hd.get("coordinates") or {}
+            yield {"batter": batter, "pitcher": pitcher, "bat_side": side, "pitch_hand": hand,
+                   "code": det.get("code"), "zone": pd.get("zone"),
+                   "ev": hd.get("launchSpeed"), "la": hd.get("launchAngle"),
+                   "dist": hd.get("totalDistance"), "traj": hd.get("trajectory"),
+                   "hc_x": co.get("coordX"), "hc_y": co.get("coordY")}
+
+
+def season_games(season, sport_id):
+    """Sorted game_pks with a downloaded record for one level-season."""
+    folder = os.path.join(pbp.PBP_DIR, str(int(season)), str(int(sport_id)))
+    pks = []
+    for f in glob.glob(os.path.join(folder, "*.json.gz")):
+        stem = os.path.basename(f).split(".")[0]
+        if stem.isdigit():
+            pks.append(int(stem))
+    return sorted(pks)
+
+
+def season_events(season, sport_id):
+    for pk in season_games(season, sport_id):
+        yield from iter_events(pbp.load_game(season, sport_id, pk))

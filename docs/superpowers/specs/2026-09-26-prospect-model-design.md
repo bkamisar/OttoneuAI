@@ -362,6 +362,34 @@ are more complete. The test needs the feature builder, the label join and two si
 models — a small end-to-end slice of sub-projects 2 and 3 — so the pipeline gets
 built either way; only the 22-hour backfill depends on the result.
 
+## Whiff test result (run 2026-09-27)
+
+AA + affiliated AAA, 2016–2019 seasons; MLB outcomes through 2026. 5-fold
+player-grouped CV, 10 seeded shuffles, ridge and gradient boosting.
+
+- **Hitters: ADOPTED (via ridge, 9/10 shuffles), not via gbm (4/10).** 3,088
+  rows / 1,510 players, 147 (9.7%) reached starter-quality (top-144-equivalent
+  peak, ≥0.61 SGP). Whiff family improved rank accuracy (Spearman 0.462→0.468)
+  and top-50 hit rate (61.6%→63.6%).
+  - Standardized ridge weights: `whiff −0.225`, `swstr +0.216`, `slg +0.151`,
+    `age −0.130`, `hr_pa +0.121`, `iso −0.096`, `bb +0.088`. **Note the sign
+    split between `whiff` (misses/swing) and `swstr` (misses/pitch) — these are
+    correlated by construction (`swstr ≈ whiff × swing_rate`), a multicollinearity
+    artifact to watch in 3c, not necessarily two independent effects.**
+  - Interaction grid (whiff × ISO, split at medians) — the user's exact
+    question, answered directly: low-ISO/low-whiff 4.4% (n=981) →
+    low-ISO/high-whiff 2.5% (n=563) → high-ISO/high-whiff 14.0% (n=981) →
+    high-ISO/low-whiff 19.2% (n=563). Power still wins even with more whiffs,
+    but low-whiff sluggers do best; whiffing without power is the worst cell.
+- **Pitchers: NOT adopted** under either model (max 3/10 shuffles). All
+  whiff-family coefficients near zero (`whiff −0.005`, `csw −0.002`,
+  `swstr +0.006`). K%/BB%/ERA/WHIP already appear to capture what whiff-derived
+  stats would add, for pitchers, in this cohort.
+- Full report: `prospects-model/cache/whiff_test_report.txt` (gitignored,
+  regenerate with `python whiff_test.py`).
+- **Screen, not final cut** — 3c re-tests every family jointly with the full
+  interaction search (see below); this only decided sub-project 2's next step.
+
 ## The FanGraphs ↔ StatsAPI id gap (found 2026-09-26)
 
 `roster.csv` carries `FG MajorLeagueID` and `FG MinorLeagueID` (494 and 522 of

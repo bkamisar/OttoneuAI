@@ -226,7 +226,8 @@ pitchers reusing the pipeline.
   the barrel window — are tried as variants; the variant that matches Savant wins.
   Only after this parity passes are AAA metrics computed and trusted.
   **Result: passed on 18 metrics; pull/center/oppo dropped** — see "Tracking
-  parity result" below.
+  parity result" below. **Plan B design ("step 1: tracking score"):**
+  `2026-09-27-step1-tracking-score-design.md`.
 - Lost by skipping the crawl: metrics Savant doesn't publish (e.g. pulled
   fly-ball rate). Recoverable later by extending the fetcher; not a one-way door.
 - Game-record encoding (verified on MLB and AAA 2024): pitch result in

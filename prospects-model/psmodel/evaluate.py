@@ -100,6 +100,17 @@ def adopt(results, min_wins=8):
     return wins >= min_wins, wins
 
 
+def fit(rows, keys, kind="ridge"):
+    """One model on all rows, after cross-validation has chosen what to fit."""
+    guard_features(rows, keys)
+    X, y, w = _xyw(rows, keys)
+    return _fit(_model(kind), X, y, w, kind)
+
+
+def predict(model, rows, keys):
+    return model.predict(np.array([[r["f"][k] for k in keys] for r in rows], dtype=float))
+
+
 def trait_ranking(rows, keys):
     """Standardized ridge coefficients on all rows, largest magnitude first."""
     guard_features(rows, keys)

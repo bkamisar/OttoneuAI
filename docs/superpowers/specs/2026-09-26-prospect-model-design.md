@@ -4,6 +4,15 @@
 **Status:** Approved in brainstorming; awaiting spec review
 **Home:** `prospects-model/` (Python pipeline) + output consumed by `prospects.html`
 
+## Roadmap at a glance (updated 2026-09-27)
+
+| # | Piece | What it is | Status |
+|---|---|---|---|
+| 1 | **Answer key** | Every MLB season 2015–2026 valued in this league's 4×4 (`build_labels.py`) | ✅ done |
+| 2 | **Minor-league data** | Season stats + whiff/CSW (season-level, validated); exit velocity (AAA 2022–26 game records, downloaded) | ✅ gathered |
+| 3 | **What predicts value** | First test: does whiff/CSW add signal beyond K%/BB%? (`plans/2026-09-27-whiff-test.md`). Then the exit-velocity bridge, then the full backtest | ⏭ **current** |
+| 4 | **Shopping list** | `prospects.html` shows the model's rating vs FanGraphs FV; the gap is the bargain | ⏭ later |
+
 ## Goal
 
 Answer a question the generic prospect lists can't: **which minor-league traits

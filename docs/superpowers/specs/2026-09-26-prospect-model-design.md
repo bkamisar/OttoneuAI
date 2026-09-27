@@ -409,6 +409,13 @@ before `pushFile` and no challenge page can overwrite good data.
   public endpoint.
 - Worth a periodic retry; Cloudflare rules change.
 
+**Unblocked path (user, 2026-09-27):** historical Board ratings can be exported
+manually from the website. That enables testing FV and tool grades as features in
+the full model (3c) and measuring the edge directly. When the time comes, ask for
+the seasons matching the training cohorts (likely 2016–2019, plus the current
+board), and check whether the export carries an MLB player id; name-only joins
+need care (Witt → Witte).
+
 This is why grades were scoped as deferred and non-blocking. Sub-project 1 is
 unaffected: it is entirely MLB StatsAPI.
 

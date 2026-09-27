@@ -225,6 +225,8 @@ pitchers reusing the pipeline.
   definitions — foul tip as whiff, bunts as swings/batted balls, pull threshold,
   the barrel window — are tried as variants; the variant that matches Savant wins.
   Only after this parity passes are AAA metrics computed and trusted.
+  **Result: passed on 18 metrics; pull/center/oppo dropped** — see "Tracking
+  parity result" below.
 - Lost by skipping the crawl: metrics Savant doesn't publish (e.g. pulled
   fly-ball rate). Recoverable later by extending the fetcher; not a one-way door.
 - Game-record encoding (verified on MLB and AAA 2024): pitch result in
@@ -440,6 +442,44 @@ player-grouped CV, 10 seeded shuffles, ridge and gradient boosting.
    little signal (ridge alpha 162 vs 2.3 for hitters — heavy shrinkage), not
    because the labels are wrong. **Pitchers are where tracking data (velocity,
    spin, movement, extension) has the most headroom.**
+
+## Tracking parity result (run 2026-09-27)
+
+`parity_tracking.py` on all 2,430 games of 2024 MLB vs Savant's 2024 leaderboards
+(398–405 qualified hitters): **PASS on 18 metrics**, every one r ≥ 0.989 (EV avg
+0.9999, max EV 1.0000, LA avg 0.9996, whiff 1.0000, swing 1.0000, GB/LD/FB/PU
+≥ 0.9993, sweet spot 0.9911, barrel 0.9890 vs its 0.95 bar, chase 0.9942, oz
+contact 0.9894). Chosen variant: **foul tip counts as a whiff; bunt attempts
+count as swings.** Report: `cache/tracking_parity_report.txt`; definitions:
+`cache/tracking_definitions.json` (both gitignored; rerun to regenerate).
+
+Definitions the first run got wrong, each settled by the data:
+1. **Bunts are split by metric.** Savant keeps bunted balls in batted-ball
+   *rates and types* (GB %, hard-hit %, distance, barrel/sweet-spot denominators)
+   but leaves them out of the **EV and LA averages** (and best-speed). Counting
+   them in the EV average biased it −0.5 mph (r 0.958); dropping them from the
+   rates cost GB % 0.9995 → 0.993. Bunts average 34 mph vs 89 mph for swings.
+2. **Launch angle in game records is whole degrees** (100% of 123,794 batted
+   balls), so a ball at exactly 8° or 32° is only half inside Savant's 8–32
+   sweet-spot window. Half-weighting the boundaries took sweet spot from
+   r 0.982 / bias +1.4 pts to r 0.991 / bias +0.1.
+3. **Pull / straightaway / opposite % were dropped — not reproducible from game
+   records.** Game records carry only the Gameday *charted* hit location
+   (`hitData.coordinates`; the full hitData key set is launchSpeed, launchAngle,
+   totalDistance, trajectory, hardness, location, coordinates), while Savant's
+   direction evidently comes from tracked launch direction. Evidence it is a
+   ceiling, not a bug: a threshold sweep (5–40°) moves bias through zero but
+   straightaway r never passes 0.76; R and L hitters fail identically (no sign
+   bug); fitting home-plate origin plus separate air/ground thresholds (4
+   parameters) tops out at straightaway r 0.87 / pull 0.96, confirmed
+   out-of-sample on split halves. Mixing Savant's MLB spray with our AAA spray
+   would build a +5-pt definitional gap into the bridge. **If plan B needs spray**,
+   the consistent route is our coordinate-based version at both levels, which
+   needs MLB game records 2015–2025 (~27k games, ~7.5 h background download).
+
+Remaining biases (e.g. chase +1.1 pts, distance +1.4 ft) are constant method
+offsets; the bridge's AAA→MLB translation, learned from same-season two-level
+players, absorbs a constant. The gate is on r for that reason.
 
 ## The FanGraphs ↔ StatsAPI id gap (found 2026-09-26)
 

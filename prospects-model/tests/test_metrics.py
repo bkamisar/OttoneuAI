@@ -14,9 +14,9 @@ EVENTS = [
     ev("S", 12),                                                      # whiff out of zone
     ev("F", 4),                                                       # foul in zone
     ev("T", 6),                                                       # foul tip in zone
-    ev("X", 5, ev=100.0, la=28.0, dist=400.0, traj="fly_ball", hc_x=60.0, hc_y=100.0),     # pulled (RHB)
+    ev("X", 5, ev=100.0, la=28.0, dist=400.0, traj="fly_ball"),       # barrel
     ev("B", 13),                                                      # ball out of zone
-    ev("D", 7, ev=90.0, la=10.0, dist=250.0, traj="line_drive", hc_x=125.42, hc_y=100.0),  # straightaway
+    ev("D", 7, ev=90.0, la=10.0, dist=250.0, traj="line_drive"),
     ev("L", 8),                                                       # foul bunt in zone
 ]
 
@@ -30,14 +30,6 @@ class TestBarrel(unittest.TestCase):
         self.assertFalse(M.is_barrel(116.0, 51.0))
         self.assertTrue(M.is_barrel(120.0, 50.0), "window stops widening at 116 mph")
         self.assertFalse(M.is_barrel(None, 28.0))
-
-
-class TestSpray(unittest.TestCase):
-    def test_pull_depends_on_handedness(self):
-        self.assertEqual(M.direction(ev("X", 5, "R", hc_x=60.0, hc_y=100.0), 15.0), "pull")
-        self.assertEqual(M.direction(ev("X", 5, "L", hc_x=60.0, hc_y=100.0), 15.0), "oppo")
-        self.assertEqual(M.direction(ev("X", 5, "R", hc_x=125.42, hc_y=100.0), 15.0), "straight")
-        self.assertIsNone(M.direction(ev("X", 5, "R"), 15.0))
 
 
 class TestDefault(unittest.TestCase):
@@ -67,9 +59,6 @@ class TestDefault(unittest.TestCase):
         self.assertAlmostEqual(m["avg_distance"], 325.0)
         self.assertAlmostEqual(m["flyballs_percent"], 50.0)
         self.assertAlmostEqual(m["linedrives_percent"], 50.0)
-        self.assertAlmostEqual(m["pull_percent"], 50.0)
-        self.assertAlmostEqual(m["straightaway_percent"], 50.0)
-        self.assertAlmostEqual(m["opposite_percent"], 0.0)
 
 
 class TestVariants(unittest.TestCase):
@@ -84,10 +73,23 @@ class TestVariants(unittest.TestCase):
         self.assertAlmostEqual(m["whiff_percent"], 20.0)
         self.assertAlmostEqual(m["z_swing_percent"], 400 / 6)
 
-    def test_bunt_batted_balls_follow_the_variant(self):
-        bunt = ev("X", 5, ev=40.0, la=-20.0, dist=20.0, traj="bunt_grounder", hc_x=150.0, hc_y=170.0)
-        self.assertEqual(M.hitter_metrics([bunt])[1]["groundballs_percent"], 100.0)
-        self.assertEqual(M.hitter_metrics([bunt], {"count_bunts": False})[1]["bbe"], 0)
+    def test_bunts_in_batted_ball_rates_but_not_ev_la_averages(self):
+        """Settled by the 2024 parity run: counting bunts in the EV average biased it
+        -0.5 mph, while dropping them from the rates hurt GB%, hard-hit% and distance."""
+        bunt = ev("X", 5, ev=40.0, la=-20.0, dist=20.0, traj="bunt_grounder")
+        hit = ev("X", 5, ev=100.0, la=20.0, dist=300.0, traj="line_drive")
+        m = M.hitter_metrics([bunt, hit])[1]
+        self.assertEqual(m["bbe"], 2)
+        self.assertAlmostEqual(m["groundballs_percent"], 50.0)
+        self.assertAlmostEqual(m["hard_hit_percent"], 50.0)
+        self.assertAlmostEqual(m["avg_distance"], 160.0)
+        self.assertAlmostEqual(m["exit_velocity_avg"], 100.0)
+        self.assertAlmostEqual(m["launch_angle_avg"], 20.0)
+        self.assertAlmostEqual(m["avg_best_speed"], 100.0)
+
+    def test_sweet_spot_boundaries_count_half(self):
+        evs = [ev("X", 5, ev=90.0, la=la, traj="line_drive") for la in (8.0, 20.0, 32.0, 40.0)]
+        self.assertAlmostEqual(M.hitter_metrics(evs)[1]["sweet_spot_percent"], 50.0)
 
     def test_zero_denominators_are_none(self):
         m = M.hitter_metrics([ev("B", 13)])[1]

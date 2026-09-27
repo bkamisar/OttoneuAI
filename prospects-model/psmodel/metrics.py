@@ -13,13 +13,14 @@ IN_PLAY = {"X", "D", "E"}
 BUNT_CODES = {"L", "M", "O"}
 BUNT_TRAJ = {"bunt_grounder": "ground_ball", "bunt_popup": "popup", "bunt_line_drive": "line_drive"}
 
-DEFAULT = {"foul_tip_is_whiff": False, "count_bunts": True, "pull_deg": 15.0}
+DEFAULT = {"foul_tip_is_whiff": False, "count_bunts": True}
 
+# No pull/straightaway/opposite: Savant's come from tracked launch direction, which
+# game records lack; charted hit coordinates cap at r~0.87 vs Savant (spec, 3b parity).
 BATTED_BALL_METRICS = [
     "exit_velocity_avg", "max_hit_speed", "avg_best_speed", "hard_hit_percent", "barrel_batted_rate",
     "sweet_spot_percent", "launch_angle_avg", "avg_distance",
     "groundballs_percent", "linedrives_percent", "flyballs_percent", "popups_percent",
-    "pull_percent", "straightaway_percent", "opposite_percent",
 ]
 DISCIPLINE_METRICS = [
     "whiff_percent", "swing_percent", "oz_swing_percent", "z_swing_percent",
@@ -38,20 +39,14 @@ def is_barrel(ev, la):
     return (26.0 - x) <= la <= (30.0 + x * (20.0 / 18.0))
 
 
-def direction(e, pull_deg):
-    """'pull' | 'straight' | 'oppo' from Savant-style spray angle, mirrored for
-    left-handed batters; None when coordinates or handedness are missing."""
-    x, y, side = e.get("hc_x"), e.get("hc_y"), e.get("bat_side")
-    if x is None or y is None or side not in ("R", "L") or y >= 198.27:
-        return None
-    angle = math.degrees(math.atan((x - 125.42) / (198.27 - y)))
-    if side == "L":
-        angle = -angle
-    if angle < -pull_deg:
-        return "pull"
-    if angle > pull_deg:
-        return "oppo"
-    return "straight"
+def sweet_spot_weight(la):
+    """Game-record launch angles are whole degrees, so a ball recorded at 8 or 32 is
+    only half inside Savant's 8-32 window; counting it fully biased the rate +1.4 pts."""
+    if la is None:
+        return 0.0
+    if 8.0 < la < 32.0:
+        return 1.0
+    return 0.5 if la in (8.0, 32.0) else 0.0
 
 
 def _pct(n, d):
@@ -88,34 +83,31 @@ def hitter_metrics(events, variant=None):
         elif z is not None and z >= 11:
             a["oz"] += 1; a["oz_sw"] += swing; a["oz_con"] += contact
         if code in IN_PLAY and e.get("ev") is not None:
-            if e.get("traj") in BUNT_TRAJ and not v["count_bunts"]:
-                continue
             a["bbe"].append(e)
 
     out = {}
     for b, a in acc.items():
         bb = a["bbe"]
         n = len(bb)
-        evs = sorted((x["ev"] for x in bb), reverse=True)
-        las = [x["la"] for x in bb if x.get("la") is not None]
+        # Savant keeps bunts in batted-ball rates and types but not in the EV/LA averages.
+        swung = [x for x in bb if x.get("traj") not in BUNT_TRAJ]
+        evs = sorted((x["ev"] for x in swung), reverse=True)
+        las = [x["la"] for x in swung if x.get("la") is not None]
+        las_all = [x["la"] for x in bb if x.get("la") is not None]
         traj = [BUNT_TRAJ.get(x.get("traj"), x.get("traj")) for x in bb]
-        spray = [d for d in (direction(x, v["pull_deg"]) for x in bb) if d]
         out[b] = {
             "exit_velocity_avg": _mean(evs),
-            "max_hit_speed": evs[0] if evs else None,
-            "avg_best_speed": _mean(evs[:math.ceil(n / 2)]) if n else None,
-            "hard_hit_percent": _pct(sum(1 for s in evs if s >= 95.0), n),
+            "max_hit_speed": max(x["ev"] for x in bb) if bb else None,
+            "avg_best_speed": _mean(evs[:math.ceil(len(evs) / 2)]) if evs else None,
+            "hard_hit_percent": _pct(sum(1 for x in bb if x["ev"] >= 95.0), n),
             "barrel_batted_rate": _pct(sum(1 for x in bb if is_barrel(x["ev"], x.get("la"))), n),
-            "sweet_spot_percent": _pct(sum(1 for la in las if 8.0 <= la <= 32.0), len(las)),
+            "sweet_spot_percent": _pct(sum(sweet_spot_weight(la) for la in las_all), len(las_all)),
             "launch_angle_avg": _mean(las),
             "avg_distance": _mean([x["dist"] for x in bb if x.get("dist") is not None]),
             "groundballs_percent": _pct(traj.count("ground_ball"), n),
             "linedrives_percent": _pct(traj.count("line_drive"), n),
             "flyballs_percent": _pct(traj.count("fly_ball"), n),
             "popups_percent": _pct(traj.count("popup"), n),
-            "pull_percent": _pct(spray.count("pull"), len(spray)),
-            "straightaway_percent": _pct(spray.count("straight"), len(spray)),
-            "opposite_percent": _pct(spray.count("oppo"), len(spray)),
             "whiff_percent": _pct(a["whiffs"], a["swings"]),
             "swing_percent": _pct(a["swings"], a["pitches"]),
             "oz_swing_percent": _pct(a["oz_sw"], a["oz"]),

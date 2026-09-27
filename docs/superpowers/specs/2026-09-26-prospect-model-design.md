@@ -289,10 +289,31 @@ few dozen requests covering **all four levels and all nine seasons**, instead of
 stopped after 1,375 games (atomic writes held: 0 temp files, 0 unreadable).
 `seasonAdvanced` returns exactly 1,000 rows per page, so it must be paginated.
 
-**What still needs play-by-play** (the fetcher stays for these): **CSW% and
-called-strike rate** (no called-strike count at season level), and **ball
-tracking** (exit velocity, launch angle, pitch velo/spin) for AAA 2023+ and the
-FSL 2021+. Neither is needed to test whether the whiff family adds signal.
+**CSW% is ALSO derivable from season stats — no download.** Every swing is a
+strike, so `called = strikes − totalSwings`, joining basic `season` (which has raw
+`strikes` and `numberOfPitches` for pitchers) to `seasonAdvanced` (`totalSwings`,
+`swingAndMisses`). Validated against the pitch-by-pitch answer key in the 1,375
+downloaded 2016 AA games: for pitchers with ≥98% of their games downloaded,
+derived CSW vs counted CSW **r = 0.994**, n = 39 (r = 0.885 across all 293, the gap
+being pure partial-coverage sampling noise). Derived CSW runs a **constant +1.0 pt
+high** (mean abs gap ≈ signed bias), almost certainly bunt attempts counted as
+strikes but not swings. Within-(sportId, season) normalization removes a constant
+offset, so it is documented, not corrected. Note the pitcher pitch count lives in
+basic `season`, NOT `seasonAdvanced` — the first probe silently matched zero
+pitchers for that reason.
+
+**Exit velocity / launch angle still need play-by-play — `metricAverages` is trap #5.**
+`stats=metricAverages&metrics=launchSpeed` returns per-player averages with a
+`maxValue`, which looked ideal. But it **ignores `sportId`**: Aaron Judge appears in
+the "AAA", "AA" and "Single-A" results for every year, AAA 2019 (no tracking)
+returns 1,985 players, and AA 2024 (no tracking) is byte-for-byte AAA 2024. It is
+major-league data regardless of the level requested. Caught only by checking that
+a known MLB-only player was absent.
+
+So the **only** download still required is **ball tracking**, scoped to where it
+exists: AAA 2023–2026, the Florida State League 2021–2025, and PCL + Charlotte home
+games in 2022. The fetcher needs a league-inclusion filter so it downloads only
+tracked leagues (the FSL is roughly a third of Single-A).
 > Lesson: check every stat TYPE an API offers before building a per-game crawl.
 > The first season endpoint lacked the field; a sibling endpoint had it.
 

@@ -117,6 +117,53 @@ season pairs, reported as lower-powered).
   score, robustness, the interaction report, the translation table, the prospect
   check verdict, and the spray verdict.
 
+## Step 1 result (run 2026-09-27, commits 5746e83–5e5228b)
+
+**Model:** ridge beat gbm out-of-sample (rho 0.5245 vs 0.4814) and was used
+throughout. 3,363 MLB hitter-seasons, 902 players, t=2015–2025, 1,527 useful rows
+(threshold 0.608 SGP at 600 PA).
+
+**Groups adopted: power, launch, contact, discipline — all 4/4, most at 10/10
+shuffles.** Power alone lifted rho from 0.379 to 0.525 base, the largest single
+jump. **Spray rejected (5/10, no better than a coin flip)** — the user's
+pulled-fly-ball hypothesis was tested directly as an interaction (see below),
+not just as the standalone Savant field, and neither carried signal on MLB. No
+spray follow-up plan is needed; **AAA scoring uses all 4 adopted groups, since
+none needed spray.**
+
+**Tracking adds real signal beyond box score:** rho 0.468 (box + age) → 0.536
+(+ tracking), adopted 10/10. Held up removing 2015 (Statcast's rough first year)
+and removing 2020 (60-game season) — both still 10/10 vs age alone, confirming
+the signal isn't an artifact of either.
+
+**Interactions — 3 findings (top-10 in ≥8/10 shuffles), all discipline/power
+combinations, not spray:**
+- `exit_velocity_avg × barrel_batted_rate` (10/10) — the "how hard AND how often
+  square-up" combination
+- `barrel_batted_rate × oz_contact_percent` (10/10) — chasing contact quality
+  interacting with raw power
+- `swing_percent × z_swing_percent` (9/10) — an aggression pattern
+
+No pull/launch-angle interaction placed in the top 10 in any shuffle. **Spray
+was tested and did not hold**, on both the direct metric and the interaction
+search — a real result, not an untested gap.
+
+**AAA → MLB translation (n=593 pairs, 2023–26):** offsets are small and
+directionally sane — AAA reads about 0.8 mph high on average EV, 2.7 pts high on
+hard-hit %, 2.3 pts low on whiff %. Every slope is below 1 (0.17–0.84), the
+errors-in-variables pattern the design predicted; none are applied.
+
+**Prospect gate: PASS.** 2022–23 AAA hitters (534, ≥100 batted balls): tracking
+score vs later MLB value at 600 PA, Spearman **+0.391 [+0.252, +0.513]** —
+entirely positive, beats both the box-score model (+0.278) and raw AAA OPS
+(+0.294). Score quintile 1 arrived at 59% and became starter-quality at 39%. vs.
+12% / 3% in quintile 5. The 2024 cohort (report-only, fewer outcomes yet) shows
+the same ordering, weaker: +0.232.
+
+**Next: 3c (the full model), on Opus for design.** `psmodel/step1.py` +
+`cache/step1_choice.json` score any hitter-season on demand; no spray follow-up
+needed.
+
 ## Data, network, security
 
 - **Already on disk:** `mlb_tracking.csv`, `aaa_tracking.csv`, `labels.csv`, cached

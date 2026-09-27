@@ -212,6 +212,21 @@ EV, barrel, their interactions) on MLB data** — the only place whiff, EV and
 outcomes coexist for ten years — not EV alone; 3c's tree models re-test all
 families jointly.
 
+**3c requirement — open-ended interaction search (user, 2026-09-27).** Not just
+whiff × EV: any stat × any stat (e.g. walk rate × power, age × level, velocity ×
+command) may be "the ticket." Tree models search all pairs and triples without
+enumeration. The constraint is sample size — ~30 features give 435 pairs and
+thousands of triples against ~150–300 players who became starters — so:
+1. search freely (trees, shallow and regularized);
+2. an interaction counts only if it improves out-of-sample predictions in the
+   walk-forward backtest under the 2-of-3 rule;
+3. deliver a **ranked interaction report**: pairwise interaction strength (e.g.
+   SHAP interaction values or Friedman's H) for the top pairs, each flagged by
+   whether it replicates across backtest years. Unreplicated patterns are
+   labeled hypotheses, not findings.
+EV-involving interactions can only be learned where EV exists (MLB 2015+, AAA
+2022+), i.e. in the bridge; the rest on the full 2016–2025 MiLB data.
+
 **Statcast bridge (the well-powered use):** learn which tracking metrics predict
 4×4 value from **MLB Statcast 2015+** (thousands of player-seasons), then apply
 that relationship to a prospect's AAA readings — rather than re-learning it from

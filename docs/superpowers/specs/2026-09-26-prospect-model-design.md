@@ -390,6 +390,32 @@ player-grouped CV, 10 seeded shuffles, ridge and gradient boosting.
 - **Screen, not final cut** — 3c re-tests every family jointly with the full
   interaction search (see below); this only decided sub-project 2's next step.
 
+**Critical re-read (Opus, 2026-09-27) — corrections to the first write-up:**
+1. **Hitter gain is real but small.** Player-level bootstrap (20 resamples):
+   Spearman gain +0.0064, sd 0.0049, positive in 95%. The fold-shuffle sd
+   (0.001) understated uncertainty. Top-50 gain ≈ one player. Cause: in MiLB,
+   `r(whiff, K%) = 0.90` — mostly redundant with strikeout rate.
+2. **The per-feature trait ranking is NOT interpretable.** Near-duplicate
+   features: `r(whiff, swstr) = 0.93`, `r(iso, slg) = 0.90`,
+   `r(iso, hr_pa) = 0.93`. Ridge splits credit arbitrarily among them, which is
+   why it reported opposite signs for whiff/swstr and iso/slg. **3b and 3c must
+   report importance by feature GROUP** (contact, power, discipline, age/level —
+   drop-group-and-refit, or one representative per correlated cluster), never by
+   single ridge coefficient.
+3. **The whiff × ISO grid is suggestive, not proof:** whiffing costs sluggers
+   proportionally less (−27% vs −43%), but gbm did not confirm an interaction and
+   median splits are crude.
+4. **gbm underperformed ridge** for both types (hitters 0.419 vs 0.462,
+   pitchers 0.218 vs 0.282). At ~1,500 players, trees are data-hungry; in 3c they
+   must earn their place against a linear baseline, not be assumed better.
+5. **Reliever-mislabeling hypothesis checked and REJECTED.** Elite relief
+   seasons clear the pitcher bar (Clase 2024 +1.25, E. Díaz 2022 +0.96, D. Williams
+   2023 +0.88, Hader 2023 +0.77), and **61% of starter-quality pitcher seasons
+   are <90 IP**. Pitcher prediction is weak because MiLB box-score stats carry
+   little signal (ridge alpha 162 vs 2.3 for hitters — heavy shrinkage), not
+   because the labels are wrong. **Pitchers are where tracking data (velocity,
+   spin, movement, extension) has the most headroom.**
+
 ## The FanGraphs ↔ StatsAPI id gap (found 2026-09-26)
 
 `roster.csv` carries `FG MajorLeagueID` and `FG MinorLeagueID` (494 and 522 of

@@ -1,4 +1,4 @@
-"""Builds MLB player-season labels for 2015-2026 and writes cache/labels.csv.
+"""Builds MLB player-season labels for 2013-2026 and writes cache/labels.csv.
 
 Usage:  python build_labels.py [--standings ../data/standings.csv] [--games N]
 
@@ -16,7 +16,7 @@ import os
 
 from psmodel import context, labels, statsapi
 
-FIRST, LAST = 2015, 2026
+FIRST, LAST = 2013, 2026
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(HERE, "cache", "labels.csv")
 DEFAULT_STANDINGS = os.path.join(HERE, "..", "data", "standings.csv")
@@ -35,7 +35,13 @@ def main():
     ap.add_argument("--standings", default=DEFAULT_STANDINGS)
     ap.add_argument("--games", type=int, default=None,
                     help="true games played; the file's Games column is calendar-estimated")
+    ap.add_argument("--refresh", type=int, default=None,
+                    help="refetch this season's MLB stats (cached while still in progress)")
     args = ap.parse_args()
+    if args.refresh is not None:
+        for group in ("hitting", "pitching"):
+            n = statsapi.invalidate_season(args.refresh, group, statsapi.MLB)
+            print(f"refresh {args.refresh} {group}: moved {n} cached page(s) aside")
 
     den = context.load_league_denominators(args.standings, games=args.games)
     print(f"denominators from {os.path.normpath(args.standings)}:")

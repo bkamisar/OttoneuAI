@@ -5,6 +5,8 @@ The player id is the SAME across levels, so MiLB->MLB is an exact join. This
 matters: a name-substring search for "Witt" during design matched Jantzen
 Witte, a 31-year-old in Tacoma, not Bobby Witt Jr.
 """
+import os
+
 from . import http
 
 BASE = "https://statsapi.mlb.com/api/v1/stats"
@@ -88,13 +90,17 @@ def normalize_pitcher(split, season, sport_id):
     return row
 
 
+def season_url(season, group, sport_id, offset):
+    return (f"{BASE}?stats=season&season={season}&group={group}"
+            f"&sportId={sport_id}&limit={PAGE}&offset={offset}&playerPool=all")
+
+
 def season_stats(season: int, group: str, sport_id: int):
     """All player-seasons for one season/group/level. group is 'hitting'|'pitching'."""
     normalize = normalize_hitter if group == "hitting" else normalize_pitcher
     out, offset = [], 0
     while True:
-        url = (f"{BASE}?stats=season&season={season}&group={group}"
-               f"&sportId={sport_id}&limit={PAGE}&offset={offset}&playerPool=all")
+        url = season_url(season, group, sport_id, offset)
         payload = http.fetch_json(url)
         stats = payload.get("stats") or []
         if not stats:
@@ -112,6 +118,20 @@ def season_stats(season: int, group: str, sport_id: int):
             break
         offset += PAGE
     return out
+
+
+def invalidate_season(season, group, sport_id):
+    """Move this season's cached pages aside (renamed *.stale) so the next call
+    refetches -- for a season that was still in progress when first cached.
+    Returns the number of pages moved."""
+    moved, offset = 0, 0
+    while True:
+        path = http.cache_path(season_url(season, group, sport_id, offset), ".json")
+        if not os.path.exists(path):
+            return moved
+        os.replace(path, path + ".stale")
+        moved += 1
+        offset += PAGE
 
 
 def season_advanced(season: int, group: str, sport_id: int):

@@ -597,6 +597,18 @@ Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
 
 ### Task 4: Synthetic-league denominators and replacement levels
 
+> **DEVIATION (built 2026-09-26): denominators come from the REAL league spread in
+> `standings.csv`, not a synthetic league. The code below for `assign_teams` /
+> `build_denominators` is superseded — see `prospects-model/psmodel/context.py`
+> (`denominators_from_standings`, `load_league_denominators`).**
+> Executing this task, the test for the snaked-team version failed with
+> `HR: degenerate denominator 0.0`, which exposed the flaw: snaking builds
+> artificially balanced teams. Measured against the real spread, snaking
+> under-estimated it by roughly half and random assignment by 7-36%; a real
+> league is more spread out than any mechanical draw. The spec had asked for
+> "this league's current values" all along. Replacement-level and `league_averages`
+> below are built as written.
+
 **Files:**
 - Create: `prospects-model/psmodel/context.py`, `prospects-model/tests/test_context.py`
 

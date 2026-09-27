@@ -37,16 +37,40 @@ def _y(r, target, bar):
     return 1.0 if asof.soon_target(r["mlb"], r["season"], bar) else 0.0
 
 
-def frames(rows, target, v, bar, keys, unseal=False):
-    """(train, test) at vantage v, complete on keys, with targets attached as 'y'."""
+def frames(rows, target, v, bar, keys, unseal=False, isolate=True):
+    """(train, test) at vantage v, complete on keys, with targets attached as 'y'.
+    isolate=False (production only) keeps test players' earlier rows in training."""
     if v in SEALED and not unseal:
         raise ValueError(f"cohort {v} is sealed until the final check")
     known = asof.rating_known if target == "rating" else asof.soon_known
     test = [r for r in rows if r["season"] == v]
-    ids = {r["player_id"] for r in test}
+    ids = {r["player_id"] for r in test} if isolate else set()
     train = [r for r in rows if known(r["season"], v) and r["player_id"] not in ids]
     return [[dict(r, y=_y(r, target, bar)) for r in part if all(r["f"].get(k) is not None for k in keys)]
             for part in (train, test)]
+
+
+def production(rows, keys, target, kind, bar, v):
+    """Fit on every cohort whose answer is known by v, using ALL players (nothing is
+    being evaluated), and predict cohort v. Returns (model, train, test, pred)."""
+    train, test = frames(rows, target, v, bar, keys, unseal=True, isolate=False)
+    evaluate.guard_features(train, keys)
+    m, pred = fit_predict(train, test, keys, target, kind)
+    return m, train, test, pred
+
+
+def oof(train, keys, target, kind, k=5, seed=0):
+    """Out-of-fold predictions for training rows (player-grouped folds), so a
+    second-stage fit on them isn't fooled by in-sample fit."""
+    folds = np.array(evaluate.assign_folds(train, k, seed))
+    pred = np.zeros(len(train))
+    for f in range(k):
+        te = np.where(folds == f)[0]
+        m = _model(target, kind).fit(_X([r for r, g in zip(train, folds) if g != f], keys),
+                                     np.array([r["y"] for r, g in zip(train, folds) if g != f]))
+        Xt = _X([train[i] for i in te], keys)
+        pred[te] = m.predict_proba(Xt)[:, 1] if target == "soon" else m.predict(Xt)
+    return pred
 
 
 def _model(target, kind):

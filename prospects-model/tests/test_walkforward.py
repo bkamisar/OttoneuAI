@@ -108,6 +108,24 @@ class TestDecisions(unittest.TestCase):
         self.assertEqual(bins[-1][1], 1.0)
 
 
+class TestProduction(unittest.TestCase):
+    def test_production_keeps_every_known_player(self):
+        rows = cohort_rows(n=100)
+        for season in (2014, 2019):
+            rows.append({"player_id": 999, "season": season, "sport_id": 12,
+                         "f": {"x": 0.0, "z": 0.0}, "mlb": []})
+        m, train, test, pred = W.production(rows, ["x"], "rating", "ridge", 0.5, 2019)
+        self.assertIn(999, {r["player_id"] for r in train})
+        self.assertEqual(max(r["season"] for r in train), 2015)
+        self.assertEqual(len(pred), len(test))
+
+    def test_oof_predictions_track_the_signal(self):
+        train, _ = W.frames(cohort_rows(), "rating", 2022, 0.5, ["x"])
+        p = W.oof(train, ["x"], "rating", "ridge")
+        self.assertEqual(len(p), len(train))
+        self.assertGreater(np.corrcoef(p, [r["f"]["x"] for r in train])[0, 1], 0.95)
+
+
 class TestInteractions(unittest.TestCase):
     def test_pairs_reported_per_vantage(self):
         hits = W.interactions_by_vantage(cohort_rows(), ["x", "z"], "soon", BARS, (2021,))

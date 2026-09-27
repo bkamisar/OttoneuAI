@@ -23,18 +23,12 @@ import urllib.request
 
 from . import http
 
-PBP_DIR = os.path.join(http.CACHE_DIR, "pbp")
+PBP_DIR = os.path.join(http.CACHE_DIR, "pbp_live")   # complete game records; old trimmed files stay in cache/pbp
 MEXICAN_LEAGUE_ID = 125     # classified AAA until 2021; not a prospect population
-FIELDS = ",".join([
-    "allPlays", "matchup", "batter", "pitcher", "id",
-    "playEvents", "isPitch", "details", "description", "type", "code",
-    "pitchData", "startSpeed", "breaks", "spinRate", "extension", "zone",
-    "hitData", "launchSpeed", "launchAngle", "totalDistance", "trajectory", "hardness",
-])
 SCHEDULE = ("https://statsapi.mlb.com/api/v1/schedule?sportId={sport}&season={season}"
             "&gameType=R&hydrate=team(league)"
             "&fields=dates,games,gamePk,status,abstractGameState,teams,home,team,league,id")
-PLAY_BY_PLAY = "https://statsapi.mlb.com/api/v1/game/{pk}/playByPlay?fields=" + FIELDS
+FEED = "https://statsapi.mlb.com/api/v1.1/game/{pk}/feed/live"   # the complete record: pitches, tracking, movement, location, spray, counts, results, weather, venue
 
 
 def list_games(season, sport_id, include_leagues=None):
@@ -73,13 +67,14 @@ def game_path(season, sport_id, game_pk):
 
 
 def validate(text):
-    """Parse and assert this is a real play-by-play payload, not a challenge page."""
+    """Parse and assert this is a real game record, not a challenge page."""
     try:
         d = json.loads(text)
     except (TypeError, ValueError):
-        raise http.DataError(f"play-by-play is not JSON: {str(text)[:80]!r}")
-    if not isinstance(d, dict) or not isinstance(d.get("allPlays"), list):
-        raise http.DataError("play-by-play payload has no allPlays list")
+        raise http.DataError(f"game feed is not JSON: {str(text)[:80]!r}")
+    plays = (((d or {}).get("liveData") or {}).get("plays") or {}).get("allPlays") if isinstance(d, dict) else None
+    if not isinstance(plays, list):
+        raise http.DataError("game feed has no liveData.plays.allPlays list")
     return d
 
 
@@ -107,7 +102,7 @@ def fetch_game(season, sport_id, game_pk, force=False):
     path = game_path(season, sport_id, game_pk)
     if os.path.exists(path) and not force:
         return "skipped"
-    text = _download(PLAY_BY_PLAY.format(pk=game_pk))
+    text = _download(FEED.format(pk=game_pk))
     validate(text)
     os.makedirs(os.path.dirname(path), exist_ok=True)
     tmp = path + ".tmp"

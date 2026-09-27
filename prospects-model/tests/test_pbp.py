@@ -1,9 +1,9 @@
 import gzip, json, os, tempfile, unittest
 from psmodel import http, pbp
 
-VALID = json.dumps({"allPlays": [{"matchup": {"batter": {"id": 1}, "pitcher": {"id": 2}},
+VALID = json.dumps({"gamePk": 555, "liveData": {"plays": {"allPlays": [{"matchup": {"batter": {"id": 1}, "pitcher": {"id": 2}},
                                   "playEvents": [{"isPitch": True,
-                                                  "details": {"description": "Ball"}}]}]})
+                                                  "details": {"description": "Ball"}}]}]}}})
 CLOUDFLARE = "<!DOCTYPE html><html><head><title>Just a moment...</title></head></html>"
 
 
@@ -58,7 +58,7 @@ class TestValidate(unittest.TestCase):
             pbp.validate(json.dumps({"copyright": "x"}))
 
     def test_accepts_valid(self):
-        self.assertIn("allPlays", pbp.validate(VALID))
+        self.assertIn("liveData", pbp.validate(VALID))
 
 
 class TestFetchGame(unittest.TestCase):
@@ -98,14 +98,16 @@ class TestFetchGame(unittest.TestCase):
         self.assertEqual(pbp.fetch_game(2019, 12, 555, force=True), "fetched")
         self.assertEqual(len(self.calls), 2)
 
-    def test_uses_the_fields_filter(self):
+    def test_fetches_the_complete_record(self):
+        """Trimming saved no time and only ~1 GB, but guessing wrong costs a
+        5-hour re-run -- so the full feed is fetched, unfiltered."""
         pbp.fetch_game(2019, 12, 555)
-        self.assertIn("fields=", self.calls[0])
-        self.assertIn("/game/555/playByPlay", self.calls[0])
+        self.assertIn("/v1.1/game/555/feed/live", self.calls[0])
+        self.assertNotIn("fields=", self.calls[0])
 
     def test_round_trip(self):
         pbp.fetch_game(2019, 12, 555)
-        self.assertEqual(pbp.load_game(2019, 12, 555)["allPlays"][0]["matchup"]["batter"]["id"], 1)
+        self.assertEqual(pbp.load_game(2019, 12, 555)["liveData"]["plays"]["allPlays"][0]["matchup"]["batter"]["id"], 1)
         with gzip.open(pbp.game_path(2019, 12, 555), "rt", encoding="utf-8") as fh:
             json.load(fh)
 

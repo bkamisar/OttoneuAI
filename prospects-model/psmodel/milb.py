@@ -38,13 +38,15 @@ def combine_by_player(rows, group):
     return [_combine(v, group) for v in by.values()]
 
 
-def season_rows(season, sport_id, group):
+def season_rows(season, sport_id, group, advanced=True):
+    """advanced=False skips seasonAdvanced (swing data): swings/whiffs become None,
+    for seasons where the endpoint has no data."""
     basic = [r for r in statsapi.season_stats(season, group, sport_id)
              if r.get("league") not in MEX_LEAGUES]
     rows = combine_by_player(basic, group)
-    adv = statsapi.season_advanced(season, group, sport_id)
+    adv = statsapi.season_advanced(season, group, sport_id) if advanced else None
     for r in rows:
-        a = adv.get(r["player_id"], {})
-        r["swings"] = a.get("swings", 0)
-        r["whiffs"] = a.get("whiffs", 0)
+        a = adv.get(r["player_id"], {}) if adv is not None else None
+        r["swings"] = a.get("swings", 0) if a is not None else None
+        r["whiffs"] = a.get("whiffs", 0) if a is not None else None
     return rows

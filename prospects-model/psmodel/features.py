@@ -17,7 +17,7 @@ NOT_STANDARDIZED = {"is_aaa"}
 
 
 def _ratio(a, b):
-    return (a / b) if b else None
+    return (a / b) if (a is not None and b) else None
 
 
 def hitter_features(r):

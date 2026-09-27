@@ -4,7 +4,7 @@
 
 **Goal:** Test whether minor-league whiff rate / CSW predict MLB value in this league's 4×4 beyond K% and BB%, and report which traits carry weight.
 
-**Architecture:** MiLB season rows (basic `season` + `seasonAdvanced` stats, AA + affiliated AAA, 2016–2019) become per-row features normalized within (level, season). Each row joins to that player's MLB peak value from `cache/labels.csv` via `targets.build_target`. Two ridge models — baseline vs baseline + whiff family — are compared with player-grouped cross-validation over 10 shuffles; the family is adopted only if it wins consistently. A standardized-coefficient ranking answers "which traits matter."
+**Architecture:** MiLB season rows (basic `season` + `seasonAdvanced` stats, AA + affiliated AAA, 2016–2019) become per-row features normalized within (level, season). Each row joins to that player's MLB peak value from `cache/labels.csv` via `targets.build_target`. Baseline vs baseline + whiff family are compared with player-grouped cross-validation over 10 shuffles, under BOTH a linear model (ridge) and a tree model (gradient boosting). The family is adopted if it wins consistently under EITHER — the tree model exists so a conditional effect (whiffs hurt a weak hitter but not a slugger) can't be averaged to zero and thrown away. A whiff × power grid shows the combination directly. A standardized-coefficient ranking answers "which traits matter."
 
 **Tech Stack:** Python 3.14 stdlib + already-installed numpy 2.4.3, scipy 1.17.1, scikit-learn 1.8.0. Tests: stdlib `unittest`. Nothing new installed.
 
@@ -657,6 +657,30 @@ class TestHarnessIsHonest(unittest.TestCase):
         self.assertEqual(ranked[0][0], "q")
 
 
+def synth_interaction(n=1500, seed=11):
+    """q matters ONLY through its interaction with b: y = b + 1.5*q*b + noise.
+    Its marginal correlation with y is ~0, so a linear model sees nothing."""
+    rng = np.random.default_rng(seed)
+    b, q, e = rng.normal(size=n), rng.normal(size=n), rng.normal(size=n)
+    y = b + 1.5 * q * b + 0.5 * e
+    cut = np.quantile(y, 0.8)
+    return [{"player_id": i, "f": {"b": float(b[i]), "q": float(q[i])}, "target": float(y[i]),
+             "weight": 1.0, "useful": bool(y[i] >= cut)} for i in range(n)]
+
+
+class TestInteraction(unittest.TestCase):
+    """The user's case: 'whiffs a lot, but elite exit velo -> actually great'.
+    A feature whose value is purely conditional must not be thrown away."""
+
+    def test_linear_sees_little_trees_catch_it(self):
+        rows = synth_interaction()
+        lin = evaluate.compare(rows, ["b"], ["q"], kind="ridge")
+        gain = sum(r["rho_fam"] - r["rho_base"] for r in lin) / len(lin)
+        self.assertLess(gain, 0.02, "ridge should see almost nothing in a purely interactive effect")
+        ok, wins = evaluate.adopt(evaluate.compare(rows, ["b"], ["q"], kind="gbm"))
+        self.assertTrue(ok, f"gbm found the interaction in only {wins}/10 shuffles")
+
+
 if __name__ == "__main__":
     unittest.main()
 ```
@@ -670,11 +694,13 @@ import random
 
 import numpy as np
 from scipy.stats import spearmanr
+from sklearn.ensemble import HistGradientBoostingRegressor
 from sklearn.linear_model import RidgeCV
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 
 ALPHAS = np.logspace(-2, 3, 20)
+KINDS = ("ridge", "gbm")
 
 
 def assign_folds(rows, k, seed):
@@ -697,8 +723,19 @@ def guard_features(rows, keys):
             raise ValueError(f"feature {k!r} is constant -- phantom feature")
 
 
-def _model():
+def _model(kind="ridge"):
+    if kind == "gbm":
+        # Trees find conditional effects a linear model can't -- e.g. whiffs that
+        # hurt a weak hitter but not a slugger. Shallow and regularized for n ~ 1e3.
+        return HistGradientBoostingRegressor(max_iter=200, learning_rate=0.05, max_leaf_nodes=15,
+                                             min_samples_leaf=40, l2_regularization=1.0, random_state=0)
     return make_pipeline(StandardScaler(), RidgeCV(alphas=ALPHAS))
+
+
+def _fit(m, X, y, w, kind):
+    if kind == "gbm":
+        return m.fit(X, y, sample_weight=w)
+    return m.fit(X, y, ridgecv__sample_weight=w)
 
 
 def _xyw(rows, keys):
@@ -708,15 +745,14 @@ def _xyw(rows, keys):
     return X, y, w
 
 
-def oof_predictions(rows, keys, k=5, seed=0):
+def oof_predictions(rows, keys, k=5, seed=0, kind="ridge"):
     guard_features(rows, keys)
     X, y, w = _xyw(rows, keys)
     folds = np.array(assign_folds(rows, k, seed))
     pred = np.zeros(len(rows))
     for f in range(k):
         tr, te = folds != f, folds == f
-        m = _model()
-        m.fit(X[tr], y[tr], ridgecv__sample_weight=w[tr])
+        m = _fit(_model(kind), X[tr], y[tr], w[tr], kind)
         pred[te] = m.predict(X[te])
     return pred
 
@@ -733,12 +769,12 @@ def top_n_precision(rows, pred, n):
     return sum(1 for _, u in top if u) / len(top)
 
 
-def compare(rows, base, family, seeds=10, k=5, top_n=50):
+def compare(rows, base, family, seeds=10, k=5, top_n=50, kind="ridge"):
     y = [r["target"] for r in rows]
     out = []
     for s in range(seeds):
-        pb = oof_predictions(rows, base, k, s)
-        pf = oof_predictions(rows, base + family, k, s)
+        pb = oof_predictions(rows, base, k, s, kind)
+        pf = oof_predictions(rows, base + family, k, s, kind)
         out.append({"seed": s,
                     "rho_base": float(spearmanr(pb, y).statistic),
                     "rho_fam": float(spearmanr(pf, y).statistic),
@@ -810,6 +846,22 @@ def gather(group):
     return rows
 
 
+def interaction_table(rows, a, b, lines):
+    """Starter-quality rate split at the medians of two traits -- the direct,
+    eyeball check on 'whiffs a lot but has real power'. Counts rows, so a
+    prospect with an AA and an AAA season appears twice."""
+    ma = statistics.median(r["f"][a] for r in rows)
+    mb = statistics.median(r["f"][b] for r in rows)
+    lines.append(f"  Became starter-quality, by {a} x {b} (split at medians):")
+    for hi_a in (False, True):
+        cells = []
+        for hi_b in (False, True):
+            cell = [r for r in rows if (r["f"][a] > ma) == hi_a and (r["f"][b] > mb) == hi_b]
+            rate = sum(r["useful"] for r in cell) / len(cell) if cell else 0.0
+            cells.append(f"{b} {'high' if hi_b else 'low '} {rate:5.1%} (n={len(cell)})")
+        lines.append(f"    {a} {'high' if hi_a else 'low '} | " + " | ".join(cells))
+
+
 def run(typ, group, base, family, labels, lines):
     thr = dataset.useful_threshold(labels, typ)
     rows = dataset.build(gather(group), typ, labels, thr)
@@ -820,15 +872,24 @@ def run(typ, group, base, family, labels, lines):
     lines.append(f"\n=== {'HITTERS' if typ == 'H' else 'PITCHERS'}: {len(rows)} rows, "
                  f"{len(players)} players, {len(useful)} became starter-quality "
                  f"(peak >= {thr:.2f} SGP) ===")
-    res = evaluate.compare(rows, base, family)
-    for key, label in (("rho", "rank accuracy (Spearman)"), ("top", "top-50 hit rate")):
-        b = [r[key + "_base"] for r in res]
-        f = [r[key + "_fam"] for r in res]
-        lines.append(f"  {label:26} baseline {statistics.mean(b):.3f} +/- {statistics.pstdev(b):.3f}"
-                     f"   with whiff family {statistics.mean(f):.3f} +/- {statistics.pstdev(f):.3f}")
-    ok, wins = evaluate.adopt(res)
-    lines.append(f"  VERDICT: whiff family {'ADOPTED' if ok else 'NOT adopted'} "
-                 f"({wins}/10 shuffles improved rank accuracy without hurting top-50; needs 8)")
+    adopted_by = []
+    for kind in evaluate.KINDS:
+        res = evaluate.compare(rows, base, family, kind=kind)
+        lines.append(f"  [{kind}]")
+        for key, label in (("rho", "rank accuracy (Spearman)"), ("top", "top-50 hit rate")):
+            b = [r[key + "_base"] for r in res]
+            f = [r[key + "_fam"] for r in res]
+            lines.append(f"    {label:26} baseline {statistics.mean(b):.3f} +/- {statistics.pstdev(b):.3f}"
+                         f"   with whiff family {statistics.mean(f):.3f} +/- {statistics.pstdev(f):.3f}")
+        ok, wins = evaluate.adopt(res)
+        lines.append(f"    {wins}/10 shuffles improved rank accuracy without hurting top-50 (needs 8)")
+        if ok:
+            adopted_by.append(kind)
+    verdict = ("ADOPTED (via " + ", ".join(adopted_by) + ")") if adopted_by else "NOT adopted"
+    lines.append(f"  VERDICT: whiff family {verdict}"
+                 "  -- a screen, not a final cut: 3c's tree models re-test everything jointly")
+    if typ == "H":
+        interaction_table(rows, "whiff", "iso", lines)
     lines.append("  Traits by weight (standardized ridge coefficient; + means more MLB value):")
     for k, c in evaluate.trait_ranking(rows, base + family):
         lines.append(f"    {k:8} {c:+.3f}")

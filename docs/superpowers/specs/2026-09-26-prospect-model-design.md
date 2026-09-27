@@ -201,6 +201,17 @@ model that favors quick contributors is measuring something wanted, not a bias t
 correct. Keeping it a separate number is what stops a distant high ceiling and an
 imminent solid regular from collapsing into one score.
 
+**Interactions (user, 2026-09-27): 3a/3b are screens, not final cuts.** A feature
+whose value is conditional — "whiffs a lot, but elite exit velocity → actually
+great" — can average to zero in an additive model and be wrongly dropped. That
+profile matters MORE in this league: with no AVG, strikeouts hurt only through
+OBP, while the power feeds HR/SLG/R, so generic lists likely undervalue it. So:
+3a compares under ridge AND gradient boosting (adopt if either wins) and prints a
+whiff × power grid; **3b is a joint model of contact + contact quality (whiff,
+EV, barrel, their interactions) on MLB data** — the only place whiff, EV and
+outcomes coexist for ten years — not EV alone; 3c's tree models re-test all
+families jointly.
+
 **Statcast bridge (the well-powered use):** learn which tracking metrics predict
 4×4 value from **MLB Statcast 2015+** (thousands of player-seasons), then apply
 that relationship to a prospect's AAA readings — rather than re-learning it from

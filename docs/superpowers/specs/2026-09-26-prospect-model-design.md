@@ -212,6 +212,31 @@ EV, barrel, their interactions) on MLB data** — the only place whiff, EV and
 outcomes coexist for ten years — not EV alone; 3c's tree models re-test all
 families jointly.
 
+**3b design, hitters first (decided 2026-09-27).** Sequence: hitters, then
+pitchers reusing the pipeline.
+- **MLB history from Savant leaderboards, not a game crawl.** The custom
+  leaderboard populates all 27 hitter metrics the bridge needs back to 2015
+  (EV avg, best-speed EV, hard-hit %, barrel %, sweet-spot %, LA, whiff %, swing %,
+  chase `oz_swing_percent`, zone/out-of-zone contact, pull/center/oppo %,
+  GB/LD/FB/PU %, xwOBA family, K %, BB %, sprint speed), and the exit-velocity
+  leaderboard adds max EV and distance. ~29,000 MLB games avoided.
+- **One MLB season (2024, ~2,430 games) is downloaded only to prove our metric
+  code reproduces Savant's published numbers** (like whiff at r = 0.9997). Uncertain
+  definitions — foul tip as whiff, bunts as swings/batted balls, pull threshold,
+  the barrel window — are tried as variants; the variant that matches Savant wins.
+  Only after this parity passes are AAA metrics computed and trusted.
+- Lost by skipping the crawl: metrics Savant doesn't publish (e.g. pulled
+  fly-ball rate). Recoverable later by extending the fetcher; not a one-way door.
+- Game-record encoding (verified on MLB and AAA 2024): pitch result in
+  `details.code` (B, *B, C, S, W, F, T, L, X/D/E in play, H…); EV only on in-play
+  pitches (X/D/E), never fouls; `hitData.trajectory` labels batted-ball type
+  including `bunt_grounder`; `pitchData.zone` 1–9 in / 11–14 out on every pitch;
+  `matchup.batSide` per PA.
+- Two plans: (A) extraction + Savant parity + AAA metrics + Savant history pull;
+  (B) the bridge model (next-season value on MLB, AAA→MLB translation from
+  same-season two-level players 2023–26, validation on 2022–23 AAA cohorts,
+  grouped importance, interaction report) — designed after A's parity results.
+
 **3c requirement — open-ended interaction search (user, 2026-09-27).** Not just
 whiff × EV: any stat × any stat (e.g. walk rate × power, age × level, velocity ×
 command) may be "the ticket." Tree models search all pairs and triples without

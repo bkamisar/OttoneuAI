@@ -108,6 +108,8 @@ season pairs, reported as lower-powered).
 - `psmodel/step1.py`: fit on the cached tables, translate AAA readings, and score
   any hitter-season. **Refit on demand** (seconds on a few thousand rows) rather
   than saving fitted models to disk: nothing serialized to load, nothing to go stale.
+- `cache/step1_choice.json`: the chosen model type and adopted features, so 3c
+  refits exactly the same score.
 - `cache/aaa_translation.csv`: per-metric offsets (and any scale), n, interval.
 - `cache/step1_report.txt`: group adoption, ridge vs trees, tracking vs box
   score, robustness, the interaction report, the translation table, the prospect

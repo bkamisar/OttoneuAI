@@ -38,9 +38,9 @@ FIRST_LIST, LAST_LIST = 2017, 2026
 # 77% of 50 IP, fixed in P-F before it ran), the final-model decisions and outputs.
 TYPES = {
     "H": {"title": "3c-HITTERS CONSENSUS GATE (plan C)", "noun": "hitters", "graduate": 100,
-          "decisions": "model3c_final.json", "prefix": "consensus"},
+          "decisions": "model3c_final.json", "prefix": "consensus", "opened": "plan B"},
     "P": {"title": "PITCHERS CONSENSUS GATE (plan P-F)", "noun": "pitchers", "graduate": 40,
-          "decisions": "model_p_final.json", "prefix": "consensus_p"},
+          "decisions": "model_p_final.json", "prefix": "consensus_p", "opened": "P-D"},
 }
 warnings.filterwarnings("ignore", category=FutureWarning, module="sklearn")
 
@@ -186,7 +186,8 @@ def main():
             if not info:
                 res["model"][v], res["blend"][v], res["model_r"][v], res["blend_r"][v] = mo, bl, mo_r, bl_r
                 cis[v] = ci
-            L.append(f"  class {v} vs list {v + 1}{'  (INFORMATION ONLY: opened in plan B)' if info else ''}: "
+            opened = f"  (INFORMATION ONLY: opened in {cfg['opened']})" if info else ""
+            L.append(f"  class {v} vs list {v + 1}{opened}: "
                      f"graded {len(graded)}, ungraded {len(sleepers)}, graduates restored {len(restored)}, "
                      f"ambiguous {len(nxt['ambiguous'])}, age-rejected {len(nxt['age_rejected'])}, "
                      f"age offset {nxt['offset']:+.2f}")

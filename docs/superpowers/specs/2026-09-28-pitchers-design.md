@@ -634,6 +634,51 @@ The hitters' plan C, unchanged in method and verdict rules (spec
 - **Outputs:** `cache/consensus_p_report.txt`, `cache/consensus_p_verdict.json`,
   `cache/consensus_p_ambiguous.csv`.
 
+### P-F result (run 2026-09-28 on Opus): FOLLOW FV for both outputs
+
+`consensus_gate.py --pitchers` → `cache/consensus_p_report.txt` /
+`consensus_p_verdict.json`. The hitter verdict file reproduced exactly after the
+refactor. There were 317–364 graded pitchers per class, and 2–8 players per list
+were ambiguous or age-rejected.
+
+- **Rating: FOLLOW FV.**
+
+  | class | model vs FV | blend vs FV |
+  |---|---|---|
+  | 2019 | z +0.2 | z +0.6 |
+  | 2021 | z −0.8 | z +0.2 |
+  | 2022 | z +0.2 | z +1.5 |
+
+  - The model beat FV in 0/3 classes; the blend beat FV in 1/3.
+  - Both orders are weak for pitchers. FV's rank accuracy is only 0.15–0.22,
+    against 0.16–0.24 for the model.
+- **Soon: FOLLOW FV, flagged UNSTABLE.**
+
+  | class | model vs FV (graded) | blend vs FV (graded) | model, graduates restored | blend, graduates restored |
+  |---|---|---|---|---|
+  | 2021 | z −0.2 | z +0.2 | z −0.5 | z +0.1 |
+  | 2022 | z +0.8 | z +0.9 | z +1.5 | z +1.8 |
+  | 2023 | z +0.5 | z +0.8 | z +2.1 | z +2.7 |
+
+  - Graded-only: no class clears 1 SE.
+  - Graduates restored: that run says "model leads".
+  - The cautious call stands. As for hitters, the restored run leans toward the
+    model: graduates carry their stale list-Y FV.
+  - 2024 (information only): model z +0.1, blend z +0.7.
+- **Ungraded pitchers:** the model is shown (sleepers pass). Rating rank accuracy
+  on ungraded pitchers is 0.14–0.24 (CIs above 0); soon AUC is 0.87–0.91.
+- **Observation, NOT a finding (no pooled test was pre-registered, so none is run
+  now):** the blend's gain over FV was positive in all 6 graded decision
+  comparisons and in 2024. Only one comparison cleared 1 SE. A small real benefit
+  from averaging in the model is plausible but unproven. Revisit when new classes
+  arrive.
+- **Shopping-list rules for pitchers:**
+  - Both lenses sort by FanGraphs' order, with the model shown as context.
+  - "Soon" is shown as a rank or tier (P-D: not a percentage).
+  - Ungraded pitchers get the model view.
+  - No blend-sorted lens for pitchers; the hitters got one only because their
+    verdict was "tiebreaker".
+
 ## Stuff layer: staging and the pitch-level follow-up (pre-registered 2026-09-28)
 
 **What the review of public stuff models found** (FanGraphs Stuff+ and PitchingBot

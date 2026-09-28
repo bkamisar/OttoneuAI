@@ -3,9 +3,10 @@
 1. Tests the tree leads (age x SLG, swstr x SLG) as explicit terms on the decision
    vantages, under the same adoption rule.
 2. Reads the pulled-air parity verdict (pulled_air_parity.py must have run).
-3. OPENS THE SEALED 2024 COHORT, once, for "soon": decides the marginal
-   contact+approach pair, reports the final "soon" metrics, and checks whether
-   the tracking layer helps "soon". Both decisions follow rules fixed in advance.
+3. OPENS THE 2024 COHORT for "soon" and reports its metrics. The two decisions
+   made at 2024's first opening (contact+approach kept; tracking-for-soon not
+   used) are FROZEN -- re-deciding on a cohort already seen would be moving the
+   goalposts.
 4. Re-runs step 1's prospect gate with step 1 fit as-of each cohort.
 5. Production fits as of 2026 -> cache/hitter_ratings.csv.
 
@@ -51,10 +52,6 @@ def safe(text):
     return "'" + s if s[:1] in ("=", "+", "-", "@") else s
 
 
-def built_on(key, dropped):
-    return key in cohorts.LEADS and any(p in dropped for p in cohorts.LEADS[key])
-
-
 def scored(rows, scores):
     """(indices of AAA rows with a tracking score, their scores)."""
     idx = [i for i, r in enumerate(rows)
@@ -64,6 +61,7 @@ def scored(rows, scores):
 
 def main():
     labels = dataset.load_labels(os.path.join(CACHE, "labels.csv"))
+    asof.attach_ranks(labels)
     rows = cohorts.build_rows(cohorts.load_milb(), cohorts.mlb_pa_history(),
                               {pid: r for (pid, typ), r in labels.items() if typ == "H"})
     cohorts.add_products(rows)
@@ -88,7 +86,7 @@ def main():
 
     L.append("1. Tree leads as explicit terms (decision vantages, same adoption rule):")
     for t in ("rating", "soon"):
-        bars = {v: asof.useful_bar(labels, v) for v in vants[t]}
+        bars = {v: asof.ref_curve(labels, v) for v in vants[t]}
         for lead, parents in cohorts.LEADS.items():
             if not all(p in keys[t] for p in parents):
                 L.append(f"  {t:6} {lead:12} not testable (a parent feature was dropped)")
@@ -109,19 +107,10 @@ def main():
     L += ["   pulled air stays a documented hypothesis; not used for AAA", ""]
 
     kind_s = choice["soon"]["kind"]
-    bar24 = asof.useful_bar(labels, 2024)
+    bar24 = asof.ref_curve(labels, 2024)
     L.append("3. SEALED 2024 COHORT OPENED (soon only; the rating's 4-year answers for 2024 aren't in yet)")
-    ca = set(cohorts.GROUPS["contact"] + cohorts.GROUPS["approach"])
-    if {"contact", "approach"} <= set(choice["soon"]["adopted"]):
-        base_k = [k for k in keys["soon"] if k not in ca and not built_on(k, ca)]
-        res = W.compare(rows, base_k, [k for k in keys["soon"] if k not in base_k], "soon", kind_s,
-                        {2024: bar24}, (2024,), unseal=True)
-        r = res[2024]
-        keep = (W.z_score(r["d"], r["se"]) >= W.WIN_Z
-                and r["fam"]["top50"] - r["base"]["top50"] >= -W.TOP50_TOLERANCE)
-        L.append(f"  contact + approach (marginal pair): {'KEEP' if keep else 'DROP'}  {fmt(res)}")
-        if not keep:
-            keys["soon"] = base_k
+    L.append("  2024 decisions are FROZEN from its first opening (2026-09-27, first labels): contact+approach "
+             "kept, tracking-for-soon not used. The numbers below are for information only.")
     test24, p24 = W.predictions(rows, keys["soon"], "soon", kind_s, {2024: bar24}, (2024,), unseal=True)[2024]
     m = W.metrics(test24, p24, "soon", bar24)
     L.append(f"  final 'soon' model on 2024: AUC {m['rank']:.3f}, top25 {m['top25']:.2f}, "
@@ -142,11 +131,12 @@ def main():
     sub = [test[i] for i in ite]
     d, se = W.paired_gain(sub, b_te, adj, "soon")
     mb, ma = W.metrics(sub, b_te, "soon", bar24), W.metrics(sub, adj, "soon", bar24)
-    use_soon = (lo > 0 or hi < 0) and W.z_score(d, se) >= W.WIN_Z
+    would_use = (lo > 0 or hi < 0) and W.z_score(d, se) >= W.WIN_Z
+    use_soon = False            # frozen at 2024's first opening
     L += [f"  tracking layer for 'soon': trained on {len(itr)} AAA-2022 hitters, w {w:+.3f} [{lo:+.3f}, {hi:+.3f}]",
           f"    on {len(ite)} AAA-2024 hitters: AUC {mb['rank']:.3f} -> {ma['rank']:.3f} "
           f"(z {W.z_score(d, se):+.1f}), top50 {mb['top50']:.2f} -> {ma['top50']:.2f} "
-          f"-> {'USE' if use_soon else 'do not use'}", ""]
+          f"-> frozen: not used (this run alone would say {'use' if would_use else 'do not use'})", ""]
 
     gate_rows = step1.complete(step1.aaa_rows(aaa_table, aaa_stats, seasons, (2022, 2023), s1["threshold"]),
                                s1_keys)
@@ -160,7 +150,7 @@ def main():
           f"-> {'PASS' if glo > 0 else 'FAIL'}", ""]
 
     L.append(f"5. Production, as of {PRODUCTION}:")
-    bar_now = asof.useful_bar(labels, PRODUCTION)
+    bar_now = asof.ref_curve(labels, PRODUCTION)
     scores_now = tracking_scores(PRODUCTION, AAA_TRACKED)
     out = {}
     for t in ("rating", "soon"):
@@ -178,7 +168,7 @@ def main():
             if extra:
                 s_tr = np.concatenate([s_tr, [scores_now[(r["player_id"], r["season"])] for r in extra]])
                 b_tr = np.concatenate([b_tr, evaluate.predict(m_t, extra, keys[t])])
-                y_tr = np.concatenate([y_tr, [asof.rating_target(r["mlb"], r["season"]) for r in extra]])
+                y_tr = np.concatenate([y_tr, [asof.rating_target(r["mlb"], r["season"], bar_now) for r in extra]])
                 wt = np.concatenate([wt, [(PRODUCTION - r["season"]) / asof.RATING_YEARS for r in extra]])
                 pids += [r["player_id"] for r in extra]
         resid_tr, (a, b) = TL.residualize(s_tr, b_tr)

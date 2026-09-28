@@ -35,6 +35,7 @@ def fmt(res):
 
 def main():
     labels = dataset.load_labels(os.path.join(CACHE, "labels.csv"))
+    asof.attach_ranks(labels)
     mlb = {pid: rows for (pid, typ), rows in labels.items() if typ == "H"}
     rows = cohorts.build_rows(cohorts.load_milb(), cohorts.mlb_pa_history(), mlb)
     L = ["3c-HITTERS BASE MODEL -- as-of walk-forward backtests (2024 sealed)",
@@ -44,10 +45,10 @@ def main():
     all_keys = [k for g in cohorts.GROUPS.values() for k in g]
     choice = {}
     for target, vantages in (("rating", W.RATING_VANTAGES), ("soon", W.SOON_VANTAGES)):
-        bars = {v: asof.useful_bar(labels, v) for v in vantages}
+        bars = {v: asof.ref_curve(labels, v) for v in vantages}
         simple, complex_ = W.KINDS[target]
-        L.append(f"== {target.upper()} -- vantages {list(vantages)}; useful bar as-of: "
-                 + ", ".join(f"{v} {b:.3f}" for v, b in bars.items()))
+        L.append(f"== {target.upper()} -- vantages {list(vantages)}; starter line (typical value of rank "
+                 f"{asof.STARTERS}) as-of: " + ", ".join(f"{v} {asof.useful_value(b):.3f}" for v, b in bars.items()))
         kind, kres = W.choose_kind(rows, all_keys, target, bars, vantages)
         L.append(f"model: {kind}  (" + "; ".join(
             f"{v}: n/a" if r is None else f"{v}: {simple} {r[0]['rank']:.3f} vs {complex_} {r[1]['rank']:.3f}"

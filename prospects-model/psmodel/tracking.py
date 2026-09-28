@@ -48,3 +48,28 @@ def season_games(season, sport_id):
 def season_events(season, sport_id):
     for pk in season_games(season, sport_id):
         yield from iter_events(pbp.load_game(season, sport_id, pk))
+
+
+def iter_pitches(game):
+    """One dict per PITCH with the fields a pitcher's stuff is measured by: pitch
+    type, result code, release speed, spin, induced vertical and horizontal break
+    (breaks, inches) and the pfx movement coordinates (a parity variant)."""
+    plays = (((game or {}).get("liveData") or {}).get("plays") or {}).get("allPlays") or []
+    for play in plays:
+        pitcher = ((play.get("matchup") or {}).get("pitcher") or {}).get("id")
+        for e in play.get("playEvents") or []:
+            if not e.get("isPitch"):
+                continue
+            det = e.get("details") or {}
+            pd = e.get("pitchData") or {}
+            br = pd.get("breaks") or {}
+            co = pd.get("coordinates") or {}
+            yield {"pitcher": pitcher, "type": (det.get("type") or {}).get("code"), "code": det.get("code"),
+                   "speed": pd.get("startSpeed"), "spin": br.get("spinRate"),
+                   "ivb": br.get("breakVerticalInduced"), "hb": br.get("breakHorizontal"),
+                   "pfx_x": co.get("pfxX"), "pfx_z": co.get("pfxZ")}
+
+
+def season_pitches(season, sport_id):
+    for pk in season_games(season, sport_id):
+        yield from iter_pitches(pbp.load_game(season, sport_id, pk))

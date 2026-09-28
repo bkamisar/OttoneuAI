@@ -54,5 +54,18 @@ class TestSeasonGames(unittest.TestCase):
                 pbp.PBP_DIR = old
 
 
+class TestIterPitches(unittest.TestCase):
+    def test_pitch_tracking_fields(self):
+        game = {"liveData": {"plays": {"allPlays": [{"matchup": {"pitcher": {"id": 7}}, "playEvents": [
+            {"isPitch": True, "details": {"code": "S", "type": {"code": "FF"}},
+             "pitchData": {"startSpeed": 96.1,
+                           "breaks": {"spinRate": 2400, "breakVerticalInduced": 17.0, "breakHorizontal": -6.5},
+                           "coordinates": {"pfxX": -5.9, "pfxZ": 11.2}}},
+            {"isPitch": False, "details": {"code": "X"}}]}]}}}
+        self.assertEqual(list(tracking.iter_pitches(game)), [
+            {"pitcher": 7, "type": "FF", "code": "S", "speed": 96.1, "spin": 2400, "ivb": 17.0, "hb": -6.5,
+             "pfx_x": -5.9, "pfx_z": 11.2}])
+
+
 if __name__ == "__main__":
     unittest.main()

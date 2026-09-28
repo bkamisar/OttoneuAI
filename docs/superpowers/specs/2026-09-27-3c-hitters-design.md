@@ -272,8 +272,9 @@ committed).
   - **2018 is on file but THIN**: 285 hitters and 241 pitchers (vs 430–600 per
     type from 2019 on), with only 66 Top-100 players left after graduate
     deletions. Royce Lewis is missing entirely. It also codes unranked as `0`
-    rather than blank. Use it for blend-learning only, flagged. **Collection
-    stops at 2018:** earlier lists would likely be thinner still.
+    rather than blank. Use it for blend-learning only, flagged. **2017** (the Board's first list) is
+    similar: 321 hitters (53 ranked) and 306 pitchers (39 ranked), verified
+    preseason. Same flag. **Collection complete: 2017–2026.**
   - **Use only these columns:** name/org/pos (for matching) and FV / Top 100 / Org
     Rk (the consensus being tested). The Board's stat columns are ignored: they
     aren't as-of, and the user notes the Board can't show stats before 2020. All

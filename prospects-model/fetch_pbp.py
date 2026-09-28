@@ -35,6 +35,11 @@ def season_is_final(season):
     return season < CURRENT_YEAR
 
 
+def skip_season(season, sport_id):
+    """2020 had no minor-league season (COVID); MLB (sport 1) played 60 games."""
+    return season == 2020 and sport_id != 1
+
+
 def _league_key(leagues):
     return sorted(leagues) if leagues else None
 
@@ -104,10 +109,11 @@ def main():
     failures, totals = [], {"fetched": 0, "skipped": 0, "failed": 0}
     t0 = time.time()
     for season in args.seasons:
-        if season == 2020:
-            print("[2020] no minor-league season (COVID) -- skipping", flush=True)
-            continue
         for sport_id in args.levels:
+            if skip_season(season, sport_id):
+                print(f"[2020 {LEVEL_NAMES.get(sport_id, sport_id)}] no minor-league season (COVID) -- skipping",
+                      flush=True)
+                continue
             leagues = set(args.leagues) if args.leagues else None
             if not args.force and not args.limit and phase_done(season, sport_id, leagues):
                 print(f"[{season} {LEVEL_NAMES.get(sport_id, sport_id)}] complete per manifest -- skipping", flush=True)

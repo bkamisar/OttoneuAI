@@ -43,5 +43,14 @@ class TestPhaseCheckpoint(unittest.TestCase):
         self.assertTrue(fetch_pbp.season_is_final(fetch_pbp.CURRENT_YEAR - 1))
 
 
+class TestSkipSeason(unittest.TestCase):
+    def test_2020_skipped_only_in_the_minors(self):
+        """MLB played a 60-game 2020 season; the minors didn't play."""
+        self.assertTrue(fetch_pbp.skip_season(2020, 11))
+        self.assertTrue(fetch_pbp.skip_season(2020, 14))
+        self.assertFalse(fetch_pbp.skip_season(2020, 1))
+        self.assertFalse(fetch_pbp.skip_season(2021, 11))
+
+
 if __name__ == "__main__":
     unittest.main()

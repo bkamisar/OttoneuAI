@@ -63,6 +63,21 @@ class TestBoard(unittest.TestCase):
         self.assertEqual(board[1]["age"], 20.5)
         self.assertEqual(board[1]["key"], "top guy")
 
+    def test_load_board_parses_future_bat_grades(self):
+        r = dict.fromkeys(HEADER, "")
+        r.update({"Name": "Bat Guy", "Age": "21", "FV": "50", "playerId": "sa9",
+                  "Hit": "30 / 55", "Game Pwr": "20 / 45+"})
+        blank = dict(r, Name="No Tools", playerId="sa10", Hit="", **{"Game Pwr": ""})
+        with tempfile.TemporaryDirectory() as d:
+            path = os.path.join(d, "board.csv")
+            with open(path, "w", encoding="utf-8-sig", newline="") as fh:
+                w = csv.DictWriter(fh, fieldnames=HEADER)
+                w.writeheader()
+                w.writerows([r, blank])
+            board = C.load_board(path)
+        self.assertEqual((board[0]["hit_fut"], board[0]["pwr_fut"]), (55.0, 47.5))
+        self.assertEqual((board[1]["hit_fut"], board[1]["pwr_fut"]), (None, None))
+
     def test_fv_order(self):
         # FV first; within a grade any Top 100 player beats any unranked one; then org rank
         e = C.fv_score(entry("e", 20, 50.0, top100=1, org_rk=1))

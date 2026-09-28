@@ -57,6 +57,11 @@ def _num(text):
     return float(s) if s else None
 
 
+def _future(text):
+    """A 'present / future' tool grade ('30 / 55') -> the future grade; blank -> None."""
+    return parse_fv((text or "").split("/")[-1])
+
+
 def load_board(path):
     """Graded hitters from one Board export: [{fg_id, name, key, age, fv, top100, org_rk}]."""
     out, seen = [], set()
@@ -68,7 +73,8 @@ def load_board(path):
             seen.add(r["playerId"])
             out.append({"fg_id": r["playerId"], "name": r["Name"], "key": norm_name(r["Name"]),
                         "age": _num(r.get("Age")), "fv": fv,
-                        "top100": _rank(r.get("Top 100")), "org_rk": _rank(r.get("Org Rk"))})
+                        "top100": _rank(r.get("Top 100")), "org_rk": _rank(r.get("Org Rk")),
+                        "hit_fut": _future(r.get("Hit")), "pwr_fut": _future(r.get("Game Pwr"))})
     return out
 
 

@@ -423,6 +423,41 @@ weights):
 
 The verdict goes to `cache/stuff_choice_final.json`, which P-D reads.
 
+### P-E result (2026-09-28): SEASON-LEVEL stays; the rule was applied as written
+
+`pitchlevel_run.py`; full report in `cache/pitchlevel_report.txt`.
+- **Adoption on MLB (t = 2020–25, 2,108 rows):** both pitch-level features were
+  adopted 10/10 (whiff: ρ 0.223 → 0.329; damage: 0.262 → 0.329).
+- **Context on identical MLB rows (report only, n = 2,081):**
+
+  | score | out-of-fold ρ |
+  |---|---|
+  | box score (age, K%, BB%) | 0.334 |
+  | pitch-level | 0.330 |
+  | season-level | 0.273 |
+
+  The pitch-level number is inflated by the disclosed in-sample pitch models.
+- **As-of prospect gate (697 identical AAA pitchers, 239 arrivals):**
+
+  | score | Spearman ρ | 95% CI | cohort 2022 (n=69) | cohort 2023 (n=170) |
+  |---|---|---|---|---|
+  | season-level (refit as-of) | +0.146 | [+0.016, +0.274] | +0.109 | +0.153 |
+  | pitch-level | +0.167 | [+0.030, +0.294] | +0.250 | +0.122 |
+  | AAA K% (reference) | +0.255 | [+0.132, +0.371] | +0.212 | +0.276 |
+
+  The per-cohort figures are report only.
+- **Difference:** pitch-level minus season-level = +0.021, paired player-bootstrap
+  SE 0.062. That is well short of 1 SE, so under the pre-registered tie rule the
+  season-level score stays.
+- **What this settles:**
+  - The P-C gate caveat is resolved. The season-level score still clears 0 when
+    refit strictly as-of (+0.146, vs +0.155 before, when its gate pitchers' own
+    seasons were in training).
+  - Stuff alone still ranks prospects below AAA K% alone. Its value, if any, is
+    as a layer on top of strikeouts. P-D tests exactly that; nothing here claims it.
+- **Not done, on purpose:** no re-run with other hyperparameters, feature sets or
+  cohorts. The pitch-level score had its pre-registered attempt.
+
 ## Stuff layer: staging and the pitch-level follow-up (pre-registered 2026-09-28)
 
 **What the review of public stuff models found** (FanGraphs Stuff+ and PitchingBot

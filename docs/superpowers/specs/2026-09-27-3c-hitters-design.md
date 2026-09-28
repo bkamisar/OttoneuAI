@@ -432,7 +432,9 @@ class anyway.
 
 **Groups per class:**
 1. **Head-to-head (decides):** the prospects that list Y+1 grades.
-2. **Sleepers:** prospects in our class that FanGraphs didn't grade.
+2. **Sleepers:** prospects in our class that FanGraphs didn't grade on list Y+1,
+   minus group 3's deleted graduates (otherwise easy successes would flatter the
+   model).
 3. **Early graduates restored (guard):** head-to-head again, adding players who
    are missing from list Y+1 but had ≥100 MLB PA in year Y+1 (so they were deleted
    as graduates), using their list-Y grade.

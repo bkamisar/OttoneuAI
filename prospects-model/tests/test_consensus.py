@@ -74,5 +74,36 @@ class TestBoard(unittest.TestCase):
         self.assertEqual(C.fv_score(entry("f", 20, 40.0)), 40.0)
 
 
+class TestMatch(unittest.TestCase):
+    def test_offset_calibrated_and_age_guard(self):
+        # this list's ages run ~0.85 yr above StatsAPI season age
+        board = [entry("Ann Able", 20.8, 50), entry("Bo Baker", 22.9, 45), entry("Cy Cole", 19.7, 40),
+                 entry("Dee Dunn", 27.0, 40)]
+        ours = [player(1, "Ann Able", 20), player(2, "Bo Baker", 22), player(3, "Cy Cole", 19),
+                player(4, "Dee Dunn", 21), player(5, "Eve Ekk", 20), player(6, "Ann Able", None)]
+        m = C.match(ours[:5], board)
+        self.assertAlmostEqual(m["offset"], 0.85)          # median of 0.8, 0.9, 0.7, 6.0
+        self.assertEqual(set(m["matched"]), {1, 2, 3})
+        self.assertEqual(m["matched"][2]["name"], "Bo Baker")
+        self.assertEqual(m["age_rejected"], {4})           # same name, 5 years off: a different person
+        self.assertEqual(m["ambiguous"], [])
+        self.assertIn(6, C.match([ours[5]], board)["age_rejected"])   # no age: never accepted
+
+    def test_same_name_is_ambiguous_never_guessed(self):
+        board = [entry("Luis Garcia", 21.0, 45, fg_id="x"), entry("Luis Garcia", 21.5, 40, fg_id="y"),
+                 entry("Ann Able", 20.0, 50)]
+        m = C.match([player(1, "Luis García", 21), player(2, "Ann Able", 20)], board)
+        self.assertEqual(set(m["matched"]), {2})
+        self.assertEqual([a["player_id"] for a in m["ambiguous"]], [1])
+        self.assertEqual(len(m["ambiguous"][0]["candidates"]), 2)
+
+    def test_two_of_ours_claiming_one_entry_are_ambiguous(self):
+        board = [entry("Jose Ramos", 20.0, 45), entry("Ann Able", 20.0, 50)]
+        ours = [player(1, "Jose Ramos", 20), player(2, "José Ramos", 21), player(3, "Ann Able", 20)]
+        m = C.match(ours, board)
+        self.assertEqual(set(m["matched"]), {3})
+        self.assertEqual(sorted(a["player_id"] for a in m["ambiguous"]), [1, 2])
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -37,5 +37,12 @@ class TestPitcherMetrics(unittest.TestCase):
         self.assertAlmostEqual(n["fb_ivb"], 1.3)                    # pfx movement fields
 
 
+class TestSavantDefinitions(unittest.TestCase):
+    def test_knuckleballs_count_as_breaking_balls(self):
+        ps = [pitch(4, "FF") for _ in range(60)] + [pitch(4, "KN", speed=76.0, spin=300.0) for _ in range(40)]
+        m = PM.pitcher_metrics(ps)[4]
+        self.assertEqual((m["breaking_n"], m["breaking_speed"], m["breaking_spin"]), (40, 76.0, 300.0))
+
+
 if __name__ == "__main__":
     unittest.main()

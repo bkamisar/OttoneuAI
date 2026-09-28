@@ -14,7 +14,10 @@ FASTBALLS = ("FF", "SI", "FC")
 FB_METRICS = ["fb_speed", "fb_spin", "fb_ivb", "fb_hb"]
 BREAKING_METRICS = ["breaking_speed", "breaking_spin"]
 PITCH_METRICS = FB_METRICS + BREAKING_METRICS + ["whiff_percent"]
-BREAKING_WIDE = ("SL", "ST", "SV", "CU", "KC", "CS")
+# Savant counts knuckleballs (KN) as breaking balls: without KN, a knuckleballer's
+# breaking spin read 2,188 rpm vs Savant's 941 and broke parity (r 0.9777 -> 1.0000
+# with KN; P-B review 2026-09-28).
+BREAKING_WIDE = ("SL", "ST", "SV", "CU", "KC", "CS", "KN")
 BREAKING_NARROW = ("SL", "ST", "CU", "KC")
 # The whiff definition is the hitter parity's chosen variant (cache/tracking_definitions.json).
 DEFAULT = {"breaking": BREAKING_WIDE, "movement": "breaks", "foul_tip_is_whiff": True, "count_bunts": True}

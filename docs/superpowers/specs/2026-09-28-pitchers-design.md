@@ -239,6 +239,38 @@ The user's two decisions:
   - If the gate fails, the stuff layer stops there.
   - If it passes, the pitcher final plan tests it as a layer, as for hitters.
 
+## P-B parity result (run 2026-09-28, reviewed on Opus)
+
+The first run failed on one metric: `breaking_spin` at r 0.9777, against 0.98
+required. The bias was fine (+2.6 rpm on an SD of 248), and the other six metrics
+all had r ≥ 0.998.
+
+**Diagnosis:**
+- 99.4% of pitchers matched within 5 rpm (median gap 0.26).
+- The whole miss came from two knuckleball pitchers. One threw 936 knuckleballs
+  (about 900 rpm): ours read 2,188 rpm against Savant's 941.
+- **Savant counts knuckleballs as breaking balls.** Adding KN to the breaking set
+  gives r = 1.0000 and bias 0.00.
+- This is a definition fix, like the hitters' bunt and sweet-spot fixes. The gate
+  was not loosened.
+
+**Rerun: PASS on all 7 metrics** (2,430 games, 709,512 pitches):
+
+| Metric | r | Bias |
+|---|---|---|
+| fb_speed | 0.9984 | −0.008 mph |
+| fb_spin | 0.9998 | +0.15 rpm |
+| fb_ivb | 0.9991 | −0.009 in |
+| fb_hb | 1.0000 | −0.001 in |
+| breaking_speed | 1.0000 | 0.000 mph |
+| breaking_spin | 1.0000 | +0.001 rpm |
+| whiff% | 0.9999 | −0.006 |
+
+**Chosen definitions:**
+- Breaking = SL / ST / SV / CU / KC / CS / KN.
+- Movement from `breaks`, in inches. The `pfx` coordinates are on a different
+  scale, and the loss rose from 0.043 to 1.81 when using them.
+
 ## Stuff layer: staging and the pitch-level follow-up (pre-registered 2026-09-28)
 
 **What the review of public stuff models found** (FanGraphs Stuff+ and PitchingBot

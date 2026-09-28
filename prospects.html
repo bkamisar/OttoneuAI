@@ -147,7 +147,7 @@
       lens = l;
       document.getElementById('btnBest').classList.toggle('active', l === 'best');
       document.getElementById('btnReady').classList.toggle('active', l === 'ready');
-      if (l === 'ready') { setType('H'); sortCol = 'ready'; sortDir = -1; }
+      if (l === 'ready') { setType('H'); sortCol = 'ready'; sortDir = 1; }
       else { sortCol = 'fv'; sortDir = -1; }
       markSortHeader();
       render();
@@ -280,8 +280,10 @@
 
       filtered.sort(function(a, b) {
         var av = sortValue(a, sortCol), bv = sortValue(b, sortCol);
-        if (av < bv) return sortDir;
-        if (av > bv) return -sortDir;
+        // sortDir -1 = descending (the ▼ arrow), 1 = ascending. This used to be
+        // inverted, so the default FV sort showed the lowest grades first.
+        if (av < bv) return -sortDir;
+        if (av > bv) return sortDir;
         return b.prospect.fv - a.prospect.fv;
       });
 

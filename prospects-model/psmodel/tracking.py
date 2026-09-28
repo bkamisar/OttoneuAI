@@ -104,6 +104,11 @@ def iter_pitch_events(game):
                    "event": event if in_play else None}
 
 
+def season_pitch_events(season, sport_id):
+    for pk in season_games(season, sport_id):
+        yield from iter_pitch_events(pbp.load_game(season, sport_id, pk))
+
+
 def season_pitches(season, sport_id):
     for pk in season_games(season, sport_id):
         yield from iter_pitches(pbp.load_game(season, sport_id, pk))

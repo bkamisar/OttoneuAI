@@ -3,38 +3,52 @@ import unittest
 from psmodel import asof
 
 
-def s(season, value, pa=500):
-    return {"season": season, "value": value, "pa": pa, "ip": 0.0}
+def s(season, value, pa=500, rank=None):
+    d = {"season": season, "value": value, "pa": pa, "ip": 0.0}
+    if rank is not None:
+        d["rank"] = rank
+    return d
+
+
+CURVE = [5.0, 4.0, 3.0, 2.0, 1.0, 0.5, -0.5]
+
+
+class TestRanks(unittest.TestCase):
+    def test_attach_ranks_orders_each_season_and_skips_pitchers(self):
+        labels = {(1, "H"): [s(2020, 1.0)], (2, "H"): [s(2020, 3.0)], (3, "H"): [s(2020, 2.0)],
+                  (1, "P"): [s(2020, 9.0)]}
+        asof.attach_ranks(labels)
+        self.assertEqual([labels[(p, "H")][0]["rank"] for p in (1, 2, 3)], [3, 1, 2])
+        self.assertNotIn("rank", labels[(1, "P")][0])
+
+    def test_ref_curve_is_the_median_by_rank_through_the_vantage(self):
+        labels = {(i, "H"): [s(2013, float(10 - i)), s(2014, float(20 - 2 * i)), s(2020, 99.0), s(2016, 99.0)]
+                  for i in range(3)}
+        self.assertEqual(asof.ref_curve(labels, 2014), [15.0, 13.5, 12.0])   # 2020 and 2016 excluded
 
 
 class TestTargets(unittest.TestCase):
-    def test_rating_is_best_of_next_four_eligible_seasons(self):
-        mlb = [s(2019, 3.0), s(2020, 1.0, 300), s(2021, 9.0, 50), s(2023, 5.0)]
-        self.assertEqual(asof.rating_target(mlb, 2018), 3.0)   # 2021 under 100 PA; 2023 outside
-        self.assertEqual(asof.rating_target(mlb, 2019), 5.0)
+    def test_rating_values_the_best_eligible_rank_in_the_window(self):
+        mlb = [s(2019, 0, rank=4), s(2020, 0, pa=300, rank=2), s(2021, 0, pa=50, rank=1), s(2023, 0, rank=1)]
+        self.assertEqual(asof.rating_target(mlb, 2018, CURVE), 4.0)   # rank 2; 2021 too few PA, 2023 outside
+        self.assertEqual(asof.rating_target(mlb, 2019, CURVE), 5.0)   # 2023 rank 1 (window 2020-2023)
 
-    def test_rating_floor_and_empty(self):
-        self.assertEqual(asof.rating_target([s(2019, -1.0)], 2018), 0.0)
-        self.assertEqual(asof.rating_target([], 2018), 0.0)
+    def test_rating_floor_empty_and_deep_ranks(self):
+        self.assertEqual(asof.rating_target([s(2019, 0, rank=7)], 2018, CURVE), 0.0)     # -0.5 floored
+        self.assertEqual(asof.rating_target([s(2019, 0, rank=900)], 2018, CURVE), 0.0)   # past the curve
+        self.assertEqual(asof.rating_target([], 2018, CURVE), 0.0)
+        self.assertEqual(asof.useful_value([1.0] * 200), 1.0)
 
-    def test_soon_window_is_two_seasons(self):
-        mlb = [s(2020, 0.7), s(2021, 0.9)]
-        self.assertTrue(asof.soon_target(mlb, 2018, 0.6))
-        self.assertFalse(asof.soon_target(mlb, 2017, 0.6))    # window 2018-2019
-        self.assertFalse(asof.soon_target([s(2019, 0.5)], 2018, 0.6))
+    def test_soon_is_a_top_144_season_within_two(self):
+        self.assertTrue(asof.soon_target([s(2020, 0, rank=144)], 2018))
+        self.assertFalse(asof.soon_target([s(2020, 0, rank=145)], 2018))
+        self.assertFalse(asof.soon_target([s(2021, 0, rank=1)], 2018))      # outside the window
 
     def test_known_by_vantage(self):
         self.assertTrue(asof.rating_known(2018, 2022))
         self.assertFalse(asof.rating_known(2019, 2022))
         self.assertTrue(asof.soon_known(2021, 2023))
         self.assertFalse(asof.soon_known(2022, 2023))
-
-
-class TestUsefulBar(unittest.TestCase):
-    def test_uses_only_seasons_through_the_vantage(self):
-        labels = {(i, "H"): [s(2013, float(i)), s(2014, float(100 + i))] for i in range(150)}
-        self.assertEqual(asof.useful_bar(labels, 2013), 6.0)     # 144th best of 0..149
-        self.assertEqual(asof.useful_bar(labels, 2014), 56.0)    # median(6, 106)
 
 
 if __name__ == "__main__":

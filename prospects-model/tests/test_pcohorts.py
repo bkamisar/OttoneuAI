@@ -39,6 +39,17 @@ class TestBuildRows(unittest.TestCase):
         self.assertEqual((r["f"]["repeat_level"], r["f"]["multi_level"], r["f"]["is_aa"]), (1.0, 0.0, 1.0))
         self.assertEqual({k for g in pcohorts.GROUPS.values() for k in g}, set(r["f"]))
 
+    def test_rows_keep_the_raw_start_share(self):
+        self.assertEqual((self.by[(1, 2019, 12)]["start_share"], self.by[(2, 2019, 12)]["start_share"]), (1.0, 0.0))
+
+
+class TestLeads(unittest.TestCase):
+    def test_leads_are_products_of_the_standardized_features(self):
+        rows = [{"f": {"age": 1.5, "k": -2.0, "csw": 0.5}}, {"f": {"age": None, "k": 1.0, "csw": 1.0}}]
+        pcohorts.add_products(rows)
+        self.assertEqual((rows[0]["f"]["age_x_k"], rows[0]["f"]["age_x_csw"]), (-3.0, 0.75))
+        self.assertIsNone(rows[1]["f"]["age_x_k"])
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -5,21 +5,28 @@ import numpy as np
 from psmodel import walkforward as W
 
 
-def cohort_rows(n=150, cohorts=range(2012, 2025), seed=0):
+def cohort_rows(n=400, cohorts=range(2012, 2025), seed=0):
+    """Synthetic cohorts: x drives the MLB outcome. Each outcome season is ranked
+    within its year, as asof.attach_ranks does for real labels."""
     rng = np.random.default_rng(seed)
-    rows, pid = [], 0
+    rows, pid, seasons = [], 0, {}
     for c in cohorts:
         if c == 2020:
             continue
         for _ in range(n):
             x, z = float(rng.normal()), float(rng.normal())
-            rows.append({"player_id": pid, "season": c, "sport_id": 12, "f": {"x": x, "z": z},
-                         "mlb": [{"season": c + 1, "value": x, "pa": 500, "ip": 0.0}]})
+            rec = {"season": c + 1, "value": x, "pa": 500, "ip": 0.0}
+            seasons.setdefault(c + 1, []).append(rec)
+            rows.append({"player_id": pid, "season": c, "sport_id": 12, "f": {"x": x, "z": z}, "mlb": [rec]})
             pid += 1
+    for recs in seasons.values():
+        for i, rec in enumerate(sorted(recs, key=lambda r: -r["value"]), 1):
+            rec["rank"] = i
     return rows
 
 
-BARS = {v: 0.5 for v in range(2015, 2026)}
+CURVE = [3.0 - 0.01 * i for i in range(500)]       # rank r is typically worth 3.0 - 0.01 (r - 1)
+CTXS = {v: CURVE for v in range(2015, 2026)}
 
 
 class TestFrames(unittest.TestCase):
@@ -34,7 +41,7 @@ class TestFrames(unittest.TestCase):
         for season in (2014, 2019):
             rows.append({"player_id": 999, "season": season, "sport_id": 12,
                          "f": {"x": 0.0, "z": 0.0}, "mlb": []})
-        train, test = W.frames(rows, "rating", 2019, 0.5, ["x"])
+        train, test = W.frames(rows, "rating", 2019, CURVE, ["x"])
         self.assertEqual(max(r["season"] for r in train), 2015)
         self.assertNotIn(999, {r["player_id"] for r in train})
         self.assertIn(999, {r["player_id"] for r in test})
@@ -44,23 +51,23 @@ class TestFrames(unittest.TestCase):
     def test_rows_missing_a_key_are_dropped(self):
         rows = cohort_rows(n=5)
         rows[0]["f"]["x"] = None
-        train, _ = W.frames(rows, "rating", 2019, 0.5, ["x"])
+        train, _ = W.frames(rows, "rating", 2019, CURVE, ["x"])
         self.assertNotIn(rows[0]["player_id"], {r["player_id"] for r in train})
 
 
 class TestFitting(unittest.TestCase):
     def test_signal_family_is_adopted(self):
-        res = W.compare(cohort_rows(), ["z"], ["x"], "rating", "ridge", BARS, W.RATING_VANTAGES)
+        res = W.compare(cohort_rows(), ["z"], ["x"], "rating", "ridge", CTXS, W.RATING_VANTAGES)
         self.assertTrue(W.adopt(res)[0])
 
     def test_soon_classifier_ranks_signal(self):
-        preds = W.predictions(cohort_rows(), ["x"], "soon", "logit", BARS, W.SOON_VANTAGES)
+        preds = W.predictions(cohort_rows(), ["x"], "soon", "logit", CTXS, W.SOON_VANTAGES)
         self.assertEqual(sorted(preds), list(W.SOON_VANTAGES))
         for v, (test, p) in preds.items():
             self.assertGreater(W.metrics(test, p, "soon", 0.5)["rank"], 0.8)
 
     def test_too_little_training_is_not_available(self):
-        res = W.compare(cohort_rows(n=5), ["z"], ["x"], "rating", "ridge", BARS, (2019,))
+        res = W.compare(cohort_rows(n=5), ["z"], ["x"], "rating", "ridge", CTXS, (2019,))
         self.assertIsNone(res[2019])
 
 
@@ -114,13 +121,13 @@ class TestProduction(unittest.TestCase):
         for season in (2014, 2019):
             rows.append({"player_id": 999, "season": season, "sport_id": 12,
                          "f": {"x": 0.0, "z": 0.0}, "mlb": []})
-        m, train, test, pred = W.production(rows, ["x"], "rating", "ridge", 0.5, 2019)
+        m, train, test, pred = W.production(rows, ["x"], "rating", "ridge", CURVE, 2019)
         self.assertIn(999, {r["player_id"] for r in train})
         self.assertEqual(max(r["season"] for r in train), 2015)
         self.assertEqual(len(pred), len(test))
 
     def test_oof_predictions_track_the_signal(self):
-        train, _ = W.frames(cohort_rows(), "rating", 2022, 0.5, ["x"])
+        train, _ = W.frames(cohort_rows(), "rating", 2022, CURVE, ["x"])
         p = W.oof(train, ["x"], "rating", "ridge")
         self.assertEqual(len(p), len(train))
         self.assertGreater(np.corrcoef(p, [r["f"]["x"] for r in train])[0, 1], 0.95)
@@ -128,7 +135,7 @@ class TestProduction(unittest.TestCase):
 
 class TestInteractions(unittest.TestCase):
     def test_pairs_reported_per_vantage(self):
-        hits = W.interactions_by_vantage(cohort_rows(), ["x", "z"], "soon", BARS, (2021,))
+        hits = W.interactions_by_vantage(cohort_rows(), ["x", "z"], "soon", CTXS, (2021,))
         self.assertEqual(list(hits), [("x", "z")])
         self.assertEqual(hits[("x", "z")][0][0], 2021)
 

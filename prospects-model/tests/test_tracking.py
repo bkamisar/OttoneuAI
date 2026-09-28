@@ -67,5 +67,29 @@ class TestIterPitches(unittest.TestCase):
              "pfx_x": -5.9, "pfx_z": 11.2}])
 
 
+class TestIterPitchEvents(unittest.TestCase):
+    def test_fields_and_the_play_result_on_the_in_play_pitch(self):
+        game = {"liveData": {"plays": {"allPlays": [{
+            "matchup": {"pitcher": {"id": 7}, "batter": {"id": 9}, "pitchHand": {"code": "L"}, "batSide": {"code": "R"}},
+            "result": {"eventType": "double"},
+            "playEvents": [
+                {"isPitch": True, "details": {"code": "S", "type": {"code": "SL"}},
+                 "pitchData": {"startSpeed": 85.0, "extension": 6.4,
+                               "breaks": {"spinRate": 2500, "breakVerticalInduced": 2.0, "breakHorizontal": 5.0},
+                               "coordinates": {"x0": 1.8, "z0": 5.9}}},
+                {"isPitch": True, "details": {"code": "X", "type": {"code": "FF"}},
+                 "pitchData": {"startSpeed": 94.0, "extension": 6.5,
+                               "breaks": {"spinRate": 2300, "breakVerticalInduced": 16.0, "breakHorizontal": -8.0},
+                               "coordinates": {"x0": 1.9, "z0": 6.0}},
+                 "hitData": {"launchSpeed": 101.0, "launchAngle": 18.0}}]}]}}}
+        ps = list(tracking.iter_pitch_events(game))
+        self.assertEqual(len(ps), 2)
+        self.assertEqual((ps[0]["pitcher"], ps[0]["p_hand"], ps[0]["b_side"], ps[0]["type"], ps[0]["ext"]),
+                         (7, "L", "R", "SL", 6.4))
+        self.assertEqual((ps[0]["ev"], ps[0]["event"]), (None, None))       # not the in-play pitch
+        self.assertEqual((ps[1]["ev"], ps[1]["la"], ps[1]["event"], ps[1]["x0"], ps[1]["z0"]),
+                         (101.0, 18.0, "double", 1.9, 6.0))
+
+
 if __name__ == "__main__":
     unittest.main()

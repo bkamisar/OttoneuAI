@@ -70,6 +70,40 @@ def iter_pitches(game):
                    "pfx_x": co.get("pfxX"), "pfx_z": co.get("pfxZ")}
 
 
+IN_PLAY_CODES = frozenset({"X", "D", "E"})
+
+
+def iter_pitch_events(game):
+    """One dict per PITCH for the pitch-level stuff model (P-E): who threw it and to
+    which side, its physical characteristics (speed, spin, IVB, HB, extension, the
+    x0/z0 position at 50 ft) and, on the in-play pitch only, the batted ball's EV,
+    LA and the play's result (eventType)."""
+    plays = (((game or {}).get("liveData") or {}).get("plays") or {}).get("allPlays") or []
+    for play in plays:
+        m = play.get("matchup") or {}
+        pitcher = (m.get("pitcher") or {}).get("id")
+        p_hand = (m.get("pitchHand") or {}).get("code")
+        b_side = (m.get("batSide") or {}).get("code")
+        event = (play.get("result") or {}).get("eventType")
+        for e in play.get("playEvents") or []:
+            if not e.get("isPitch"):
+                continue
+            det = e.get("details") or {}
+            pd = e.get("pitchData") or {}
+            br = pd.get("breaks") or {}
+            co = pd.get("coordinates") or {}
+            hd = e.get("hitData") or {}
+            in_play = det.get("code") in IN_PLAY_CODES
+            yield {"pitcher": pitcher, "p_hand": p_hand, "b_side": b_side,
+                   "type": (det.get("type") or {}).get("code"), "code": det.get("code"),
+                   "speed": pd.get("startSpeed"), "spin": br.get("spinRate"),
+                   "ivb": br.get("breakVerticalInduced"), "hb": br.get("breakHorizontal"),
+                   "ext": pd.get("extension"), "x0": co.get("x0"), "z0": co.get("z0"),
+                   "ev": hd.get("launchSpeed") if in_play else None,
+                   "la": hd.get("launchAngle") if in_play else None,
+                   "event": event if in_play else None}
+
+
 def season_pitches(season, sport_id):
     for pk in season_games(season, sport_id):
         yield from iter_pitches(pbp.load_game(season, sport_id, pk))

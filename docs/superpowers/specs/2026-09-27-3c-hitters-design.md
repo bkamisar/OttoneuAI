@@ -270,6 +270,56 @@ same rule.
   contact (see the revised rule in Part 2).
 - The first write-up called tree interactions "findings".
 
+## Plan B result (run 2026-09-27, reviewed on Opus)
+
+**Tree leads rejected as explicit terms, for both outputs.** Age × SLG actively
+hurt the rating (z −2.6 / −1.6 / −2.9). Swinging-strike × SLG did nothing
+anywhere. **The whiff × power question is settled: no interaction beyond the
+additive effects improves prediction.**
+
+**Pulled air: FAIL** (see "Pulled-air parity RESULT" above).
+
+**Sealed 2024, opened once (rules fixed in advance):**
+- Contact + approach **kept** for "soon" (2024 AUC gain z +1.6).
+- Final "soon" on 2024: **AUC 0.870**. Within-cohort ranking held up.
+- **Calibration and top-N collapsed:** the top bucket predicted 27% vs 12%
+  actual, and top-50 fell to 0.16 (0.34–0.50 in the decision years). Cause below.
+- **Tracking for "soon": not used.** Trained on 82 AAA-2022 hitters, w +2.73
+  [+0.90, +4.43]; on 344 AAA-2024 hitters it added nothing (AUC 0.843 → 0.842).
+  The pre-set rule rejected it. Read this as **untested, not refuted**: the 2024
+  test had few positives (see below), so it had little power. The production fit
+  on 822 AAA hitter-seasons gives w +1.24 [+0.65, +1.79]. **First thing to
+  revisit when the 2025 cohort's "soon" answers arrive (after the 2027 season).**
+
+**Step-1 gate, as-of: PASS**, Spearman +0.416 [+0.280, +0.538] among 171
+arrivals (the first run, which leaked slightly, gave +0.391).
+
+**Production (as of 2026):**
+- Rating: ridge, tracking applied (**provisional**), w +0.167 [+0.099, +0.246].
+- "Soon": logistic, no tracking.
+- `cache/hitter_ratings.csv` holds 1,431 hitters. The top 15 are all AA/AAA,
+  ages 19–25.
+
+**Review finding: the SGP scale swings between seasons, and the targets inherit
+it.** The 144th-best hitter season, about the starter-quality line, is worth 0.93
+SGP in 2013, 0.16 in 2014, 0.76 in 2024, 0.45 in 2025 and 0.23 in 2026. 2026 is a
+complete season (135 hitters with 500+ PA), so this is a real low-spread year,
+like 2014. Against a fixed bar, only 82 hitters were "starter-quality" in 2026
+instead of about 144. The 2024 cohort's answers come from 2025–26, which is why
+its calibration and top-N collapsed.
+- **What survives:** ranking *within* a cohort. Everyone in a cohort faces the
+  same future seasons, so AUC and Spearman are fair. The model's *order* is
+  trustworthy.
+- **What doesn't:** absolute levels. "P(useful within 2)" is calibrated to an
+  average-spread future, so it should be read as a relative tier, not a literal
+  percentage. Training also mixes eras with different spreads, which adds noise.
+- **The proper fix:** make "starter-quality" rank-based per season (the top 144
+  hitters of *that* season, the league-grounded meaning of 12 teams × 12 slots).
+  Put the rating on a spread-normalized scale, converted back to SGP at the
+  current spread for display. Both are label changes. **No untouched cohort is
+  left for a clean final check after such a change**, so the honest checks become
+  plan C (the consensus gate) and future cohorts as their answers arrive.
+
 ## Revisit trigger: Statcast into the base model
 
 Tracking stays a layer until a fair as-of backtest can judge it as a base

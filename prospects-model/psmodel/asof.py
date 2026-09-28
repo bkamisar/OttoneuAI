@@ -15,13 +15,15 @@ RATING_YEARS = 4
 SOON_YEARS = 2
 FIRST_LABEL = 2013
 STARTERS = 144          # 12 teams x 12 lineup slots
+STARTERS_BY = {"H": STARTERS, "P": 120}   # pitchers: 12 teams x ~10 arms under the 1,500 IP cap
 
 
-def attach_ranks(labels):
-    """Adds 'rank' (1 = best that year, by total SGP) to every hitter-season, in place."""
+def attach_ranks(labels, typ="H"):
+    """Adds 'rank' (1 = best that year, by total SGP) to every season of one
+    player type (hitters by default), in place."""
     by = {}
-    for (pid, typ), rows in labels.items():
-        if typ == "H":
+    for (pid, t), rows in labels.items():
+        if t == typ:
             for r in rows:
                 by.setdefault(r["season"], []).append(r)
     for recs in by.values():
@@ -30,12 +32,13 @@ def attach_ranks(labels):
     return labels
 
 
-def ref_curve(labels, v):
-    """Typical SGP of the season ranked r (index r-1): the median across seasons
-    FIRST_LABEL..v, 2020 excluded. Ranks are valued on this common scale."""
+def ref_curve(labels, v, typ="H"):
+    """Typical SGP of the season ranked r (index r-1) for one player type: the
+    median across seasons FIRST_LABEL..v, 2020 excluded. Ranks are valued on this
+    common scale."""
     by = {}
-    for (pid, typ), rows in labels.items():
-        if typ == "H":
+    for (pid, t), rows in labels.items():
+        if t == typ:
             for r in rows:
                 if FIRST_LABEL <= r["season"] <= v and r["season"] != 2020:
                     by.setdefault(r["season"], []).append(r["value"])
@@ -44,22 +47,29 @@ def ref_curve(labels, v):
     return [float(np.median(c)) for c in zip(*cols)]
 
 
-def useful_value(curve):
-    """The typical value of the 144th-best season: the starter line for top-N."""
-    return curve[STARTERS - 1]
+def useful_value(curve, typ="H"):
+    """The typical value of the last starter-quality rank (144th hitter, 120th pitcher)."""
+    return curve[STARTERS_BY[typ] - 1]
 
 
-def rating_target(mlb, cohort, curve):
-    """Best season in cohort+1..cohort+4 with >=100 PA, valued at the typical value
-    of its rank, floored at 0."""
+def _eligible(r, typ):
+    if typ == "H":
+        return (r.get("pa") or 0) >= targets.MIN_PA
+    return (r.get("ip") or 0.0) >= targets.MIN_IP
+
+
+def rating_target(mlb, cohort, curve, typ="H"):
+    """Best season in cohort+1..cohort+4 with enough volume (100 PA / 25 IP), valued
+    at the typical value of its rank, floored at 0."""
     vals = [curve[min(r["rank"], len(curve)) - 1] for r in mlb
-            if cohort < r["season"] <= cohort + RATING_YEARS and (r.get("pa") or 0) >= targets.MIN_PA]
+            if cohort < r["season"] <= cohort + RATING_YEARS and _eligible(r, typ)]
     return max(0.0, max(vals)) if vals else 0.0
 
 
-def soon_target(mlb, cohort):
-    """A top-144 season (starter-quality in that year) in cohort+1..cohort+2."""
-    return any(r["rank"] <= STARTERS for r in mlb if cohort < r["season"] <= cohort + SOON_YEARS)
+def soon_target(mlb, cohort, typ="H"):
+    """A starter-quality season (top 144 hitters / top 120 pitchers that year) in
+    cohort+1..cohort+2."""
+    return any(r["rank"] <= STARTERS_BY[typ] for r in mlb if cohort < r["season"] <= cohort + SOON_YEARS)
 
 
 def rating_known(cohort, v):

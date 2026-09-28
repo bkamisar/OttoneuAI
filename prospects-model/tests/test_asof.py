@@ -51,5 +51,36 @@ class TestTargets(unittest.TestCase):
         self.assertFalse(asof.soon_known(2022, 2023))
 
 
+def p(season, value, ip=60.0, rank=None):
+    d = {"season": season, "value": value, "pa": 0, "ip": ip}
+    if rank is not None:
+        d["rank"] = rank
+    return d
+
+
+class TestPitchers(unittest.TestCase):
+    def test_attach_ranks_by_type(self):
+        labels = {(1, "P"): [p(2020, 1.0)], (2, "P"): [p(2020, 3.0)], (1, "H"): [s(2020, 9.0)]}
+        asof.attach_ranks(labels, "P")
+        self.assertEqual([labels[(1, "P")][0]["rank"], labels[(2, "P")][0]["rank"]], [2, 1])
+        self.assertNotIn("rank", labels[(1, "H")][0])
+
+    def test_ref_curve_uses_only_the_type(self):
+        labels = {(i, "P"): [p(2013, float(10 - i)), p(2014, float(20 - 2 * i))] for i in range(3)}
+        labels[(9, "H")] = [s(2013, 99.0), s(2014, 99.0)]
+        self.assertEqual(asof.ref_curve(labels, 2014, "P"), [15.0, 13.5, 12.0])
+
+    def test_rating_eligibility_is_by_innings(self):
+        mlb = [p(2019, 0, ip=20.0, rank=1), p(2020, 0, ip=30.0, rank=3)]
+        self.assertEqual(asof.rating_target(mlb, 2018, CURVE, "P"), 3.0)   # the 20-IP season doesn't count
+        self.assertEqual(asof.rating_target(mlb, 2018, CURVE), 0.0)        # as hitter seasons: 0 PA, none count
+
+    def test_soon_and_useful_line_are_top_120_for_pitchers(self):
+        self.assertTrue(asof.soon_target([p(2020, 0, rank=120)], 2018, "P"))
+        self.assertFalse(asof.soon_target([p(2020, 0, rank=121)], 2018, "P"))
+        self.assertTrue(asof.soon_target([p(2020, 0, rank=121)], 2018))     # hitters: top 144
+        self.assertEqual(asof.useful_value(list(range(200, 0, -1)), "P"), 81)
+
+
 if __name__ == "__main__":
     unittest.main()

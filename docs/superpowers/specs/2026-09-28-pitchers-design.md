@@ -358,6 +358,71 @@ the layer test: does it add on top of the box model?
    It must beat this season-level score in the final plan. The weak standalone
    showing makes it worth building.
 
+## P-E: the pitch-level stuff model (designed + pre-registered 2026-09-28, before any pitch-level result)
+
+**Why now:** the user chose "the best chance of doing this accurately" over speed.
+The sealed 2024 pitcher class can be opened only once, so both stuff scores must be
+ready before P-D opens it.
+
+**Data** (the user approved the download 2026-09-28):
+- **MLB game records 2020, 2021 and the rest of 2022**, about 4,300 games through
+  `fetch_pbp.py`, `statsapi.mlb.com` only.
+  - Hawk-Eye only; 2015–19 Trackman is skipped as a mismatched system.
+  - A two-game check (one 2020 game, one 2021 game) that the tracking fields exist
+    comes before the bulk run. The security audit comes first.
+  - `fetch_pbp.py` skipped 2020 at every level; it's fixed to skip only the minor
+    leagues.
+- AAA 2022 (PCL) and 2023–26 are already on disk.
+- **Known gap:** extension and release point have no Savant values to check
+  against. They come from the same feed whose speed, spin and movement passed
+  parity.
+
+**Pitch-level models** (location excluded, as in public stuff models):
+- **Per-pitch features:** speed, spin, IVB, horizontal break and release side
+  (both sign-flipped for left-handers, so arm-side is consistent), release height
+  (the `z0` coordinate at 50 ft), extension, same-side matchup, and speed / IVB /
+  HB gaps to the pitcher-season's primary fastball.
+- **Families:** fastball (FF / SI / FC), breaking (SL / ST / SV / CU / KC / CS /
+  KN) and offspeed (CH / FS / FO / SC). Others are dropped.
+- **Two gradient-boosted models per family:**
+  - **P(whiff | swing):** whiff and swing codes as in the hitter parity's chosen
+    variant.
+  - **Expected damage on contact:** first a small model maps each MLB ball in
+    play's (EV, LA) to the wOBA value of its result (1B 0.89, 2B 1.27, 3B 1.62,
+    HR 2.10, everything else 0), which is the xwOBA idea. The damage model then
+    predicts that smoothed value from pitch features.
+- **As-of:** at vantage c, the pitch models train only on MLB seasons 2020..c.
+- **Pitcher features:** each pitcher-season's mean predicted whiff | swing
+  (`pl_whiff`) and mean predicted contact damage (`pl_damage`) over all its
+  pitches in the three families, with 300+ pitches.
+
+**From pitch grades to fantasy value** (P-C's machinery; the data sets the
+weights):
+- Ridge on age plus the adopted pitch-level features, predicting next season's
+  value at 100 IP.
+- Adoption uses `stuff.adopt` on MLB rows with t = 2020–25 (groups: whiff = `pl_whiff`,
+  damage = `pl_damage`).
+- AAA → MLB offsets come from same-season pairs, as-of.
+- **Known minor issue:** MLB features are predicted by pitch models whose training
+  included that same season's pitches. The trees are shallow and regularized on
+  100k+ rows, so the in-sample lift should be small. It's disclosed rather than
+  engineered away.
+
+**Pre-registered decision rule (both scores, as-of, on identical pitchers):**
+1. **Prospect gate, as-of:** AAA pitchers' first qualifying season in 2022–23,
+   not established, arrivals only. Vantage c = the cohort year: the pitch models
+   use MLB ≤ c, the mapping uses MLB t ≤ c−1, and the offsets use pairs ≤ c. The
+   season-level (P-C) score is refit the same way (Savant t ≤ c−1). A score is
+   usable only if its Spearman CI lower bound is > 0.
+2. **Which score:** the pitch-level score replaces the season-level one only if
+   its Spearman beats the season-level's by **≥ 1 paired player-bootstrap SE** and
+   its own CI lower bound is > 0. On a tie, the season-level score stays.
+3. **If the season-level score fails its as-of gate:** the pitch-level score (this
+   plan) *is* the staging rule's single pre-registered attempt. If it also fails,
+   stuff is out for pitchers until new cohorts arrive.
+
+The verdict goes to `cache/stuff_choice_final.json`, which P-D reads.
+
 ## Stuff layer: staging and the pitch-level follow-up (pre-registered 2026-09-28)
 
 **What the review of public stuff models found** (FanGraphs Stuff+ and PitchingBot

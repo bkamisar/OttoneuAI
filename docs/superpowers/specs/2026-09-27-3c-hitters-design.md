@@ -249,19 +249,22 @@ committed).
   of slack. Each file's year is verified by its top prospects (2023: Elly De La
   Cruz / Eury Pérez; 2024: Jackson Holliday / Paul Skenes; 2025: Roman Anthony /
   Roki Sasaki).
-- **The Board archives are IN-SEASON snapshots, not preseason lists** (found
-  2026-09-28). Each "year Y" list was frozen partway through season Y, with that
-  season's early graduates removed. Bobby Witt Jr. and Julio Rodríguez are absent
-  from 2022, Corbin Carroll and Gunnar Henderson from 2023, Jackson Chourio from
-  2024. The mid-season ages in the Age column match this. Consequences for the
-  test:
-  - (a) **Leak toward FV:** list Y+1 knows about half of season Y+1, while the
-    model knows only through Y.
-  - (b) **Survivorship:** the fastest successes are missing from the graded set.
-  - **Planned remedy (plan C design): bracket.** Score each cohort Y against both
-    list Y (FV knows *less* than the model) and list Y+1 (FV knows *more*), on
-    the players each list grades. A model that beats even the leaky Y+1 list has
-    a robust win. So lists **2019 and 2021 are needed too**, not optional.
+- **The "normal" Board lists ARE preseason lists; graduates are deleted from
+  them afterward** (verified 2026-09-28, correcting a same-day misread that called
+  them in-season snapshots). No list contains its own summer's draftees (Skenes and
+  Crews absent from 2023, Bazzana from 2024, Willits from 2025), and every list has
+  the previous summer's picks, so the grades predate that year's draft. Players who
+  graduated during the list's season are gone (Witt/Julio from 2022,
+  Carroll/Henderson from 2023, Chourio from 2024). **Use the normal boards, never
+  the "updated" (mid-season) ones**, which would know part of the season. So:
+  - **No leak:** list Y+1 is a true as-of consensus for cohort Y.
+  - **Survivorship remains:** the fastest graduates are missing from list Y+1.
+    Plan C reports the head-to-head both on the players list Y+1 grades and with
+    missing early graduates restored from their latest earlier list (list Y,
+    one year stale, flagged).
+  - Lists needed: 2020, 2022–2025 (on file: 2022–2026). 2019 and earlier help
+    learn the model + FV blend. 2021 is optional (no 2020 cohort), but it supplies
+    list-Y grades for early graduates of the 2021 cohort.
 - *(Original plan:)* **Export one year first (2023)** to settle the ID join. Check whether the
   export has an MLBAM id column (see "The FanGraphs ↔ StatsAPI id gap" in the
   parent spec). If it does, the join is exact. If not, the fallback is a name +

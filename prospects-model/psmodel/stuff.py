@@ -79,15 +79,17 @@ def adopt(results, min_wins=8):
     return wins >= min_wins and top >= -TOP50_TOLERANCE, wins
 
 
-def _features(metrics_row, stat_row):
-    f = {k: metrics_row.get(k) for k in stuff_keys()}
+def _features(metrics_row, stat_row, keys=None):
+    """Stuff features (the season-level keys by default; P-E passes its pitch-level
+    keys) plus the box-score keys and age from the StatsAPI row."""
+    f = {k: metrics_row.get(k) for k in (stuff_keys() if keys is None else keys)}
     box = F.pitcher_features(stat_row)
     f.update({k: box[k] for k in BOX})
     f["age"] = stat_row.get("age")
     return f
 
 
-def mlb_rows(table, values, stats, threshold):
+def mlb_rows(table, values, stats, threshold, keys=None):
     """One row per MLB pitcher with >= MIN_PITCHES tracked pitches in t and a valued
     season (25+ IP) in t+1. stats: {(player_id, season): StatsAPI pitcher row}."""
     rows = []
@@ -98,7 +100,7 @@ def mlb_rows(table, values, stats, threshold):
         st = stats.get((pid, t))
         if nxt is None or st is None:
             continue
-        rows.append({"player_id": pid, "season": t, "f": _features(m, st), "target": nxt[0],
+        rows.append({"player_id": pid, "season": t, "f": _features(m, st, keys), "target": nxt[0],
                      "weight": float(nxt[1]), "useful": nxt[0] >= threshold})
     return rows
 

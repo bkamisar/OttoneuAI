@@ -47,6 +47,13 @@ class TestRows(unittest.TestCase):
         self.assertEqual((rows[0]["f"]["fb_speed"], rows[0]["f"]["age"]), (95.0, 25))
         self.assertAlmostEqual(rows[0]["f"]["k"], 70 / 252)
 
+    def test_mlb_rows_take_other_feature_keys(self):
+        table = {(1, 2020): {"pitches": 400, "pl_whiff": 0.3, "pl_damage": 0.4}}
+        rows = stuff.mlb_rows(table, {1: {2021: (1.5, 60.0)}}, {(1, 2020): stat(1)}, 1.0,
+                              keys=["pl_whiff", "pl_damage"])
+        self.assertEqual((rows[0]["f"]["pl_whiff"], rows[0]["f"]["pl_damage"]), (0.3, 0.4))
+        self.assertNotIn("fb_speed", rows[0]["f"])
+
     def test_later_outcome_is_the_best_valued_season_after(self):
         values = {1: {2020: (9.0, 90.0), 2021: (0.5, 30.0), 2023: (1.2, 80.0), 2027: (5.0, 100.0)}}
         self.assertEqual(stuff.later_outcome(values, 1, 2020), (True, 1.2))

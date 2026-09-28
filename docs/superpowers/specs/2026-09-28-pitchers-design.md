@@ -239,6 +239,51 @@ The user's two decisions:
   - If the gate fails, the stuff layer stops there.
   - If it passes, the pitcher final plan tests it as a layer, as for hitters.
 
+## Stuff layer: staging and the pitch-level follow-up (pre-registered 2026-09-28)
+
+**What the review of public stuff models found** (FanGraphs Stuff+ and PitchingBot
+primers, tjStuff+, aStuff+):
+- The serious models grade **each pitch** on its expected outcome (run value, or
+  swing / whiff / called strike / contact damage), leaving location out, then
+  average up to the pitcher. Grades stabilize in about 200 pitches.
+- Inputs: velocity, spin, movement, **release point and extension** (reported to
+  matter about as much as movement), spin axis, and secondary pitches' **speed and
+  movement gaps from the pitcher's own fastball**.
+- The models are gradient-boosted trees, one per pitch family.
+- Predictiveness has decayed as pitchers train toward these metrics: Stuff+ vs
+  wOBA fell from about 0.50 in 2021 to 0.35 in 2025. So train on recent seasons,
+  as-of.
+
+**Why not use one of theirs:**
+- They're third-party / community products, which the user's first-party data rule
+  excludes, and FanGraphs automation is blocked.
+- Published grades come from *current* models, so backtesting 2022–23 prospects on
+  them would leak the future. Grades as they stood at the time mostly don't exist.
+- Minor-league coverage is patchy or paywalled.
+
+**Staging (decided with the user):**
+1. **Run P-B / P-C as written** (season averages). This answers whether pitch
+   tracking predicts prospects' fantasy value at all, cheaply.
+2. **If the P-C gate PASSES:** a pitch-level stuff model (below) is the upgrade. It
+   replaces the season-level score only if it beats it under the same adoption rule
+   in the pitcher final plan.
+3. **If the P-C gate FAILS:** the pitch-level model gets **one** attempt, with the
+   same gate, cohorts and rule, before the stuff question is closed. This second
+   try is pre-registered here, before any result, and applies only to this
+   specific, stronger method. If it also fails, stuff is out for pitchers until new
+   cohorts arrive.
+
+**The pitch-level model, sketched for later design:**
+- Trained on MLB game-record pitches (Hawk-Eye, 2022 onward), with each vantage
+  training only on seasons at or before it.
+- Features per pitch: velocity, spin, induced vertical and horizontal break (arm
+  side), release height and side, extension, handedness, and for secondaries the
+  speed / movement gap to the pitcher's primary fastball.
+- Targets: P(whiff | swing) and expected damage on contact, combined into one
+  per-pitch value, with a tree model per pitch family. Location excluded.
+- AAA pitches scored with it (same tracking system, so parity is a lighter check),
+  then averaged per pitcher-season into the stuff score.
+
 ## Carried over unchanged (no decision needed)
 
 - **As-of discipline:** a vantage trains only on classes whose answer is known,

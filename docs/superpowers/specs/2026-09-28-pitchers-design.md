@@ -271,6 +271,39 @@ all had r ≥ 0.998.
 - Movement from `breaks`, in inches. The `pfx` coordinates are on a different
   scale, and the loss rose from 0.043 to 1.81 when using them.
 
+## P-C adoption rule correction (decided with the user 2026-09-28, BEFORE the prospect gate ran)
+
+The first `stuff_run.py` run adopted no group, so the AAA prospect gate never
+ran. **The cause was the rule, not the data.** P-C reused step 1's
+`evaluate.adopt`, which requires *no* top-50 drop in each of 8 of 10 shuffles.
+That's the flaw the 3c review had already found and fixed (1–2-player top-N swings
+vetoing real gains): 3c's standard is a mean top-50 change ≥ −0.04.
+
+The review measured the MLB comparisons without changing anything:
+
+| Group | Rank gain | Mean top-50 change |
+|---|---|---|
+| Velocity | positive in 10/10 shuffles, +0.026 | −0.006 (±1 player per shuffle) |
+| Fastball shape | 10/10, +0.025 | −0.004 |
+| Whiff | 10/10, +0.075 | −0.044 (a consistent ~2-player drop) |
+| Breaking | 8/10, about +0.001 | 0.000 |
+
+About 86–90% of the model's top 50 were relievers either way; valuing at 100 IP
+rewards relievers' rates.
+
+**Corrected rule for P-C (`stuff.adopt`):** rank accuracy improves in ≥ 8 of 10
+shuffles AND the mean top-50 change ≥ −0.04 (the 3c tolerance). The expected
+consequence was fixed before rerunning: velocity and fastball shape are adopted;
+whiff (−0.044) and breaking are not.
+
+**Nothing else changes:**
+- the AAA prospect gate (Spearman CI lower bound > 0 on the 2022–23 first
+  qualifying seasons), which has not been looked at;
+- the metrics, target and cohorts.
+
+The staging rule (one pitch-level attempt if the *gate* fails) stands, and was not
+spent on this rule defect.
+
 ## Stuff layer: staging and the pitch-level follow-up (pre-registered 2026-09-28)
 
 **What the review of public stuff models found** (FanGraphs Stuff+ and PitchingBot

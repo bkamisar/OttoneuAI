@@ -14,6 +14,7 @@ import numpy as np
 
 from . import context, labels, pcohorts
 from . import features as F
+from .walkforward import TOP50_TOLERANCE
 
 GROUPS = {
     "velocity": ["fb_speed"],
@@ -65,6 +66,17 @@ def useful_threshold(values):
             by.setdefault(s, []).append(v)
     return float(np.median([sorted(vs, reverse=True)[USEFUL_RANK - 1]
                             for vs in by.values() if len(vs) >= USEFUL_RANK]))
+
+
+def adopt(results, min_wins=8):
+    """(adopted, rank wins) over evaluate.compare's shuffles: rank accuracy improves
+    in >= min_wins shuffles AND the mean top-50 change is no worse than
+    -TOP50_TOLERANCE (the 3c standard). Replaces step 1's per-shuffle top-N veto,
+    which let one-player swings veto real gains (P-C review, decided with the user
+    before the prospect gate ran)."""
+    wins = sum(1 for r in results if r["rho_fam"] > r["rho_base"])
+    top = float(np.mean([r["top_fam"] - r["top_base"] for r in results]))
+    return wins >= min_wins and top >= -TOP50_TOLERANCE, wins
 
 
 def _features(metrics_row, stat_row):

@@ -69,5 +69,20 @@ class TestRows(unittest.TestCase):
         self.assertAlmostEqual(t["offset"], 1.25)
 
 
+def shuffles(drho, dtop):
+    return [{"rho_base": 0.3, "rho_fam": 0.3 + a, "top_base": 0.5, "top_fam": 0.5 + b} for a, b in zip(drho, dtop)]
+
+
+class TestAdopt(unittest.TestCase):
+    def test_one_player_top50_swings_do_not_veto(self):
+        self.assertEqual(stuff.adopt(shuffles([0.02] * 10, [-0.02, 0.02] * 5)), (True, 10))
+
+    def test_consistent_top50_loss_beyond_tolerance_rejects(self):
+        self.assertFalse(stuff.adopt(shuffles([0.07] * 10, [-0.044] * 10))[0])
+
+    def test_needs_rank_wins_in_8_of_10(self):
+        self.assertEqual(stuff.adopt(shuffles([0.01] * 7 + [-0.01] * 3, [0.0] * 10)), (False, 7))
+
+
 if __name__ == "__main__":
     unittest.main()

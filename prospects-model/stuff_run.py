@@ -26,6 +26,14 @@ MLB_FIRST, MLB_LAST = 2015, 2025        # season t; outcomes run through 2026
 GATE_COHORTS, LATE_COHORT = (2022, 2023), (2024,)
 
 
+def adoption_line(name, res):
+    """step1_run.adoption_line, on the corrected P-C rule (stuff.adopt)."""
+    ok, wins = stuff.adopt(res)
+    return ok, (f"  {name:30} {'ADOPTED' if ok else 'rejected':9} {wins:2d}/10  "
+                f"rho {S1.mean(res, 'rho_base'):.4f} -> {S1.mean(res, 'rho_fam'):.4f}  "
+                f"top-50 {S1.mean(res, 'top_base'):.3f} -> {S1.mean(res, 'top_fam'):.3f}")
+
+
 def finish(L, code):
     text = "\n".join(L)
     print(text)
@@ -64,11 +72,11 @@ def main():
     kind = max(kind_rho, key=kind_rho.get)
     L += ["1. Model: " + ", ".join(f"{k} rho {v:.4f}" for k, v in kind_rho.items()) + f"  -> using {kind}", ""]
 
-    L.append("2. Which groups earn their place (each vs age + all OTHER groups, 8/10 rule):")
+    L.append("2. Which groups earn their place (each vs age + all OTHER groups; rank gain in >=8/10 shuffles, mean top-50 change >= -0.04):")
     adopted = []
     for g in stuff.GROUPS:
         others = [k for h in stuff.GROUPS if h != g for k in stuff.GROUPS[h]]
-        ok, line = S1.adoption_line(g, evaluate.compare(rows, ["age"] + others, stuff.GROUPS[g],
+        ok, line = adoption_line(g, evaluate.compare(rows, ["age"] + others, stuff.GROUPS[g],
                                                         seeds=S1.SEEDS, kind=kind))
         L.append(line)
         if ok:
@@ -79,7 +87,7 @@ def main():
         L.append("GATE: FAIL -- no stuff group earns its place on MLB; the stuff layer stops here")
         return finish(L, 1)
 
-    ok, line = S1.adoption_line("stuff on top of box", evaluate.compare(
+    ok, line = adoption_line("stuff on top of box", evaluate.compare(
         rows, box_base, stuff.stuff_keys(adopted), seeds=S1.SEEDS, kind=kind))
     L += ["3. Stuff vs box score (report only):",
           f"  box (age, K%, BB%) alone   rho {S1.mean_oof_rho(rows, box_base, kind):.4f}",
@@ -89,7 +97,7 @@ def main():
     for name, keep in (("Hawk-Eye era only (t >= 2020)", lambda r: r["season"] >= 2020),
                        ("without 2020", lambda r: r["season"] not in (2019, 2020))):
         sub = [r for r in rows if keep(r)]
-        L.append(S1.adoption_line(name, evaluate.compare(sub, ["age"], stuff.stuff_keys(adopted),
+        L.append(adoption_line(name, evaluate.compare(sub, ["age"], stuff.stuff_keys(adopted),
                                                          seeds=S1.SEEDS, kind=kind))[1])
     L.append("")
 

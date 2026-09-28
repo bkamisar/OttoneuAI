@@ -105,5 +105,86 @@ class TestMatch(unittest.TestCase):
         self.assertEqual(sorted(a["player_id"] for a in m["ambiguous"]), [1, 2])
 
 
+def soon_rows(y):
+    return [{"player_id": i, "y": float(v)} for i, v in enumerate(y)]
+
+
+def cls(d, se, t50_base=0.5, t50_fam=0.5):
+    return {"base": {"top50": t50_base}, "fam": {"top50": t50_fam}, "d": d, "se": se}
+
+
+WIN = {2021: cls(0.05, 0.01), 2022: cls(0.03, 0.01), 2023: cls(0.0, 0.01)}
+LOSE = {2021: cls(-0.01, 0.01), 2022: cls(0.0, 0.01), 2023: cls(0.005, 0.01)}
+
+
+class TestScoring(unittest.TestCase):
+    def test_pct_averages_ties(self):
+        np.testing.assert_allclose(C.pct([3, 1, 1, 2]), [1.0, 0.375, 0.375, 0.75])
+
+    def test_head_to_head_positive_when_challenger_is_better(self):
+        rng = np.random.default_rng(0)
+        y = rng.integers(0, 2, 200)
+        res = C.head_to_head(soon_rows(y), y + rng.normal(0, 3.0, 200), y + rng.normal(0, 0.3, 200),
+                             "soon", None)
+        self.assertGreater(res["d"], 0)
+        self.assertGreater(res["fam"]["rank"], res["base"]["rank"])
+        self.assertIn("top50", res["base"])
+
+    def test_head_to_head_none_when_untestable(self):
+        self.assertIsNone(C.head_to_head(soon_rows([0] * 40), np.arange(40), np.arange(40), "soon", None))
+        self.assertIsNone(C.head_to_head(soon_rows([0, 1] * 10), np.arange(20), np.arange(20), "soon", None))
+
+    def test_rank_ci_brackets_point_and_clears_chance_for_a_good_ranker(self):
+        rng = np.random.default_rng(1)
+        y = rng.integers(0, 2, 150)
+        pt, lo, hi = C.rank_ci(soon_rows(y), y + rng.normal(0, 0.5, 150), "soon")
+        self.assertTrue(lo <= pt <= hi)
+        self.assertGreater(lo, 0.5)
+
+    def test_rank_ci_none_when_one_outcome(self):
+        self.assertIsNone(C.rank_ci(soon_rows([0] * 50), np.arange(50), "soon"))
+
+
+class TestVerdict(unittest.TestCase):
+    def test_model_leads(self):
+        self.assertEqual(C.verdict(WIN, LOSE), "model leads")
+
+    def test_tiebreaker_when_only_the_blend_wins(self):
+        self.assertEqual(C.verdict(LOSE, WIN), "model as tiebreaker")
+
+    def test_harm_veto_means_follow_fv(self):
+        harm = {2021: cls(0.05, 0.01), 2022: cls(0.03, 0.01), 2023: cls(-0.03, 0.01)}
+        self.assertEqual(C.verdict(harm, harm), "follow FV")
+
+    def test_top50_tolerance(self):
+        drop = {v: cls(r["d"], r["se"], 0.5, 0.4) for v, r in WIN.items()}
+        self.assertEqual(C.verdict(drop, drop), "follow FV")
+
+    def test_missing_classes_are_unavailable(self):
+        one = {2019: None, 2021: cls(0.05, 0.01), 2022: None}
+        self.assertEqual(C.verdict(one, one), "follow FV")
+
+    def test_cautious(self):
+        self.assertEqual(C.cautious("model leads", "model as tiebreaker"), "model as tiebreaker")
+        self.assertEqual(C.cautious("follow FV", "model leads"), "follow FV")
+
+    def test_sleepers_ok(self):
+        self.assertTrue(C.sleepers_ok({1: (0.2, 0.05, 0.3), 2: (0.1, 0.01, 0.2), 3: None}, "rating"))
+        self.assertFalse(C.sleepers_ok({1: (0.6, 0.45, 0.7), 2: (0.7, 0.55, 0.8), 3: None}, "soon"))
+
+
+class TestBlend(unittest.TestCase):
+    def test_fitted_blend_leans_on_the_informative_input(self):
+        rng = np.random.default_rng(2)
+        y = rng.integers(0, 2, 400).astype(float)
+        pm = C.pct(y + rng.normal(0, 0.3, 400))
+        pf = C.pct(rng.normal(0, 1, 400))
+        m = C.fit_blend(pm, pf, y, "soon")
+        self.assertGreater(m.coef_[0][0], abs(m.coef_[0][1]))
+        self.assertEqual(C.apply_blend(m, pm, pf, "soon").shape, (400,))
+        r = C.fit_blend(pm, pf, y * 3.0, "rating")
+        self.assertGreater(r.coef_[0], abs(r.coef_[1]))
+
+
 if __name__ == "__main__":
     unittest.main()

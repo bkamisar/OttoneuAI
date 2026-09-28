@@ -124,6 +124,58 @@ source has no hits-allowed field.
 - The Prospects page's pitchers then get the same lenses, odds and Take column as
   hitters.
 
+## P-A result (run 2026-09-28 on Sonnet, reviewed on Opus)
+
+`model_p_base.py` → `cache/model_p_base_report.txt`, `cache/model_p_choice.json`.
+24,704 pitcher-season-levels (1,627–1,866 per season), 8,646 pitchers.
+
+**Rating (ridge; trees lost at all three vantages):**
+- **Kept:** age/level (z +4.7 / +4.3 / +4.1) and strikeouts (+2.7 / +3.4 / +3.6).
+- **Dropped:** control, run prevention (minor-league ERA / WHIP / HR/9 add nothing,
+  as the sabermetric consensus says), role, and trajectory.
+- Rank accuracy 0.256 / 0.269 / 0.266, with top-50 hit rates of 0.28 / 0.26 / 0.22.
+  Hitters were 0.43–0.45 and about 0.5, so pitchers are clearly harder, as expected.
+
+**Soon (trees won by the preset rule: AUC 0.820 vs 0.818 / 0.846 vs 0.850 /
+0.847 vs 0.815):**
+- **Kept:** age/level (+3.6 / +5.1 / +4.9), strikeouts (+0.6 / +2.6 / +2.9), control
+  (+1.3 / +1.2 / +0.2, marginal), and **role** (+1.3 / +2.0 / +1.0).
+- **Dropped:** run prevention and trajectory.
+- Final AUC 0.811 / 0.827 / 0.839. **Top-50 hit rates 0.08 / 0.08 / 0.20.**
+- The top calibration bucket was 0.19 predicted vs 0.11 actual (overconfident).
+
+**Review diagnosis of the weak "soon" top-N (not a bug):**
+- **The target is rare:** only 2.3–2.9% of prospects post a top-120 season within
+  2 years. So a top-50 rate of 0.08–0.20 is a 3–7× lift over the base rate.
+- **What "useful" looks like:** a top-120 MLB pitcher season has a median of 73 IP;
+  61% are under 90 IP and 25% are 150+ IP. Elite relievers qualify on ratios and
+  strikeouts.
+- **Who actually got there:** the prospects who hit "soon" averaged 24.9 years old
+  with a 46% start share, many of them relievers and older arms.
+- **Who the model favors:** its top 50 are young AAA starter prospects (age 23,
+  about 90% starts), e.g. Grayson Rodriguez, Max Meyer and Cade Cavalli. They
+  usually need more than 2 years to post a top-120 season, and their payoff shows
+  up in the rating.
+- **Tree vs plain model:** the plain logit's top 50 hit more at every vantage (6 / 7
+  / 13 vs the trees' 4 / 4 / 10), but the preset kind rule compares ranking
+  accuracy only, and the 2021 tree "win" was 0.002. **The rule stands; it is not
+  re-decided after seeing results.** It is recorded here, and **pre-registered for
+  the pitcher final check:** on sealed 2024, report the trees vs the plain model on
+  "soon" AUC, top-50 and calibration.
+  - If the trees lose on top-50 and calibration there too, production "soon" uses
+    the plain model.
+  - Either way, production "soon" odds get a calibration check before they're
+    shown as percentages.
+
+**3a check:** strikeouts were kept as a *group* for both outputs. The 3a result
+(whiff / CSW add nothing *beyond K%*) was within-group and is not contradicted.
+
+**Tree leads (for the pitcher final plan, as explicit terms under the same
+rule):**
+- For the rating, age × K% and age × CSW replicated at all three vantages. It's the
+  pitcher version of the hitters' age × SLG, which was rejected.
+- The "soon" model already is a tree model, so its patterns are already in it.
+
 ## Carried over unchanged (no decision needed)
 
 - **As-of discipline:** a vantage trains only on classes whose answer is known,

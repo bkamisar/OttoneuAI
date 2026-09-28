@@ -55,8 +55,24 @@ near-duplicates share a group; otherwise each would hide the other when dropped
 | Speed | SB/PA (no SB category exists; whether speed pays through runs is a finding) |
 | Trajectory | repeating the level; played ≥2 levels this season; PA at the level |
 
-**Targets.** Both use total season SGP from `labels.csv`, because an 80-PA
-call-up doesn't help a fantasy roster:
+**Targets — REVISED after plan B (see "Plan B result"): rank-based, so they
+mean the same thing in every season.** Each MLB hitter-season is ranked within
+its year by total SGP (1 = best).
+- **Soon** = a **top-144** season in Y+1…Y+2. Exactly 144 hitters qualify every
+  year, the literal 12 teams × 12 slots.
+- **Rating** = the best season in Y+1…Y+4 with ≥100 PA, valued at the **typical
+  value of its rank**: the median SGP at that rank across seasons 2013…V (2020
+  excluded), computed as-of. It is floored at 0 and is 0 if there's no such
+  season. That keeps SGP units and star-vs-starter magnitude without a narrow
+  year like 2026 shrinking everyone. "Useful" for top-N = the typical value of
+  rank 144.
+- **The 2024 decisions stay frozen:** contact+approach kept, tracking-for-soon
+  not used. They were made once, under the first labels. The rerun reports new
+  2024 numbers for information only.
+
+*Original definitions (superseded, kept for the record):* both targets used total
+season SGP from `labels.csv`, because an 80-PA call-up doesn't help a fantasy
+roster:
 - **Rating** = best season value in seasons Y+1…Y+4 with ≥100 PA, floored at 0,
   and 0 if no such season. Known once Y+4 ≤ V.
 - **Soon** = 1 if any season in Y+1…Y+2 reaches the useful bar, else 0. Known

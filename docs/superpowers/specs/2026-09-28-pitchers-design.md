@@ -176,6 +176,69 @@ rule):**
   pitcher version of the hitters' age × SLG, which was rejected.
 - The "soon" model already is a tree model, so its patterns are already in it.
 
+## Stuff layer design (P-B, P-C). Approved by the user 2026-09-28 ("go")
+
+The user's two decisions:
+- The stuff score predicts **next-season value at a fixed 100 IP workload**.
+- **Savant 2015–2026** is the MLB training source: about 12 small CSVs from the
+  host already in use, security-audited first.
+
+**Probe findings that shaped the design (3 cached Savant requests, 2015 / 2019 /
+2024):**
+- **Per-pitch-type columns are served for every season.** Four-seam, sinker and
+  cutter each have speed, spin, horizontal break and induced vertical break, plus
+  pitch shares.
+- **So metrics are built on each pitcher's *primary fastball*,** the most-thrown of
+  FF / SI / FC. Four-seam-only metrics would drop pitchers with no four-seamer
+  (44 of 800 in 2024, 45 of 725 in 2015). They would also mismeasure sinker-first
+  pitchers, whose four-seamer is a minor pitch.
+- **Horizontal break's sign flips with handedness** (2024 sinker −11.6, 2015 +15.8),
+  so it enters as a **magnitude**.
+- **`release_extension` is never served** (0 of 725 in 2015, 0 of 800 in 2024), so
+  **extension is out**: there's no MLB training data for it, even though AAA game
+  records carry it.
+- **Offspeed is left out:** too many relievers throw none, and the missing values
+  would drop them.
+
+**Metrics** (defined to match Savant; ours are computed from game records):
+- `fb_speed`, `fb_spin`, `fb_ivb`, `fb_hb` (magnitude): the primary fastball, 50+
+  thrown.
+- `breaking_speed`, `breaking_spin`: all breaking balls, 30+ thrown.
+- `whiff_percent`: the pitcher's whiffs ÷ swings, on the hitter parity's chosen
+  whiff definition.
+
+**P-B: parity, then the tables** (mirrors 3b plan A):
+- Our parser runs on the 2024 MLB game records and must reproduce Savant's 2024
+  numbers: **r ≥ 0.98 and |mean bias| ≤ 0.1 SD per metric**. The bias rule is new
+  because units matter here (movement in inches), not just correlation.
+- Uncertain definitions run as variants, and the best is kept:
+  - which pitch codes count as breaking;
+  - movement from `breaks` vs `pfx` coordinates.
+- If the gate fails, stop before building anything.
+- After it passes, the build writes two files:
+  - `cache/aaa_pitch_tracking.csv`: ours, AAA 2022–26.
+  - `cache/mlb_pitch_tracking.csv`: Savant, MLB 2015–26.
+
+**P-C: the stuff score** (mirrors step 1):
+- **Target:** the next MLB season's line valued at 100 IP with the site's SGP
+  formula (`labels.pitcher_sgp`: strikeouts scaled to 100 IP, ERA / WHIP / HR/9
+  as-is, per-season replacement from `context`). It needs 25+ IP next season and
+  is weighted by those innings.
+- **Features:** age plus the groups velocity (`fb_speed`), fastball shape (spin,
+  IVB, HB), breaking (speed, spin) and whiff. Each group is adopted by step 1's
+  8-of-10 rule.
+- **Also reported:** stuff vs box (K%, BB%), and robustness on the Hawk-Eye era
+  only (2020+), since 2015–19 was Trackman and spin readings differ between the two
+  systems.
+- **AAA → MLB:** flat per-metric offsets from pitchers with 150+ pitches at both
+  levels in the same season.
+- **Gate:** AAA pitchers' first qualifying season in 2022–23, scored with the
+  translated stuff score. It must rank their later MLB value (best season at 100
+  IP, 25+ IP) above chance: **Spearman CI lower bound > 0** among arrivals. The
+  2024 class is report-only.
+  - If the gate fails, the stuff layer stops there.
+  - If it passes, the pitcher final plan tests it as a layer, as for hitters.
+
 ## Carried over unchanged (no decision needed)
 
 - **As-of discipline:** a vantage trains only on classes whose answer is known,

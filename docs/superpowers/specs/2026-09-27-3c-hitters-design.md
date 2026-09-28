@@ -336,6 +336,39 @@ its calibration and top-N collapsed.
   left for a clean final check after such a change**, so the honest checks become
   plan C (the consensus gate) and future cohorts as their answers arrive.
 
+## Rank-target rerun result (run 2026-09-28, reviewed on Opus)
+
+Both targets are now rank-based (Part 1, "Targets — REVISED"). Plan A's decisions
+were re-run on the decision vantages; plan B's final run kept 2024's first-opening
+decisions frozen.
+
+- **The fix worked.** 2024 "soon" calibration: top bucket 0.27 predicted vs 0.22
+  actual (0.27 vs 0.12 before), top-50 0.26 (0.16 before), AUC 0.873. Pooled over
+  the decision vantages, the top bucket is 0.28 vs 0.26. The remaining 2024 gap is
+  about 1.5 SE for a 153-player bucket.
+- **The starter line is unchanged** (0.513 / 0.555 / 0.597 at 2019 / 2021 / 2022):
+  the median-by-rank at 144 is the same quantity as the old bar. What changed is
+  that each year's labels use rank.
+- **Same groups adopted.**
+  - Rating: age/level (z +7.5 / +4.2 / +6.2), power (+4.0 / +4.6 / +3.7),
+    contact (+2.8 / +3.1 / +1.5), and speed, **marginally** (+1.0 / +0.9 / +1.6;
+    rank gain +0.002–0.003).
+  - Soon: age/level, power, and contact + approach as a pair (+1.5 / −0.3 / +1.8;
+    kept regardless under the 2024 freeze).
+- **Leads rejected again.** Age × SLG hurts the rating (z −2.7 / −1.5 / −2.5);
+  swinging-strike × SLG does nothing.
+- **Tracking for "soon": still off.** The production fit gives w +1.75
+  [+1.17, +2.25] on 822 AAA hitter-seasons, but the held-out 2024 test shows no
+  gain (AUC 0.833 → 0.823, z −0.4). That split between in-sample and held-out is
+  itself the finding: untested with enough data, not refuted. Revisit when the
+  2025 cohort's answers arrive.
+- **Production:** rating tracking applied, provisional (w +0.185
+  [+0.104, +0.275]). 1,431 hitters in `cache/hitter_ratings.csv`; the top 15 are
+  AA/AAA, ages 19–25.
+- **Known coverage gap:** a hitter needs ≥150 PA at a level in 2026 to be rated,
+  so injured prospects are missing from this list.
+- **Next: plan C, the consensus gate.** It needs the user's 2023 Board export.
+
 ## Revisit trigger: Statcast into the base model
 
 Tracking stays a layer until a fair as-of backtest can judge it as a base

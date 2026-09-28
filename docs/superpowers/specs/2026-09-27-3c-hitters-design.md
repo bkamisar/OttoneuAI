@@ -232,7 +232,14 @@ Y+1, built from information through season Y).
 a Cloudflare 403, which is not to be bypassed. Saved under
 `prospects-model/cache/fv/board_<year>.csv` (gitignored: third-party data, never
 committed).
-- **Export one year first (2023)** to settle the ID join. Check whether the
+- **ID join SETTLED (2026-09-28, from the 2026 export):** the CSV carries only
+  FanGraphs' own `playerId` (`sa…` minor-league ids and numeric ids), with **no
+  MLBAM id**. Plan C matches on name + age + org, and lists every non-clean match
+  for the user to confirm. Exports come as **two files per year**, saved as
+  `cache/fv/board_<year>_hitters.csv` and `board_<year>_pitchers.csv`. The CSV
+  keeps every column separate; a web-page copy runs them together, making ranks
+  ambiguous, so it is not usable. 2026 is on file (not needed for the test).
+- *(Original plan:)* **Export one year first (2023)** to settle the ID join. Check whether the
   export has an MLBAM id column (see "The FanGraphs ↔ StatsAPI id gap" in the
   parent spec). If it does, the join is exact. If not, the fallback is a name +
   birth-year + org match, with every ambiguous match listed for review, never

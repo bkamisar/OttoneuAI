@@ -32,5 +32,42 @@ class TestTarget(unittest.TestCase):
         self.assertNotIn(999, vals)
 
 
+FULL = {"pitches": 400, "fb_speed": 95.0, "fb_spin": 2300.0, "fb_ivb": 16.0, "fb_hb": 8.0,
+        "breaking_speed": 85.0, "breaking_spin": 2500.0, "whiff_percent": 28.0}
+
+
+class TestRows(unittest.TestCase):
+    def test_mlb_rows_need_tracked_volume_and_a_valued_next_season(self):
+        table = {(1, 2020): FULL, (2, 2020): dict(FULL, pitches=200), (3, 2020): FULL}
+        values = {1: {2021: (1.5, 60.0)}, 2: {2021: (1.0, 60.0)}}
+        stats = {(p, 2020): stat(p) for p in (1, 2, 3)}
+        rows = stuff.mlb_rows(table, values, stats, threshold=1.0)
+        self.assertEqual([(r["player_id"], r["target"], r["weight"], r["useful"]) for r in rows],
+                         [(1, 1.5, 60.0, True)])
+        self.assertEqual((rows[0]["f"]["fb_speed"], rows[0]["f"]["age"]), (95.0, 25))
+        self.assertAlmostEqual(rows[0]["f"]["k"], 70 / 252)
+
+    def test_later_outcome_is_the_best_valued_season_after(self):
+        values = {1: {2020: (9.0, 90.0), 2021: (0.5, 30.0), 2023: (1.2, 80.0), 2027: (5.0, 100.0)}}
+        self.assertEqual(stuff.later_outcome(values, 1, 2020), (True, 1.2))
+        self.assertEqual(stuff.later_outcome(values, 2, 2020), (False, None))
+
+    def test_aaa_rows_first_qualifying_season_prospects_only(self):
+        table = {(1, 2022): FULL, (1, 2023): FULL, (2, 2022): dict(FULL, pitches=100), (3, 2023): FULL}
+        stats = {k: stat(k[0]) for k in table}
+        rows = stuff.aaa_rows(table, stats, {1: {2024: (2.0, 70.0)}}, (2022, 2023), 1.0, {3: {2021: 150.0}})
+        self.assertEqual([(r["player_id"], r["season"], r["arrived"], r["target"], r["useful"]) for r in rows],
+                         [(1, 2022, True, 2.0, True)])
+
+    def test_translation_is_a_pitch_weighted_same_season_offset(self):
+        aaa = {(1, 2023): {"pitches": 200, "fb_speed": 94.0}, (2, 2023): {"pitches": 400, "fb_speed": 92.0},
+               (3, 2023): {"pitches": 100, "fb_speed": 90.0}}
+        mlb = {(1, 2023): {"pitches": 300, "fb_speed": 95.0}, (2, 2023): {"pitches": 200, "fb_speed": 93.5},
+               (3, 2023): {"pitches": 500, "fb_speed": 99.0}}
+        t = stuff.fit_translation(aaa, mlb, ["fb_speed"])["fb_speed"]
+        self.assertEqual(t["n"], 2)
+        self.assertAlmostEqual(t["offset"], 1.25)
+
+
 if __name__ == "__main__":
     unittest.main()

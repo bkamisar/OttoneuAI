@@ -65,3 +65,77 @@ def useful_threshold(values):
             by.setdefault(s, []).append(v)
     return float(np.median([sorted(vs, reverse=True)[USEFUL_RANK - 1]
                             for vs in by.values() if len(vs) >= USEFUL_RANK]))
+
+
+def _features(metrics_row, stat_row):
+    f = {k: metrics_row.get(k) for k in stuff_keys()}
+    box = F.pitcher_features(stat_row)
+    f.update({k: box[k] for k in BOX})
+    f["age"] = stat_row.get("age")
+    return f
+
+
+def mlb_rows(table, values, stats, threshold):
+    """One row per MLB pitcher with >= MIN_PITCHES tracked pitches in t and a valued
+    season (25+ IP) in t+1. stats: {(player_id, season): StatsAPI pitcher row}."""
+    rows = []
+    for (pid, t), m in table.items():
+        if (m.get("pitches") or 0) < MIN_PITCHES:
+            continue
+        nxt = values.get(pid, {}).get(t + 1)
+        st = stats.get((pid, t))
+        if nxt is None or st is None:
+            continue
+        rows.append({"player_id": pid, "season": t, "f": _features(m, st), "target": nxt[0],
+                     "weight": float(nxt[1]), "useful": nxt[0] >= threshold})
+    return rows
+
+
+def later_outcome(values, pid, season):
+    """(arrived, best value at WORKLOAD) over MLB seasons after `season` with 25+ IP."""
+    vals = [v for s, (v, _) in values.get(pid, {}).items() if season < s <= LAST_OUTCOME_SEASON]
+    return bool(vals), (max(vals) if vals else None)
+
+
+def aaa_rows(table, stats, values, cohort_seasons, threshold, ip_history):
+    """AAA pitcher-seasons with >= MIN_PITCHES tracked pitches in the cohort seasons,
+    for pitchers not yet established in MLB, each pitcher's FIRST qualifying
+    season only so nobody counts twice in the gate."""
+    seen, rows = set(), []
+    for pid, s in sorted(table, key=lambda k: (k[1], k[0])):
+        m = table[(pid, s)]
+        st = stats.get((pid, s))
+        if (s not in cohort_seasons or pid in seen or (m.get("pitches") or 0) < MIN_PITCHES or st is None
+                or pcohorts.prior_mlb_ip(ip_history, pid, s) >= pcohorts.ESTABLISHED_IP):
+            continue
+        seen.add(pid)
+        arrived, best = later_outcome(values, pid, s)
+        rows.append({"player_id": pid, "season": s, "f": _features(m, st), "arrived": arrived,
+                     "target": best, "useful": best is not None and best >= threshold})
+    return rows
+
+
+def fit_translation(aaa, mlb, keys, min_pitches=MIN_PITCH_PAIR, n_boot=1000, seed=0):
+    """Per-metric AAA->MLB flat offset from pitchers who threw at both levels in the
+    SAME season, weighted by the smaller pitch count. The slope is reported, not
+    applied (errors-in-variables; see step1.fit_translation)."""
+    pairs = [p for p in aaa if p in mlb
+             and (aaa[p].get("pitches") or 0) >= min_pitches and (mlb[p].get("pitches") or 0) >= min_pitches]
+    rng = random.Random(seed)
+    out = {}
+    for k in keys:
+        pts = [(aaa[p][k], mlb[p][k], min(aaa[p]["pitches"], mlb[p]["pitches"])) for p in pairs
+               if aaa[p].get(k) is not None and mlb[p].get(k) is not None]
+        if not pts:
+            out[k] = {"n": 0, "offset": None, "lo": None, "hi": None, "slope": None}
+            continue
+        a, b, w = (np.array(col, dtype=float) for col in zip(*pts))
+        d = b - a
+        boots = []
+        for _ in range(n_boot):
+            i = [rng.randrange(len(d)) for _ in range(len(d))]
+            boots.append(float(np.average(d[i], weights=w[i])))
+        slope = float(np.polyfit(a, b, 1, w=np.sqrt(w))[0]) if len(pts) >= 3 and np.ptp(a) > 0 else None
+        out[k] = {"n": len(pts), "offset": float(np.average(d, weights=w)),
+                  "lo": float(np.percentile(boots, 2.5)), "hi": float(np.percentile(boots, 97.5)), "slope": slope}
+    return out

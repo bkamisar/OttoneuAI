@@ -12,6 +12,27 @@ def pe(pid, typ, hand="R", side="R", code="B", speed=95.0, spin=2300.0, ivb=16.0
             "spin": spin, "ivb": ivb, "hb": hb, "ext": ext, "x0": x0, "z0": z0, "ev": ev, "la": la, "event": event}
 
 
+class TestChoice(unittest.TestCase):
+    def test_pitch_level_must_beat_season_level_by_one_se(self):
+        self.assertEqual(PL.choose(0.05, 0.10, diff=0.06, se=0.05), "pitch")
+        self.assertEqual(PL.choose(0.05, 0.10, diff=0.04, se=0.05), "season")      # a tie keeps season-level
+
+    def test_a_score_needs_its_ci_above_zero(self):
+        self.assertEqual(PL.choose(0.05, -0.01, diff=0.30, se=0.05), "season")
+        self.assertEqual(PL.choose(-0.02, 0.01, diff=-0.10, se=0.05), "pitch")     # the single second attempt
+        self.assertEqual(PL.choose(-0.02, None, diff=None, se=None), "none")
+        self.assertEqual(PL.choose(0.0, 0.0, diff=0.5, se=0.05), "none")
+
+    def test_paired_difference(self):
+        y = np.arange(40.0)
+        rng = np.random.default_rng(1)
+        noisy = y + rng.normal(0, 10, 40)
+        self.assertEqual(PL.paired_rho_diff(noisy, noisy, y), (0.0, 0.0))
+        d, se = PL.paired_rho_diff(y, -y, y)
+        self.assertAlmostEqual(d, 2.0)
+        self.assertAlmostEqual(se, 0.0)
+
+
 class TestFrame(unittest.TestCase):
     def setUp(self):
         ps = ([pe(1, "FF") for _ in range(40)]

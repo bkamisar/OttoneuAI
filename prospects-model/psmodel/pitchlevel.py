@@ -5,6 +5,7 @@ pitcher-season into two features the stuff-score machinery maps to fantasy value
 Spec: docs/superpowers/specs/2026-09-28-pitchers-design.md, "P-E".
 """
 import numpy as np
+from scipy.stats import spearmanr
 from sklearn.ensemble import HistGradientBoostingClassifier, HistGradientBoostingRegressor
 
 from .metrics import CONTACT_CODES, WHIFF_CODES
@@ -138,3 +139,29 @@ def pitcher_features(models, frame):
     return {int(pid): {"pitches": int(c), "pl_whiff": float(a / g) if g else None,
                        "pl_damage": float(b / g) if g else None}
             for pid, c, g, a, b in zip(ids, cnt, ng, sw, sd)}
+
+
+def paired_rho_diff(a, b, y, n_boot=2000, seed=0):
+    """(Spearman(a, y) - Spearman(b, y), its paired player-bootstrap SE): both scores
+    are re-ranked on the SAME resampled players each draw."""
+    a, b, y = (np.asarray(v, dtype=float) for v in (a, b, y))
+    d = float(spearmanr(a, y).statistic - spearmanr(b, y).statistic)
+    rng = np.random.default_rng(seed)
+    boots = []
+    for _ in range(n_boot):
+        i = rng.integers(0, len(y), len(y))
+        boots.append(float(spearmanr(a[i], y[i]).statistic - spearmanr(b[i], y[i]).statistic))
+    return d, float(np.nanstd(boots, ddof=1))
+
+
+def choose(season_lo, pitch_lo, diff, se):
+    """The pre-registered P-E rule. A score is usable only if its as-of Spearman CI
+    lower bound is > 0 (None = not run). Pitch-level replaces season-level only if it
+    is usable AND beats it by >= 1 paired SE; a tie keeps season-level. If
+    season-level fails, a usable pitch-level score (the single pre-registered second
+    attempt) is used. Returns "pitch", "season" or "none"."""
+    s_ok = season_lo is not None and season_lo > 0
+    p_ok = pitch_lo is not None and pitch_lo > 0
+    if p_ok and (not s_ok or diff >= se):
+        return "pitch"
+    return "season" if s_ok else "none"

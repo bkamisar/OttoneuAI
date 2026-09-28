@@ -8,11 +8,13 @@ backtests. The verdict rules were fixed in the spec before this ran.
 Groups per class: graded (decides); graduates restored from list Y (the guard);
 sleepers, i.e. ungraded players (is the model better than chance there?).
 
-Usage:  python consensus_gate.py
+Usage:  python consensus_gate.py [--pitchers]
 Reads cached data and the user's Board exports (cache/fv/). No network. Writes
 cache/consensus_report.txt, cache/consensus_verdict.json and
-cache/consensus_ambiguous.csv (all gitignored).
+cache/consensus_ambiguous.csv (all gitignored); with --pitchers (plan P-F, spec
+2026-09-28-pitchers-design.md) the same files named consensus_p_*.
 """
+import argparse
 import csv
 import datetime
 import json
@@ -21,20 +23,25 @@ import warnings
 
 import numpy as np
 
-from psmodel import asof, cohorts, dataset
+from psmodel import asof, cohorts, dataset, pcohorts
 from psmodel import consensus as C
 from psmodel import walkforward as W
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 CACHE = os.path.join(HERE, "cache")
 FV_DIR = os.path.join(CACHE, "fv")
-REPORT = os.path.join(CACHE, "consensus_report.txt")
-VERDICT = os.path.join(CACHE, "consensus_verdict.json")
-AMBIGUOUS = os.path.join(CACHE, "consensus_ambiguous.csv")
 TESTS = {"rating": W.RATING_VANTAGES, "soon": W.SOON_VANTAGES}
-INFO = {"rating": (), "soon": (2024,)}      # opened in plan B: reported, never decides
+INFO = {"rating": (), "soon": (2024,)}      # opened in plan B / P-D: reported, never decides
 FIRST_LIST, LAST_LIST = 2017, 2026
-GRADUATE_PA = 100               # MLB PA in Y+1 marking a player missing from list Y+1 as a graduate
+# Per player type: MLB playing time in Y+1 that marks a player missing from list Y+1
+# as a graduate (hitters 100 PA ~ 77% of the 130-AB rookie limit; pitchers 40 IP ~
+# 77% of 50 IP, fixed in P-F before it ran), the final-model decisions and outputs.
+TYPES = {
+    "H": {"title": "3c-HITTERS CONSENSUS GATE (plan C)", "noun": "hitters", "graduate": 100,
+          "decisions": "model3c_final.json", "prefix": "consensus"},
+    "P": {"title": "PITCHERS CONSENSUS GATE (plan P-F)", "noun": "pitchers", "graduate": 40,
+          "decisions": "model_p_final.json", "prefix": "consensus_p"},
+}
 warnings.filterwarnings("ignore", category=FutureWarning, module="sklearn")
 
 
@@ -77,16 +84,26 @@ def summary(res):
 
 
 def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--pitchers", action="store_true", help="run the pitcher gate (P-F)")
+    typ = "P" if ap.parse_args().pitchers else "H"
+    cfg = TYPES[typ]
+    report, verdict_path, ambiguous_path = (os.path.join(CACHE, cfg["prefix"] + s)
+                                            for s in ("_report.txt", "_verdict.json", "_ambiguous.csv"))
     labels = dataset.load_labels(os.path.join(CACHE, "labels.csv"))
-    asof.attach_ranks(labels)
-    pa_history = cohorts.mlb_pa_history()
-    rows = cohorts.build_rows(cohorts.load_milb(), pa_history,
-                              {pid: r for (pid, typ), r in labels.items() if typ == "H"})
-    cohorts.add_products(rows)
-    with open(os.path.join(CACHE, "model3c_final.json"), encoding="utf-8") as fh:
+    asof.attach_ranks(labels, typ)
+    mlb = {pid: r for (pid, t), r in labels.items() if t == typ}
+    if typ == "H":
+        history = cohorts.mlb_pa_history()
+        rows = cohorts.add_products(cohorts.build_rows(cohorts.load_milb(), history, mlb))
+    else:
+        history = pcohorts.mlb_ip_history()
+        rows = pcohorts.add_products(pcohorts.build_rows(pcohorts.load_milb(), history, mlb))
+    with open(os.path.join(CACHE, cfg["decisions"]), encoding="utf-8") as fh:
         dec = json.load(fh)
-    boards = {y: C.load_board(C.board_path(FV_DIR, y)) for y in range(FIRST_LIST, LAST_LIST + 1)
-              if os.path.exists(C.board_path(FV_DIR, y))}
+    kind = cfg["noun"]
+    boards = {y: C.load_board(C.board_path(FV_DIR, y, kind)) for y in range(FIRST_LIST, LAST_LIST + 1)
+              if os.path.exists(C.board_path(FV_DIR, y, kind))}
     missing = sorted({v + 1 for t in TESTS for v in TESTS[t] + INFO[t]} - set(boards))
     if missing:
         raise SystemExit(f"Board lists missing from {FV_DIR}: {missing}")
@@ -96,7 +113,7 @@ def main():
     def scored(t, c, ctx_y):
         """(one row per player, y on ctx_y; model score) for class c, the model fit as-of c."""
         if (t, c) not in memo:
-            got = W.predictions(rows, dec[t]["keys"], t, dec[t]["kind"], {c: asof.ref_curve(labels, c)}, (c,),
+            got = W.predictions(rows, dec[t]["keys"], t, dec[t]["kind"], {c: asof.ref_curve(labels, c, typ)}, (c,),
                                 unseal=c in INFO[t])
             memo[(t, c)] = one_per_player(*got[c]) if c in got else ([], np.array([]))
         test, pred = memo[(t, c)]
@@ -114,7 +131,7 @@ def main():
                 graded.append((r, p, C.fv_score(nxt["matched"][pid])))
             elif pid in skip:
                 continue
-            elif prev and pid in prev["matched"] and pa_history.get(pid, {}).get(c + 1, 0) >= GRADUATE_PA:
+            elif prev and pid in prev["matched"] and history.get(pid, {}).get(c + 1, 0) >= cfg["graduate"]:
                 restored.append((r, p, C.fv_score(prev["matched"][pid])))
             else:
                 sleepers.append((r, p))
@@ -148,7 +165,7 @@ def main():
         pm, pf = C.pct([g[1] for g in group]), C.pct([g[2] for g in group])
         return C.head_to_head(test, pf, C.apply_blend(m, pm, pf, t), t, ctx)
 
-    L = ["3c-HITTERS CONSENSUS GATE (plan C): does the model beat just following FV?",
+    L = [f"{cfg['title']}: does the model beat just following FV?",
          "Class Y vs Board list Y+1 (preseason; built from information through Y). Base model, fit as-of Y.",
          "Each line: FanGraphs' order vs the challenger on the same players; z = gain in noise-widths.", ""]
     out, ambiguous = {"generated": datetime.date.today().isoformat()}, {}
@@ -157,7 +174,7 @@ def main():
         res = {k: {} for k in ("model", "blend", "model_r", "blend_r")}
         cis, classes = {}, {}
         for v in TESTS[t] + INFO[t]:
-            ctx = asof.ref_curve(labels, v)
+            ctx = asof.ref_curve(labels, v, typ)
             nxt, graded, restored, sleepers = groups(t, v, ctx)
             for a in nxt["ambiguous"]:
                 ambiguous[(v + 1, a["player_id"])] = a
@@ -194,21 +211,21 @@ def main():
               f"  VERDICT ({t}): {final.upper()}"
               + (f"  [UNSTABLE: graded-only says '{main_v}', graduates-restored says '{rest_v}'; "
                  f"the more cautious stands]" if main_v != rest_v else ""),
-              f"  model shown for ungraded hitters: {'yes' if show else 'no'}", ""]
+              f"  model shown for ungraded {cfg['noun']}: {'yes' if show else 'no'}", ""]
         out[t] = {"verdict": final, "verdict_graded": main_v, "verdict_restored": rest_v,
                   "unstable": main_v != rest_v, "show_model_for_ungraded": show, "classes": classes}
 
-    with open(AMBIGUOUS, "w", newline="", encoding="utf-8") as fh:
+    with open(ambiguous_path, "w", newline="", encoding="utf-8") as fh:
         wr = csv.writer(fh)
         wr.writerow(["list", "player_id", "name", "age", "board_candidates"])
         for (lst, pid), a in sorted(ambiguous.items()):
             wr.writerow([lst, pid, safe(a["name"]), a["age"], safe("; ".join(a["candidates"]))])
-    L.append(f"{len(ambiguous)} ambiguous same-name cases left out -> {AMBIGUOUS}")
-    with open(VERDICT, "w", encoding="utf-8") as fh:
+    L.append(f"{len(ambiguous)} ambiguous same-name cases left out -> {ambiguous_path}")
+    with open(verdict_path, "w", encoding="utf-8") as fh:
         json.dump(out, fh, indent=2)
     text = "\n".join(L)
     print(text)
-    with open(REPORT, "w", encoding="utf-8") as fh:
+    with open(report, "w", encoding="utf-8") as fh:
         fh.write(text + "\n")
 
 

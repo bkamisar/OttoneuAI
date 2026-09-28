@@ -612,6 +612,28 @@ the rule that produced it; the percent rule was also recomputed by hand.
 - **For the shopping list:** pitchers' "soon" is shown as a rank or tier, never a
   percentage. The rating is the base model with no stuff layer.
 
+## P-F: the pitcher consensus gate (approved by the user 2026-09-28, before it ran)
+
+The hitters' plan C, unchanged in method and verdict rules (spec
+`2026-09-27-3c-hitters-design.md`, "Plan C design").
+- **Classes:** each test class Y against the preseason Board list Y+1
+  (`board_Y_pitchers.csv`).
+- **Three orders:** FanGraphs' (FV, then Top 100, then org rank), P-D's model fit
+  as-of Y (ridge for the rating, trees for "soon"), and the average of the two
+  percentile ranks.
+- **Vantages:** rating 2019 / 2021 / 2022; soon 2021 / 2022 / 2023. The soon 2024
+  class is information only, since P-D opened it.
+- **Verdicts:** `consensus.verdict` / `cautious` / `sleepers_ok`, as for hitters.
+- **Board columns:** the pitch-grade columns (FB / SL / CB / CH / CMD) are ignored.
+- **Graduation guard (the only new number, fixed now):** a pitcher missing from
+  list Y+1 counts as a graduate if he threw **≥ 40 MLB IP in Y+1**. Hitters' 100 PA
+  is about 77% of the 130-AB rookie limit, and 77% of the 50-IP limit is about 40.
+- **Code:** `consensus_gate.py` gets `--pitchers`. With no flag it runs the hitters
+  unchanged, and the hitters' verdict file must reproduce exactly (ignoring the
+  date) before the pitcher result is trusted.
+- **Outputs:** `cache/consensus_p_report.txt`, `cache/consensus_p_verdict.json`,
+  `cache/consensus_p_ambiguous.csv`.
+
 ## Stuff layer: staging and the pitch-level follow-up (pre-registered 2026-09-28)
 
 **What the review of public stuff models found** (FanGraphs Stuff+ and PitchingBot

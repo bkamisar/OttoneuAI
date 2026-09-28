@@ -24,8 +24,8 @@ MIN_H2H = 30
 N_BOOT = 300
 
 
-def board_path(root, year):
-    return os.path.join(root, f"board_{year}_hitters.csv")
+def board_path(root, year, kind="hitters"):
+    return os.path.join(root, f"board_{year}_{kind}.csv")
 
 
 def norm_name(name):

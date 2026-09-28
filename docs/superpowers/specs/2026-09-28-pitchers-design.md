@@ -96,6 +96,13 @@ source has no hits-allowed field.
     season per leaderboard.
   - *Recommended:* use Savant for 2015–21, plus our records. This needs a small
     download, sized and security-audited first.
+  - **Checked overnight (one cached request):** Savant's custom leaderboard for
+    `type=pitcher`, 2019, returned 804 pitchers with every field asked for:
+    four-seam velocity, spin, horizontal break, vertical and induced vertical
+    break, extension, fastball / breaking / offspeed averages, slider metrics, pitch
+    mix, whiff%, K% and IP. The `year` column matched the request.
+  - So 2015–2021 costs about 7 requests (one CSV per season), from the same host
+    the hitter pipeline already uses.
 
 **D6. Consensus gate and shopping list.**
 - *Recommended:* plan C's rules unchanged, against the board pitcher lists: FV

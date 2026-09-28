@@ -304,6 +304,60 @@ whiff (−0.044) and breaking are not.
 The staging rule (one pitch-level attempt if the *gate* fails) stands, and was not
 spent on this rule defect.
 
+## P-C result (run 2026-09-28 on Opus, after the rule correction)
+
+`cache/stuff_report.txt` covers 3,710 MLB pitcher-seasons (t = 2015–25) from 1,202
+pitchers. The target is the next season valued at 100 IP; ridge (rho 0.354) beat
+gbm (0.316).
+
+**Adopted:** velocity and fastball shape (rank gain 10/10), and **breaking at
+exactly 8/10**.
+- The expectation recorded before this run said breaking would *not* pass. It
+  passes the recorded rule: rank gain +0.001, which is noise, and a top-50 change
+  of 0.000. The rule governs, not the forecast. Its effect is negligible.
+- Whiff was rejected (top-50 −0.044).
+
+**On MLB:**
+- Stuff *on top of* box (age, K%, BB%): rho 0.349 → **0.390** and top-50 0.632 →
+  0.668, in 10/10 shuffles.
+- Stuff + age alone (0.279) is weaker than box alone (0.349).
+- Robust to the Hawk-Eye era only (t ≥ 2020) and to dropping 2020.
+
+**Interactions:** fastball speed × IVB, IVB × HB and speed × spin are top-10 in
+10/10 runs, but trees lost overall. These are leads for the pitch-level model.
+
+**AAA → MLB offsets** (about 1,400 same-season pairs), small:
+- fastball +0.17 mph and +18 rpm;
+- breaking +0.33 mph and +21 rpm;
+- movement about +0.2 in.
+- Whiff differs a lot by level (−4.2 pts, slope 0.47) but isn't used.
+
+**Prospect gate** (2022–23 AAA pitchers, first qualifying season, not
+established): **PASS, narrowly.**
+
+| 2022–23 cohort, 239 arrivals | Spearman vs later MLB value |
+|---|---|
+| stuff score | +0.155 [+0.025, +0.279] |
+| box-score model | +0.224 |
+| AAA K% | +0.255 |
+
+- Stuff does sort who arrives: 48% of the top quintile vs 19% of the bottom.
+- 2024 (report only): stuff +0.109 [−0.040, +0.255] vs K% +0.345.
+
+**Reading:** stuff carries real MLB signal *beyond* box stats. For prospects on
+its own, it's weaker than AAA strikeout rate. So the question that matters is
+the layer test: does it add on top of the box model?
+
+**Caveats for the pitcher final plan:**
+1. **Redo the gate as-of** (stuff model fit only on MLB outcomes known by each
+   cohort's year). Gate pitchers' own later MLB seasons are among this run's
+   training rows. For hitters the as-of refit changed little (0.391 → 0.416).
+2. **Test it as a layer** on top of the P-A base model: residualized and
+   as-of, like hitters' tracking layer. The gate only licenses that test.
+3. **Per the staging rule,** the pitch-level model is now the *upgrade candidate*.
+   It must beat this season-level score in the final plan. The weak standalone
+   showing makes it worth building.
+
 ## Stuff layer: staging and the pitch-level follow-up (pre-registered 2026-09-28)
 
 **What the review of public stuff models found** (FanGraphs Stuff+ and PitchingBot

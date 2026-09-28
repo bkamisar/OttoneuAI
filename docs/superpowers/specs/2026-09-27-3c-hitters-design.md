@@ -414,7 +414,65 @@ decisions frozen.
   AA/AAA, ages 19–25.
 - **Known coverage gap:** a hitter needs ≥150 PA at a level in 2026 to be rated,
   so injured prospects are missing from this list.
-- **Next: plan C, the consensus gate.** It needs the user's 2023 Board export.
+- **Next: plan C, the consensus gate.** Board lists 2017–2026 are on file; the
+  design is below (`plans/2026-09-27-3c-consensus-gate.md`).
+
+## Plan C design: the consensus gate, detailed (approved 2026-09-28)
+
+**Matching** runs from our side. Each prospect in a class is looked up on list
+Y+1 by normalized name (accents folded, punctuation and Jr./II suffixes dropped),
+guarded by age. Each list's Board-age date differs, so the offset between Board
+age and StatsAPI season age is calibrated per list from the unique matches, and a
+candidate within 1.5 years of it is accepted. Names shared by several players on
+either side are **ambiguous**: listed in `consensus_ambiguous.csv`, never guessed.
+Measured on list 2023 × class 2022: 396 of 544 Board hitters matched uniquely,
+395 of them age-consistent; 6 names were shared. The unmatched were mostly
+players not in the four full-season levels that year, so they are outside the
+class anyway.
+
+**Groups per class:**
+1. **Head-to-head (decides):** the prospects that list Y+1 grades.
+2. **Sleepers:** prospects in our class that FanGraphs didn't grade.
+3. **Early graduates restored (guard):** head-to-head again, adding players who
+   are missing from list Y+1 but had ≥100 MLB PA in year Y+1 (so they were deleted
+   as graduates), using their list-Y grade.
+
+Counts of graded, ungraded, ambiguous, age-rejected and restored players are
+reported per class.
+
+**Rankers:**
+- **FanGraphs' order:** FV ("45+" = 47.5), then Top 100 rank, then org rank.
+- **The model:** plan A's recipe as-of the vantage (rank targets, adopted groups,
+  ridge/logit). Base only: the rating's tracking weight can't be tested as-of,
+  and tracking is off for "soon".
+- **Blend (decides):** the average of the two percentile ranks, with no fitting.
+- **Fitted blend (information only):** trained on earlier classes that have a
+  list (lists 2017+), each scored by its own as-of model (the walk-forward
+  prediction at that class's year). Unavailable at rating 2019.
+
+**Test classes:** rating 2019 / 2021 / 2022 (lists 2020 / 2022 / 2023); soon 2021 /
+2022 / 2023 (lists 2022 / 2023 / 2024). Soon 2024 (list 2025) is information only,
+since that cohort was already opened. One row per player (the highest level
+played that season). Matches whose name has no candidate within the age guard are
+**age-rejected** and left out of every group.
+
+**Scoring:** rank accuracy (Spearman / AUC), top-25 / top-50, and a paired
+player-bootstrap gain over FanGraphs.
+
+**Verdict, per output, fixed in advance:**
+- **"Model leads"** if the model beats FanGraphs by plan A's adoption rule (≥1 SE
+  at 2 of 3 classes, none ≤ −2 SE, mean top-50 change ≥ −0.04).
+- **Otherwise "model as tiebreaker"** if the blend beats FanGraphs by the same
+  rule.
+- **Otherwise "follow FV".**
+- The **model is shown for ungraded players** if its sleeper rank-accuracy 95%
+  interval (player bootstrap) is above chance (Spearman > 0, AUC > 0.5) at ≥2 of 3
+  classes.
+- **Guard:** if the restored-graduates run gives a different verdict, it's flagged
+  **unstable** and the more cautious of the two stands.
+
+**Outputs (gitignored):** `consensus_report.txt`, `consensus_verdict.json` (read by
+sub-project 4), `consensus_ambiguous.csv`.
 
 ## Revisit trigger: Statcast into the base model
 

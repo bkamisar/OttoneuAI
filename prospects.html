@@ -49,6 +49,8 @@
     .badge-fv-low    { background: #f5f5f5; color: #666;    }
     .grades-cell { text-align: left !important; white-space: nowrap; font-size: 0.76rem; color: #555; letter-spacing: 0.01em; }
     .grades-cell .tool { color: #888; font-weight: 600; }
+    .take-cell { text-align: left !important; font-size: 0.76rem; color: #444; min-width: 220px; }
+    .model-note { font-size: 0.8rem; color: #555; margin: 0 0 10px; }
   </style>
   <link rel="stylesheet" href="theme.css">
 </head>
@@ -71,6 +73,10 @@
   <div id="error"></div>
   <div id="content" style="display:none">
     <div class="title-row">
+      <div class="view-toggle" id="lensToggle" style="display:none">
+        <button id="btnBest" class="active" onclick="setLens('best')">Best prospects</button>
+        <button id="btnReady" onclick="setLens('ready')">Closest to helping</button>
+      </div>
       <div class="view-toggle" id="viewToggle" style="display:none">
         <button id="btnCurrent" class="active" onclick="setView('current')">Current Year</button>
         <button id="btnDynasty" onclick="setView('dynasty')">Dynasty</button>
@@ -82,17 +88,19 @@
         <button class="type-btn active" data-type="all">All</button>
         <button class="type-btn" data-type="H">Hitters</button>
         <button class="type-btn" data-type="P">Pitchers</button>
+        <button class="type-btn" data-type="U">Ungraded (model only)</button>
       </div>
       <label style="font-size:0.8rem;color:#555;display:flex;align-items:center;gap:5px;cursor:pointer">
         <input type="checkbox" id="faOnlyChk"> Free agents only
       </label>
       <div class="count-line" id="countLine"></div>
     </div>
+    <div class="model-note" id="modelNote"></div>
     <div class="tbl-wrap">
       <table>
         <thead>
           <tr>
-            <th data-col="fv">FV</th>
+            <th data-col="fv" id="thFv">FV</th>
             <th data-col="name">Name</th>
             <th data-col="org">Org</th>
             <th data-col="pos">Pos</th>
@@ -100,6 +108,8 @@
             <th data-col="eta">ETA</th>
             <th data-col="age">Age</th>
             <th class="grades-cell">Grades</th>
+            <th data-col="odds" title="Model: chance of a starter-quality season within 2 years">2-yr odds</th>
+            <th class="take-cell">Take</th>
             <th data-col="value" id="thValue">Proj $</th>
             <th data-col="team">Ottoneu Team</th>
             <th data-col="salary">Salary</th>
@@ -120,6 +130,9 @@
     var activeView = 'current';
     var hasDynasty = false;
     var faOnly     = false;
+    var lens         = 'best';   // 'best' = FanGraphs order; 'ready' = FV + model blend
+    var ungradedRows = [];
+    var modelInfo    = null;     // from data/prospect_model.json; null if absent
 
     function setView(v) {
       activeView = v;
@@ -128,6 +141,45 @@
       document.getElementById('thValue').textContent   = v === 'dynasty' ? 'Dynasty $'       : 'Proj $';
       document.getElementById('thSurplus').textContent = v === 'dynasty' ? 'Dynasty Surplus'  : 'Surplus';
       render();
+    }
+
+    function setLens(l) {
+      lens = l;
+      document.getElementById('btnBest').classList.toggle('active', l === 'best');
+      document.getElementById('btnReady').classList.toggle('active', l === 'ready');
+      if (l === 'ready') { setType('H'); sortCol = 'ready'; sortDir = -1; }
+      else { sortCol = 'fv'; sortDir = -1; }
+      markSortHeader();
+      render();
+    }
+
+    function setType(t) {
+      typeFilter = t;
+      document.querySelectorAll('.type-btn').forEach(function(b) {
+        b.classList.toggle('active', b.dataset.type === t);
+      });
+      document.getElementById('thFv').textContent = t === 'U' ? 'Model' : 'FV';
+    }
+
+    function markSortHeader() {
+      document.querySelectorAll('th[data-col]').forEach(function(h) {
+        h.classList.remove('sort-asc', 'sort-desc');
+        if (h.dataset.col === sortCol) h.classList.add(sortDir === -1 ? 'sort-desc' : 'sort-asc');
+      });
+    }
+
+    function fmtOdds(o) {
+      if (o == null) return '—';
+      return o === 0 ? '<5%' : '~' + o + '%';
+    }
+
+    // Plain-language model read for a board row (shopping-list spec).
+    function boardTake(pr, model, isPitcher) {
+      if (isPitcher) return 'FanGraphs only (no pitcher model)';
+      if (!modelInfo) return '—';
+      if (model) return model.take;
+      if (modelInfo.unreadable[pr.rawName + '|' + pr.org]) return 'No model read: name shared by two players';
+      return 'No model read: under 150 PA at a full-season level in ' + modelInfo.season;
     }
 
     function fvClass(fv) {
@@ -193,7 +245,7 @@
 
     function sortValue(row, col) {
       switch (col) {
-        case 'fv':      return row.prospect.fv;
+        case 'fv':      return row.ungraded ? row.model.rating_pct : row.prospect.fv;
         case 'name':    return (row.prospect.rawName || row.prospect.name).toLowerCase();
         case 'org':     return (row.prospect.org   || '').toLowerCase();
         case 'pos':     return (row.prospect.pos   || '').toLowerCase();
@@ -204,6 +256,8 @@
         case 'team':    return (row.team || '').toLowerCase();
         case 'salary':  return row.salary;
         case 'surplus': return rowSurplus(row);
+        case 'odds':    return row.model ? row.model.odds : -1;
+        case 'ready':   return row.model && row.model.ready_rank ? row.model.ready_rank : 1e9;
         default:        return 0;
       }
     }
@@ -211,9 +265,11 @@
     function render() {
       var isDynasty = activeView === 'dynasty';
       var query     = document.getElementById('searchBox').value.toLowerCase();
-      var filtered  = allRows.filter(function(r) {
-        var t = r.projType || inferType(r.prospect.pos);
+      var base      = typeFilter === 'U' ? ungradedRows : allRows;
+      var filtered  = base.filter(function(r) {
+        var t = r.ungraded ? 'U' : (r.projType || inferType(r.prospect.pos));
         if (typeFilter !== 'all' && t !== typeFilter) return false;
+        if (lens === 'ready' && !(r.model && r.model.ready_rank)) return false;
         if (faOnly && r.team !== 'FA') return false;
         if (query) {
           var name = (r.prospect.rawName || r.prospect.name).toLowerCase();
@@ -230,7 +286,20 @@
       });
 
       document.getElementById('countLine').textContent =
-        'Showing ' + filtered.length + ' of ' + allRows.length;
+        'Showing ' + filtered.length + ' of ' + base.length;
+
+      var note = '';
+      if (typeFilter === 'U') {
+        note = 'Model only, no scouting grade. In backtests about 1–2.5% of never-listed hitters became ' +
+               'starter-quality; most ungraded hits had been on an earlier list.';
+      } else if (lens === 'ready') {
+        note = 'Ranked by the average of FanGraphs\' order and the model\'s 2-year odds, which beat FanGraphs ' +
+               'alone in 3 of 3 test years. ' + modelInfo.counts.board_without_model +
+               ' board hitters have no model read.';
+      } else if (modelInfo) {
+        note = 'Sorted by FanGraphs. Take shows where the model disagrees; ceiling disagreements are unproven.';
+      }
+      document.getElementById('modelNote').textContent = note;
 
       var tbody = document.getElementById('prospectBody');
       while (tbody.firstChild) tbody.removeChild(tbody.firstChild);
@@ -256,8 +325,14 @@
         }
 
         var fvSpan = document.createElement('span');
-        fvSpan.className = 'badge-fv ' + fvClass(pr.fv);
-        fvSpan.textContent = pr.fv;
+        if (row.ungraded) {
+          fvSpan.className = 'badge-fv badge-fv-low';
+          fvSpan.textContent = Math.round(row.model.rating_pct * 100);
+          fvSpan.title = 'Model rating percentile among ' + modelInfo.season + ' model hitters';
+        } else {
+          fvSpan.className = 'badge-fv ' + fvClass(pr.fv);
+          fvSpan.textContent = pr.fv;
+        }
         tr.appendChild(tdNode(fvSpan));
 
         tr.appendChild(td(pr.rawName || pr.name));
@@ -271,6 +346,9 @@
         gradesCell.className = 'grades-cell';
         gradesCell.appendChild(buildGradesCell(pr));
         tr.appendChild(gradesCell);
+
+        tr.appendChild(td(fmtOdds(row.model ? row.model.odds : null), row.model ? '' : 'dim'));
+        tr.appendChild(td(row.take, 'take-cell' + (row.model ? '' : ' dim')));
 
         if (row.hasProj) {
           var valCls = isDynasty ? 'dynasty-val' : (val >= 10 ? 'surplus-pos' : '');
@@ -306,17 +384,23 @@
           sortCol = col;
           sortDir = (['name','org','pos','level','eta','team'].indexOf(col) !== -1) ? 1 : -1;
         }
-        document.querySelectorAll('th').forEach(function(h) { h.className = ''; });
-        this.dataset.col && (this.className = sortDir === -1 ? 'sort-desc' : 'sort-asc');
+        markSortHeader();
         render();
       });
     });
 
     document.querySelectorAll('.type-btn').forEach(function(btn) {
       btn.addEventListener('click', function() {
-        typeFilter = this.dataset.type;
-        document.querySelectorAll('.type-btn').forEach(function(b) { b.classList.remove('active'); });
-        this.classList.add('active');
+        var t = this.dataset.type;
+        if (lens === 'ready' && t !== 'H') {
+          lens = 'best';
+          document.getElementById('btnBest').classList.add('active');
+          document.getElementById('btnReady').classList.remove('active');
+        }
+        setType(t);
+        document.getElementById('lensToggle').style.display = (modelInfo && t !== 'U') ? '' : 'none';
+        if (lens !== 'ready') { sortCol = 'fv'; sortDir = -1; }
+        markSortHeader();
         render();
       });
     });
@@ -415,8 +499,35 @@
         }
       }
 
+      // Model read (sub-project 4). If the file is absent the page works as before.
+      var modelByKey = {};
+      try {
+        var mresp = await fetch('./data/prospect_model.json?t=' + Date.now(), { cache: 'no-store' });
+        if (mresp.ok) {
+          var mj = await mresp.json();
+          var unreadable = {};
+          (mj.unreadable_keys || []).forEach(function(k) { unreadable[k] = true; });
+          modelInfo = { season: mj.season, counts: mj.counts, unreadable: unreadable };
+          (mj.graded || []).forEach(function(g) { modelByKey[g.key] = g; });
+          ungradedRows = (mj.ungraded || []).map(function(u) {
+            var nm = normalizeName(u.name);
+            var urp = rosterByName[nm] || null;
+            return {
+              prospect: { name: nm, rawName: u.name, org: '', pos: '', level: u.level, eta: '', fv: 0, age: u.age },
+              ungraded: true, model: u, take: u.take,
+              salary: urp ? (urp.salary || 0) : 0, team: urp ? (urp.team || 'FA') : 'FA',
+              value: 0, surplus: 0, dynastyValue: 0, dynastySurplus: 0, hasProj: false, projType: 'H',
+            };
+          });
+        }
+      } catch (e) {
+        console.warn('[prospects] no model data:', e);
+      }
+
       allRows = prospectList.map(function(pr) {
         var rp  = rosterByName[pr.name] || null;
+        var isP = inferType(pr.pos) === 'P';
+        var mdl = isP ? null : (modelByKey[pr.rawName + '|' + pr.org] || null);
         var pm  = projByName[pr.name]   || null;
         var vm  = valueMap[pr.name]        || {};
         var dvm = dynastyValueMap[pr.name] || {};
@@ -431,10 +542,14 @@
           dynastySurplus: dvm.dynastySurplus !== undefined ? dvm.dynastySurplus : (rp ? -sal : 0),
           hasProj:        !!pm,
           projType:       pm ? pm.type : null,
+          model:          mdl,
+          take:           boardTake(pr, mdl, isP),
         };
       });
 
-      document.querySelector('th[data-col="fv"]').className = 'sort-desc';
+      if (modelInfo) document.getElementById('lensToggle').style.display = '';
+      else document.querySelector('.type-btn[data-type="U"]').style.display = 'none';
+      markSortHeader();
       document.getElementById('content').style.display = '';
       render();
     })();

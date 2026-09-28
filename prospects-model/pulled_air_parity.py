@@ -1,6 +1,14 @@
 """Pulled-air parity: does our pull% x FB% (charted coordinates, game records)
-reproduce Savant's pull% x FB% for MLB hitters? Plan A's bar: r >= 0.98.
+reproduce Savant's for MLB hitters? Plan A's bar: r >= 0.98.
 Only if it passes can pulled air be measured in AAA.
+
+**The raw product is a flattered test and must not be the verdict.** Fly-ball rate
+varies more between hitters than pull rate does and we measure it almost exactly
+(r 0.9997), so it dominates the product: replacing our pull% with a CONSTANT still
+correlates 0.88 with Savant's product. FB% is also already a model feature, so the
+only thing pull x FB adds is the PULLED part. The verdict therefore uses the
+product with FB regressed out of both sides (r 0.919 on 2023-26 -- a fail, in line
+with pull% alone at 0.925).
 
 Usage:  python pulled_air_parity.py
 Reads MLB game records 2023-2026 and cache/mlb_tracking.csv; writes
@@ -28,13 +36,26 @@ def main():
             if n < 100 or pull is None or sv.get("pull_percent") is None or sv.get("flyballs_percent") is None:
                 continue
             pairs.append((pull * fb / 100.0, sv["pull_percent"] * sv["flyballs_percent"] / 100.0,
-                          pull, sv["pull_percent"]))
+                          pull, sv["pull_percent"], fb, sv["flyballs_percent"]))
         print(f"{season}: {len(pairs)} hitter-seasons so far", flush=True)
     a = np.array(pairs)
-    r_product = float(np.corrcoef(a[:, 0], a[:, 1])[0, 1])
-    r_pull = float(np.corrcoef(a[:, 2], a[:, 3])[0, 1])
-    out = {"n": len(pairs), "r_product": r_product, "r_pull": r_pull,
-           "bias_product": float(np.mean(a[:, 0] - a[:, 1])), "bar": BAR, "passed": r_product >= BAR}
+    ours, savant, our_pull, sv_pull, our_fb, sv_fb = (a[:, i] for i in range(6))
+
+    def r(x, y):
+        return float(np.corrcoef(x, y)[0, 1])
+
+    def without_fb(product, fb):
+        return product - np.polyval(np.polyfit(fb, product, 1), fb)
+
+    out = {"n": len(pairs), "bar": BAR,
+           # The verdict: the pulled part, with fly-ball rate regressed out of both sides.
+           "r_pulled_part": r(without_fb(ours, our_fb), without_fb(savant, sv_fb)),
+           "r_product_raw": r(ours, savant),
+           "r_product_constant_pull": r(np.mean(our_pull) * our_fb, savant),
+           "r_pull": r(our_pull, sv_pull),
+           "r_fb": r(our_fb, sv_fb),
+           "bias_product": float(np.mean(ours - savant))}
+    out["passed"] = out["r_pulled_part"] >= BAR
     print(json.dumps(out, indent=2))
     with open(OUT, "w", encoding="utf-8") as fh:
         json.dump(out, fh, indent=2)

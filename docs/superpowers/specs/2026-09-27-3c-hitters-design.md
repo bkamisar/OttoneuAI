@@ -124,6 +124,19 @@ estimated separately per output:
   **provisional**. If its bootstrap interval includes 0, the rating uses no
   tracking.
 
+**Pulled-air parity RESULT (run 2026-09-27, n=1,602 MLB hitter-seasons 2023–26):
+FAIL, and the first reading of it was wrong.** The raw product pull% × FB% hit
+r 0.9823, apparently clearing the 0.98 bar. It doesn't: fly-ball rate varies more
+between hitters than pull rate and we measure it almost exactly (r 0.9997), so it
+dominates the product. Replacing our pull% with a **constant** still gives
+r 0.8823, so most of that 0.98 was borrowed from fly balls, not earned on the
+pulled part. FB% is already a model feature, so the only thing the term adds is the
+pulled part — and with FB regressed out of both sides that is **r 0.919**,
+matching pull% alone (0.925) and failing the bar. `pulled_air_parity.py` now makes
+the residualized figure the verdict. **Pulled air stays a documented hypothesis,
+not measurable in AAA.** General lesson: never judge a product term by the product's
+own correlation when one factor is measured far better than the other.
+
 **Pulled air balls (the user's hypothesis, top-50 signal in step 1):** check
 whether our coordinate-based pull% × FB% matches Savant's pull% × FB% on the
 **2023–26 MLB game records already on disk**, with plan A's bar of r ≥ 0.98.

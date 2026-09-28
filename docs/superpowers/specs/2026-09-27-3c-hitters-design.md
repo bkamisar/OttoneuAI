@@ -249,6 +249,19 @@ committed).
   of slack. Each file's year is verified by its top prospects (2023: Elly De La
   Cruz / Eury Pérez; 2024: Jackson Holliday / Paul Skenes; 2025: Roman Anthony /
   Roki Sasaki).
+- **The Board archives are IN-SEASON snapshots, not preseason lists** (found
+  2026-09-28). Each "year Y" list was frozen partway through season Y, with that
+  season's early graduates removed. Bobby Witt Jr. and Julio Rodríguez are absent
+  from 2022, Corbin Carroll and Gunnar Henderson from 2023, Jackson Chourio from
+  2024. The mid-season ages in the Age column match this. Consequences for the
+  test:
+  - (a) **Leak toward FV:** list Y+1 knows about half of season Y+1, while the
+    model knows only through Y.
+  - (b) **Survivorship:** the fastest successes are missing from the graded set.
+  - **Planned remedy (plan C design): bracket.** Score each cohort Y against both
+    list Y (FV knows *less* than the model) and list Y+1 (FV knows *more*), on
+    the players each list grades. A model that beats even the leaky Y+1 list has
+    a robust win. So lists **2019 and 2021 are needed too**, not optional.
 - *(Original plan:)* **Export one year first (2023)** to settle the ID join. Check whether the
   export has an MLBAM id column (see "The FanGraphs ↔ StatsAPI id gap" in the
   parent spec). If it does, the join is exact. If not, the fallback is a name +

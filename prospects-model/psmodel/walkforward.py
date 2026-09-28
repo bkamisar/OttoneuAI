@@ -32,10 +32,12 @@ N_BOOT = 300
 
 
 def _y(r, target, ctx):
-    """ctx is the as-of target context: the rank-value curve for the rating; unused for soon."""
+    """ctx is the as-of target context: the rank-value curve for the rating; unused for soon.
+    Rows carry typ 'P' for pitchers; hitters rows have no typ (default 'H')."""
+    typ = r.get("typ", "H")
     if target == "rating":
-        return asof.rating_target(r["mlb"], r["season"], ctx)
-    return 1.0 if asof.soon_target(r["mlb"], r["season"]) else 0.0
+        return asof.rating_target(r["mlb"], r["season"], ctx, typ)
+    return 1.0 if asof.soon_target(r["mlb"], r["season"], typ) else 0.0
 
 
 def frames(rows, target, v, ctx, keys, unseal=False, isolate=True):
@@ -99,7 +101,7 @@ def metrics(test, pred, target, ctx):
     rank = _rank(target, [r["y"] for r in test], pred)
     best = {}
     for r, p in zip(test, pred):
-        useful = r["y"] >= asof.useful_value(ctx) if target == "rating" else r["y"] == 1.0
+        useful = r["y"] >= asof.useful_value(ctx, r.get("typ", "H")) if target == "rating" else r["y"] == 1.0
         if r["player_id"] not in best or p > best[r["player_id"]][0]:
             best[r["player_id"]] = (p, useful)
     ranked = sorted(best.values(), key=lambda t: -t[0])

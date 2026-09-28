@@ -140,5 +140,12 @@ class TestInteractions(unittest.TestCase):
         self.assertEqual(hits[("x", "z")][0][0], 2021)
 
 
+class TestPlayerType(unittest.TestCase):
+    def test_targets_follow_the_row_type(self):
+        mlb = [{"season": 2020, "value": 0.0, "pa": 0, "ip": 60.0, "rank": 130}]
+        self.assertEqual(W._y({"mlb": mlb, "season": 2019, "typ": "P"}, "soon", None), 0.0)   # pitchers: top 120
+        self.assertEqual(W._y({"mlb": mlb, "season": 2019}, "soon", None), 1.0)               # hitters: top 144
+
+
 if __name__ == "__main__":
     unittest.main()

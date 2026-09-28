@@ -239,6 +239,12 @@ committed).
   `cache/fv/board_<year>_hitters.csv` and `board_<year>_pitchers.csv`. The CSV
   keeps every column separate; a web-page copy runs them together, making ranks
   ambiguous, so it is not usable. 2026 is on file (not needed for the test).
+- **The Board's `Age` column is age at EXPORT time, not at the list's date**: the
+  same player shows the same age on the 2025 and 2026 lists. Never use it as
+  as-of age. For name matching, `Age` minus (export year − season) approximates
+  the player's age that season. The model's own age comes from StatsAPI. Each
+  file's year is verified by its top prospects and differing FV grades (2025's
+  top hitters: Roman Anthony, Dylan Crews).
 - *(Original plan:)* **Export one year first (2023)** to settle the ID join. Check whether the
   export has an MLBAM id column (see "The FanGraphs ↔ StatsAPI id gap" in the
   parent spec). If it does, the join is exact. If not, the fallback is a name +

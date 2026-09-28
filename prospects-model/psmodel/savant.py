@@ -9,7 +9,7 @@ import csv
 import hashlib
 import io
 
-from . import http
+from . import http, statsapi
 from .metrics import HITTER_METRICS
 
 EV_FIELDS = ("max_hit_speed", "avg_distance")
@@ -65,3 +65,55 @@ def hitter_season(year, _seen=None):
 def hitter_history(first, last):
     seen = {}
     return {y: hitter_season(y, seen) for y in range(first, last + 1)}
+
+
+FB_TYPES = ("ff", "si", "fc")
+PITCHER_FIELDS = ([f"n_{t}_formatted" for t in FB_TYPES]
+                  + [f"{t}_avg_{m}" for t in FB_TYPES for m in ("speed", "spin", "break_x", "break_z_induced")]
+                  + ["breaking_avg_speed", "breaking_avg_spin", "whiff_percent", "p_formatted_ip", "pitch_count"])
+PITCHER_URL = ("https://baseballsavant.mlb.com/leaderboard/custom?year={year}&type=pitcher&min=1"
+               "&selections={sel}&csv=true")
+
+
+def pitcher_row(r):
+    """One Savant pitcher row -> pitch_metrics' fields, on the most-thrown fastball
+    (same rule as pitch_metrics); horizontal break as a magnitude."""
+    shares = {t: _num(r.get(f"n_{t}_formatted")) or 0.0 for t in FB_TYPES}
+    t = max(FB_TYPES, key=lambda k: shares[k])
+    has_fb = shares[t] > 0
+    hb = _num(r.get(f"{t}_avg_break_x")) if has_fb else None
+    return {
+        "fb_speed": _num(r.get(f"{t}_avg_speed")) if has_fb else None,
+        "fb_spin": _num(r.get(f"{t}_avg_spin")) if has_fb else None,
+        "fb_ivb": _num(r.get(f"{t}_avg_break_z_induced")) if has_fb else None,
+        "fb_hb": abs(hb) if hb is not None else None,
+        "breaking_speed": _num(r.get("breaking_avg_speed")),
+        "breaking_spin": _num(r.get("breaking_avg_spin")),
+        "whiff_percent": _num(r.get("whiff_percent")),
+        "pitches": _num(r.get("pitch_count")),
+        "ip": statsapi.parse_innings(r["p_formatted_ip"]) if r.get("p_formatted_ip") else None,
+    }
+
+
+def pitcher_season(year, _seen=None):
+    """{player_id: pitcher_row(...)} for one MLB season, with the year guard."""
+    text = http.fetch_text(PITCHER_URL.format(year=year, sel=",".join(PITCHER_FIELDS)), ".csv")
+    if _seen is not None:
+        digest = hashlib.sha256(text.encode("utf-8")).hexdigest()
+        if digest in _seen:
+            raise http.DataError(f"Savant pitcher leaderboard for {year} is identical to "
+                                 f"{_seen[digest]} -- year parameter ignored?")
+        _seen[digest] = year
+    rows = _rows(text)
+    http.require_rows(rows, f"savant pitcher {year}")
+    http.require_keys(rows, ["player_id", "year"] + PITCHER_FIELDS, f"savant pitcher {year}")
+    out = {}
+    for r in rows:
+        http.require_value(r.get("year"), year, f"savant pitcher {year}")
+        out[int(r["player_id"])] = pitcher_row(r)
+    return out
+
+
+def pitcher_history(first, last):
+    seen = {}
+    return {y: pitcher_season(y, seen) for y in range(first, last + 1)}

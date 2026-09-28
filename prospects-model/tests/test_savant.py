@@ -62,5 +62,34 @@ class TestHistory(Base):
             savant.hitter_history(2023, 2024)
 
 
+def pitcher_csv(year, rows):
+    head = '"last_name, first_name",player_id,year,' + ",".join(savant.PITCHER_FIELDS)
+    lines = [head] + [f'"X, Y",{pid},{year},' + ",".join(vals.get(f, "") for f in savant.PITCHER_FIELDS)
+                      for pid, vals in rows]
+    return "\n".join(lines) + "\n"
+
+
+class TestPitcherSeason(Base):
+    def test_primary_fastball_and_magnitude(self):
+        self.pages["custom"] = lambda url: pitcher_csv(2024, [
+            (5, {"n_ff_formatted": "20.0", "n_si_formatted": "45.0", "si_avg_speed": "94.5", "si_avg_spin": "2150",
+                 "si_avg_break_x": "-14.2", "si_avg_break_z_induced": "7.1", "ff_avg_speed": "96.0",
+                 "breaking_avg_speed": "84.0", "breaking_avg_spin": "2450", "whiff_percent": "27.5",
+                 "p_formatted_ip": "62.2", "pitch_count": "1010"}),
+            (6, {"whiff_percent": "20.0"})])
+        out = savant.pitcher_season(2024)
+        self.assertEqual((out[5]["fb_speed"], out[5]["fb_hb"], out[5]["fb_ivb"], out[5]["pitches"]),
+                         (94.5, 14.2, 7.1, 1010.0))
+        self.assertAlmostEqual(out[5]["ip"], 62 + 2 / 3)
+        self.assertIsNone(out[6]["fb_speed"])
+        self.assertIsNone(out[6]["ip"])
+        self.assertEqual(out[6]["whiff_percent"], 20.0)
+
+    def test_year_guard(self):
+        self.pages["custom"] = lambda url: pitcher_csv(2023, [(5, {"whiff_percent": "20.0"})])
+        with self.assertRaises(http.DataError):
+            savant.pitcher_season(2024)
+
+
 if __name__ == "__main__":
     unittest.main()

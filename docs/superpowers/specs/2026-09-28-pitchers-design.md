@@ -556,6 +556,62 @@ learning from fast risers? No.
   - A 2025 riser enters "soon" training after 2027.
   - Rating classes enter 4 years after their season.
 
+### P-D result (run 2026-09-28 on Opus; Opus-reviewed)
+
+`model_p_final.py` → `cache/model_p_final_report.txt`. The 2024 decisions are
+frozen in `cache/model_p_2024_decisions.json`. Every number was checked against
+the rule that produced it; the percent rule was also recomputed by hand.
+
+- **Leads: both dropped, 0/3.** Each one *hurt* rank accuracy:
+  - age × K: z −1.7 / −0.6 / −2.2;
+  - age × CSW: z −2.6 / −0.6 / −2.3.
+  - This matches the hitters' age × SLG. The trees' pattern isn't something a
+    linear term can use.
+- **2024 (a), trees vs logit:**
+
+  | model | AUC | top-25 | top-50 | top-100 | calibration error |
+  |---|---|---|---|---|---|
+  | trees | **0.829** | **0.24** | 0.16 | 0.13 | **0.0120** |
+  | logit | 0.780 | 0.12 | 0.16 | 0.14 | 0.0234 |
+
+  - Top-50 is a tie, so by the rule **the trees stay**. They also win clearly on
+    AUC, top-25 and calibration.
+  - P-A's hint that the logit picks better at the top did not replicate on the
+    untouched class.
+- **2024 (b), the stuff layer for "soon": NOT USED.**
+  - Trained on 117 AAA-2022 pitchers (10 hits): w +3.91 [−1.56, +6.67], a CI that
+    includes 0.
+  - On 406 AAA-2024 pitchers (27 hits), it made things *worse*: AUC 0.714 → 0.646
+    (z −1.6), top-50 0.14 → 0.08.
+- **Percentages: NO, rank tiers only.**
+  - The top bucket passes: 0.163 predicted, inside the actual rate's
+    [0.081, 0.176].
+  - Overall fails: 0.037 predicted vs 0.026 actual, outside [0.019, 0.034]. The
+    model is overconfident by about 45%, which confirms P-A's calibration finding.
+- **Production (as of 2026):**
+  - **Rating:** ridge on age/level + strikeouts. The stuff weight is
+    +0.033 [−0.018, +0.084], a CI that includes 0, so it is **not applied**.
+    There's no provisional stuff at all.
+  - **Soon:** trees. The production stuff weight's CI excludes 0
+    ([+0.18, +2.54]), but the held-out 2024 test said no, so it is **not applied**.
+    This is the hitters' pattern again: an in-sample CI says yes and the untouched
+    class says no.
+  - **Net: pitch tracking is not in the production pitcher model.** The stuff
+    score is real on its own (the P-E gate), but it adds nothing beyond strikeout
+    rate that survives a clean test.
+- **Sanity:** `cache/pitcher_ratings.csv` has 1,717 pitchers.
+  - The top 15 are AA/AAA except one High-A 20-year-old, ages 20–26. They include
+    Kade Anderson, Hagen Smith, Noah Schultz and Gage Jump.
+  - Four are 25–26-year-old AAA relievers (Lavender, Aleman, Kempner, Dion). That
+    is slightly outside the "about 20–25" guide, and judged NOT a failure:
+    - high-strikeout relievers post top-120 seasons (61% of useful pitcher seasons
+      are under 90 IP);
+    - P-A tested role for the rating and dropped it.
+    - This is the target working as defined, not a bug. Nothing was tuned.
+  - Top 50: median start share 0.44; 26 of them are mostly relievers.
+- **For the shopping list:** pitchers' "soon" is shown as a rank or tier, never a
+  percentage. The rating is the base model with no stuff layer.
+
 ## Stuff layer: staging and the pitch-level follow-up (pre-registered 2026-09-28)
 
 **What the review of public stuff models found** (FanGraphs Stuff+ and PitchingBot

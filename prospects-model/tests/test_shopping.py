@@ -74,5 +74,45 @@ class TestText(unittest.TestCase):
         self.assertEqual(S.take(0.2, -0.2), "Model agrees")
 
 
+class TestBuild(unittest.TestCase):
+    def test_build(self):
+        # Pool = Ann, Bo, Cy (on the board with a model read). Zed shares a board name
+        # but is 10 years off; Dee was on the 2024 list; Eve was never listed.
+        ratings = [rated(1, "Ann Able", 20, 0.5, 0.6, 0.9), rated(2, "Bo Baker", 21, 0.1, 0.4, 0.2),
+                   rated(3, "Cy Cole", 22, 0.3, 0.1, 0.5), rated(4, "Dee Dunn", 23, 0.4, 0.05, 0.7),
+                   rated(5, "Eve Ekk", 19, 0.2, 0.01, 0.3), rated(6, "Zed Zim", 20, 0.35, 0.2, 0.6)]
+        board = [entry("Ann Able", 20.0, 45.0, "Ann Able|SEA"), entry("Bo Baker", 21.0, 55.0, "Bo Baker|NYY"),
+                 entry("Cy Cole", 22.0, 50.0, "Cy Cole|BOS"), entry("Zed Zim", 30.0, 40.0, "Zed Zim|TEX")]
+        history = {2024: [entry("Dee Dunn", 21.0, 45.0, "d")]}
+        graded, ungraded, unreadable = S.build(ratings, board, history)
+        # fv pct Ann 1/3 Cy 2/3 Bo 1; soon pct Cy 1/3 Bo 2/3 Ann 1; ready Bo .83, Ann .67, Cy .5
+        self.assertEqual([(g["key"], g["ready_rank"], g["odds"]) for g in graded],
+                         [("Bo Baker|NYY", 1, 40), ("Ann Able|SEA", 2, 60), ("Cy Cole|BOS", 3, 10)])
+        takes = {g["key"]: g["take"] for g in graded}
+        self.assertEqual(takes["Ann Able|SEA"],
+                         "Model: readier than the grade suggests; likes the bat more (ceiling: unproven)")
+        self.assertEqual(takes["Bo Baker|NYY"],
+                         "Model: further away than the grade suggests; likes the bat less (ceiling: unproven)")
+        self.assertEqual(takes["Cy Cole|BOS"], "Model: further away than the grade suggests")
+        self.assertEqual([(u["name"], u["listed"], u["take"]) for u in ungraded],
+                         [("Dee Dunn", 2024, "On the 2024 list, since dropped"),
+                          ("Zed Zim", None, "Name matches a FanGraphs prospect of a different age — check"),
+                          ("Eve Ekk", None, "Never on a FanGraphs list")])
+        self.assertEqual(ungraded[0]["odds"], 5)
+        self.assertEqual(unreadable, [])
+
+    def test_shared_names_are_flagged_not_guessed(self):
+        ratings = [rated(1, "Ann Able", 20, 0.5, 0.6, 0.9), rated(2, "Bo Baker", 21, 0.1, 0.4, 0.2),
+                   rated(3, "Cy Cole", 22, 0.3, 0.1, 0.5), rated(7, "Luis García", 21, 0.3, 0.3, 0.8)]
+        board = [entry("Ann Able", 20.0, 45.0, "A|SEA"), entry("Bo Baker", 21.0, 55.0, "B|NYY"),
+                 entry("Cy Cole", 22.0, 50.0, "C|BOS"), entry("Luis Garcia", 21.0, 45.0, "LG1|SEA"),
+                 entry("Luis Garcia", 21.5, 40.0, "LG2|NYY")]
+        graded, ungraded, unreadable = S.build(ratings, board, {})
+        self.assertEqual(len(graded), 3)
+        self.assertEqual([(u["player_id"], u["take"]) for u in ungraded],
+                         [(7, "Name shared with a FanGraphs prospect — check")])
+        self.assertEqual(unreadable, ["LG1|SEA", "LG2|NYY"])
+
+
 if __name__ == "__main__":
     unittest.main()

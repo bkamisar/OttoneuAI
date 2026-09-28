@@ -458,6 +458,104 @@ The verdict goes to `cache/stuff_choice_final.json`, which P-D reads.
 - **Not done, on purpose:** no re-run with other hyperparameters, feature sets or
   cohorts. The pitch-level score had its pre-registered attempt.
 
+## P-D: the pitcher final run (approved by the user 2026-09-28, BEFORE 2024 was opened)
+
+`model_p_final.py` mirrors the hitters' `model3c_final.py`. Every rule below is
+fixed before the sealed 2024 pitcher class is opened.
+
+**1. Tree leads as explicit terms (rating only).**
+- `age_x_k` = age × k and `age_x_csw` = age × csw: products of the standardized
+  features, as the hitters' `cohorts.add_products`.
+- Each lead is tested alone on top of P-A's rating keys (ridge) at the rating
+  vantages 2019 / 2021 / 2022, under `walkforward.adopt`.
+- "Soon" is not tested: its preset model is trees, which already search
+  interactions.
+
+**2. The sealed 2024 class is opened ONCE, for "soon" only** (its 4-year rating
+answers are not in yet). Two decisions, in this order.
+
+- **a. Trees vs plain logit.** Both are fit on P-A's "soon" keys, trained as-of
+  2024 (classes ≤ 2022), and scored on 2024.
+  - Reported for each: AUC, top-25 / top-50 / top-100 and the calibration table.
+  - **Calibration error:** Σ n_b · |mean predicted_b − actual_b| / Σ n_b over the
+    10 buckets of `walkforward.calibration`.
+  - **Rule (the P-A wording):** switch to the logit only if the trees LOSE on
+    both, i.e. the logit's top-50 hit rate is strictly higher AND its calibration
+    error is strictly lower. Anything else, a tie included, keeps the trees.
+- **b. The stuff layer for "soon",** on the model chosen in (a) (hitter precedent).
+  - The stuff score is P-C's season-level score (P-E verdict "season") at vantage
+    2024: Savant mapping on t ≤ 2023, AAA→MLB offsets from same-season pairs ≤ 2024,
+    AAA rows with 300+ tracked pitches.
+  - **Training:** the AAA rows of the as-of-2024 training set that have a score.
+    That is only the 2022 class (PCL only). The score is residualized on the base
+    model's out-of-fold prediction, and `tracking_layer.trust_weight` gives the
+    weight and its bootstrap CI.
+  - **Test:** the 2024 AAA pitchers with a score.
+  - **Rule:** use it only if the weight's CI excludes 0 AND the paired AUC gain on
+    2024 is z ≥ `walkforward.WIN_Z` (1.0).
+  - Low power is expected. "Not used" would mean untested, not refuted.
+- **Opened-once safeguard:** both decisions, and the 2024 numbers behind them,
+  are written to `cache/model_p_2024_decisions.json` the moment they are made. A
+  later run reads that file and never re-decides. The script never overwrites it;
+  deleting it takes the user's explicit say-so.
+
+**3. As-of stuff gate:** carried from P-E (`cache/stuff_choice_final.json`,
+season-level +0.146 [+0.016, +0.274]). Not rerun.
+
+**4. Production as of 2026 → `cache/pitcher_ratings.csv`.**
+- **Rating:** ridge on P-A's keys plus any adopted lead.
+  - Stuff layer: the stuff score at vantage 2026 (Savant t ≤ 2025, offsets
+    ≤ 2026).
+  - Its weight is learned from the AAA 2022 class (complete 2023–26 windows) plus
+    the 2023–24 AAA classes, weighted by the share of their 4-year window already
+    seen (hitter precedent).
+  - It is applied only if the weight's CI excludes 0, and flagged PROVISIONAL: no
+    later complete class exists to check it.
+- **Soon:** the model chosen in 2a. Stuff is applied only if 2b said "use" AND the
+  production weight's CI excludes 0.
+- **One row per pitcher,** at their highest level. Columns: `player_id, name,
+  level, age, start_share` (unstandardized games-started share), `rating_sgp,
+  rating_percentile, p_useful_within_2, stuff_in_rating, stuff_in_soon, flags`.
+- **Showing "soon" as percentages (rule for the shopping list):** the chosen
+  model's mean predicted rate must fall inside the 95% Wilson interval of the
+  actual rate on 2024, both in the top calibration bucket AND overall. If it does,
+  `percent_ok: true`; otherwise the shopping list shows rank tiers.
+  - The check uses the as-of-2024 fit as a stand-in for the production fit.
+    Disclosed.
+- **Sanity (report only):**
+  - The top 15 by rating should be AA/AAA pitchers, about ages 20–25.
+  - The role mix (start share) of the top 50 is reported.
+  - A failure stops the run for an Opus review; nothing is tuned.
+- **Outputs:** `cache/model_p_final_report.txt` and `cache/model_p_final.json`.
+
+**Code:**
+- New `psmodel/stuff_layer.py`: the stuff score as-of a vantage and AAA pitcher
+  scores. It reuses `tracking_layer`'s `residualize` / `trust_weight` / `adjust`.
+- `pcohorts.LEADS` and `add_products`.
+- `model_p_final.py`.
+- Tests on synthetic rows. The 2024 class is opened only by the real run.
+
+**Out of scope (next plans):**
+- P-F: the pitcher consensus (FanGraphs) gate.
+- Then pitchers on the shopping list.
+
+**Backlog (the user: "open to it, not super sold"):** a year-by-year "soon"
+target for hitters and pitchers. Each prospect-year asks "a top season next
+year?", so classes with open windows add their seen years without being mislabeled
+as misses.
+- It gains about half a class of recent data.
+- It needs its own pre-registered test on a clean class: the 2025 class, once its
+  answers arrive after 2027.
+- Optional; low priority.
+
+**The user's question, answered (2026-09-28):** does the seal stop us from
+learning from fast risers? No.
+- The seal only keeps 2024 out of the *tests*. Production trains on every class
+  whose answer is known by 2026, so "soon" includes 2024.
+- What delays learning is each class's answer window:
+  - A 2025 riser enters "soon" training after 2027.
+  - Rating classes enter 4 years after their season.
+
 ## Stuff layer: staging and the pitch-level follow-up (pre-registered 2026-09-28)
 
 **What the review of public stuff models found** (FanGraphs Stuff+ and PitchingBot

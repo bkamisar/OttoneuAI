@@ -461,8 +461,10 @@
         else if (sortCol === 'team')    { av = a.teamName.toLowerCase(); bv = b.teamName.toLowerCase(); }
         else if (sortCol === 'pos')     { av = (a.pos||'').toLowerCase(); bv = (b.pos||'').toLowerCase(); }
         else { av = 0; bv = 0; }
-        if (av < bv) return sortDir;
-        if (av > bv) return -sortDir;
+        // sortDir -1 = descending (the ▼ arrow), 1 = ascending. This used to be
+        // inverted, so the default sort put the weakest fits first.
+        if (av < bv) return -sortDir;
+        if (av > bv) return sortDir;
         // secondary: fit desc, surplus desc
         if (sortCol !== 'fit')     { var fd = b.fit - a.fit; if (fd) return fd; }
         if (sortCol !== 'surplus') { var sd = surp(b) - surp(a); if (sd) return sd; }

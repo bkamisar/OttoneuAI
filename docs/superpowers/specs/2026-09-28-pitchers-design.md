@@ -1,9 +1,8 @@
 # Pitcher Prospects — Design (DRAFT: decisions pending)
 
-**Status:** drafted overnight 2026-09-28 on Opus, waiting on the user's answers to
-decisions D1–D6 below. Each decision has a recommended default. If all defaults
-are accepted, plan P-A (`plans/2026-09-28-pitchers-base.md`) can be built as
-written.
+**Status:** drafted overnight 2026-09-28 on Opus. **Approved by the user
+2026-09-28:** the recommended defaults, with D2 changed to a 30 IP floor (see D2).
+Plan P-A (`plans/2026-09-28-pitchers-base.md`) is cleared to build.
 
 ## What this is
 
@@ -53,11 +52,25 @@ beyond K%, BB%, ERA and WHIP, and flagged tracking as where the headroom is.
   already includes elite relievers who help ERA and WHIP. 3a found 61% of useful
   pitcher seasons came in under 90 IP.
 
-**D2. Who counts as a prospect?**
-- *Recommended:* any pitcher-season with **40+ IP at a full-season level**, and
-  fewer than **100 prior MLB IP**.
-- These match `features.PIT_MIN_IP` and `dataset.ESTABLISHED_IP`, and they are the
-  pitcher counterparts of the hitters' 150 PA and 300 PA.
+**D2. Who counts as a prospect? DECIDED: 30 IP at a level** (the user asked
+about relievers, 2026-09-28). A pitcher-season qualifies with **30+ IP at a
+full-season level** and fewer than **100 prior MLB IP**.
+- The draft's 40 IP was measured on coverage only, with no outcomes looked at.
+  Relievers promoted mid-season split their innings across levels, and at 40 IP
+  per level, 2,753 pitcher-seasons with 40+ total IP had no qualifying row. 90% of
+  those (2,479) were relievers, about 21% of all reliever seasons, and skewed
+  toward the promoted (good) ones.
+- At 30 IP, 784 are lost (725 relievers, about 6%). At 25 IP, 208 are lost.
+- Pure relievers reach 40 IP at one level only 50% of the time, and 30 IP 74% of
+  the time.
+- 30 IP is about 130 batters faced, close to the hitters' 150 PA. The model's IP
+  feature discounts the smaller samples.
+- The floor was chosen before any backtest, so it is not tuned to results.
+
+**K−BB% was left out on purpose** (the user asked). In a linear model it is exactly
+K% − BB%, so with both present it adds nothing: the model learns the weights, and
+equal-and-opposite weights *are* K−BB. It could only help the tree challenger, and
+it would blur the group tests by making two features nearly identical.
 
 **D3. One model, or separate starters and relievers?**
 - *Recommended:* **one model with role features** (share of games started, IP per

@@ -2,9 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-> **GATE: build only after the user approves decisions D1–D4** in `docs/superpowers/specs/2026-09-28-pitchers-design.md`.
-> - This plan implements the recommended defaults.
-> - If the user changes any of them, Opus revises this plan first.
+> **Cleared to build (the user approved, 2026-09-28):** the recommended defaults in `docs/superpowers/specs/2026-09-28-pitchers-design.md`, with D2 set to a **30 IP** floor per level. The draft's 40 IP lost about 21% of reliever seasons to mid-season promotions.
 
 **Goal:** As-of walk-forward backtests of a pitcher base model on box stats, the pitcher counterpart of 3c plan A. It covers the model choice, group adoption, interactions and calibration for both outputs. 2024 stays sealed.
 
@@ -217,7 +215,7 @@ class TestPriorIp(unittest.TestCase):
 class TestBuildRows(unittest.TestCase):
     def setUp(self):
         milb = [milb_p(1, 2019, 12, gs=20), milb_p(2, 2019, 12, gs=0),   # starter vs reliever, same level-season
-                milb_p(3, 2019, 12, ip=30.0),                             # under 40 IP: dropped
+                milb_p(3, 2019, 12, ip=25.0),                             # under 30 IP: dropped
                 milb_p(4, 2019, 11), milb_p(1, 2021, 12)]
         hist = {4: {2017: 120.0}}                                         # 100+ prior MLB IP: dropped
         mlb = {1: [{"season": 2022, "value": 1.0, "pa": 0, "ip": 80.0}]}
@@ -246,7 +244,7 @@ if __name__ == "__main__":
 - [ ] **Step 3: Implement.** Create `psmodel/pcohorts.py`:
 
 ```python
-"""Pitcher rows: every minor-league pitcher-season-level from 2012 with 40+ IP at
+"""Pitcher rows: every minor-league pitcher-season-level from 2012 with 30+ IP at
 the level, for pitchers not yet established in MLB, with the features the pitcher
 base model tests and the pitcher's MLB labels attached. Mirrors cohorts.py.
 Targets are attached later, per vantage, by walkforward.py -- rows carry typ 'P'
@@ -255,7 +253,10 @@ so the as-of targets use the pitcher line (top 120, 25 IP).
 from . import cohorts, milb, statsapi
 from . import features as F
 
-MIN_IP = F.PIT_MIN_IP          # 40 at the level
+# 30 IP at the level (~130 batters faced, close to hitters' 150 PA). Measured
+# 2026-09-28 on coverage only: 40 IP per level dropped ~21% of reliever seasons,
+# because promoted relievers split their innings across levels; 30 drops ~6%.
+MIN_IP = 30.0
 ESTABLISHED_IP = 100.0         # prior MLB IP that ends prospect status (dataset.ESTABLISHED_IP)
 
 GROUPS = {
@@ -293,7 +294,7 @@ def load_milb(seasons=cohorts.MILB_SEASONS, levels=cohorts.LEVELS):
 
 def build_rows(milb_rows, ip_history, mlb_seasons):
     """Rows {player_id, name, season, sport_id, typ, age_raw, f, mlb} for pitchers
-    with 40+ IP at a level who weren't established in MLB. Continuous features are
+    with 30+ IP at a level who weren't established in MLB. Continuous features are
     z-scored within level-season, as for hitters."""
     seen = {}
     for r in milb_rows:
@@ -323,7 +324,7 @@ def build_rows(milb_rows, ip_history, mlb_seasons):
 ```bash
 git ls-files cache
 git add psmodel/pcohorts.py tests/test_pcohorts.py
-git commit -m "feat(pitchers): pitcher rows -- 40+ IP, <100 prior MLB IP, box features incl. role, typ P"
+git commit -m "feat(pitchers): pitcher rows -- 30+ IP at a level, <100 prior MLB IP, box features incl. role, typ P"
 ```
 
 ### Task 4: The runner, run it, hand to Opus
@@ -441,7 +442,7 @@ git commit -m "feat(pitchers): base-model walk-forward runner (mirrors model3c_b
 - [ ] **Step 3: Run.** Run `python model_p_base.py`. It takes several minutes.
 
   Sanity checks (report, don't patch):
-  - **Rows:** about 1,200–1,500 pitcher-season-levels per season.
+  - **Rows:** about 1,400–1,900 pitcher-season-levels per season. At a 40 IP floor it was about 1,380; 30 IP adds mostly relievers.
   - **The useful line** (value of pitcher rank 120) is positive at every vantage.
   - **Soon AUC** is well above 0.5 at every vantage.
   - **Age/level** is kept for at least one output (it dominated for hitters). If it's dropped for both, report that as surprising.

@@ -476,6 +476,87 @@ player-bootstrap gain over FanGraphs.
 **Outputs (gitignored):** `consensus_report.txt`, `consensus_verdict.json` (read by
 sub-project 4), `consensus_ambiguous.csv`.
 
+## Plan C result (run and reviewed on Opus)
+
+`consensus_gate.py` produced `cache/consensus_report.txt` and
+`cache/consensus_verdict.json`. The verdicts follow the pre-registered rules and
+are not re-decided here.
+
+**Plumbing checks (all passed):**
+- Graded players per class: 283–331. Matches that differ from the Board name
+  differ only by accents.
+- After each list's calibrated offset, 98% of matches sit within ±0.6 years. The
+  offsets run from +1.24 to +1.86 (list 2020 has the latest age date).
+- The 2–3 age-rejects per class are genuinely different people, e.g. the two
+  Victor Mesas. Luis Baez is the known outlier.
+- The 8 ambiguous cases are real same-name pairs (both Luis Garcías, both Jose
+  Rodriguezes).
+- Restored graduates are the right players (Henderson, Carroll, Abrams, Moreno;
+  Yainer Diaz; Elly De La Cruz in class 2023).
+
+**Rating ("how good"): FOLLOW FV (flagged unstable).**
+
+| Class | Model vs FV (z) | Blend vs FV (z) |
+|---|---|---|
+| 2019 | −0.3 | +0.5 |
+| 2021 | −1.9 | +0.8 |
+| 2022 | −1.0 | +0.9 |
+
+- The model alone is worse than FV. The blend is better every year but never
+  by 1 SE.
+- Top-50 hit rate: FV 0.30 / 0.48 / 0.56 vs the model 0.28 / 0.40 / 0.50.
+- With graduates restored, the blend reaches z +1.0 / +1.3 / +2.3 ("tiebreaker"),
+  so the result is flagged unstable, and the cautious verdict stands.
+- **Bias note:** the restored run favors the model. Restored players carry list
+  Y's grade, made a season before the stats the model sees. The cautious rule
+  guards against exactly this.
+
+**Soon ("useful within 2"): MODEL AS TIEBREAKER (flagged unstable).**
+
+| Class | Model vs FV (z) | Blend vs FV (z) |
+|---|---|---|
+| 2021 | −0.0 | +1.1 |
+| 2022 | +1.0 (just under the line) | +2.1 |
+| 2023 | +1.3 | +2.2 |
+
+- The blend beats FV in all three years.
+- The model's edge grows with its training history: AUC gain −0.002 / +0.047 /
+  +0.094.
+- 2024 (information only) agrees: model z +1.5, blend z +2.4.
+- With graduates restored, the model wins outright ("model leads"), which carries
+  the same model-favoring bias. Tiebreaker stands.
+
+**Reading:** FanGraphs is better on ceiling; the stats model adds real
+information on readiness. Scouting grades see tools the box score doesn't, while
+age-for-level, contact and power at the upper levels are what predict an MLB
+starter season soon.
+
+**Ungraded hitters: model shown (the rule passed for both outputs).** Review
+split:
+- The raw "sleeper" group mixes two kinds of player:
+  - **Ex-listed:** on an earlier Board list but not list Y+1. These are ex-prospects who fell off, or who graduated during season Y itself (Yordan Alvarez, Mountcastle, Naylor, Adell, Oneil Cruz).
+  - **Never listed.**
+- On never-listed players alone, the rating's rank accuracy still clears zero
+  every year (0.28 [0.23, 0.33] / 0.19 [0.12, 0.26] / 0.14 [0.08, 0.20]).
+- Its practical value is small, though:
+  - About 1–2.5% of never-listed players reach a starter-quality best season. The model's top 50 among them hits 0.24 / 0.06 / 0.04. 2019's 0.24 comes largely from players who already had MLB time; with them removed, it's 0.08 / 0.06 / 0.02.
+  - For "soon", only 1–4 never-listed players succeeded per class, so their AUC rests on a handful of players.
+- Most ungraded hits are ex-listed players.
+
+**What this means for the shopping list (sub-project 4):**
+- **Rank "how good" by FanGraphs' order.** Show the model's rating beside it as
+  context, never as the sort key.
+- **Rank "useful soon" by the blend** (the average of the FV and model
+  percentiles), so the model moves players where it disagrees.
+- **Ungraded hitters:** show the model's scores, flagged. Mark
+  **ex-listed vs never-listed**, since ex-listed ungraded players are where the
+  hits have come from. Expect low hit rates for true sleepers.
+- **The rating's tracking adjustment** is still untested as-of, so it stays
+  context only.
+- **Revisit** when the 2024 class's rating answers arrive (after the 2028
+  season) and as more Board years accumulate. Rating 2019 had only four earlier
+  classes to train on.
+
 ## Revisit trigger: Statcast into the base model
 
 Tracking stays a layer until a fair as-of backtest can judge it as a base

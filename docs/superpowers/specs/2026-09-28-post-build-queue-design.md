@@ -140,6 +140,78 @@ shows zero changes, the run stops.
 Seasons already seen make any pass weaker evidence than plan C's. That's why a
 pass earns an optional, labeled sort and not a new default.
 
+## Results (run 2026-09-28 overnight on Sonnet, reviewed on Opus)
+
+### A. Plumbing audit: 0 FAILs
+
+All six sections passed (`cache/audit_report.txt`):
+- The feature re-derivation matched every row exactly (max difference 0).
+- No as-of leak or train/test overlap at any of the eight vantage checks.
+- Label PA matched StatsAPI on all 60 sampled hitter-seasons.
+- Swing data covers 100% of 150+ PA rows in every season.
+- Every `psmodel` module has a test file.
+
+The eyeball check reads right: the 2019 top 5 are Trout, Bellinger, Yelich, Bregman
+and Rendon, and 2023's are Acuña, Olson, Ohtani, Betts and Freeman.
+
+**What a clean audit does not prove:**
+- Two checks reuse the pipeline's own functions. The feature check confirms the
+  wiring and the standardization, not the stat definitions; those were reviewed by
+  reading. The PA check confirms the season and player join, not the SGP arithmetic.
+- The SGP valuation itself was not re-derived independently.
+
+These are the remaining unaudited links. `psmodel/targets.py` mirrors the site's
+SGP formula (including `shared.js`'s zero floor), but no check has compared its
+numbers against the site's. If the audit is ever extended, that comparison is the
+next thing to add.
+
+**Found outside the audit, in the review:** the shopping-list page's sort
+comparator was inverted. It came from the 2026-06-27 rework and is not a model
+bug. `sortDir = -1` sorted ascending while the arrow said descending, so "Best
+prospects" opened on the lowest FV grades and the Ungraded view on the weakest
+model reads. Fixed in `eaa04de`. `targets.html` has the identical pattern, and a
+separate task was offered for it.
+
+### B. Tracking probe: only the Florida State League (question closed)
+
+6 of 54 league-seasons are tracked, and all 6 are home league 123, the Florida
+State League (Single-A):
+- It showed exit velocity on 93–100% of balls in play in every sampled game, every
+  season 2021–2026.
+- Every other league showed exactly 0% in all four sampled games, every year: AA
+  (Texas 109, Southern 111, Eastern 113), High-A (South Atlantic 116, Midwest 118,
+  Northwest 126) and Single-A (California 110, Carolina 122). The result is
+  unambiguous.
+
+**Rule applied as set in advance ("only FSL → closes"):** lower-minors tracking
+isn't available at scale, and the Statcast question is closed for now. The FSL
+goes on the 3c revisit list (about 2028, once three FSL classes have rating
+answers).
+
+### C. Tool-grade test: FV stands (closed)
+
+The snapshot check passed: Hit future grades changed for 35–64% of players between
+consecutive lists, so they are per-list grades like FV. Bat grades lost to FV
+everywhere:
+
+| Output | 2019 | 2021 | 2022 | 2023 | Wins |
+|---|---|---|---|---|---|
+| Rating | z −1.0 | z −2.7 | z −2.5 | — | 0/3 |
+| Soon | — | z −1.9 | z −0.2 | z +0.4 | 0/3 |
+
+Soon 2024 (information only): z +0.7.
+
+Per the rule, this is **closed**, with no shopping-list change.
+
+The hypothesis behind it, that FV's weight on defense, position and speed
+misprices hitters for 4×4, looks wrong: the bat-only grade was clearly *worse*
+for "how good".
+
+**One plausible reading, not tested:** defense and position buy playing time, and
+counting stats and qualifying PA come from playing time. FV also folds in risk and
+proximity. Either way, "follow FV" for ceiling stands, now with a second
+independent confirmation.
+
 ## Out of scope
 
 Pitcher model. Any new features or interactions on seen seasons. Bulk downloads.

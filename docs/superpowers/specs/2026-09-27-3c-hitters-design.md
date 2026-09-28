@@ -564,9 +564,15 @@ feature: three test years whose training sets already contain at least two
 tracked AAA cohorts (full-AAA tracking began in 2023). For "soon" (2-year answers)
 that means vantages 2026–28, answerable around **2030**. For the rating (4-year
 answers), vantages 2028–30, answerable in the **early 2030s**. Until then, the
-layer's trust weight is re-estimated each year as cohorts mature. Tracking exists
-only in AAA (below AAA, only a partial FSL sample), so the layer may remain the
-right structure for AA and below even after that.
+layer's trust weight is re-estimated each year as cohorts mature.
+
+Below AAA, the 2026-09-28 probe (post-build-queue spec, part B) found tracking in
+exactly one league: the Florida State League (Single-A), with exit velocity on
+93–100% of balls in play in every season 2021–2026. AA, High-A and the other two
+Single-A leagues have none. So the layer stays the right structure for AA and
+High-A. **The FSL is a later candidate:** its 2021 class's 4-year rating answer
+arrived only after 2025, so an as-of test of FSL tracking needs roughly three
+answered classes (2021–23), which means **around 2028** at the earliest.
 
 ## Out of scope
 

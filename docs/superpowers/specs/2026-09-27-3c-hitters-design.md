@@ -262,9 +262,17 @@ committed).
     Plan C reports the head-to-head both on the players list Y+1 grades and with
     missing early graduates restored from their latest earlier list (list Y,
     one year stale, flagged).
-  - Lists needed: 2020, 2022–2025 (on file: 2022–2026). 2019 and earlier help
-    learn the model + FV blend. 2021 is optional (no 2020 cohort), but it supplies
-    list-Y grades for early graduates of the 2021 cohort.
+  - Lists needed: 2020, 2022–2025 (**on file: 2020–2026**, each verified
+    preseason by the draftee test). 2019 and earlier help learn the model + FV
+    blend. 2021 supplies list-Y grades for early graduates (e.g. Witt: FV 60, #17
+    on 2021).
+  - **Deletions aren't perfectly consistent:** Andrew Vaughn is absent from both
+    2020 and 2021, though he graduated in 2021. Plan C reports, per cohort, how many
+    players have no grade on any list.
+  - **Use only these columns:** name/org/pos (for matching) and FV / Top 100 / Org
+    Rk (the consensus being tested). The Board's stat columns are ignored: they
+    aren't as-of, and the user notes the Board can't show stats before 2020. All
+    model stats come from StatsAPI.
 - *(Original plan:)* **Export one year first (2023)** to settle the ID join. Check whether the
   export has an MLBAM id column (see "The FanGraphs ↔ StatsAPI id gap" in the
   parent spec). If it does, the join is exact. If not, the fallback is a name +

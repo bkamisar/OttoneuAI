@@ -21,7 +21,7 @@ This is the pitcher counterpart of hitters' step 1.
 
 ## Ground rules
 
-- **Where to run:** from `prospects-model/`. Before this plan: **218 pass, 3 skipped**.
+- **Where to run:** from `prospects-model/`. Before this plan: **219 pass, 3 skipped**. P-B's review added the knuckleball test.
 - **No network.** Every input is cached: MLB / AAA pitching stats, the P-B tables and `../data/standings.csv`.
 - **`cache/` is never committed.**
 - **Commits:** commit locally after each task. **Never push, fetch or pull.**
@@ -31,7 +31,7 @@ This is the pitcher counterpart of hitters' step 1.
 
 ### Task 0: Preflight
 
-- [ ] Run `python -m unittest discover -s tests`. Expected: 218 pass, 3 skipped.
+- [ ] Run `python -m unittest discover -s tests`. Expected: 219 pass, 3 skipped.
 - [ ] Run `python -c "import json; print(json.load(open('cache/pitch_definitions.json'))['passed'])"`. Expected: `True`. Also run `ls cache/aaa_pitch_tracking.csv cache/mlb_pitch_tracking.csv ../data/standings.csv`.
 
 ### Task 1: The fixed-workload target (`psmodel/stuff.py`, part 1)
@@ -155,7 +155,7 @@ def useful_threshold(values):
 
 (`random`, `pcohorts` and `F` are used in Task 2; leave the imports in.)
 
-- [ ] **Step 4:** Run `python -m unittest discover -s tests`. Expected: **221 pass**, 3 skipped.
+- [ ] **Step 4:** Run `python -m unittest discover -s tests`. Expected: **222 pass**, 3 skipped.
 - [ ] **Step 5: Commit**
 ```bash
 git ls-files cache
@@ -284,7 +284,7 @@ def fit_translation(aaa, mlb, keys, min_pitches=MIN_PITCH_PAIR, n_boot=1000, see
     return out
 ```
 
-- [ ] **Step 4:** Run `python -m unittest discover -s tests`. Expected: **225 pass**, 3 skipped.
+- [ ] **Step 4:** Run `python -m unittest discover -s tests`. Expected: **226 pass**, 3 skipped.
 - [ ] **Step 5: Commit**
 ```bash
 git ls-files cache

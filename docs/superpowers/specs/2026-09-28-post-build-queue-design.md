@@ -160,10 +160,23 @@ and Rendon, and 2023's are Acuña, Olson, Ohtani, Betts and Freeman.
   reading. The PA check confirms the season and player join, not the SGP arithmetic.
 - The SGP valuation itself was not re-derived independently.
 
-These are the remaining unaudited links. `psmodel/targets.py` mirrors the site's
-SGP formula (including `shared.js`'s zero floor), but no check has compared its
-numbers against the site's. If the audit is ever extended, that comparison is the
-next thing to add.
+**SGP follow-up (same night, Opus): closed.** The review first said the SGP
+arithmetic had never been checked against the site, and that was wrong.
+- **Formula:** `parity/compare.py` already runs `shared.js`'s own `calcPlayerSGP`
+  in Node on 10 fixed cases. Rerun against today's `shared.js`: **PASS, max
+  difference 0**.
+- **Inputs:** checked by reading, line for line. `context.hitter_replacement` and
+  `pitcher_replacement` follow `computeFABaselines`' future-year rule: the same 100
+  PA / 30 IP floors, the same `valProxy` ranking, the same 8 / 10 cohorts, and the
+  same skip-the-rostered-count step.
+- **Deliberate, documented differences:**
+  - Denominators come from the real standings spread and are held fixed across
+    years. The live site uses its projected lineups, which collapse in late
+    season.
+  - No positional offsets (`labels.py` header).
+- **One small drift:** the rostered counts are fixed at 295 hitters / 231 pitchers
+  (measured 9/26), against 292 / 227 today. That moves the replacement cohort by
+  about 3 ranks, which is negligible. The SGP chain is audited end to end.
 
 **Found outside the audit, in the review:** the shopping-list page's sort
 comparator was inverted. It came from the 2026-06-27 rework and is not a model

@@ -50,6 +50,39 @@ A review on 2026-09-30 found three gaps:
 - If the consensus verdict changes, the new verdict takes effect. The rule is
   unchanged; only the data got more correct.
 
+## Phase 1 result (run 2026-09-30 on Opus; commits 2c7f04c..b30f771)
+
+- **Audit:** 0 FAILs. Every row has a league. Every league-season group has at
+  least 110 rows, so the fallback is never used. Features re-derive exactly
+  (max diff 0).
+- **Hitters: essentially unchanged.**
+  - Adopted groups: the same.
+  - Consensus verdicts: the same (rating: follow FV; soon: model as tiebreaker).
+  - Ratings vs old: Spearman 0.996 (rating) and 0.989 (soon).
+  - **Surprise, reported as such:** Pacific Coast League AAA hitters moved UP
+    +0.5 rating-percentile points on average (International League −0.4).
+    The idea that PCL inflation was why the model lost to FV is NOT supported;
+    the effect is tiny.
+- **Pitchers:**
+  - Rating: unchanged groups, Spearman 0.999. PCL pitchers +1.7 points,
+    International League −1.1 (the expected direction, small).
+  - **Soon: two borderline group decisions flipped.**
+    - control dropped: 2/3 at z +1.3/+1.2 before, now 1/3;
+    - trajectory kept: now 2/3 at z +1.2/+1.2.
+    - Soon ratings vs old: Spearman 0.957, top-50 overlap 29/50.
+  - **Consensus verdict for pitcher soon changed: follow FV → model as
+    tiebreaker.**
+    - Blend vs FV by class: z +1.4 / +1.6 / +0.7, versus +0.2 / +0.9 / +0.7
+      before.
+    - Still UNSTABLE (the graduates-restored run says "model leads").
+    - It rests on the two knife-edge group decisions above.
+- **Decision (the user, 2026-09-30):** the new verdict stands and is recorded.
+  The page change (a "Closest to helping" lens for pitchers) waits for Phase 2.
+  P-SM asks the same question pooled over 7 soon classes instead of 3, so the
+  page gets one consistent update.
+- `data/prospect_model.json` was regenerated: the pitcher soon tiers moved; the
+  hitter output is near-identical.
+
 ## Phase 2: FV+ tests
 
 ### Population and data

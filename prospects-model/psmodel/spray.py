@@ -33,3 +33,22 @@ def pull_and_fb(events, pull_deg=15.0):
             a[2] += ang < -pull_deg
         a[3] += e.get("traj") == "fly_ball"
     return {b: (100.0 * a[2] / a[1] if a[1] else None, 100.0 * a[3] / a[0], a[0]) for b, a in acc.items()}
+
+
+AIR = frozenset({"line_drive", "fly_ball"})
+
+
+def pulled_air(events, pull_deg=15.0):
+    """{batter: (pulled line drives + fly balls as % of batted balls with an angle,
+    batted balls with an angle)}. Pull uses the same geometry as pull_and_fb."""
+    acc = {}
+    for e in events:
+        if e.get("code") not in IN_PLAY or e.get("ev") is None:
+            continue
+        ang = angle(e)
+        if ang is None:
+            continue
+        a = acc.setdefault(e["batter"], [0, 0])
+        a[0] += 1
+        a[1] += ang < -pull_deg and e.get("traj") in AIR
+    return {b: (100.0 * a[1] / a[0], a[0]) for b, a in acc.items()}

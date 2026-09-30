@@ -22,5 +22,17 @@ class TestSpray(unittest.TestCase):
         self.assertAlmostEqual(fb, 50.0)
 
 
+class TestPulledAir(unittest.TestCase):
+    def test_share_of_angled_balls_pulled_in_the_air(self):
+        events = [e(60, 120),                          # pulled, air
+                  e(60, 120, traj="ground_ball"),      # pulled, ground
+                  e(125, 100, traj="line_drive"),      # straightaway
+                  e(190, 120, side="L"),               # pulled for a lefty, air
+                  e(None, None)]                       # no angle: not counted
+        rate, n = spray.pulled_air(events)[1]
+        self.assertEqual(n, 4)
+        self.assertAlmostEqual(rate, 50.0)
+
+
 if __name__ == "__main__":
     unittest.main()

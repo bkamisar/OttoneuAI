@@ -237,6 +237,39 @@ excludes 0, n >= 20). Notable ones:
   FV+ soon, a stronger test than the consensus blend.
 - The page work is the next plan.
 
+## Phase 3: FV+ soon on the shopping list (approved by the user 2026-09-30)
+
+- **Scoring:**
+  - The adopted FV+ soon models (hitters, pitchers) are refit on every class
+    with soon answers (2016-2024).
+  - They are applied to the site's current board (`data/prospects.csv`), using
+    its FV and future grades plus each player's 2026 minor-league row (level,
+    age, BB%, ground balls, start share), the production stats-model soon
+    percentile (`p_useful_within_2` from the ratings CSVs) and the parent club's
+    2026 record.
+  - Players without a qualifying 2026 row get no FV+ read.
+- **Position workaround (disclosed on the page):**
+  - The site board codes every outfielder "OF".
+  - A player's position comes from the 2026 preseason list when his name is on
+    it once. Otherwise "OF" counts as not premium.
+- **Output:** `build_fvplus_scores.py` writes `cache/fvplus_scores.csv` (key,
+  type, rank, tier), and it always runs fresh. `build_shopping_list.py` adds a
+  `fvplus` block to `data/prospect_model.json`, keyed like the page
+  (`Name|Org`), with only rank and tier.
+- **Page:**
+  - "Closest to helping" works for hitters AND pitchers, sorted by FV+ soon
+    rank. It replaces the hitters' 50/50 FV-and-model average, which is removed
+    from the build.
+  - A new "FV+ soon" column shows the tier (Top 5% / 10% / 25% among board
+    players of that type). There are no percentages, because the FV+
+    probabilities were never calibration-checked.
+  - "Best prospects" (FV order) stays the default.
+  - The note says what FV+ adjusts, that it beat FV in 4 of 4 test years
+    (2021-24) for both types, and that confirmation comes after 2027.
+- **Refresh:** new board → `python build_fvplus_scores.py` →
+  `python build_shopping_list.py` → commit both data files.
+  `rerun_chain.py` gains the scores step.
+
 ## Phase 2: FV+ tests
 
 ### Population and data

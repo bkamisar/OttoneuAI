@@ -83,6 +83,74 @@ A review on 2026-09-30 found three gaps:
 - `data/prospect_model.json` was regenerated: the pitcher soon tiers moved; the
   hitter output is near-identical.
 
+## Amendment A (2026-09-30, BEFORE any Phase 2 result; approved by the user)
+
+**What was seen:** only sample sizes. Graded players and "soon" successes per
+class were counted; no feature was compared with any outcome.
+
+| class (list) | hitters graded / soon hits | pitchers graded / soon hits |
+|---|---|---|
+| 2016 (2017) | 204 / 21 | 202 / 14 |
+| 2017 (2018) | 174 / 17 | 140 / 7 |
+| 2018 (2019) | 219 / 7 | 204 / 11 |
+| 2019 (2020) | 283 / 10 | 267 / 14 |
+| 2021 (2022) | 331 / 28 | 317 / 14 |
+| 2022 (2023) | 312 / 25 | 345 / 22 |
+| 2023 (2024) | 292 / 16 | 325 / 17 |
+| 2024 (2025) | 306 / 22 | 364 / 22 |
+
+(2020 had no minor-league season, so there is no class 2020.)
+
+**Corrections and changes (these replace the matching parts of Phase 2 below):**
+
+1. **Strict as-of fitting.** A test class v is fitted only on classes c whose
+   answer is known at v (`asof.rating_known` / `soon_known`: c + 4 <= v for
+   rating, c + 2 <= v for soon), exactly like every other model here. A test
+   class is used only if its training set has >= 300 players and, for soon,
+   >= 30 successes. That gives:
+   - **Rating:** test classes 2021 and 2022. The spec's "5 rating classes" was
+     wrong.
+   - **Hitter soon:** test classes 2019, 2021, 2022, 2023, 2024.
+   - **Pitcher soon:** test classes 2021, 2022, 2023, 2024 (2019's training has
+     only 21 successes).
+2. **The decision test is one omnibus model per player type and output: 4
+   decision tests, one Holm family.**
+   - The base is `fv_score`. FV+ is `fv_score` plus ALL the pre-registered
+     adjustments for that output, in one regularized model: ridge with CV for
+     rating, logit with CV for soon (the project's simple kinds).
+   - Power: with ~100 pooled soon successes, the original 19 separate tests
+     could only detect gains of about +0.05; one omnibus test per output is the
+     most powerful honest answer to "can FV be tuned to 4x4 at all?".
+   - The components per model are the Phase 2 tables' adjustments:
+     - **Hitter rating:** RW (Hit, Game Pwr, Spd, premium position, BB%), UP
+       (age relative to league, Raw Pwr minus Game Pwr), OP, SM.
+     - **Hitter soon:** RW, OP, PX (level flags, age relative to league), SM.
+     - **Pitcher rating:** SH (FB, best breaker, CH, CMD, FB x CMD,
+       FB x breaker, reliever), GB, OP, SM.
+     - **Pitcher soon:** SH, GB, OP, PX, SM.
+   - **Interactions** use grades centred at 50:
+     (FB − 50) x (CMD − 50) / 10 and (FB − 50) x (breaker − 50) / 10.
+   - **Missing tool grades** are imputed with that list's median for the grade,
+     and missing counts are reported.
+   - **Adoption (all must hold):**
+     - pooled z of the paired gain, two-sided, Holm-adjusted p < 0.05 across
+       the 4;
+     - gain > 0 in a majority of test classes (rating 2 of 2; hitter soon >= 3
+       of 5; pitcher soon >= 3 of 4);
+     - no class at or below −2 SE;
+     - soon: pooled top-50 not down more than 0.04;
+     - shuffle control: the adjustment block, shuffled jointly among players of
+       the same FV grade within each class, 200 times; the real gain must beat
+       the 95th percentile.
+   - **Components are NOT adopted individually.** Each component group's
+     contribution is reported as the drop in pooled gain when that group is
+     removed, with a bootstrap interval. It is labelled "explanation, not
+     decision". Expected signs are compared as before.
+   - An adopted model becomes the FV+ column for that player type and output.
+3. **The Statcast group, exploration map and confirmation queue are
+   unchanged.** The Statcast group's partial Spearman needs no training, so its
+   classes are every class with AAA tracking: soon 2022-2024, rating 2022.
+
 ## Phase 2: FV+ tests
 
 ### Population and data

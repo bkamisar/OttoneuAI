@@ -26,12 +26,13 @@ def write_csv(d, name, rows, encoding="utf-8"):
 
 class TestBoardFile(unittest.TestCase):
     def test_load_current_board(self):
-        header = ["Top 100", "Org Rk", "Name", "Org", "Pos", "Current Level", "ETA", "FV", "Age"]
+        header = ["Top 100", "Org Rk", "Name", "Org", "Pos", "Current Level", "ETA", "FV", "Age",
+                  "Hit_Fut", "Game_Fut", "Raw_Fut", "Spd_Fut", "CMD_Fut"]
         rows = [["Report", "x"],                                                  # preamble line
                 header,
-                ["", "3", "Ann Able", "SEA", "SS", "AA", "2027", "45+", "20.5"],
+                ["", "3", "Ann Able", "SEA", "SS", "AA", "2027", "45+", "20.5", "55", "45", "60", "50", ""],
                 ["", "4", "Pat Pitch", "SEA", "P", "AA", "2027", "50", "22.0"],     # pitcher: skipped
-                ["", "3", "Ann Able", "SEA", "SS", "AA", "2027", "45+", "20.5"],    # duplicate: skipped
+                ["", "3", "Ann Able", "SEA", "SS", "AA", "2027", "45+", "20.5", "55", "45", "60", "50", ""],  # duplicate
                 ["", "9", "No Grade", "SEA", "C", "A", "2029", "", "19.0"]]         # no FV: skipped
         with tempfile.TemporaryDirectory() as d:
             board = S.load_current_board(write_csv(d, "prospects.csv", rows, "utf-8-sig"))
@@ -40,6 +41,9 @@ class TestBoardFile(unittest.TestCase):
         self.assertEqual(e["fg_id"], "Ann Able|SEA")
         self.assertEqual((e["fv"], e["age"], e["org_rk"], e["top100"], e["key"]),
                          (47.5, 20.5, 3, None, "ann able"))
+        self.assertEqual((e["hit_fut"], e["pwr_fut"], e["raw_pwr_fut"], e["spd_fut"], e["cmd_fut"]),
+                         (55, 45, 60, 50, None))
+        self.assertEqual((e["org"], e["pos"]), ("SEA", "SS"))
 
     def test_missing_header_raises(self):
         with tempfile.TemporaryDirectory() as d:
@@ -58,6 +62,17 @@ class TestBoardFile(unittest.TestCase):
         self.assertEqual(r[0], {"player_id": 1, "name": "=Odd Name", "level": "AAA", "age": 21.0,
                                 "rating": 0.5, "rating_pct": 0.99, "soon": 0.25})
         self.assertEqual((r[1]["name"], r[1]["age"]), ("'Tis Name", None))
+
+
+class TestFvplusLoader(unittest.TestCase):
+    def test_load_fvplus(self):
+        rows = [["key", "type", "player_id", "rank", "tier"],
+                ["Ann Able|SEA", "H", "1", "2", "5"], ["Pat Pitch|SEA", "P", "9", "1", "0"]]
+        with tempfile.TemporaryDirectory() as d:
+            got = S.load_fvplus(write_csv(d, "fvplus_scores.csv", rows))
+            self.assertEqual(S.load_fvplus(os.path.join(d, "absent.csv")), {"H": {}, "P": {}})
+        self.assertEqual(got, {"H": {"Ann Able|SEA": {"rank": 2, "tier": 5}},
+                               "P": {"Pat Pitch|SEA": {"rank": 1, "tier": 0}}})
 
 
 class TestText(unittest.TestCase):
@@ -85,9 +100,9 @@ class TestBuild(unittest.TestCase):
                  entry("Cy Cole", 22.0, 50.0, "Cy Cole|BOS"), entry("Zed Zim", 30.0, 40.0, "Zed Zim|TEX")]
         history = {2024: [entry("Dee Dunn", 21.0, 45.0, "d")]}
         graded, ungraded, unreadable = S.build(ratings, board, history)
-        # fv pct Ann 1/3 Cy 2/3 Bo 1; soon pct Cy 1/3 Bo 2/3 Ann 1; ready Bo .83, Ann .67, Cy .5
-        self.assertEqual([(g["key"], g["ready_rank"], g["odds"]) for g in graded],
-                         [("Bo Baker|NYY", 1, 40), ("Ann Able|SEA", 2, 60), ("Cy Cole|BOS", 3, 10)])
+        self.assertEqual([(g["key"], g["odds"]) for g in graded],
+                         [("Ann Able|SEA", 60), ("Bo Baker|NYY", 40), ("Cy Cole|BOS", 10)])
+        self.assertTrue(all("ready_rank" not in g for g in graded))
         takes = {g["key"]: g["take"] for g in graded}
         self.assertEqual(takes["Ann Able|SEA"],
                          "Model: readier than the grade suggests; likes the bat more (ceiling: unproven)")

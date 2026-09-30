@@ -2,19 +2,20 @@
 
 Joins the model's hitter ratings to the site's current FanGraphs board with plan
 C's tested matching, and applies plan C's rules: FanGraphs' order for "how good",
-the average of the FV and model percentiles for "closest to helping", and the
-model alone for hitters FanGraphs doesn't grade. Only derived numbers, flags and
-the board's own Name|Org key are written -- never FanGraphs grades.
+FV+ soon (build_fvplus_scores.py) for "closest to helping", and the model alone
+for players FanGraphs doesn't grade. Only derived numbers, flags and the board's
+own Name|Org key are written -- never FanGraphs grades.
 """
 import csv
-
-import numpy as np
+import os
 
 from . import consensus as C
 
 PITCHER_POS = frozenset({"p", "sp", "rp", "rhp", "lhp"})
 DISAGREE = 0.25      # percentile points before the take mentions a disagreement
 NEVER_LISTED = "Never on a FanGraphs list"
+GRADE_COLS = {"hit_fut": "Hit_Fut", "pwr_fut": "Game_Fut", "raw_pwr_fut": "Raw_Fut", "spd_fut": "Spd_Fut",
+              "fb_fut": "FB_Fut", "sl_fut": "SL_Fut", "cb_fut": "CB_Fut", "ch_fut": "CH_Fut", "cmd_fut": "CMD_Fut"}
 
 
 def board_key(name, org):
@@ -45,9 +46,12 @@ def load_current_board(path, pitchers=False):
         if key in seen:
             continue
         seen.add(key)
-        out.append({"fg_id": key, "name": name, "key": C.norm_name(name), "age": C._num(_cell(r, idx, "Age")),
-                    "fv": fv, "top100": C._rank(_cell(r, idx, "Top 100")),
-                    "org_rk": C._rank(_cell(r, idx, "Org Rk"))})
+        e = {"fg_id": key, "name": name, "key": C.norm_name(name), "age": C._num(_cell(r, idx, "Age")),
+             "fv": fv, "top100": C._rank(_cell(r, idx, "Top 100")),
+             "org_rk": C._rank(_cell(r, idx, "Org Rk")),
+             "org": _cell(r, idx, "Org"), "pos": _cell(r, idx, "Pos").split("/")[0].strip()}
+        e.update({k: C.parse_fv(_cell(r, idx, h)) for k, h in GRADE_COLS.items()})
+        out.append(e)
     return out
 
 
@@ -125,11 +129,10 @@ def take_pitcher(d_soon, d_rating):
 def build(ratings, board, history, pitchers=False):
     """(graded, ungraded, unreadable_keys).
 
-    pitchers=True: no closest-to-helping rank and no percentages; graded rows carry
-    a 'soon' tier (see tier()) and ungraded rows a tier and an SP/RP role.
+    pitchers=True: no percentages; graded rows carry a 'soon' tier (see tier()) and
+    ungraded rows a tier and an SP/RP role.
 
-    graded: board hitters with a model read, by ready_rank (1 = closest to helping,
-    ranked on the average of FV and model 2-year percentiles within this pool).
+    graded: board players with a model read, sorted by key.
     ungraded: model hitters not on the board, by model rating percentile, each with
     the latest earlier list they appeared on (history = {year: consensus.load_board}).
     unreadable_keys: board rows whose name is shared with a model hitter who can't
@@ -146,8 +149,6 @@ def build(ratings, board, history, pitchers=False):
         fv_p = C.pct([C.fv_score(e) for e in es])
         soon_p = C.pct([r["soon"] for r in rs])
         rat_p = C.pct([r["rating"] for r in rs])
-        rank = np.empty(len(pids), dtype=int)
-        rank[np.argsort(-(fv_p + soon_p) / 2, kind="stable")] = np.arange(1, len(pids) + 1)
         if pitchers:
             graded = sorted(({"key": e["fg_id"], "player_id": r["player_id"], "tier": tiers[r["player_id"]],
                               "take": take_pitcher(s - f, t - f)}
@@ -155,9 +156,9 @@ def build(ratings, board, history, pitchers=False):
                             key=lambda g: g["key"])
         else:
             graded = sorted(({"key": e["fg_id"], "player_id": r["player_id"], "odds": odds(r["soon"]),
-                              "ready_rank": int(k), "take": take(s - f, t - f)}
-                             for r, e, f, s, t, k in zip(rs, es, fv_p, soon_p, rat_p, rank)),
-                            key=lambda g: g["ready_rank"])
+                              "take": take(s - f, t - f)}
+                             for r, e, f, s, t in zip(rs, es, fv_p, soon_p, rat_p)),
+                            key=lambda g: g["key"])
 
     listed = {}
     for y in sorted(history):                       # ascending, so the latest list wins
@@ -188,3 +189,14 @@ def build(ratings, board, history, pitchers=False):
     amb_names = {C.norm_name(a["name"]) for a in m["ambiguous"]}
     unreadable = sorted(e["fg_id"] for e in board if e["key"] in amb_names)
     return graded, ungraded, unreadable
+
+
+def load_fvplus(path):
+    """{'H': {key: {'rank', 'tier'}}, 'P': {...}} from cache/fvplus_scores.csv; empty when absent."""
+    out = {"H": {}, "P": {}}
+    if not os.path.exists(path):
+        return out
+    with open(path, encoding="utf-8", newline="") as fh:
+        for r in csv.DictReader(fh):
+            out[r["type"]][r["key"]] = {"rank": int(r["rank"]), "tier": int(r["tier"])}
+    return out

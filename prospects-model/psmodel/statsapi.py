@@ -86,6 +86,8 @@ def normalize_pitcher(split, season, sport_id):
         "np": int(num(st.get("numberOfPitches"))),
         "strikes": int(num(st.get("strikes"))),
         "bf": int(num(st.get("battersFaced"))),
+        "go": int(num(st.get("groundOuts"))),
+        "ao": int(num(st.get("airOuts"))),
     })
     return row
 

@@ -9,7 +9,7 @@ from . import statsapi
 
 MEX_LEAGUES = {"MEX", "Mexican League"}
 _HIT_SUM = ("g", "pa", "ab", "h", "hr", "r", "bb", "so", "sb", "np", "hbp")
-_PIT_SUM = ("g", "gs", "ip", "so", "bb", "hr", "np", "strikes", "bf")
+_PIT_SUM = ("g", "gs", "ip", "so", "bb", "hr", "np", "strikes", "bf", "go", "ao")
 
 
 def _combine(rows, group):

@@ -1,8 +1,11 @@
-"""Per-row features for the whiff test, normalized within (level, season).
+"""Per-row features, z-scored within groups.
 
-Within-(sport_id, season) z-scores are what make a 2016 AA line comparable to a
-2019 AAA line, and what absorb derived CSW's constant +1 pt offset. Never
-normalize by league name: leagues changed levels in 2021.
+Within-level-season z-scores are what make a 2016 AA line comparable to a 2019
+AAA line, and what absorb derived CSW's constant +1 pt offset. The 3c and pitcher
+models go one step further and z-score within (level, season, league)
+(standardize_within_league): the Pacific Coast League's offense is not the
+International League's. Each group is a single season, so the 2021 league-level
+changes don't matter. standardize_within stays for whiff_test.py.
 """
 import statistics
 
@@ -68,4 +71,37 @@ def standardize_within(rows, keys, group=("sport_id", "season")):
             for m in members:
                 v = m["f"].get(k)
                 m["f"][k] = None if v is None else ((v - mu) / sd if sd else 0.0)
+    return rows
+
+
+LEAGUE_MIN_ROWS = 30
+
+
+def _group_stats(members, keys):
+    out = {}
+    for k in keys:
+        vals = [m["f"][k] for m in members if m["f"].get(k) is not None]
+        out[k] = (statistics.fmean(vals) if vals else 0.0,
+                  statistics.pstdev(vals) if len(vals) > 1 else 0.0)
+    return out
+
+
+def standardize_within_league(rows, keys, min_rows=LEAGUE_MIN_ROWS):
+    """z-score each feature within its (level, season, league) group, in place. A
+    row with no league, or in a league-season under min_rows, uses its (level,
+    season) group. All group stats are taken before any value is replaced."""
+    keys = [k for k in keys if k not in NOT_STANDARDIZED]
+    level, league = {}, {}
+    for r in rows:
+        level.setdefault((r["sport_id"], r["season"]), []).append(r)
+        if r.get("league") is not None:
+            league.setdefault((r["sport_id"], r["season"], r["league"]), []).append(r)
+    stats = {g: _group_stats(m, keys) for g, m in level.items()}
+    stats.update({g: _group_stats(m, keys) for g, m in league.items() if len(m) >= min_rows})
+    for r in rows:
+        st = stats.get((r["sport_id"], r["season"], r.get("league"))) or stats[(r["sport_id"], r["season"])]
+        for k in keys:
+            v = r["f"].get(k)
+            mu, sd = st[k]
+            r["f"][k] = None if v is None else ((v - mu) / sd if sd else 0.0)
     return rows

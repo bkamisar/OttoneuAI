@@ -1,3 +1,4 @@
+import statistics
 import unittest
 from psmodel import features as F
 
@@ -54,6 +55,31 @@ class TestStandardize(unittest.TestCase):
         rows = [{"sport_id": 11, "season": 2018, "f": {"k": v}} for v in (.2, .3, None)]
         F.standardize_within(rows, ["k"])
         self.assertIsNone(rows[2]["f"]["k"])
+
+
+class TestStandardizeLeague(unittest.TestCase):
+    def rows(self):
+        out = []
+        for lg, ks in (("PCL", (.10, .20)), ("INT", (.30, .40))):
+            out += [{"sport_id": 11, "season": 2023, "league": lg, "f": {"k": k, "is_aaa": 1.0}} for k in ks]
+        return out
+
+    def test_each_league_centred_on_its_own_mean(self):
+        rows = F.standardize_within_league(self.rows(), ["k", "is_aaa"], min_rows=2)
+        self.assertEqual([round(r["f"]["k"], 9) for r in rows], [-1.0, 1.0, -1.0, 1.0])
+        self.assertEqual([r["f"]["is_aaa"] for r in rows], [1.0] * 4)
+
+    def test_small_league_falls_back_to_level_season(self):
+        rows = F.standardize_within_league(self.rows(), ["k"], min_rows=3)
+        mu, sd = .25, statistics.pstdev([.1, .2, .3, .4])
+        self.assertAlmostEqual(rows[0]["f"]["k"], (.10 - mu) / sd)
+
+    def test_no_league_falls_back_and_missing_stays_missing(self):
+        rows = self.rows() + [{"sport_id": 11, "season": 2023, "league": None, "f": {"k": .25}},
+                              {"sport_id": 11, "season": 2023, "league": "PCL", "f": {"k": None}}]
+        F.standardize_within_league(rows, ["k"], min_rows=2)
+        self.assertAlmostEqual(rows[4]["f"]["k"], 0.0)
+        self.assertIsNone(rows[5]["f"]["k"])
 
 
 if __name__ == "__main__":

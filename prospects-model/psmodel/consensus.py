@@ -63,7 +63,7 @@ def _future(text):
 
 
 def load_board(path):
-    """Graded hitters from one Board export: [{fg_id, name, key, age, fv, top100, org_rk}]."""
+    """Graded players from one Board export: ids, name, age, FV, ranks, future tool/pitch grades, org, first position."""
     out, seen = [], set()
     with open(path, encoding="utf-8-sig", newline="") as fh:
         for r in csv.DictReader(fh):
@@ -74,7 +74,12 @@ def load_board(path):
             out.append({"fg_id": r["playerId"], "name": r["Name"], "key": norm_name(r["Name"]),
                         "age": _num(r.get("Age")), "fv": fv,
                         "top100": _rank(r.get("Top 100")), "org_rk": _rank(r.get("Org Rk")),
-                        "hit_fut": _future(r.get("Hit")), "pwr_fut": _future(r.get("Game Pwr"))})
+                        "hit_fut": _future(r.get("Hit")), "pwr_fut": _future(r.get("Game Pwr")),
+                        "raw_pwr_fut": _future(r.get("Raw Pwr")), "spd_fut": _future(r.get("Spd")),
+                        "fb_fut": _future(r.get("FB")), "sl_fut": _future(r.get("SL")),
+                        "cb_fut": _future(r.get("CB")), "ch_fut": _future(r.get("CH")),
+                        "cmd_fut": _future(r.get("CMD")),
+                        "org": (r.get("Org") or "").strip(), "pos": (r.get("Pos") or "").split("/")[0].strip()})
     return out
 
 

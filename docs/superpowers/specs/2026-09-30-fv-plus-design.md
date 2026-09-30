@@ -160,6 +160,83 @@ follow the rule):**
 - The other three models' classes matched the rule exactly.
 - The runner's pre-registered stop caught the difference before any fit.
 
+## Phase 2 result (run 2026-09-30 on Opus; `fvplus_run.py`, report `cache/fvplus_report.txt`)
+
+**Plumbing:** FV-alone rank accuracy and top-50 match the consensus gate's FV
+line exactly in every class, for hitters and pitchers. The comparison ran on
+the same players in the same order.
+
+| model | test classes | per-class gain (z) | pooled z | Holm p | shuffle | guard | verdict |
+|---|---|---|---|---|---|---|---|
+| hitter rating | 2021, 2022 | −0.5, −0.2 | −0.49 | 0.62 | — | fails | **FV stands** |
+| hitter soon | 2021-2024 | +0.4, +1.9, +1.5, +1.1 | +2.48 | 0.039 | real +0.30 vs 95th pct −0.01 | z +3.8, 4/4 | **ADOPT FV+** |
+| pitcher rating | 2021, 2022 | −1.0, −1.1 | −1.44 | 0.30 | fails | fails | **FV stands** |
+| pitcher soon | 2021-2024 | +0.7, +2.0, +2.4, +1.2 | +2.97 | 0.012 | real +0.52 vs 95th pct +0.04 | z +3.8, 4/4 | **ADOPT FV+** |
+
+AUC gains for soon run +0.02 to +0.18 per class; the top-50 hit rate is up on
+average (hitters +0.035, pitchers +0.065).
+
+**What drives it (components, explanation only):**
+- **Pitcher soon:** level and age (PX) carry most of it. Dropping them loses
+  +0.39 (z 4.8). Ground balls (+0.05, z 1.8) and the stats model (+0.04, z 1.9)
+  add a little. The pitch-grade shape block does not help (−0.16).
+- **Hitter soon:** spread across the re-weighted grades (+0.06), the stats model
+  (+0.02) and opportunity. The groups overlap, because the stats model already
+  carries level and age.
+- **Reading:** FV grades a player's ceiling, not his timing. What FV+ adds for
+  "soon" is mostly how close a player is to the majors, which FV leaves out on
+  purpose.
+- **Rating:** adding grades and stats to FV HURT (hitters −0.03 pooled,
+  pitchers −0.10). FV already prices long-run value better than these
+  adjustments can; only the stats model helped within it (hitter SM +0.065,
+  z 3.8), not enough to carry the rest.
+
+**Weights (production fit, standardized, 95% player bootstrap):**
+- **Hitter soon:**
+  - Level (AAA +0.94, AA +0.71), BB% +0.29, Game Power +0.32 and worse-team
+    opportunity −0.20 all run the expected way.
+  - Premium position −0.30 [−0.58, −0.08]: glove-first prospects arrive and
+    produce less in 4x4, within the same FV.
+- **Hitter rating:**
+  - Speed −0.041 [−0.071, −0.010], in the expected direction (FV pays for SB,
+    4x4 doesn't).
+  - **Surprise:** age relative to league +0.034 [+0.002, +0.068]. Within the
+    same FV, OLDER hitters did better on the 4-year rating, the opposite of the
+    "upside premium" expectation.
+- **Pitcher soon:**
+  - Level and age (older) +, ground balls +0.17 [+0.00, +0.38], reliever +0.18
+    (borderline).
+  - **Surprise:** best breaking-ball grade −0.16 [−0.37, −0.04]. Within the same
+    FV, a better breaker meant LESS near-term value.
+
+**Statcast group (provisional):**
+- 2022 is n/a everywhere: fewer than 30 graded AAA players with the measure,
+  because 2022 game records are PCL-only.
+- Pulled air for soon: +0.09 / +0.20 (pooled z +1.58).
+- Unrealized-power flag: −0.08 / −0.08 (z −1.36).
+- Stuff: +0.24 / −0.20 (z +0.28).
+- Nothing near Holm. It is decided after 2028 as planned.
+
+**Exploration map and confirmation queue:** 24 cells were queued (95% interval
+excludes 0, n >= 20). Notable ones:
+- **Pulled air HIGH with EV HIGH:** +0.13 on soon (n 41).
+- **Pulled air HIGH with EV LOW:** −0.06 (n 21). This is the Paredes-style
+  profile, opposite to the article's claim.
+- Low speed +, and non-premium position +, on both hitter outputs.
+- A few pitch-grade pairs.
+- The pitcher profiles (power arm, command artist, breaker-first) show nothing:
+  FV prices "kind of pitcher" already.
+- All of these are pre-registered for the 2025+ classes; none is adopted now.
+
+**Consequences (per the spec):**
+- FV+ soon is adopted for hitters AND pitchers. It becomes a column and a sort
+  option on the shopping list, labelled with what it adjusts.
+- FV stays the default sort until the 2025 class confirms (soon answers after
+  the 2027 season).
+- The pitcher "Closest to helping" lens deferred in Phase 1 is now answered by
+  FV+ soon, a stronger test than the consensus blend.
+- The page work is the next plan.
+
 ## Phase 2: FV+ tests
 
 ### Population and data

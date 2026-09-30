@@ -114,5 +114,76 @@ class TestBuild(unittest.TestCase):
         self.assertEqual(unreadable, ["LG1|SEA", "LG2|NYY"])
 
 
+def pitched(pid, name, age, rating, soon, rating_pct, start_share=1.0):
+    return {"player_id": pid, "name": name, "level": "AA", "age": age, "rating": rating,
+            "rating_pct": rating_pct, "soon": soon, "start_share": start_share}
+
+
+class TestPitchers(unittest.TestCase):
+    def test_current_board_pitchers_only(self):
+        header = ["Top 100", "Org Rk", "Name", "Org", "Pos", "Current Level", "ETA", "FV", "Age"]
+        rows = [header,
+                ["", "3", "Ann Able", "SEA", "SS", "AA", "2027", "45+", "20.5"],
+                ["", "4", "Pat Pitch", "SEA", "P", "AA", "2027", "50", "22.0"]]
+        with tempfile.TemporaryDirectory() as d:
+            path = write_csv(d, "prospects.csv", rows, "utf-8-sig")
+            board = S.load_current_board(path, pitchers=True)
+            hitters = S.load_current_board(path)
+        self.assertEqual([e["fg_id"] for e in board], ["Pat Pitch|SEA"])
+        self.assertEqual([e["fg_id"] for e in hitters], ["Ann Able|SEA"])
+
+    def test_load_pitcher_ratings(self):
+        header = ["player_id", "name", "level", "age", "start_share", "rating_sgp", "rating_percentile",
+                  "p_useful_within_2", "stuff_in_rating", "stuff_in_soon", "flags"]
+        rows = [header, ["1", "A Arm", "AAA", "24", "0.080", "0.2", "99.9", "0.28", "no", "no", "x"],
+                ["2", "B Arm", "AA", "", "", "0.1", "10.0", "0.01", "no", "no", ""]]
+        with tempfile.TemporaryDirectory() as d:
+            r = S.load_pitcher_ratings(write_csv(d, "pr.csv", rows))
+        self.assertAlmostEqual(r[0].pop("rating_pct"), 0.999)
+        self.assertEqual(r[0], {"player_id": 1, "name": "A Arm", "level": "AAA", "age": 24.0,
+                                "rating": 0.2, "soon": 0.28, "start_share": 0.08})
+        self.assertEqual((r[1]["age"], r[1]["start_share"]), (None, None))
+
+    def test_tier_and_role(self):
+        self.assertEqual([S.tier(p) for p in (1.0, 0.96, 0.95, 0.92, 0.8, 0.76, 0.75, 0.1)],
+                         [5, 5, 10, 10, 25, 25, 0, 0])
+        self.assertEqual([S.role(x) for x in (1.0, 0.5, 0.49, 0.0, None)], ["SP", "SP", "RP", "RP", ""])
+
+    def test_pitcher_take_is_always_unproven(self):
+        self.assertEqual(S.take_pitcher(0.3, 0.0), "Model: readier than the grade suggests (unproven)")
+        self.assertEqual(S.take_pitcher(-0.3, 0.0), "Model: further away than the grade suggests (unproven)")
+        self.assertEqual(S.take_pitcher(0.0, 0.4), "Model likes the arm more (unproven)")
+        self.assertEqual(S.take_pitcher(0.0, -0.4), "Model likes the arm less (unproven)")
+        self.assertEqual(S.take_pitcher(0.3, -0.3),
+                         "Model: readier than the grade suggests; likes the arm less (unproven)")
+        self.assertEqual(S.take_pitcher(0.1, 0.1), "Model agrees")
+
+    def test_build_pitchers(self):
+        # 20 rated pitchers so the tiers mean something; Ann/Bo/Cy are on the board.
+        ratings = [pitched(i, f"P{i:02d} Arm", 22, 0.0, i / 100, i / 20, 1.0 if i % 2 else 0.2)
+                   for i in range(1, 18)]
+        ratings += [pitched(101, "Ann Able", 20, 0.5, 0.60, 0.9), pitched(102, "Bo Baker", 21, 0.1, 0.30, 0.2),
+                    pitched(103, "Cy Cole", 22, 0.3, 0.01, 0.5)]
+        board = [entry("Ann Able", 20.0, 45.0, "Ann Able|SEA"), entry("Bo Baker", 21.0, 55.0, "Bo Baker|NYY"),
+                 entry("Cy Cole", 22.0, 50.0, "Cy Cole|BOS")]
+        history = {2024: [entry("P05 Arm", 21.0, 40.0, "old")]}
+        graded, ungraded, unreadable = S.build(ratings, board, history, pitchers=True)
+        self.assertEqual(sorted(g["key"] for g in graded), ["Ann Able|SEA", "Bo Baker|NYY", "Cy Cole|BOS"])
+        for g in graded:
+            self.assertNotIn("ready_rank", g)
+            self.assertNotIn("odds", g)
+        tiers = {g["key"]: g["tier"] for g in graded}
+        self.assertEqual(tiers, {"Ann Able|SEA": 5, "Bo Baker|NYY": 10, "Cy Cole|BOS": 0})
+        takes = {g["key"]: g["take"] for g in graded}
+        self.assertEqual(takes["Ann Able|SEA"], "Model: readier than the grade suggests; likes the arm more (unproven)")
+        self.assertTrue(all("(unproven)" in t or t == "Model agrees" for t in takes.values()))
+        top = ungraded[0]
+        self.assertEqual((top["name"], top["role"], top["tier"]), ("P17 Arm", "SP", 25))
+        self.assertNotIn("odds", top)
+        self.assertEqual({u["name"]: u["take"] for u in ungraded}["P05 Arm"], "On the 2024 list, since dropped")
+        self.assertEqual({u["name"]: u["role"] for u in ungraded}["P16 Arm"], "RP")
+        self.assertEqual(unreadable, [])
+
+
 if __name__ == "__main__":
     unittest.main()

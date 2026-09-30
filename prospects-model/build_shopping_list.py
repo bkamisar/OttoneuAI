@@ -1,8 +1,8 @@
 """Sub-project 4: writes data/prospect_model.json for prospects.html.
 
 Usage:  python build_shopping_list.py
-Reads cache/hitter_ratings.csv (model3c_final.py), the site's current FanGraphs
-board ../data/prospects.csv, and the old Board lists in cache/fv/ (earlier-list
+Reads cache/hitter_ratings.csv (model3c_final.py) and cache/pitcher_ratings.csv
+(model_p_final.py), the site's current FanGraphs board ../data/prospects.csv, and the old Board lists in cache/fv/ (earlier-list
 flag only). No network. Rerun whenever data/prospects.csv or the ratings change,
 then commit data/prospects.csv and data/prospect_model.json together.
 """
@@ -19,6 +19,7 @@ CACHE = os.path.join(HERE, "cache")
 FV_DIR = os.path.join(CACHE, "fv")
 DATA = os.path.join(os.path.dirname(HERE), "data")
 RATINGS = os.path.join(CACHE, "hitter_ratings.csv")
+P_RATINGS = os.path.join(CACHE, "pitcher_ratings.csv")
 BOARD = os.path.join(DATA, "prospects.csv")
 OUT = os.path.join(DATA, "prospect_model.json")
 SEASON = cohorts.CURRENT_SEASON
@@ -33,8 +34,18 @@ def main():
     counts = {"board_hitters": len(board), "graded_with_model": len(graded),
               "board_without_model": len(board) - len(graded), "ungraded": len(ungraded),
               "unreadable": len(unreadable)}
+    p_ratings = S.load_pitcher_ratings(P_RATINGS)
+    p_board = S.load_current_board(BOARD, pitchers=True)
+    p_history = {y: C.load_board(C.board_path(FV_DIR, y, "pitchers")) for y in range(2017, SEASON + 1)
+                 if os.path.exists(C.board_path(FV_DIR, y, "pitchers"))}
+    p_graded, p_ungraded, p_unreadable = S.build(p_ratings, p_board, p_history, pitchers=True)
+    p_counts = {"board_pitchers": len(p_board), "graded_with_model": len(p_graded),
+                "board_without_model": len(p_board) - len(p_graded), "ungraded": len(p_ungraded),
+                "unreadable": len(p_unreadable)}
     out = {"generated": datetime.date.today().isoformat(), "season": SEASON, "counts": counts,
-           "graded": graded, "ungraded": ungraded, "unreadable_keys": unreadable}
+           "graded": graded, "ungraded": ungraded, "unreadable_keys": unreadable,
+           "pitchers": {"counts": p_counts, "graded": p_graded, "ungraded": p_ungraded,
+                        "unreadable_keys": p_unreadable}}
     with open(OUT, "w", encoding="utf-8") as fh:
         json.dump(out, fh, ensure_ascii=False)
     print(json.dumps(counts))
@@ -43,6 +54,10 @@ def main():
     print("ungraded, top 10 by model:\n  " + "\n  ".join(
         f"{u['name']} ({u['level']}, {u['age']}) {u['rating_pct']:.0%}  ~{u['odds']}%  {u['take']}"
         for u in ungraded[:10]))
+    print(json.dumps(p_counts))
+    print("pitchers, ungraded top 10 by model:\n  " + "\n  ".join(
+        f"{u['name']} ({u['level']}, {u['age']}, {u['role']}) {u['rating_pct']:.0%}  top {u['tier'] or '>25'}%  {u['take']}"
+        for u in p_ungraded[:10]))
     print(f"wrote {OUT}")
 
 

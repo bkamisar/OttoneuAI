@@ -679,6 +679,25 @@ were ambiguous or age-rejected.
   - No blend-sorted lens for pitchers; the hitters got one only because their
     verdict was "tiebreaker".
 
+## Pitchers on the shopping list (built 2026-09-30, approved by the user)
+
+- **Data:** `build_shopping_list.py` reads `cache/pitcher_ratings.csv` and writes a
+  `pitchers` block into `data/prospect_model.json` (graded, ungraded, counts,
+  unreadable keys). The hitter part of the file is unchanged.
+- **Soon = a tier, not a percentage.** The tier is the percentile of
+  `p_useful_within_2` among all rated pitchers: Top 5% / Top 10% / Top 25% / none
+  (P-D: the model is overconfident, so no percentages).
+- **Lenses:** pitchers sort by FanGraphs' order in both; no blend-sorted "ready"
+  lens (P-F: the verdict was follow FV).
+- **Take:** the same 0.25 percentile-gap rule as hitters, computed within the
+  matched-pitcher pool. Wording is tagged "(unproven)", except "Model agrees".
+- **Ungraded pitchers:** shown with the model tier and an SP/RP role (start share
+  >= 0.5 = SP). "On the YYYY list, since dropped" uses the pitcher boards.
+- **Page:** the "Ungraded (model only)" button became "Ungraded hitters" and
+  "Ungraded pitchers". Type filters now use the position (`inferType`), which also
+  fixes a pre-existing hitter/pitcher mix-up from `projType`.
+- **Counts on the Aug 24 board:** 614 hitters, 669 pitchers.
+
 ## Stuff layer: staging and the pitch-level follow-up (pre-registered 2026-09-28)
 
 **What the review of public stuff models found** (FanGraphs Stuff+ and PitchingBot

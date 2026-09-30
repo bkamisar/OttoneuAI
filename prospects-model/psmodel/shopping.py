@@ -27,9 +27,9 @@ def _cell(row, idx, header):
     return row[i].strip() if i is not None and i < len(row) else ""
 
 
-def load_current_board(path):
-    """Graded hitters from the site's board file, shaped like consensus.load_board
-    entries, with fg_id = the Name|Org join key. Pitchers are skipped."""
+def load_current_board(path, pitchers=False):
+    """Graded hitters (or, with pitchers=True, graded pitchers) from the site's board
+    file, shaped like consensus.load_board entries, with fg_id = the Name|Org join key."""
     with open(path, encoding="utf-8-sig", newline="") as fh:
         rows = list(csv.reader(fh))
     head = next((i for i, r in enumerate(rows[:6]) if "Name" in r and "FV" in r), None)
@@ -39,7 +39,7 @@ def load_current_board(path):
     out, seen = [], set()
     for r in rows[head + 1:]:
         name, fv = _cell(r, idx, "Name"), C.parse_fv(_cell(r, idx, "FV"))
-        if not name or fv is None or _cell(r, idx, "Pos").lower() in PITCHER_POS:
+        if not name or fv is None or (_cell(r, idx, "Pos").lower() in PITCHER_POS) != pitchers:
             continue
         key = board_key(name, _cell(r, idx, "Org"))
         if key in seen:
@@ -65,6 +65,27 @@ def load_ratings(path):
                 for r in csv.DictReader(fh)]
 
 
+def load_pitcher_ratings(path):
+    """The model's pitchers from cache/pitcher_ratings.csv (model_p_final.py)."""
+    with open(path, encoding="utf-8", newline="") as fh:
+        return [{"player_id": int(r["player_id"]), "name": _unguard(r["name"]), "level": r["level"],
+                 "age": C._num(r["age"]), "rating": float(r["rating_sgp"]),
+                 "rating_pct": float(r["rating_percentile"]) / 100, "soon": float(r["p_useful_within_2"]),
+                 "start_share": C._num(r["start_share"])}
+                for r in csv.DictReader(fh)]
+
+
+def tier(p):
+    """A pitcher's 'soon' rank among every rated pitcher (percentile in (0, 1]) as
+    5 / 10 / 25 for the top 5% / 10% / 25%, else 0. The model's percentages are
+    overconfident for pitchers, so only the rank is shown."""
+    return 5 if p > 0.95 else 10 if p > 0.90 else 25 if p > 0.75 else 0
+
+
+def role(start_share):
+    return "" if start_share is None else "SP" if start_share >= 0.5 else "RP"
+
+
 def odds(p):
     """The 2-year probability as a whole percent rounded to 5; 0 means under 2.5%."""
     return int(round(p * 20)) * 5
@@ -86,8 +107,26 @@ def take(d_soon, d_rating):
     return "Model agrees"
 
 
-def build(ratings, board, history):
+def take_pitcher(d_soon, d_rating):
+    """Like take(), for pitchers: FanGraphs won both tests, so every disagreement is unproven."""
+    soon = ("Model: readier than the grade suggests" if d_soon >= DISAGREE else
+            "Model: further away than the grade suggests" if d_soon <= -DISAGREE else None)
+    arm = ("likes the arm more" if d_rating >= DISAGREE else
+           "likes the arm less" if d_rating <= -DISAGREE else None)
+    if soon and arm:
+        return f"{soon}; {arm} (unproven)"
+    if soon:
+        return f"{soon} (unproven)"
+    if arm:
+        return f"Model {arm} (unproven)"
+    return "Model agrees"
+
+
+def build(ratings, board, history, pitchers=False):
     """(graded, ungraded, unreadable_keys).
+
+    pitchers=True: no closest-to-helping rank and no percentages; graded rows carry
+    a 'soon' tier (see tier()) and ungraded rows a tier and an SP/RP role.
 
     graded: board hitters with a model read, by ready_rank (1 = closest to helping,
     ranked on the average of FV and model 2-year percentiles within this pool).
@@ -98,6 +137,7 @@ def build(ratings, board, history):
     people = [{"player_id": r["player_id"], "name": r["name"], "age": r["age"]} for r in ratings]
     by_id = {r["player_id"]: r for r in ratings}
     m = C.match(people, board)
+    tiers = dict(zip(by_id, map(tier, C.pct([r["soon"] for r in ratings])))) if pitchers else {}
     pids = list(m["matched"])
     graded = []
     if pids:
@@ -108,10 +148,16 @@ def build(ratings, board, history):
         rat_p = C.pct([r["rating"] for r in rs])
         rank = np.empty(len(pids), dtype=int)
         rank[np.argsort(-(fv_p + soon_p) / 2, kind="stable")] = np.arange(1, len(pids) + 1)
-        graded = sorted(({"key": e["fg_id"], "player_id": r["player_id"], "odds": odds(r["soon"]),
-                          "ready_rank": int(k), "take": take(s - f, t - f)}
-                         for r, e, f, s, t, k in zip(rs, es, fv_p, soon_p, rat_p, rank)),
-                        key=lambda g: g["ready_rank"])
+        if pitchers:
+            graded = sorted(({"key": e["fg_id"], "player_id": r["player_id"], "tier": tiers[r["player_id"]],
+                              "take": take_pitcher(s - f, t - f)}
+                             for r, e, f, s, t in zip(rs, es, fv_p, soon_p, rat_p)),
+                            key=lambda g: g["key"])
+        else:
+            graded = sorted(({"key": e["fg_id"], "player_id": r["player_id"], "odds": odds(r["soon"]),
+                              "ready_rank": int(k), "take": take(s - f, t - f)}
+                             for r, e, f, s, t, k in zip(rs, es, fv_p, soon_p, rat_p, rank)),
+                            key=lambda g: g["ready_rank"])
 
     listed = {}
     for y in sorted(history):                       # ascending, so the latest list wins
@@ -131,9 +177,13 @@ def build(ratings, board, history):
             note = f"On the {listed[pid]} list, since dropped"
         else:
             note = NEVER_LISTED
-        ungraded.append({"player_id": pid, "name": r["name"], "level": r["level"], "age": r["age"],
-                         "rating_pct": r["rating_pct"], "odds": odds(r["soon"]), "listed": listed.get(pid),
-                         "take": note})
+        u = {"player_id": pid, "name": r["name"], "level": r["level"], "age": r["age"],
+             "rating_pct": r["rating_pct"], "listed": listed.get(pid), "take": note}
+        if pitchers:
+            u.update(tier=tiers[pid], role=role(r["start_share"]))
+        else:
+            u["odds"] = odds(r["soon"])
+        ungraded.append(u)
     ungraded.sort(key=lambda u: -u["rating_pct"])
     amb_names = {C.norm_name(a["name"]) for a in m["ambiguous"]}
     unreadable = sorted(e["fg_id"] for e in board if e["key"] in amb_names)

@@ -88,7 +88,8 @@
         <button class="type-btn active" data-type="all">All</button>
         <button class="type-btn" data-type="H">Hitters</button>
         <button class="type-btn" data-type="P">Pitchers</button>
-        <button class="type-btn" data-type="U">Ungraded (model only)</button>
+        <button class="type-btn" data-type="U">Ungraded hitters</button>
+        <button class="type-btn" data-type="UP">Ungraded pitchers</button>
       </div>
       <label style="font-size:0.8rem;color:#555;display:flex;align-items:center;gap:5px;cursor:pointer">
         <input type="checkbox" id="faOnlyChk"> Free agents only
@@ -108,7 +109,7 @@
             <th data-col="eta">ETA</th>
             <th data-col="age">Age</th>
             <th class="grades-cell">Grades</th>
-            <th data-col="odds" title="Model: chance of a starter-quality season within 2 years">2-yr odds</th>
+            <th data-col="odds" id="thOdds" title="Hitters: model chance of a starter-quality season within 2 years. Pitchers: the model's rank for that among all minor-league pitchers (a tier, not a percentage). When sorting this column, pitchers sort below hitters.">2-yr odds / tier</th>
             <th class="take-cell">Take</th>
             <th data-col="value" id="thValue">Proj $</th>
             <th data-col="team">Ottoneu Team</th>
@@ -158,7 +159,10 @@
       document.querySelectorAll('.type-btn').forEach(function(b) {
         b.classList.toggle('active', b.dataset.type === t);
       });
-      document.getElementById('thFv').textContent = t === 'U' ? 'Model' : 'FV';
+      var ungr = t === 'U' || t === 'UP';
+      document.getElementById('thFv').textContent = ungr ? 'Model' : 'FV';
+      document.getElementById('thOdds').textContent =
+        (t === 'P' || t === 'UP') ? '2-yr tier' : (t === 'H' || t === 'U') ? '2-yr odds' : '2-yr odds / tier';
     }
 
     function markSortHeader() {
@@ -173,13 +177,31 @@
       return o === 0 ? '<5%' : '~' + o + '%';
     }
 
+    // Pitchers: the model's percentages are overconfident, so only a rank tier is shown.
+    function fmtTier(t) {
+      if (t == null) return '—';
+      return t === 0 ? '—' : 'Top ' + t + '%';
+    }
+    // Hitters sort by odds (0-100); pitchers sort below them, best tier first; no read last.
+    function oddsSortKey(model) {
+      if (!model) return -5;
+      if (model.tier === undefined) return model.odds;
+      return { 5: -1, 10: -2, 25: -3, 0: -4 }[model.tier];
+    }
+    function fmtRead(model) {
+      if (!model) return '—';
+      return model.tier !== undefined ? fmtTier(model.tier) : fmtOdds(model.odds);
+    }
+
     // Plain-language model read for a board row (shopping-list spec).
     function boardTake(pr, model, isPitcher) {
-      if (isPitcher) return 'FanGraphs only (no pitcher model)';
       if (!modelInfo) return '—';
       if (model) return model.take;
-      if (modelInfo.unreadable[pr.rawName + '|' + pr.org]) return 'No model read: name shared by two players';
-      return 'No model read: under 150 PA at a full-season level in ' + modelInfo.season;
+      var unread = isPitcher ? modelInfo.pUnreadable : modelInfo.unreadable;
+      if (unread[pr.rawName + '|' + pr.org]) return 'No model read: name shared by two players';
+      return isPitcher
+        ? 'No model read: under 30 IP at a full-season level in ' + modelInfo.season + ', or established in MLB'
+        : 'No model read: under 150 PA at a full-season level in ' + modelInfo.season;
     }
 
     function fvClass(fv) {
@@ -256,7 +278,7 @@
         case 'team':    return (row.team || '').toLowerCase();
         case 'salary':  return row.salary;
         case 'surplus': return rowSurplus(row);
-        case 'odds':    return row.model ? row.model.odds : -1;
+        case 'odds':    return oddsSortKey(row.model);
         case 'ready':   return row.model && row.model.ready_rank ? row.model.ready_rank : 1e9;
         default:        return 0;
       }
@@ -265,9 +287,10 @@
     function render() {
       var isDynasty = activeView === 'dynasty';
       var query     = document.getElementById('searchBox').value.toLowerCase();
-      var base      = typeFilter === 'U' ? ungradedRows : allRows;
+      var isUngr    = typeFilter === 'U' || typeFilter === 'UP';
+      var base      = isUngr ? ungradedRows : allRows;
       var filtered  = base.filter(function(r) {
-        var t = r.ungraded ? 'U' : (r.projType || inferType(r.prospect.pos));
+        var t = r.ungraded ? (r.projType === 'P' ? 'UP' : 'U') : inferType(r.prospect.pos);
         if (typeFilter !== 'all' && t !== typeFilter) return false;
         if (lens === 'ready' && !(r.model && r.model.ready_rank)) return false;
         if (faOnly && r.team !== 'FA') return false;
@@ -287,19 +310,30 @@
         return b.prospect.fv - a.prospect.fv;
       });
 
+      var shownOf = isUngr ? ungradedRows.filter(function(r) { return (r.projType === 'P' ? 'UP' : 'U') === typeFilter; }).length
+                           : base.length;
       document.getElementById('countLine').textContent =
-        'Showing ' + filtered.length + ' of ' + base.length;
+        'Showing ' + filtered.length + ' of ' + shownOf;
 
       var note = '';
+      var pitcherNote = 'Sorted by FanGraphs, which tied or beat the model in every test. The 2-yr tier is the ' +
+                        'model\'s rank among all minor-league pitchers, not a percentage. Model disagreements are unproven.';
       if (typeFilter === 'U') {
         note = 'Model only, no scouting grade. In backtests about 1–2.5% of never-listed hitters became ' +
                'starter-quality; most ungraded hits had been on an earlier list.';
+      } else if (typeFilter === 'UP') {
+        note = 'Model only, no scouting grade, ranked by the model\'s rating. Pitcher odds are shown as a rank ' +
+               'tier because the model\'s percentages ran overconfident. Many of these are relievers who ' +
+               'had been on an earlier list.';
+      } else if (typeFilter === 'P' && modelInfo) {
+        note = pitcherNote;
       } else if (lens === 'ready') {
         note = 'Ranked by the average of FanGraphs\' order and the model\'s 2-year odds, which beat FanGraphs ' +
                'alone in 3 of 3 test years. ' + modelInfo.counts.board_without_model +
                ' board hitters have no model read.';
       } else if (modelInfo) {
-        note = 'Sorted by FanGraphs. Take shows where the model disagrees; ceiling disagreements are unproven.';
+        note = 'Sorted by FanGraphs. Take shows where the model disagrees; ceiling disagreements are unproven.' +
+               (typeFilter === 'all' ? ' Pitchers: the tier is a rank, not a percentage.' : '');
       }
       document.getElementById('modelNote').textContent = note;
 
@@ -330,7 +364,7 @@
         if (row.ungraded) {
           fvSpan.className = 'badge-fv badge-fv-low';
           fvSpan.textContent = Math.round(row.model.rating_pct * 100);
-          fvSpan.title = 'Model rating percentile among ' + modelInfo.season + ' model hitters';
+          fvSpan.title = 'Model rating percentile among ' + modelInfo.season + (row.projType === 'P' ? ' model pitchers' : ' model hitters');
         } else {
           fvSpan.className = 'badge-fv ' + fvClass(pr.fv);
           fvSpan.textContent = pr.fv;
@@ -349,7 +383,7 @@
         gradesCell.appendChild(buildGradesCell(pr));
         tr.appendChild(gradesCell);
 
-        tr.appendChild(td(fmtOdds(row.model ? row.model.odds : null), row.model ? '' : 'dim'));
+        tr.appendChild(td(fmtRead(row.model), row.model ? '' : 'dim'));
         tr.appendChild(td(row.take, 'take-cell' + (row.model ? '' : ' dim')));
 
         if (row.hasProj) {
@@ -400,7 +434,7 @@
           document.getElementById('btnReady').classList.remove('active');
         }
         setType(t);
-        document.getElementById('lensToggle').style.display = (modelInfo && t !== 'U') ? '' : 'none';
+        document.getElementById('lensToggle').style.display = (modelInfo && t !== 'U' && t !== 'UP') ? '' : 'none';
         if (lens !== 'ready') { sortCol = 'fv'; sortDir = -1; }
         markSortHeader();
         render();
@@ -503,24 +537,36 @@
 
       // Model read (sub-project 4). If the file is absent the page works as before.
       var modelByKey = {};
+      var pModelByKey = {};
       try {
-        var mresp = await fetch('./data/prospect_model.json?t=' + Date.now(), { cache: 'no-store' });
-        if (mresp.ok) {
-          var mj = await mresp.json();
+        var mj = null;
+        for (var attempt = 0; attempt < 3 && !mj; attempt++) {
+          try {
+            var mresp = await fetch('./data/prospect_model.json?t=' + Date.now(), { cache: 'no-store' });
+            if (mresp.ok) mj = await mresp.json(); else break;
+          } catch (fe) { console.warn('[prospects] model fetch attempt ' + (attempt + 1) + ' failed:', fe); }
+        }
+        if (mj) {
           var unreadable = {};
           (mj.unreadable_keys || []).forEach(function(k) { unreadable[k] = true; });
-          modelInfo = { season: mj.season, counts: mj.counts, unreadable: unreadable };
+          var pj = mj.pitchers || { counts: {}, graded: [], ungraded: [], unreadable_keys: [] };
+          var pUnreadable = {};
+          (pj.unreadable_keys || []).forEach(function(k) { pUnreadable[k] = true; });
+          modelInfo = { season: mj.season, counts: mj.counts, unreadable: unreadable, pUnreadable: pUnreadable };
           (mj.graded || []).forEach(function(g) { modelByKey[g.key] = g; });
-          ungradedRows = (mj.ungraded || []).map(function(u) {
+          (pj.graded || []).forEach(function(g) { pModelByKey[g.key] = g; });
+          function ungradedRow(u, kind) {
             var nm = normalizeName(u.name);
             var urp = rosterByName[nm] || null;
             return {
-              prospect: { name: nm, rawName: u.name, org: '', pos: '', level: u.level, eta: '', fv: 0, age: u.age },
+              prospect: { name: nm, rawName: u.name, org: '', pos: u.role || '', level: u.level, eta: '', fv: 0, age: u.age },
               ungraded: true, model: u, take: u.take,
               salary: urp ? (urp.salary || 0) : 0, team: urp ? (urp.team || 'FA') : 'FA',
-              value: 0, surplus: 0, dynastyValue: 0, dynastySurplus: 0, hasProj: false, projType: 'H',
+              value: 0, surplus: 0, dynastyValue: 0, dynastySurplus: 0, hasProj: false, projType: kind,
             };
-          });
+          }
+          ungradedRows = (mj.ungraded || []).map(function(u) { return ungradedRow(u, 'H'); })
+            .concat((pj.ungraded || []).map(function(u) { return ungradedRow(u, 'P'); }));
         }
       } catch (e) {
         console.warn('[prospects] no model data:', e);
@@ -529,7 +575,7 @@
       allRows = prospectList.map(function(pr) {
         var rp  = rosterByName[pr.name] || null;
         var isP = inferType(pr.pos) === 'P';
-        var mdl = isP ? null : (modelByKey[pr.rawName + '|' + pr.org] || null);
+        var mdl = (isP ? pModelByKey : modelByKey)[pr.rawName + '|' + pr.org] || null;
         var pm  = projByName[pr.name]   || null;
         var vm  = valueMap[pr.name]        || {};
         var dvm = dynastyValueMap[pr.name] || {};
@@ -550,7 +596,7 @@
       });
 
       if (modelInfo) document.getElementById('lensToggle').style.display = '';
-      else document.querySelector('.type-btn[data-type="U"]').style.display = 'none';
+      else document.querySelectorAll('.type-btn[data-type="U"], .type-btn[data-type="UP"]').forEach(function(b) { b.style.display = 'none'; });
       markSortHeader();
       document.getElementById('content').style.display = '';
       render();

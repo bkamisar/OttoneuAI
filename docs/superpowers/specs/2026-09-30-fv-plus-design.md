@@ -151,6 +151,15 @@ class were counted; no feature was compared with any outcome.
    unchanged.** The Statcast group's partial Spearman needs no training, so its
    classes are every class with AAA tracking: soon 2022-2024, rating 2022.
 
+**Note on Amendment A (2026-09-30, before any model was fit; the user chose to
+follow the rule):**
+- The listed hitter-soon test class 2019 was an arithmetic slip: the count
+  forgot that the rule removes the test class's own players from training.
+  That removes 94 hitters and leaves 284, under the 300 minimum.
+- The rule stands, so **hitter soon tests 2021-2024** (majority 3 of 4).
+- The other three models' classes matched the rule exactly.
+- The runner's pre-registered stop caught the difference before any fit.
+
 ## Phase 2: FV+ tests
 
 ### Population and data

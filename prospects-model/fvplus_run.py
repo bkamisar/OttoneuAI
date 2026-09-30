@@ -35,7 +35,7 @@ VERDICT = os.path.join(CACHE, "fvplus_verdict.json")
 NOW = cohorts.CURRENT_SEASON
 MODELS = [("H", "rating"), ("H", "soon"), ("P", "rating"), ("P", "soon")]
 EXPECTED_TESTS = {("H", "rating"): [2021, 2022], ("P", "rating"): [2021, 2022],
-                  ("H", "soon"): [2019, 2021, 2022, 2023, 2024], ("P", "soon"): [2021, 2022, 2023, 2024]}
+                  ("H", "soon"): [2021, 2022, 2023, 2024], ("P", "soon"): [2021, 2022, 2023, 2024]}
 FIRST_TEST = 2018                                   # classes 2016-17 (lists 2017-18) are thin: training only
 STATCAST_CLASSES = {"rating": (2022,), "soon": (2022, 2023, 2024)}
 SEED = 0

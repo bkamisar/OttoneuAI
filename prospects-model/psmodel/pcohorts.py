@@ -59,7 +59,7 @@ def load_milb(seasons=cohorts.MILB_SEASONS, levels=cohorts.LEVELS):
 def build_rows(milb_rows, ip_history, mlb_seasons):
     """Rows {player_id, name, season, sport_id, typ, age_raw, f, mlb} for pitchers
     with 30+ IP at a level who weren't established in MLB. Continuous features are
-    z-scored within level-season, as for hitters."""
+    z-scored within level-season-league, as for hitters."""
     seen = {}
     for r in milb_rows:
         seen.setdefault((r["player_id"], r["season"]), set()).add(r["sport_id"])
@@ -77,7 +77,7 @@ def build_rows(milb_rows, ip_history, mlb_seasons):
         f["repeat_level"] = 1.0 if r["sport_id"] in seen.get((pid, cohorts.previous_season(s)), ()) else 0.0
         f["multi_level"] = 1.0 if len(seen[(pid, s)]) > 1 else 0.0
         rows.append({"player_id": pid, "name": r["name"], "season": s, "sport_id": r["sport_id"],
-                     "typ": "P", "age_raw": r.get("age"), "start_share": r["gs"] / r["g"] if r.get("g") else None,
+                     "league": r.get("league"), "typ": "P", "age_raw": r.get("age"), "start_share": r["gs"] / r["g"] if r.get("g") else None,
                      "f": f, "mlb": mlb_seasons.get(pid, [])})
-    F.standardize_within(rows, [k for g in GROUPS.values() for k in g if k not in BINARY])
+    F.standardize_within_league(rows, [k for g in GROUPS.values() for k in g if k not in BINARY])
     return rows

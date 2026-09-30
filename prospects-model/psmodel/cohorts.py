@@ -67,7 +67,7 @@ def build_rows(milb_rows, pa_history, mlb_seasons):
     """Rows {player_id, name, season, sport_id, f, mlb} for hitters with >=150 PA at
     a level who weren't established in MLB. Repeat/multi-level flags look at ALL
     minor-league rows (any PA). Continuous features are z-scored within
-    level-season, so age becomes age relative to the level."""
+    level-season-league, so age becomes age relative to the league."""
     seen = {}
     for r in milb_rows:
         seen.setdefault((r["player_id"], r["season"]), set()).add(r["sport_id"])
@@ -83,6 +83,6 @@ def build_rows(milb_rows, pa_history, mlb_seasons):
         f["repeat_level"] = 1.0 if r["sport_id"] in seen.get((pid, previous_season(s)), ()) else 0.0
         f["multi_level"] = 1.0 if len(seen[(pid, s)]) > 1 else 0.0
         rows.append({"player_id": pid, "name": r["name"], "season": s, "sport_id": r["sport_id"],
-                     "age_raw": r.get("age"), "f": f, "mlb": mlb_seasons.get(pid, [])})
-    F.standardize_within(rows, [k for g in GROUPS.values() for k in g if k not in BINARY])
+                     "league": r.get("league"), "age_raw": r.get("age"), "f": f, "mlb": mlb_seasons.get(pid, [])})
+    F.standardize_within_league(rows, [k for g in GROUPS.values() for k in g if k not in BINARY])
     return rows

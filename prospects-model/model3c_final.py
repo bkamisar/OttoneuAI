@@ -32,6 +32,7 @@ DECISIONS = os.path.join(CACHE, "model3c_final.json")
 RATINGS = os.path.join(CACHE, "hitter_ratings.csv")
 PRODUCTION = cohorts.CURRENT_SEASON
 AAA_TRACKED = (2022, 2023, 2024, 2025, 2026)
+FROZEN_SOON_GROUPS = ("contact", "approach")   # kept at 2024's first opening (2026-09-27); never re-decided
 warnings.filterwarnings("ignore", category=FutureWarning, module="sklearn")
 
 
@@ -82,6 +83,10 @@ def main():
 
     L, decisions = ["3c-HITTERS FINAL RUN (plan B)", ""], {}
     keys = {t: list(choice[t]["keys"]) for t in ("rating", "soon")}
+    for g in FROZEN_SOON_GROUPS:
+        if g not in choice["soon"]["adopted"]:
+            keys["soon"] += [k for k in cohorts.GROUPS[g] if k not in keys["soon"]]
+            L.append(f"NOTE: the base run dropped '{g}' for soon; restored by the 2024 freeze")
     vants = {"rating": W.RATING_VANTAGES, "soon": W.SOON_VANTAGES}
 
     L.append("1. Tree leads as explicit terms (decision vantages, same adoption rule):")

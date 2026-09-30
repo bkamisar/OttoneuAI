@@ -101,7 +101,10 @@ def audit_rows(a, raw, rows, pa_hist):
     groups = {}
     for r, s in zip(rows, src):
         if s is not None:
-            groups.setdefault((r["sport_id"], r["season"]), []).append((r, s))
+            groups.setdefault((r["sport_id"], r["season"], r["league"]), []).append((r, s))
+    small = [g for g, m in groups.items() if g[2] is None or len(m) < F.LEAGUE_MIN_ROWS]
+    a.check(f"every row has a league and every league-season has >= {F.LEAGUE_MIN_ROWS} rows (no fallback in use)",
+            not small, f"{len(small)} groups: {small[:5]}")
     worst, where = 0.0, ""
     for g, members in groups.items():
         raw_f = [F.hitter_features(s) for _, s in members]
@@ -115,8 +118,8 @@ def audit_rows(a, raw, rows, pa_hist):
                 diff = float("inf") if (want is None) != (got is None) else (
                     0.0 if want is None else abs(want - got))
                 if diff > worst:
-                    worst, where = diff, f"{k} in level {g[0]} {g[1]} ({r['name']})"
-    a.check("every feature = its raw stat z-scored within level-season (all rows re-derived)",
+                    worst, where = diff, f"{k} in {g[0]} {g[1]} {g[2]} ({r['name']})"
+    a.check("every feature = its raw stat z-scored within level-season-league (all rows re-derived)",
             worst < TOL, f"max diff {worst:.2e}" + (f" at {where}" if worst >= TOL else ""))
 
 

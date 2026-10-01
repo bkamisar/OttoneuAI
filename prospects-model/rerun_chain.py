@@ -23,6 +23,7 @@ STEPS = [
     ("pitcher final", ["model_p_final.py"]),
     ("hitter consensus", ["consensus_gate.py"]),
     ("pitcher consensus", ["consensus_gate.py", "--pitchers"]),
+    ("fvplus scores", ["build_fvplus_scores.py"]),
     ("shopping list", ["build_shopping_list.py"]),
     ("audit", ["audit_pipeline.py"]),
 ]

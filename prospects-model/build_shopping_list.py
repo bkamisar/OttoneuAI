@@ -3,8 +3,9 @@
 Usage:  python build_shopping_list.py
 Reads cache/hitter_ratings.csv (model3c_final.py) and cache/pitcher_ratings.csv
 (model_p_final.py), the site's current FanGraphs board ../data/prospects.csv, and the old Board lists in cache/fv/ (earlier-list
-flag only). No network. Rerun whenever data/prospects.csv or the ratings change,
-then commit data/prospects.csv and data/prospect_model.json together.
+flag only), plus FV+ soon from cache/fvplus_scores.csv (run build_fvplus_scores.py
+first). No network. Rerun whenever data/prospects.csv or the ratings change, then
+commit data/prospects.csv and data/prospect_model.json together.
 """
 import datetime
 import json
@@ -22,6 +23,7 @@ RATINGS = os.path.join(CACHE, "hitter_ratings.csv")
 P_RATINGS = os.path.join(CACHE, "pitcher_ratings.csv")
 BOARD = os.path.join(DATA, "prospects.csv")
 OUT = os.path.join(DATA, "prospect_model.json")
+FVP = os.path.join(CACHE, "fvplus_scores.csv")
 SEASON = cohorts.CURRENT_SEASON
 
 
@@ -42,15 +44,19 @@ def main():
     p_counts = {"board_pitchers": len(p_board), "graded_with_model": len(p_graded),
                 "board_without_model": len(p_board) - len(p_graded), "ungraded": len(p_ungraded),
                 "unreadable": len(p_unreadable)}
+    fvp = S.load_fvplus(FVP)
     out = {"generated": datetime.date.today().isoformat(), "season": SEASON, "counts": counts,
            "graded": graded, "ungraded": ungraded, "unreadable_keys": unreadable,
            "pitchers": {"counts": p_counts, "graded": p_graded, "ungraded": p_ungraded,
-                        "unreadable_keys": p_unreadable}}
+                        "unreadable_keys": p_unreadable},
+           "fvplus": fvp}
     with open(OUT, "w", encoding="utf-8") as fh:
         json.dump(out, fh, ensure_ascii=False)
     print(json.dumps(counts))
-    print("closest to helping, top 10:\n  " + "\n  ".join(
-        f"{g['ready_rank']}. {g['key']}  ~{g['odds']}%  {g['take']}" for g in graded[:10]))
+    print(f"FV+ soon reads: {len(fvp['H'])} hitters, {len(fvp['P'])} pitchers"
+          + ("" if fvp["H"] else "  (cache/fvplus_scores.csv missing -- run build_fvplus_scores.py)"))
+    print("graded, first 10 by key:\n  " + "\n  ".join(
+        f"{g['key']}  ~{g['odds']}%  {g['take']}" for g in graded[:10]))
     print("ungraded, top 10 by model:\n  " + "\n  ".join(
         f"{u['name']} ({u['level']}, {u['age']}) {u['rating_pct']:.0%}  ~{u['odds']}%  {u['take']}"
         for u in ungraded[:10]))

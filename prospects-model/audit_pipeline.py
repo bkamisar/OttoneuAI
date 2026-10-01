@@ -214,8 +214,12 @@ def audit_outputs(a, rows, pa_hist):
     board = {e["fg_id"] for e in S.load_current_board(os.path.join(DATA, "prospects.csv"))}
     gk = [g["key"] for g in pm["graded"]]
     a.check("shopping list: every graded key is a board hitter, once", len(gk) == len(set(gk)) and set(gk) <= board)
-    a.check("shopping list: ready ranks run 1..n",
-            sorted(g["ready_rank"] for g in pm["graded"]) == list(range(1, len(gk) + 1)))
+    for typ, pitchers in (("H", False), ("P", True)):
+        fv = (pm.get("fvplus") or {}).get(typ, {})
+        keys = {e["fg_id"] for e in S.load_current_board(os.path.join(DATA, "prospects.csv"), pitchers=pitchers)}
+        a.check(f"shopping list: FV+ {typ} ranks run 1..n over board keys",
+                sorted(v["rank"] for v in fv.values()) == list(range(1, len(fv) + 1)) and set(fv) <= keys,
+                f"{len(fv)} reads")
     gid = {g["player_id"] for g in pm["graded"]}
     uid = {u["player_id"] for u in pm["ungraded"]}
     a.check("shopping list: graded and ungraded are disjoint and cover every rated hitter",

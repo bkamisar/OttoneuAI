@@ -129,6 +129,15 @@ class TestStatcastAndMap(unittest.TestCase):
               {"cls": 2022, "fv_grade": 50, "y": 1.0}]
         self.assertEqual(F.residuals(ps), [0.5, -0.5, 0.0])
 
+    def test_rank_tiers(self):
+        scores = [0.1 * i for i in range(20)]            # 20 players, best last
+        ranks, tiers = F.rank_tiers(scores)
+        self.assertEqual(ranks[-1], 1)
+        self.assertEqual(ranks[0], 20)
+        self.assertEqual(tiers[-1], 5)                   # top 5% of 20 = the best one
+        self.assertEqual(tiers[-2], 10)
+        self.assertEqual(sum(1 for t in tiers if t), 5)  # top 25%
+
     def test_gb_z(self):
         rows = [{"player_id": i, "season": 2023, "sport_id": 11, "league": "PCL", "ip": 50.0, "go": g, "ao": 100 - g}
                 for i, g in enumerate((30, 50, 70))]

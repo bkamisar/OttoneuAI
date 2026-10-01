@@ -7,7 +7,7 @@ Network: statsapi.mlb.com only, stdlib urllib over HTTPS, no credentials.
 """
 from psmodel import mlbteams
 
-SEASONS = [s for s in range(2016, 2026) if s != 2020]
+SEASONS = [s for s in range(2016, 2027) if s != 2020]
 KNOWN_BEST = {2016: "CHC", 2018: "BOS", 2019: "HOU", 2022: "LAD"}   # public record, as a content check
 
 

@@ -299,3 +299,12 @@ def cell(values, n_boot=500, seed=0):
 
 def queued(c):
     return c is not None and c[3] >= QUEUE_MIN_N and (c[1] > 0 or c[2] < 0)
+
+
+def rank_tiers(scores):
+    """(rank 1 = best, tier 5/10/25 for the top 5%/10%/25% else 0) for a list of scores."""
+    s = np.asarray(scores, dtype=float)
+    rank = np.empty(len(s), dtype=int)
+    rank[np.argsort(-s, kind="stable")] = np.arange(1, len(s) + 1)
+    tiers = [5 if p > 0.95 else 10 if p > 0.90 else 25 if p > 0.75 else 0 for p in C.pct(s)]
+    return [int(r) for r in rank], tiers

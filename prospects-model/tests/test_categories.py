@@ -59,6 +59,28 @@ class TestOutcome(unittest.TestCase):
         self.assertEqual(set(terms.values()), {0.0})
 
 
+class TestRosterOnly(unittest.TestCase):
+    def test_counts_only_seasons_with_positive_total_value(self):
+        t = {s: {"H": {}, "P": {}, "repl": {"H": REPL_H, "P": REPL_P}} for s in range(2021, 2027)}
+        good = hit(1, 550, 480, 30, 90, .370, .520)
+        bad = hit(1, 300, 280, 3, 20, .250, .300)
+        t[2022]["H"][1], t[2023]["H"][1] = good, bad
+        self.assertGreater(labels.hitter_sgp(good, REPL_H, DEN, AVG["H"]), 0)
+        self.assertLess(labels.hitter_sgp(bad, REPL_H, DEN, AVG["H"]), 0)
+        terms, pt, _ = K.outcome(1, "H", 2021, t, DEN, AVG, roster_only=True)
+        self.assertEqual(pt, 550)
+        self.assertAlmostEqual(terms["HR"], K.hitter_terms(good, REPL_H, DEN, AVG["H"])["HR"])
+
+
+class TestRhoDiff(unittest.TestCase):
+    def test_better_predictor_wins(self):
+        rng = np.random.default_rng(1)
+        y = rng.normal(size=400)
+        good, weak = y + rng.normal(scale=.3, size=400), y + rng.normal(scale=3, size=400)
+        d, se = K.rho_diff(good, weak, y)
+        self.assertGreater(d / se, 3)
+
+
 class TestExpected(unittest.TestCase):
     def test_linear_in_playing_time(self):
         rates = {"HR": .04, "R": .13, "OBP": .340, "SLG": .460}

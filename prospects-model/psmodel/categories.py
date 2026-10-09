@@ -9,9 +9,9 @@ convention that would make a non-arrival's expected K score negative).
 import warnings
 
 import numpy as np
-from scipy.stats import norm
+from scipy.stats import norm, spearmanr
 
-from . import context, evaluate, statsapi
+from . import context, evaluate, labels, statsapi
 
 HIT_CATS = ("HR", "R", "OBP", "SLG")
 PIT_CATS = ("K", "ERA", "WHIP", "HR9")
@@ -63,14 +63,20 @@ def averages():
     return {"H": avg_pa, "P": avg_ip}
 
 
-def outcome(pid, typ, v, tables, den, avg):
-    """(category terms summed over seasons v+1..v+4, playing time, pooled rates or None)."""
+TOTAL = {"H": labels.hitter_sgp, "P": labels.pitcher_sgp}
+
+
+def outcome(pid, typ, v, tables, den, avg, roster_only=False):
+    """(category terms summed over seasons v+1..v+4, playing time, pooled rates or None).
+    roster_only: count only seasons whose total SGP is > 0 (seasons a team would use)."""
     terms = dict.fromkeys(CATS[typ], 0.0)
     acc = {}
     for s in range(v + 1, v + WINDOW + 1):
         t = tables.get(s)
         r = t[typ].get(pid) if t else None
         if r is None:
+            continue
+        if roster_only and TOTAL[typ](r, t["repl"][typ], den, avg[typ]) <= 0:
             continue
         for k, x in TERMS[typ](r, t["repl"][typ], den, avg[typ]).items():
             terms[k] += x
@@ -151,3 +157,14 @@ def ladder(score, actual, n=N_BUCKETS, n_boot=N_BOOT, seed=0):
 
 def ladder_pass(lad, holm_p):
     return lad["inversions"] <= 1 and lad["d"] - 1.96 * lad["se"] > 0 and holm_p < HOLM_ALPHA
+
+
+def rho_diff(a, b, y, n_boot=N_BOOT, seed=0):
+    """(Spearman(a, y) - Spearman(b, y), its SE) from a paired player bootstrap."""
+    a, b, y = (np.asarray(x, dtype=float) for x in (a, b, y))
+    rng = np.random.default_rng(seed)
+    boot = []
+    for _ in range(n_boot):
+        i = rng.integers(0, len(y), len(y))
+        boot.append(spearmanr(a[i], y[i]).statistic - spearmanr(b[i], y[i]).statistic)
+    return float(spearmanr(a, y).statistic - spearmanr(b, y).statistic), float(np.nanstd(boot))

@@ -110,7 +110,11 @@
             <th data-col="age">Age</th>
             <th class="grades-cell">Grades</th>
             <th data-col="odds" id="thOdds" title="Hitters: model chance of a starter-quality season within 2 years. Pitchers: the model's rank for that among all minor-league pitchers (a tier, not a percentage). When sorting this column, pitchers sort below hitters.">2-yr odds / tier</th>
-            <th data-col="fvp" id="thFvp" title="FV+ soon: FanGraphs FV adjusted for this 4x4 league and for how close a player is. Rank among board players of the same type (1 = most likely to help within 2 years). Not a percentage.">FV+ soon</th>
+            <th data-col="fvp" id="thFvp" title="Soon: FanGraphs FV adjusted for level and age. Rank among board players of the same type (1 = most likely to help within 2 years). Not a percentage.">Soon</th>
+            <th data-col="cHR" class="cat-col" style="display:none" title="Expected 4-year home-run contribution, percentile among all scored hitters (100 = best)">HR</th>
+            <th data-col="cR" class="cat-col" style="display:none" title="Expected 4-year runs contribution, percentile among all scored hitters">R</th>
+            <th data-col="cOBP" class="cat-col" style="display:none" title="Expected 4-year OBP contribution, percentile among all scored hitters (weakest of the four)">OBP</th>
+            <th data-col="cSLG" class="cat-col" style="display:none" title="Expected 4-year SLG contribution, percentile among all scored hitters">SLG</th>
             <th class="take-cell">Take</th>
             <th data-col="value" id="thValue">Proj $</th>
             <th data-col="team">Ottoneu Team</th>
@@ -132,10 +136,15 @@
     var activeView = 'current';
     var hasDynasty = false;
     var faOnly     = false;
-    var lens         = 'best';   // 'best' = FanGraphs order; 'ready' = FV+ soon
+    var lens         = 'best';   // 'best' = FanGraphs order; 'ready' = soon rank (FV + level + age)
     var ungradedRows = [];
     var modelInfo    = null;     // from data/prospect_model.json; null if absent
     var fvpByKey     = { H: {}, P: {} };
+    var catByKey     = {};       // hitter category percentiles by board key
+    var catById      = {};       // ... and by model player id (ungraded hitters)
+    var CAT_COLS     = ['HR', 'R', 'OBP', 'SLG'];
+
+    function showCats() { return typeFilter === 'H' || typeFilter === 'U'; }
 
     function setView(v) {
       activeView = v;
@@ -165,6 +174,8 @@
       document.getElementById('thFv').textContent = ungr ? 'Model' : 'FV';
       document.getElementById('thOdds').textContent =
         (t === 'P' || t === 'UP') ? '2-yr tier' : (t === 'H' || t === 'U') ? '2-yr odds' : '2-yr odds / tier';
+      document.querySelectorAll('th.cat-col').forEach(function(h) { h.style.display = showCats() ? '' : 'none'; });
+      if (!showCats() && ['cHR', 'cR', 'cOBP', 'cSLG'].indexOf(sortCol) !== -1) { sortCol = 'fv'; sortDir = -1; }
     }
 
     function markSortHeader() {
@@ -287,6 +298,8 @@
         case 'odds':    return oddsSortKey(row.model);
         case 'ready':   return row.fvp ? row.fvp.rank : 1e9;
         case 'fvp':     return row.fvp ? -row.fvp.rank : -1e9;
+        case 'cHR': case 'cR': case 'cOBP': case 'cSLG':
+                        return row.cat ? row.cat[col.slice(1)] : -1;
         default:        return 0;
       }
     }
@@ -334,11 +347,10 @@
                'had been on an earlier list.';
       } else if (lens === 'ready') {
         var noRead = allRows.filter(function(r) { return inferType(r.prospect.pos) === typeFilter && !r.fvp; }).length;
-        note = 'Ranked by FV+ soon: FanGraphs\' FV adjusted for this 4x4 league and for how close a player is ' +
-               '(level, age, parent club\'s record; walks, game power and position for hitters; ground balls for ' +
-               'pitchers). It beat FV alone in 4 of 4 test years (2021–24) for hitters and pitchers; the 2025 ' +
-               'class confirms it after 2027. Outfielders count as non-premium unless the preseason list shows CF. ' +
-               noRead + ' board ' + (typeFilter === 'P' ? 'pitchers' : 'hitters') + ' have no FV+ read.';
+        note = 'Ranked by Soon: FanGraphs\' FV adjusted for level and age, which beat FV alone at predicting a ' +
+               'starter-quality season within 2 years (2021–24). Extra 4x4 adjustments were tested and added ' +
+               'nothing reliable. Provisional until the 2025 class confirms it after 2027. ' +
+               noRead + ' board ' + (typeFilter === 'P' ? 'pitchers' : 'hitters') + ' have no Soon read.';
       } else if (typeFilter === 'P' && modelInfo) {
         note = pitcherNote;
       } else if (modelInfo) {
@@ -395,6 +407,11 @@
 
         tr.appendChild(td(fmtRead(row.model), row.model ? '' : 'dim'));
         tr.appendChild(td(row.ungraded ? '—' : fmtFvp(row.fvp), row.fvp ? '' : 'dim'));
+        if (showCats()) {
+          CAT_COLS.forEach(function(c) {
+            tr.appendChild(td(row.cat ? String(row.cat[c]) : '—', row.cat ? '' : 'dim'));
+          });
+        }
         tr.appendChild(td(row.take, 'take-cell' + (row.model ? '' : ' dim')));
 
         if (row.hasProj) {
@@ -565,6 +582,8 @@
           (pj.unreadable_keys || []).forEach(function(k) { pUnreadable[k] = true; });
           modelInfo = { season: mj.season, counts: mj.counts, unreadable: unreadable, pUnreadable: pUnreadable };
           fvpByKey = mj.fvplus || { H: {}, P: {} };
+          catByKey = (mj.categories && mj.categories.by_key) || {};
+          catById  = (mj.categories && mj.categories.by_id) || {};
           (mj.graded || []).forEach(function(g) { modelByKey[g.key] = g; });
           (pj.graded || []).forEach(function(g) { pModelByKey[g.key] = g; });
           function ungradedRow(u, kind) {
@@ -573,6 +592,7 @@
             return {
               prospect: { name: nm, rawName: u.name, org: '', pos: u.role || '', level: u.level, eta: '', fv: 0, age: u.age },
               ungraded: true, model: u, take: u.take,
+              cat: kind === 'H' ? (catById[String(u.player_id)] || null) : null,
               salary: urp ? (urp.salary || 0) : 0, team: urp ? (urp.team || 'FA') : 'FA',
               value: 0, surplus: 0, dynastyValue: 0, dynastySurplus: 0, hasProj: false, projType: kind,
             };
@@ -604,6 +624,7 @@
           projType:       pm ? pm.type : null,
           model:          mdl,
           fvp:            (isP ? fvpByKey.P : fvpByKey.H)[pr.rawName + '|' + pr.org] || null,
+          cat:            isP ? null : (catByKey[pr.rawName + '|' + pr.org] || null),
           take:           boardTake(pr, mdl, isP),
         };
       });

@@ -217,6 +217,9 @@ def audit_outputs(a, rows, pa_hist):
     for typ, pitchers in (("H", False), ("P", True)):
         fv = (pm.get("fvplus") or {}).get(typ, {})
         keys = {e["fg_id"] for e in S.load_current_board(os.path.join(DATA, "prospects.csv"), pitchers=pitchers)}
+        if typ == "H":
+            ck = set((pm.get("categories") or {}).get("by_key", {}))
+            a.check("shopping list: hitter category profiles keyed by board hitters", ck <= keys, f"{len(ck)} profiles")
         a.check(f"shopping list: FV+ {typ} ranks run 1..n over board keys",
                 sorted(v["rank"] for v in fv.values()) == list(range(1, len(fv) + 1)) and set(fv) <= keys,
                 f"{len(fv)} reads")

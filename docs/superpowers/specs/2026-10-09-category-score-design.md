@@ -245,6 +245,21 @@ use the same classes, so they are diagnostic, not discovery.
 - **Pitcher category scores do not hold up in practice;** K is marginal.
 - **FV+ soon reduces to FV + level + age.**
 
+### Page update after the red team (2026-10-09, the user approved both)
+
+- **"Closest to helping" now ranks by "Soon"**: a logit on FV + level flags +
+  raw age, fit on every class with soon answers. It replaces FV+ soon, which the
+  red team showed reduces to this, and is worse for pitchers.
+  - `build_fvplus_scores.py` now fits this simpler model.
+  - Provisional: this swap was not a pre-registered decision rule. The 2025
+    class confirms it after 2027.
+- **Hitter category profile:** four sortable columns (HR, R, OBP, SLG), each a
+  percentile among all 1,431 scored hitters. They show only in the Hitters and
+  ungraded-hitters views.
+  - Pitchers get none: their category scores failed the red team.
+- The page was not browser-checked (preview tool). The script passes
+  `node --check`, the data checks pass, and the audit has 0 FAILs.
+
 ## Deliverables
 
 - **`cache/category_scores.csv`:** for 2026 players (graded via the site board,

@@ -75,6 +75,22 @@ class TestFvplusLoader(unittest.TestCase):
                                "P": {"Pat Pitch|SEA": {"rank": 1, "tier": 0}}})
 
 
+class TestCategoryLoader(unittest.TestCase):
+    def test_hitter_percentiles_by_key_and_id(self):
+        head = ["player_id", "name", "type", "level", "age", "board_key", "pt_path", "expected_pt",
+                "HR", "R", "OBP", "SLG", "K", "ERA", "WHIP", "HR9"]
+        rows = [head,
+                ["1", "A", "H", "AAA", "22", "A|SEA", "FV+stats", "800", "0.4", "0.1", "0.2", "0.3", "", "", "", ""],
+                ["2", "B", "H", "AA", "21", "", "stats", "100", "0.0", "0.2", "0.0", "0.0", "", "", "", ""],
+                ["3", "C", "P", "AA", "23", "C|SEA", "stats", "50", "", "", "", "", "0.1", "0", "0", "0"]]
+        with tempfile.TemporaryDirectory() as d:
+            got = S.load_categories(write_csv(d, "category_scores.csv", rows))
+            self.assertEqual(S.load_categories(os.path.join(d, "absent.csv")), {"by_key": {}, "by_id": {}})
+        self.assertEqual(got["by_key"], {"A|SEA": {"HR": 100, "R": 50, "OBP": 100, "SLG": 100}})
+        self.assertEqual(got["by_id"]["2"], {"HR": 50, "R": 100, "OBP": 50, "SLG": 50})
+        self.assertNotIn("3", got["by_id"])
+
+
 class TestText(unittest.TestCase):
     def test_odds_round_to_five(self):
         self.assertEqual([S.odds(p) for p in (0.6, 0.188, 0.03, 0.024, 0.0)], [60, 20, 5, 0, 0])

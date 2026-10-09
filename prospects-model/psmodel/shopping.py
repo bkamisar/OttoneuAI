@@ -200,3 +200,26 @@ def load_fvplus(path):
         for r in csv.DictReader(fh):
             out[r["type"]][r["key"]] = {"rank": int(r["rank"]), "tier": int(r["tier"])}
     return out
+
+
+CATEGORY_COLS = ("HR", "R", "OBP", "SLG")
+
+
+def load_categories(path):
+    """Hitter category profile from cache/category_scores.csv: each category as a
+    percentile (1-100) among all scored hitters, by board key and by player id.
+    Pitchers are left out: their category scores failed the red-team check."""
+    out = {"by_key": {}, "by_id": {}}
+    if not os.path.exists(path):
+        return out
+    with open(path, encoding="utf-8", newline="") as fh:
+        rows = [r for r in csv.DictReader(fh) if r["type"] == "H"]
+    if not rows:
+        return out
+    pct = {c: C.pct([float(r[c]) for r in rows]) for c in CATEGORY_COLS}
+    for i, r in enumerate(rows):
+        prof = {c: int(round(pct[c][i] * 100)) for c in CATEGORY_COLS}
+        out["by_id"][r["player_id"]] = prof
+        if r["board_key"]:
+            out["by_key"][_unguard(r["board_key"])] = prof
+    return out

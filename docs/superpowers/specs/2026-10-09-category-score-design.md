@@ -113,6 +113,76 @@ SGP contribution over seasons V+1 .. V+4**, with non-arrivals counted as 0.
   provisional until the 2025 class's 4-year window completes (after the 2029
   season).
 
+## Result (run 2026-10-09 on Opus; `category_run.py`, report `cache/category_report.txt`)
+
+**Plumbing checks:**
+- The graded test counts equal the FV+ class counts (hitters 331+312, pitchers
+  317+345).
+- Every ladder bucket is the same size.
+- Production covers 1,431 hitters and 1,717 pitchers, matching the ratings
+  CSVs.
+- Spot-checks:
+  - the top HR scores are power bats (Montes, Fischer, S. Jones);
+  - the top OBP scores are on-base types (Arias, Jenkins, Clark, Lara);
+  - per-PA HR and OBP scores are uncorrelated among the top-150
+    playing-time hitters (0.02), so the scores separate profiles.
+
+**Part 2 (MLB rates when he plays): all 8 categories trustworthy** (CI above 0
+at 3 of 3 vantages).
+- HR rate is strongest (rho 0.55-0.58), then K (0.43-0.49), SLG (0.32-0.43),
+  R (0.27-0.37), HR/9 (0.32-0.37), OBP (0.27-0.31), ERA (0.29-0.33) and WHIP
+  (0.22-0.27).
+- The model beats the raw minor-league stat in most cases, and by far for the
+  ratios (raw ERA rho about 0).
+
+**Part 1 (4-year playing time):** FV + stats beat FV alone for hitters (pooled
+z +2.93) and pitchers (z +3.05). FV + stats is used.
+- This is notable next to FV+ rating, where stats did not help on total value:
+  they DO help on playing time.
+
+**Walk-up ladders:**
+- **Graded hitters: all 4 categories PASS with zero inversions.** The score
+  ranks each category better than FV alone:
+
+  | | score rho | FV rho |
+  |---|---|---|
+  | HR | 0.40 | 0.11 |
+  | R | 0.20 | 0.15 |
+  | OBP | 0.11 | 0.03 |
+  | SLG | 0.16 | 0.11 |
+
+- **Graded pitchers:** K passes (score rho 0.27 vs FV rho −0.14). **ERA, WHIP
+  and HR/9 fail** (2 inversions each).
+- **Ungraded:** HR, R, OBP, K and WHIP pass; SLG, ERA and HR/9 fail.
+  - The ungraded SLG failure is two tiny inversions among buckets that are
+    mostly non-arrivals (means within ±0.01 of 0). The top bucket is clearly
+    positive (z +4.8), but the pre-registered rule stands.
+
+**Labels:**
+
+| category | graded | ungraded |
+|---|---|---|
+| HR | trustworthy | trustworthy |
+| R | trustworthy | trustworthy |
+| OBP | trustworthy | trustworthy |
+| SLG | trustworthy | not predictable |
+| K | trustworthy | trustworthy |
+| ERA | not predictable | not predictable |
+| WHIP | not predictable | trustworthy |
+| HR/9 | not predictable | not predictable |
+
+**Reading (Opus):**
+- For hitters, the category scores do what FV cannot: they say which roto
+  categories a prospect will feed. HR especially (0.40 vs FV's 0.11).
+- For pitchers, prospects mostly HURT the ratio categories over their first 4
+  seasons:
+  - Nearly every bucket's mean ratio contribution is negative.
+  - FV correlates NEGATIVELY with ERA and HR/9 contribution, because
+    higher-FV arms pitch more innings at below-replacement ratios.
+  - Ratio rates are somewhat predictable, but "who hurts you least" is not a
+    stable ranking.
+  - **Strikeouts are the category where pitching prospects reliably help.**
+
 ## Deliverables
 
 - **`cache/category_scores.csv`:** for 2026 players (graded via the site board,

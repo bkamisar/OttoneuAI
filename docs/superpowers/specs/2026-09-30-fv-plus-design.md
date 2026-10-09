@@ -270,6 +270,18 @@ excludes 0, n >= 20). Notable ones:
   `python build_shopping_list.py` → commit both data files.
   `rerun_chain.py` gains the scores step.
 
+**Phase 3 result (built 2026-10-01..09 on Opus):**
+- FV+ soon reads for 426 board hitters and 447 board pitchers, the same players
+  as the model-graded counts. 205 of 210 "OF" positions were recovered from the
+  2026 preseason list.
+- The top of each list is near-ready upper-level players (hitters: Condon,
+  E. Rodriguez, Montes; pitchers: River Ryan, Ty Johnson).
+- The audit passes, including the new FV+ rank checks. 279 tests pass.
+- The column shows the rank plus the tier (for example "#12 · Top 5%").
+- The page script passes a syntax check. It was NOT browser-verified: the
+  in-app preview tool hung repeatedly. The user checks the live page after
+  pushing.
+
 ## Phase 2: FV+ tests
 
 ### Population and data

@@ -213,6 +213,38 @@ use the same classes, so they are diagnostic, not discovery.
      population's mean roster-worthy ERA, WHIP or HR/9 contribution is < 0
      with a 95% bootstrap interval below 0.**
 
+### Red-team result (run 2026-10-09; `redteam_checks.py`, `cache/redteam_report.txt`)
+
+**1. FV+ soon ≈ FV + level + age, for both player types.**
+- **Hitters:** FV+ over L was positive in 4/4 classes but pooled z +1.80, under
+  the 1.96 bar.
+- **Pitchers:** the simpler L BEAT FV+ in 3 of 4 classes (pooled z −1.62).
+  L over FV alone was z +4.05.
+- **Reading:** the FV+ gain was proximity (level and age), which the board
+  shows. The 4x4 tilts (grades, position, ground balls, opportunity) added
+  nothing reliable, and for pitchers they hurt.
+
+**2. Category shape adds beyond playing time for most categories.**
+- **Graded:** HR +0.35, R +0.09, SLG +0.11, K +0.51, ERA +0.20, HR/9 +0.35 all
+  pass Holm. OBP and WHIP are borderline (Holm p 0.08).
+- **Ungraded:** all but R pass.
+- **Caveat for the pitcher wins:** the volume baseline is handicapped by
+  check 3's artifact (more innings meant more negative all-seasons ratios).
+
+**3. "Pitching prospects hurt the ratios" does NOT survive.**
+- Counting only roster-worthy seasons, mean ERA, WHIP and HR/9 contributions
+  are positive (+0.06, +0.06, +0.03).
+- On that outcome, the pitcher ladders FAIL: ERA and WHIP are U-shaped (3 and
+  2 inversions); K is nearly flat (z +2.6, means within ±0.01).
+- The **hitter ladders hold** on roster-worthy outcomes: HR, R and SLG have 0
+  inversions; OBP has 1. All are z >= 4.6.
+
+**What survives:**
+- **Hitter category scores (HR, R, SLG, and OBP more weakly)** add beyond
+  playing time and rank roster-worthy contributions cleanly.
+- **Pitcher category scores do not hold up in practice;** K is marginal.
+- **FV+ soon reduces to FV + level + age.**
+
 ## Deliverables
 
 - **`cache/category_scores.csv`:** for 2026 players (graded via the site board,

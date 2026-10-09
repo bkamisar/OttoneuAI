@@ -183,6 +183,36 @@ z +2.93) and pitchers (z +3.05). FV + stats is used.
     stable ranking.
   - **Strikeouts are the category where pitching prospects reliably help.**
 
+## Red-team checks (pre-registered 2026-10-09, after the result above, before running)
+
+These are three diagnostics the user asked for after a red-team review. They
+use the same classes, so they are diagnostic, not discovery.
+
+1. **FV+ soon vs "FV + level + age".**
+   - Same walk-forward and test classes as FV+ Phase 2 (2021-2024), hitters
+     and pitchers.
+   - The baseline L is a logit (the same fvplus soon model) on `fv` plus the
+     level flags (AAA, AA, High-A) and raw age, from the as-of model row. That
+     is what the preseason board showed. The board export's "Current Level" is
+     the player's level at export time, not as-of, so it is not used.
+   - Per class: the paired gain of FV+ over L; pooled.
+   - **FV+ "adds beyond the board" iff the pooled z >= 1.96 AND the gain is
+     positive in a majority of classes.** L vs FV is also reported.
+2. **Category score vs volume only.**
+   - On the same ladder populations (graded classes 2021+2022; ungraded
+     2019+2021+2022): per category, Spearman(score, actual) minus
+     Spearman(predicted playing time, actual), paired over a player bootstrap.
+   - **Shape "adds" iff the difference's z >= 1.96 after Holm across the 8
+     categories,** per population.
+3. **Roster-worthy outcomes.**
+   - Actual category terms are recomputed counting only the MLB seasons whose
+     total SGP (`labels.hitter_sgp` / `pitcher_sgp`) is > 0. Those are the
+     seasons a fantasy team would have used.
+   - Ladders are re-run on that outcome with the same scores, for information.
+   - **"Pitching prospects hurt the ratios" survives iff the graded
+     population's mean roster-worthy ERA, WHIP or HR/9 contribution is < 0
+     with a 95% bootstrap interval below 0.**
+
 ## Deliverables
 
 - **`cache/category_scores.csv`:** for 2026 players (graded via the site board,

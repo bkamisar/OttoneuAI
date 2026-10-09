@@ -110,6 +110,7 @@
             <th data-col="age">Age</th>
             <th class="grades-cell">Grades</th>
             <th data-col="odds" id="thOdds" title="Hitters: model chance of a starter-quality season within 2 years. Pitchers: the model's rank for that among all minor-league pitchers (a tier, not a percentage). When sorting this column, pitchers sort below hitters.">2-yr odds / tier</th>
+            <th data-col="fvp" id="thFvp" title="FV+ soon: FanGraphs FV adjusted for this 4x4 league and for how close a player is. Rank among board players of the same type (1 = most likely to help within 2 years). Not a percentage.">FV+ soon</th>
             <th class="take-cell">Take</th>
             <th data-col="value" id="thValue">Proj $</th>
             <th data-col="team">Ottoneu Team</th>
@@ -131,9 +132,10 @@
     var activeView = 'current';
     var hasDynasty = false;
     var faOnly     = false;
-    var lens         = 'best';   // 'best' = FanGraphs order; 'ready' = FV + model blend
+    var lens         = 'best';   // 'best' = FanGraphs order; 'ready' = FV+ soon
     var ungradedRows = [];
     var modelInfo    = null;     // from data/prospect_model.json; null if absent
+    var fvpByKey     = { H: {}, P: {} };
 
     function setView(v) {
       activeView = v;
@@ -148,7 +150,7 @@
       lens = l;
       document.getElementById('btnBest').classList.toggle('active', l === 'best');
       document.getElementById('btnReady').classList.toggle('active', l === 'ready');
-      if (l === 'ready') { setType('H'); sortCol = 'ready'; sortDir = 1; }
+      if (l === 'ready') { if (typeFilter !== 'P') setType('H'); sortCol = 'ready'; sortDir = 1; }
       else { sortCol = 'fv'; sortDir = -1; }
       markSortHeader();
       render();
@@ -191,6 +193,10 @@
     function fmtRead(model) {
       if (!model) return '—';
       return model.tier !== undefined ? fmtTier(model.tier) : fmtOdds(model.odds);
+    }
+    function fmtFvp(f) {
+      if (!f) return '—';
+      return '#' + f.rank + (f.tier ? ' · Top ' + f.tier + '%' : '');
     }
 
     // Plain-language model read for a board row (shopping-list spec).
@@ -279,7 +285,8 @@
         case 'salary':  return row.salary;
         case 'surplus': return rowSurplus(row);
         case 'odds':    return oddsSortKey(row.model);
-        case 'ready':   return row.model && row.model.ready_rank ? row.model.ready_rank : 1e9;
+        case 'ready':   return row.fvp ? row.fvp.rank : 1e9;
+        case 'fvp':     return row.fvp ? -row.fvp.rank : -1e9;
         default:        return 0;
       }
     }
@@ -292,7 +299,7 @@
       var filtered  = base.filter(function(r) {
         var t = r.ungraded ? (r.projType === 'P' ? 'UP' : 'U') : inferType(r.prospect.pos);
         if (typeFilter !== 'all' && t !== typeFilter) return false;
-        if (lens === 'ready' && !(r.model && r.model.ready_rank)) return false;
+        if (lens === 'ready' && !r.fvp) return false;
         if (faOnly && r.team !== 'FA') return false;
         if (query) {
           var name = (r.prospect.rawName || r.prospect.name).toLowerCase();
@@ -325,12 +332,15 @@
         note = 'Model only, no scouting grade, ranked by the model\'s rating. Pitcher odds are shown as a rank ' +
                'tier because the model\'s percentages ran overconfident. Many of these are relievers who ' +
                'had been on an earlier list.';
+      } else if (lens === 'ready') {
+        var noRead = allRows.filter(function(r) { return inferType(r.prospect.pos) === typeFilter && !r.fvp; }).length;
+        note = 'Ranked by FV+ soon: FanGraphs\' FV adjusted for this 4x4 league and for how close a player is ' +
+               '(level, age, parent club\'s record; walks, game power and position for hitters; ground balls for ' +
+               'pitchers). It beat FV alone in 4 of 4 test years (2021–24) for hitters and pitchers; the 2025 ' +
+               'class confirms it after 2027. Outfielders count as non-premium unless the preseason list shows CF. ' +
+               noRead + ' board ' + (typeFilter === 'P' ? 'pitchers' : 'hitters') + ' have no FV+ read.';
       } else if (typeFilter === 'P' && modelInfo) {
         note = pitcherNote;
-      } else if (lens === 'ready') {
-        note = 'Ranked by the average of FanGraphs\' order and the model\'s 2-year odds, which beat FanGraphs ' +
-               'alone in 3 of 3 test years. ' + modelInfo.counts.board_without_model +
-               ' board hitters have no model read.';
       } else if (modelInfo) {
         note = 'Sorted by FanGraphs. Take shows where the model disagrees; ceiling disagreements are unproven.' +
                (typeFilter === 'all' ? ' Pitchers: the tier is a rank, not a percentage.' : '');
@@ -384,6 +394,7 @@
         tr.appendChild(gradesCell);
 
         tr.appendChild(td(fmtRead(row.model), row.model ? '' : 'dim'));
+        tr.appendChild(td(row.ungraded ? '—' : fmtFvp(row.fvp), row.fvp ? '' : 'dim'));
         tr.appendChild(td(row.take, 'take-cell' + (row.model ? '' : ' dim')));
 
         if (row.hasProj) {
@@ -428,7 +439,7 @@
     document.querySelectorAll('.type-btn').forEach(function(btn) {
       btn.addEventListener('click', function() {
         var t = this.dataset.type;
-        if (lens === 'ready' && t !== 'H') {
+        if (lens === 'ready' && t !== 'H' && t !== 'P') {
           lens = 'best';
           document.getElementById('btnBest').classList.add('active');
           document.getElementById('btnReady').classList.remove('active');
@@ -553,6 +564,7 @@
           var pUnreadable = {};
           (pj.unreadable_keys || []).forEach(function(k) { pUnreadable[k] = true; });
           modelInfo = { season: mj.season, counts: mj.counts, unreadable: unreadable, pUnreadable: pUnreadable };
+          fvpByKey = mj.fvplus || { H: {}, P: {} };
           (mj.graded || []).forEach(function(g) { modelByKey[g.key] = g; });
           (pj.graded || []).forEach(function(g) { pModelByKey[g.key] = g; });
           function ungradedRow(u, kind) {
@@ -591,6 +603,7 @@
           hasProj:        !!pm,
           projType:       pm ? pm.type : null,
           model:          mdl,
+          fvp:            (isP ? fvpByKey.P : fvpByKey.H)[pr.rawName + '|' + pr.org] || null,
           take:           boardTake(pr, mdl, isP),
         };
       });

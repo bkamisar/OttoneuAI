@@ -35,6 +35,21 @@ const scaleRepl = (repl, type, line) => {
 
 const order = st => st.map(t => t.teamId);
 
+// Ottoneu rule (verified against 2024-2026 final points): a team under the
+// innings minimum scores 0 in all four pitching categories; everyone else
+// keeps the points their rank earned (ranks still include the short team).
+const IP_MIN_FOR_PITCHING = 1250;
+const PITCH_CATS = ['ERA', 'WHIP', 'HR9', 'SO'];
+function scoreStandings(engine, teams) {
+  const st = engine.call('buildStandings', teams.map(t => ({ teamId: t.teamId, stats: t.stats })));
+  const ipOf = new Map(teams.map(t => [t.teamId, t.ip]));
+  st.forEach(t => {
+    if ((ipOf.get(t.teamId) || 0) >= IP_MIN_FOR_PITCHING) return;
+    PITCH_CATS.forEach(c => { t.points -= t.ranks[c] || 0; t.ranks[c] = 0; });
+  });
+  return st.sort((a, b) => b.points - a.points);
+}
+
 function undoMove(engine, ctx, final, move, lookup, opts = {}) {
   const end = move.season + '-09-28';
   const deltas = new Map(final.map(t => [t.teamId, { H: [], P: [] }]));
@@ -60,8 +75,8 @@ function undoMove(engine, ctx, final, move, lookup, opts = {}) {
     }
   }
 
-  const actual = engine.call('buildStandings', final.map(t => ({ teamId: t.teamId, stats: t.stats })));
-  const cf = engine.call('buildStandings', final.map(t => ({ teamId: t.teamId, stats: applyDelta(t.stats, t.ip, deltas.get(t.teamId), ctx.avgPA).stats })));
+  const actual = scoreStandings(engine, final);
+  const cf = scoreStandings(engine, final.map(t => ({ teamId: t.teamId, ...applyDelta(t.stats, t.ip, deltas.get(t.teamId), ctx.avgPA) })));
   const pos = st => new Map(st.map((t, i) => [t.teamId, { pts: t.points, rank: i + 1 }]));
   const a = pos(actual), c = pos(cf);
   const out = new Map();
@@ -77,4 +92,4 @@ function isDecisive(actualOrder, cfOrder) {
   return [...a].some(x => !c.has(x));
 }
 
-module.exports = { applyDelta, undoMove, isDecisive };
+module.exports = { applyDelta, undoMove, isDecisive, scoreStandings };

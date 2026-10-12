@@ -37,3 +37,23 @@ test('latestOnOrBefore never looks forward', () => {
   assert.strictEqual(latestOnOrBefore(h, '2026-06-02').sha, 'a');
   assert.strictEqual(latestOnOrBefore(h, '2026-05-31'), null);
 });
+
+const { makeTenureEnd } = require('../lib/stints');
+
+test('tenure end follows salary-increase splits on the same team', () => {
+  const end = makeTenureEnd([
+    { ottoneuId: '1', teamId: 'A', start: '2025-04-01', end: '2025-10-06' },
+    { ottoneuId: '1', teamId: 'A', start: '2025-10-06', end: '2026-07-01' },
+    { ottoneuId: '1', teamId: 'B', start: '2026-07-01', end: null },
+  ]);
+  assert.strictEqual(end('1', 'A', '2025-05-01'), '2026-07-01');
+  assert.strictEqual(end('1', 'B', '2026-08-01'), null);
+});
+
+test('zero-length stint (added and cut the same day) terminates', () => {
+  const end = makeTenureEnd([
+    { ottoneuId: '2', teamId: 'A', start: '2026-06-01', end: '2026-06-01' },
+    { ottoneuId: '2', teamId: 'A', start: '2026-06-01', end: '2026-06-10' },
+  ]);
+  assert.strictEqual(end('2', 'A', '2026-06-01'), '2026-06-10');
+});

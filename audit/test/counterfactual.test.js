@@ -36,3 +36,30 @@ test('isDecisive', () => {
   assert.strictEqual(isDecisive(['A', 'B', 'C', 'D'], ['A', 'B', 'D', 'C']), true);
   assert.strictEqual(isDecisive(['A', 'B', 'C', 'D', 'E'], ['A', 'B', 'C', 'E', 'D']), false);
 });
+
+const { scoreStandings } = require('../lib/counterfactual');
+const fs = require('fs'); const path = require('path');
+
+test('teams under 1250 IP get zero pitching points; others unchanged (Ottoneu rule)', () => {
+  const t = (id, ip, x) => ({ teamId: id, ip, stats: { ...base, ERA: 3 + x, SO: 1500 - x * 100, HR: 200 + x } });
+  const s = scoreStandings(e, [t('A', 1400, 0), t('B', 1100, 1), t('C', 1400, 2)]);
+  const pts = Object.fromEntries(s.map(x => [x.teamId, x.points]));
+  // OBP/SLG/R are tied (input order: A3 B2 C1); HR: C3 B2 A1. B keeps hitting only: 2+2+2+2.
+  assert.strictEqual(pts.B, 8);
+  // A: hitting 3+3+3+1 = 10, pitching untouched (best ERA, SO; ties input order) = 12.
+  assert.strictEqual(pts.A, 22);
+});
+
+test('reproduces real Ottoneu final points for 2024-2026', () => {
+  const { parseCSVLine } = require('../lib/moves');
+  for (const y of [2024, 2025, 2026]) {
+    const L = fs.readFileSync(path.join(__dirname, '..', '..', `data/standings-final-${y}.csv`), 'utf8').replace(/\r/g, '').trim().split('\n');
+    const H = parseCSVLine(L[0]);
+    const teams = L.slice(1).map(l => { const v = parseCSVLine(l); const o = {}; H.forEach((h, i) => { o[h] = v[i]; });
+      return { teamId: o.TeamID, real: +o.Points, ip: e.call('parseIPInnings', o.IP),
+        stats: { R: +o.R, HR: +o.HR, OBP: +o.OBP, SLG: +o.SLG, SO: +o.K, HR9: +o['HR/9'], ERA: +o.ERA, WHIP: +o.WHIP } }; });
+    const s = scoreStandings(e, teams);
+    const err = teams.reduce((acc, t) => acc + Math.abs(s.find(x => x.teamId === t.teamId).points - t.real), 0);
+    assert.ok(err <= 2, `${y} total abs error ${err}`);   // Ottoneu splits ties (.5); buildStandings doesn't
+  }
+});

@@ -42,4 +42,25 @@ function diffAgainstSnapshot(rosterMap, snapshotRows) {
   return { missing, extra, wrongTeam };
 }
 
-module.exports = { replayRosters, diffAgainstSnapshot };
+// When did this team's ownership of the player (that covers `date`) end?
+// Salary increases split one tenure into several stints, so follow the chain of
+// same-team stints that start where the previous one ended. `seen` guards
+// zero-length stints (start === end), which would otherwise match themselves.
+function makeTenureEnd(stints) {
+  const byPlayer = new Map();
+  stints.forEach(s => { if (!byPlayer.has(s.ottoneuId)) byPlayer.set(s.ottoneuId, []); byPlayer.get(s.ottoneuId).push(s); });
+  return (id, teamId, date) => {
+    const all = byPlayer.get(String(id)) || [];
+    let cur = all.find(s => s.teamId === teamId && s.start <= date && (!s.end || s.end > date));
+    if (!cur) return null;
+    const seen = new Set([cur]);
+    for (;;) {
+      const next = all.find(s => !seen.has(s) && s.teamId === teamId && cur.end && s.start === cur.end);
+      if (!next) break;
+      seen.add(next); cur = next;
+    }
+    return cur.end;
+  };
+}
+
+module.exports = { replayRosters, diffAgainstSnapshot, makeTenureEnd };

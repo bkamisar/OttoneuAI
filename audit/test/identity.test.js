@@ -24,3 +24,10 @@ test('no MLB stats -> unmatched (a legit zero line for prospects), never a crash
   assert.strictEqual(r.map.has('z'), false);
   assert.deepStrictEqual(r.unmatched.map(u => u.ottoneuId), ['z']);
 });
+
+test('fallback ignores middle initials and Jr/II/III suffixes', () => {
+  const d = [{ h: [[5, 'Jose F Miranda', 300, 0, 0, 0, 0, 0, 0, 0, 0], [6, 'James Tibbs', 50, 0, 0, 0, 0, 0, 0, 0, 0]], p: [] }];
+  const r = buildIdentity(d, [{ ottoneuId: 'm', player: 'Jose Miranda' }, { ottoneuId: 't', player: 'James Tibbs III' }]);
+  assert.strictEqual(r.map.get('m').mlbId, 5);
+  assert.strictEqual(r.map.get('t').mlbId, 6);
+});

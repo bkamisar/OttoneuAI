@@ -142,7 +142,7 @@
 
     var TITLE_CHIP = { 'won-title': 'won the title', 'made-podium': 'made the podium', 'cost-title': 'cost the title', 'cost-podium': 'cost the podium' };
     function moveLine(m) {
-      var chip = m.titleDeciding ? '<span class="chip ' + (m.titleDeciding.indexOf('cost') === 0 ? 'warn' : 'dec') + '">' + TITLE_CHIP[m.titleDeciding] + '</span>' : '';
+      var chip = m.titleDeciding ? '<span class="chip ' + (m.titleDeciding.indexOf('cost') === 0 ? 'warn' : 'dec') + '">' + TITLE_CHIP[m.titleDeciding] + '</span>' + (m.closeCall ? '<span class="chip">close call</span>' : '') : '';
       return '<tr><td class="l">' + m.date + '</td><td class="l">' + m.kind + (m.counterTeamId ? ' w/ ' + esc(teamName(m.counterTeamId)) : '') + '</td><td class="l">' + esc(names(m.in)) +
         '</td><td class="l">' + esc(names(m.out)) + '</td><td class="' + cls(m.ptsContributed) + '">' + signed(m.ptsContributed) + '</td><td>' + chip + '</td></tr>';
     }

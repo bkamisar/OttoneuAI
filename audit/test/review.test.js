@@ -87,3 +87,10 @@ test('trade cards and the all-time record carry production (before salary) next 
   const row = c['all-time-trades'].numbers.rows.find(r => r.team === 'Me');
   assert.strictEqual(row.net, 40); assert.strictEqual(row.prod, 15);
 });
+
+test('title cards carry the close-call flag', () => {
+  const t = { myTeamId: '1', teams: { 1: { name: 'Me' } }, moves: [
+    mv({ id: 'c', teamId: '1', result: 1, titleDeciding: 'cost-podium', ptsContributed: -11, closeCall: true, in: [{ player: 'Jump', salary: 3 }] }),
+  ] };
+  assert.strictEqual(buildCards(t, 2026).find(c => c.id === 'title-1').numbers.closeCall, true);
+});

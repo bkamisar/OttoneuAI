@@ -14,7 +14,7 @@ const { seasonContext, countedResult } = require('./lib/result');
 const { makeValuer, moveProcess } = require('./lib/process');
 const { parseProduction, makeCounted, teamsWithPlayer } = require('./lib/production');
 const { annotateOffseason } = require('./lib/offseason');
-const { ptsContributed, titleDeciding, teamTotalsFromLines } = require('./lib/contributed');
+const { ptsContributed, titleDeciding, teamTotalsFromLines, isCloseCall } = require('./lib/contributed');
 const { tagMove, makeHotPercentile } = require('./lib/tags');
 const { buildCards } = require('./lib/review');
 const { managerKey, managerName } = require('./lib/eras');
@@ -165,7 +165,7 @@ function makeLookup(stats, ident, hint) {
           report: { unmatched: ident.unmatched.map(u => u.player), ambiguous: ident.ambiguous.map(x => x.player) } };
       } },
 
-    { name: 'standings', inputsHash: () => hashOf(txText, prodText, 'v3'),
+    { name: 'standings', inputsHash: () => hashOf(txText, prodText, read('audit/lib/contributed.js'), 'v4'),
       run: async (r) => {
         // v2: roto points each player's COUNTED stats were worth to the team that had them.
         const counted = makeCounted(r.grade.prodRows, (id, s) => r.grade.paRatios[s + '|' + id] || null);
@@ -181,14 +181,18 @@ function makeLookup(stats, ident, hint) {
             return memo.get(k);
           };
           for (const m of r.grade.graded.filter(x => x.season === s)) {
-            let net = 0;
-            if (m.kind === 'trade') net = m.in.reduce((q, p) => q + pts(p.ottoneuId, m.teamId), 0) - m.out.reduce((q, p) => q + pts(p.ottoneuId, m.counterTeamId), 0);
-            else if (m.kind !== 'reset') {
-              net = m.in.reduce((q, p) => q + pts(p.ottoneuId, m.teamId), 0);
+            // One signed piece per player, so a close call can be tested by dropping pieces.
+            const pieces = [];
+            if (m.kind === 'trade') {
+              m.in.forEach(p => pieces.push(pts(p.ottoneuId, m.teamId)));
+              m.out.forEach(p => pieces.push(-pts(p.ottoneuId, m.counterTeamId)));
+            } else if (m.kind !== 'reset') {
+              m.in.forEach(p => pieces.push(pts(p.ottoneuId, m.teamId)));
               m.out.forEach(p => teamsWithPlayer(r.grade.prodRows, p.ottoneuId, s)
-                .filter(t => t.teamId !== m.teamId && t.acquired >= m.date).forEach(t => { net -= pts(p.ottoneuId, t.teamId); }));
+                .filter(t => t.teamId !== m.teamId && t.acquired >= m.date).forEach(t => pieces.push(-pts(p.ottoneuId, t.teamId))));
             }
-            byMove[m.id] = { ptsContributed: net, titleDeciding: titleDeciding(final, m.teamId, net) };
+            const net = pieces.reduce((q, v) => q + v, 0);
+            byMove[m.id] = { ptsContributed: net, titleDeciding: titleDeciding(final, m.teamId, net), closeCall: isCloseCall(final, m.teamId, pieces) };
           }
         }
         return { byMove, seasonsWithoutStandings: seasons.filter(s => !finalStandings(engine, s)) };
@@ -226,7 +230,7 @@ function makeLookup(stats, ident, hint) {
 
     { name: 'write', inputsHash: () => hashOf(String(Date.now())),   // always rewrite outputs
       run: async (r) => {
-        const moves = r.grade.graded.map(m => ({ ...m, manager: managerKey(m.teamId, m.date), tags: r.tags[m.id] || [], ...(r.standings.byMove[m.id] || { ptsContributed: null, titleDeciding: null }) }));
+        const moves = r.grade.graded.map(m => ({ ...m, manager: managerKey(m.teamId, m.date), tags: r.tags[m.id] || [], ...(r.standings.byMove[m.id] || { ptsContributed: null, titleDeciding: null, closeCall: false }) }));
         const managers = Object.fromEntries([...new Set(moves.map(m => m.manager))].map(k => [k, managerName(r.moves.teams, k)]));
         // Winter cap summary: what each team freed and spent between October and the auction.
         const winters = {};

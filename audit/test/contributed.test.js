@@ -36,3 +36,14 @@ test('titleDeciding uses real margins', () => {
   assert.strictEqual(titleDeciding(pts, 'MTP', 9), 'made-podium');
   assert.strictEqual(titleDeciding(pts, 'FCH', -9), 'cost-podium');
 });
+
+const { isCloseCall } = require('../lib/contributed');
+test('close call: decisive only because of one non-main contributor, or by under a point', () => {
+  const pts = [{ teamId: 'BUR', points: 82 }, { teamId: 'ME', points: 79 }, { teamId: 'MTP', points: 70 }, { teamId: 'FCH', points: 61 }, { teamId: 'X', points: 50 }];
+  // Five-cent head's Rodríguez trade: Jump -4 main; De Paula's -3 (37 PA) is what pushes it past the 9-pt gap.
+  assert.strictEqual(isCloseCall(pts, 'FCH', [0, -2, -4, -1, -3, 0, -1]), true);
+  assert.strictEqual(isCloseCall(pts, 'BUR', [13]), false);          // one big contributor, 10 pts of slack
+  assert.strictEqual(isCloseCall(pts, 'BUR', [3.5]), true);          // clears the 3-pt margin by half a point
+  assert.strictEqual(isCloseCall(pts, 'BUR', [8, 2, 1]), false);     // survives dropping any non-main piece
+  assert.strictEqual(isCloseCall(pts, 'FCH', [-1]), false);          // not decisive at all -> not a close call
+});

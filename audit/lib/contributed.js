@@ -53,4 +53,16 @@ function titleDeciding(finalWithPoints, teamId, net) {
   return null;
 }
 
-module.exports = { ptsContributed, titleDeciding, teamTotalsFromLines };
+// Roto points move in whole ranks, so a tiny line can be worth several points when it nudges a
+// team past a close neighbour. A title-deciding verdict is a close call if it flips when any one
+// contributor other than the main one is dropped, or if it clears the margin by under a point.
+function isCloseCall(finalWithPoints, teamId, components) {
+  const net = components.reduce((s, v) => s + v, 0);
+  const verdict = titleDeciding(finalWithPoints, teamId, net);
+  if (!verdict) return false;
+  if (titleDeciding(finalWithPoints, teamId, net - Math.sign(net)) !== verdict) return true;
+  const byWeight = components.map((v, i) => [v, i]).sort((a, b) => Math.abs(b[0]) - Math.abs(a[0]));
+  return byWeight.slice(1).some(([v]) => v !== 0 && titleDeciding(finalWithPoints, teamId, net - v) !== verdict);
+}
+
+module.exports = { ptsContributed, titleDeciding, teamTotalsFromLines, isCloseCall };

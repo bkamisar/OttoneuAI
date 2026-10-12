@@ -43,7 +43,7 @@ function buildCards(audit, season) {
   mv.filter(m => m.titleDeciding).sort((a, b) => Math.abs(b.ptsContributed) - Math.abs(a.ptsContributed))
     .filter(m => !m.tradeId || (!seenTrade.has(m.tradeId) && seenTrade.add(m.tradeId))).slice(0, 3)
     .forEach((m, i) => push({ id: 'title-' + (i + 1), title: LABEL[m.titleDeciding], teamId: m.teamId, team: name(mk(m)),
-      numbers: { pts: Math.round(m.ptsContributed * 10) / 10, kind: m.titleDeciding }, players: (m.in.length ? m.in : m.out).map(p => p.player) }));
+      numbers: { pts: Math.round(m.ptsContributed * 10) / 10, kind: m.titleDeciding, closeCall: !!m.closeCall }, players: (m.in.length ? m.in : m.out).map(p => p.player) }));
 
   const byTeam = new Map();
   mv.forEach(m => { const t = byTeam.get(mk(m)) || { n: 0, luck: 0, nl: 0 }; t.n++; if (m.luck != null) { t.luck += m.luck; t.nl++; } byTeam.set(mk(m), t); });

@@ -50,7 +50,8 @@
         case 'title':
           return '<div class="big ' + cls(n.pts) + '">' + (n.pts > 0 ? '+' : '−') + Math.abs(n.pts) + ' pts</div>' +
             '<div class="players"><b>' + list(c.players) + '</b></div>' +
-            '<div class="stat">Roto points these players\' counted stats were worth — more than the margin for that place.</div>';
+            '<div class="stat">Roto points these players\' counted stats were worth — more than the margin for that place.' +
+            (n.closeCall ? '<span class="chip">close call</span>' : '') + '</div>';
         case 'winter-of-year':
           return '<div class="big ' + cls(n.auctionReturn) + '">' + money(n.auctionReturn) + '</div>' +
             '<div class="stat">Auction: $' + n.auctionSpend + ' spent · cap freed by cuts $' + n.freed +

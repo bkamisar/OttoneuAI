@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Peacock League — Year in Review</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Graduate&display=swap" rel="stylesheet">
+  <style>
+    :root { --paper: #f6f0df; --card: #fffaf0; --ink: #2b2a26; --muted: #7a7466; --green: #1f4d36; --gold: #c9a227; --red: #a8322d; --pos: #1f6b3a; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--paper); color: var(--ink); font-family: Georgia, 'Times New Roman', serif; }
+    main { max-width: 420px; margin: 0 auto; padding: 16px; }
+    .card { background: var(--card); border: 2px solid var(--green); border-radius: 12px; padding: 16px 18px; margin: 0 0 16px; box-shadow: 0 2px 0 var(--gold); }
+    .card h2 { font-family: 'Graduate', Georgia, serif; font-size: 1.05rem; letter-spacing: .03em; color: var(--green); margin: 0 0 4px; text-transform: uppercase; }
+    .team { font-size: .95rem; font-weight: 700; margin-bottom: 8px; }
+    .big { font-family: 'Graduate', Georgia, serif; font-size: 2.2rem; line-height: 1.1; margin: 6px 0; }
+    .big.pos { color: var(--pos); } .big.neg { color: var(--red); }
+    .players { font-size: .95rem; margin: 4px 0; }
+    .players b { font-weight: 700; }
+    .stat { font-size: .8rem; color: var(--muted); margin-top: 6px; }
+    .quip { font-style: italic; font-size: .95rem; margin-top: 10px; padding-top: 8px; border-top: 1px dashed var(--gold); }
+    .chip { display: inline-block; font-size: .7rem; padding: 1px 7px; border-radius: 8px; background: #f3e3b0; color: #6b5300; margin-left: 6px; vertical-align: middle; font-family: system-ui, sans-serif; }
+    .header { text-align: center; background: var(--green); color: #fff; border-color: var(--green); }
+    .header h1 { font-family: 'Graduate', Georgia, serif; font-size: 1.4rem; margin: 4px 0; letter-spacing: .04em; }
+    .header .sub { color: var(--gold); font-size: .9rem; }
+    table { width: 100%; border-collapse: collapse; font-size: .85rem; margin-top: 6px; }
+    th { text-align: left; font-family: system-ui, sans-serif; font-size: .7rem; text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--gold); padding: 3px 4px; }
+    td { padding: 4px; border-bottom: 1px dotted #e3d9bf; }
+    td.n { text-align: right; white-space: nowrap; }
+    .err { color: var(--red); font-family: system-ui, sans-serif; }
+  </style>
+</head>
+<body>
+  <main id="root"></main>
+  <script>
+  (function () {
+    var root = document.getElementById('root');
+    var ORDER = ['decisive', 'decisive-1', 'decisive-2', 'trade-of-year', 'win-win', 'pickup-of-year', 'cut-that-haunts',
+      'luckiest', 'unluckiest', 'most-active', 'most-patient', 'auction-best', 'auction-worst', 'all-time-trades'];
+
+    function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+    function money(x) { var r = Math.round(x); return (r > 0 ? '+$' : r < 0 ? '−$' : '$') + Math.abs(r); }
+    function cls(x) { return x > 0 ? 'pos' : x < 0 ? 'neg' : ''; }
+    function list(a) { return (a || []).map(esc).join(', '); }
+
+    function body(c) {
+      var n = c.numbers || {};
+      switch (c.id.replace(/-\d+$/, '')) {
+        case 'decisive':
+          return '<div class="big ' + cls(n.dPts) + '">' + (n.dPts > 0 ? '+' : '−') + Math.abs(n.dPts) + ' pts</div>' +
+            '<div class="players"><b>' + list(c.players) + '</b></div>' +
+            '<div class="stat">Undo this move and they finish ' + Math.abs(n.dRank) + ' place' + (Math.abs(n.dRank) === 1 ? '' : 's') + (n.dRank > 0 ? ' lower' : ' higher') + '.' +
+            (n.closeCall ? '<span class="chip">close call</span>' : n.unchecked ? '<span class="chip">unverified</span>' : '') + '</div>';
+        case 'trade-of-year':
+          return '<div class="big pos">' + money(n.winner) + '</div><div class="players">Got <b>' + list(c.players) + '</b></div>' +
+            '<div class="players">Gave <b>' + list(c.sent) + '</b></div><div class="stat">' + esc(n.victim) + ' came out ' + money(n.loser) + '. A ' + money(n.margin).replace('+', '') + ' swing.</div>';
+        case 'win-win':
+          return '<div class="big pos">' + money(n.total) + '</div><div class="players">Got <b>' + list(c.players) + '</b></div>' +
+            '<div class="players">Gave <b>' + list(c.sent) + '</b></div><div class="stat">Both sides finished in the black. Partner: ' + esc(n.partner) + '.</div>';
+        case 'pickup-of-year':
+          return '<div class="big pos">' + money(n.value) + '</div><div class="players"><b>' + list(c.players) + '</b> for $' + n.salary + '</div><div class="stat">Value produced on the roster, minus salary.</div>';
+        case 'cut-that-haunts':
+          return '<div class="big neg">−$' + n.lost + '</div><div class="players"><b>' + list(c.players) + '</b></div><div class="stat">Production after being let go, net of the salary saved.</div>';
+        case 'luckiest': case 'unluckiest':
+          return '<div class="big ' + cls(n.luck) + '">' + money(n.luck) + '</div><div class="stat">How far results beat (or trailed) what the projections said at the time, across the season\'s moves.</div>';
+        case 'most-active': case 'most-patient':
+          return '<div class="big">' + n.moves + ' moves</div><div class="stat">Adds, cuts, swaps, trades and auction buys.</div>';
+        case 'auction-best': case 'auction-worst':
+          return '<div class="big ' + cls(n.value) + '">' + money(n.value) + '</div><div class="players"><b>' + list(c.players) + '</b> at $' + n.salary + '</div><div class="stat">Season value minus salary.</div>';
+        case 'all-time-trades':
+          return '<table><tr><th>Team</th><th>W–L</th><th style="text-align:right">Net</th></tr>' + (n.rows || []).map(function (r) {
+            return '<tr><td>' + esc(r.team) + '</td><td class="n">' + r.w + '–' + r.l + '</td><td class="n">' + money(r.net) + '</td></tr>';
+          }).join('') + '</table><div class="stat">Every trade since the 2024 auction, graded on what actually happened.</div>';
+        default: return '';
+      }
+    }
+
+    function render(review, quips) {
+      var cards = review.cards.slice().sort(function (a, b) { return ORDER.indexOf(a.id) - ORDER.indexOf(b.id); });
+      root.innerHTML = '<section class="card header"><div class="sub">The Peacock League</div><h1>' + review.season + ' Year in Review</h1><div class="sub">Every move, graded</div></section>' +
+        cards.map(function (c) {
+          return '<section class="card"><h2>' + esc(c.title) + '</h2>' + (c.team ? '<div class="team">' + esc(c.team) + '</div>' : '') + body(c) +
+            (quips[c.id] ? '<div class="quip">' + esc(quips[c.id]) + '</div>' : '') + '</section>';
+        }).join('');
+    }
+
+    var get = function (u) { return fetch(u).then(function (r) { if (!r.ok) throw new Error(u + ' HTTP ' + r.status); return r.json(); }); };
+    Promise.all([get('data/review.json'), get('data/review-commentary.json').catch(function () { return {}; })])
+      .then(function (res) { render(res[0], res[1]); })
+      .catch(function (e) { root.innerHTML = '<p class="err">Could not load the review data (' + esc(e.message) + ').</p>'; });
+  })();
+  </script>
+</body>
+</html>

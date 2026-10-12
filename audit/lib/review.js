@@ -17,11 +17,11 @@ function buildCards(audit, season) {
   const fleece = [...tradeRows].sort((x, y) => y.margin - x.margin)[0];
   if (fleece) push({ id: 'trade-of-year', title: 'Fleecing of the Year', teamId: fleece.w.teamId, team: name(fleece.w.teamId),
     numbers: { margin: Math.round(fleece.margin), winner: Math.round(fleece.w.result), loser: Math.round(fleece.l.result), victim: name(fleece.l.teamId) },
-    players: fleece.w.in.map(p => p.player) });
+    players: fleece.w.in.map(p => p.player), sent: fleece.w.out.map(p => p.player) });
   const winwin = tradeRows.filter(r => r.both).sort((x, y) => (y.w.result + y.l.result) - (x.w.result + x.l.result))[0];
   if (winwin) push({ id: 'win-win', title: 'Trade of the Year (everybody won)', teamId: winwin.w.teamId, team: name(winwin.w.teamId),
     numbers: { total: Math.round(winwin.w.result + winwin.l.result), partner: name(winwin.l.teamId) },
-    players: [...winwin.w.in, ...winwin.l.in].map(p => p.player) });
+    players: winwin.w.in.map(p => p.player), sent: winwin.w.out.map(p => p.player) });
 
   const adds = mv.filter(m => m.kind === 'add' || m.kind === 'swap').sort((a, b) => b.result - a.result);
   if (adds[0]) push({ id: 'pickup-of-year', title: 'Pickup of the Year', teamId: adds[0].teamId, team: name(adds[0].teamId),
@@ -31,7 +31,12 @@ function buildCards(audit, season) {
   if (cuts[0] && cuts[0].result < 0) push({ id: 'cut-that-haunts', title: 'The Cut That Haunts', teamId: cuts[0].teamId, team: name(cuts[0].teamId),
     numbers: { lost: Math.round(-cuts[0].result) }, players: cuts[0].out.map(p => p.player) });
 
-  mv.filter(m => m.decisive).sort((a, b) => Math.abs(b.standings?.dPts || 0) - Math.abs(a.standings?.dPts || 0)).slice(0, 3).forEach((m, i) =>
+  // Only teams whose own finish changed; one card per trade (keep the bigger swing).
+  const seenTrade = new Set();
+  mv.filter(m => m.decisive && m.standings && m.standings.dRank !== 0)
+    .sort((a, b) => Math.abs(b.standings.dPts) - Math.abs(a.standings.dPts))
+    .filter(m => !m.tradeId || (!seenTrade.has(m.tradeId) && seenTrade.add(m.tradeId)))
+    .sort((a, b) => Math.abs(b.standings?.dPts || 0) - Math.abs(a.standings?.dPts || 0)).slice(0, 3).forEach((m, i) =>
     push({ id: i ? 'decisive-' + i : 'decisive', title: m.standings.dPts > 0 ? 'The Move That Won It' : 'The Move That Cost It', teamId: m.teamId, team: name(m.teamId),
       numbers: { dPts: m.standings.dPts, dRank: m.standings.dRank, closeCall: m.fragile === true, unchecked: m.fragile === 'unchecked' },
       players: (m.in.length ? m.in : m.out).map(p => p.player) }));

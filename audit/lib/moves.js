@@ -32,7 +32,14 @@ function parseTransactions(text) {
   // from names (it shows current names everywhere, so names map 1:1 to ids).
   const idByName = new Map(txs.filter(t => t.teamId).map(t => [t.team, t.teamId]));
   txs.forEach(t => { if (!t.fromTeamId && t.fromTeam) t.fromTeamId = idByName.get(t.fromTeam) || ''; });
-  return txs.sort((a, b) => (a.ts < b.ts ? -1 : a.ts > b.ts ? 1 : 0));
+  txs.sort((a, b) => (a.ts < b.ts ? -1 : a.ts > b.ts ? 1 : 0));
+  // Offseason cut rows show $0 on Ottoneu; use the salary the player last carried.
+  const lastSalary = new Map();
+  for (const t of txs) {
+    if (t.type === 'cut' && t.salary === 0 && lastSalary.has(t.ottoneuId)) t.salary = lastSalary.get(t.ottoneuId);
+    if (t.type !== 'cut') lastSalary.set(t.ottoneuId, t.salary);
+  }
+  return txs;
 }
 
 // Offseason moves count toward the next season: Oct-Dec Y -> Y+1.

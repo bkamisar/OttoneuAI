@@ -93,3 +93,12 @@ test('March adds before Opening Day are auction buys; increases make no move', (
   const m = buildMoves(parseTransactions(csv));
   assert.deepStrictEqual(m.map(x => x.kind), ['auction']);
 });
+
+test('offseason cut rows ($0 on Ottoneu) take the salary the player last carried', () => {
+  const csv = H +
+    row('2025-03-14T19:00:00', 'add', 'Yordan', 1, 10925, '', 40) +
+    row('2025-10-06T00:00:00', 'increase', 'Yordan', 1, 10925, '', 42) +
+    row('2026-01-31T12:00:00', 'cut', 'Yordan', 1, 10925, '', 0);
+  const cut = parseTransactions(csv).find(t => t.type === 'cut');
+  assert.strictEqual(cut.salary, 42);
+});

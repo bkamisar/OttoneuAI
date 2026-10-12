@@ -27,3 +27,18 @@ test('no qualifying move -> card omitted, not empty', () => {
   const ids = buildCards({ ...audit, moves: audit.moves.filter(m => m.kind !== 'trade') }, 2026).map(x => x.id);
   assert.ok(!ids.includes('trade-of-year'));
 });
+
+test('trade cards show what the winner sent as well as received', () => {
+  const c = Object.fromEntries(buildCards(audit, 2026).map(x => [x.id, x]));
+  assert.deepStrictEqual(c['trade-of-year'].sent, ['X']);
+});
+
+test('decisive cards: only teams whose own finish changed, one card per trade', () => {
+  const both = { ...audit, moves: audit.moves.concat([
+    mv({ id: 'w', teamId: '1', kind: 'trade', tradeId: 't9', counterTeamId: '2', result: 5, decisive: true, standings: { dPts: 6, dRank: 1 }, in: [{ player: 'Raleigh', salary: 20 }] }),
+    mv({ id: 'l', teamId: '2', kind: 'trade', tradeId: 't9', counterTeamId: '1', result: -5, decisive: true, standings: { dPts: -7, dRank: 0 }, in: [{ player: 'Ward', salary: 10 }] }),
+  ]) };
+  const dec = buildCards(both, 2026).filter(c => c.id.startsWith('decisive'));
+  assert.ok(dec.some(c => c.players.includes('Raleigh')));
+  assert.ok(!dec.some(c => c.players.includes('Ward')));
+});

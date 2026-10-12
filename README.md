@@ -1,4 +1,14 @@
 # OttoneuAI
+
+## Decision audit
+
+- `audit.html` — coaching page: process / result / luck per move, patterns vs the league,
+  you vs the model, standings impact of each move. Notes stay in your browser.
+- `review.html` — league year-in-review cards, sized for phone screenshots.
+- Refresh: `node audit/run.js` (re-run after new transactions; finished phases are skipped).
+- New transactions: paste `audit/tools/fetch-transactions.browser.js` into the console on the
+  Ottoneu transactions page, move the downloaded CSV to `data/transactions.csv`, re-run.
+
 # data/
 
 CSV files in this folder are fetched automatically by the app on every page load.

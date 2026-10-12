@@ -487,3 +487,38 @@ Odds panel on standings.html. Spec:
   the `extraPlayers` path has no projP block and `getFreeAgents` dedupe
   keeps only the hitting entry. No live case today; fix before an Ohtani-
   type reaches waivers. Full audit: docs/2026-07-19-shared-js-math-audit.md.
+
+## 9. Decision audit (`audit/`, `audit.html`, `review.html`)
+
+Grades every roster move since the 2024 auction. Spec:
+`docs/superpowers/specs/2026-10-11-decision-audit-design.md`. Run `node audit/run.js`
+(`--force` / `--force=<phase>`); phases checkpoint to `audit/cache/` (gitignored).
+Output: `data/audit.json`, `data/review.json`; commentary in `data/review-commentary.json`.
+
+**No second model.** `audit/lib/engine.js` loads `shared.js` + `hotboard.js` into a Node
+`vm` with a settable "today", so process grades replay exactly what the pages computed.
+
+**Dollar conventions** (`f(d)` = `rosProrationFactor()` at date d):
+- *Process* (2026-05-24 → 2026-09-28 only, prior day's roster + projections): add
+  `(projValue − salary) × f`; cut `(0.5·salary − projValue) × f`; trade side
+  `(Σ in surplus − Σ out surplus) × f`; swap = add + cut.
+- *Result* (all seasons): `SGP(actual line over the window) × rate − salary × fracHeld`.
+  SGP denominators from the real final standings; replacement = averaged top free-agent
+  cohort by actual production (same rule as `computeFABaselines`); rate spreads
+  `SALARY_POOL − 480` over all rostered production. Cuts: freed salary − production after.
+- *Luck* = result − process.
+
+**Standings replay** (`audit/lib/counterfactual.js`): undo one move against the real final
+category totals, re-rank. **Ottoneu rule:** a team under 1,250 IP scores 0 in all four
+pitching categories (verified: reproduces 2024–26 final points within tie half-points).
+Swaps restore the cut player's actual production; other undos use the FA replacement.
+Decisive = 1st place or top-3 membership changes; 2026 decisive moves are re-tested with
+the team's best bench player as replacement (`fragile` = verdict flips).
+
+**Data quirks handled:** Ottoneu links only the receiving team on trade rows (from-team id
+filled from names); one trade's rows can be stamped 1–2 s apart (grouped within 60 s);
+offseason cut rows show $0 (last carried salary used); commissioner rows read `add (C)`.
+
+**Accepted approximations:** stats count while rostered (lineups unknown → bench players
+overstated); moves are evaluated one at a time (impacts don't sum); buildStandings doesn't
+split ties into half points.

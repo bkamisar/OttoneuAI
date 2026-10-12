@@ -154,7 +154,9 @@ function makeLookup(stats, ident, hint) {
           const cr = ctx ? countedResult(engine, ctx, m, { counted, teamsWith, tenureEnd: stintEnd, stintCount }) : { result: null, combinedStints: false };
           const proc = m.kind === 'reset' ? null : moveProcess(engine, valuer, m);
           return { ...m, process: proc, result: cr.result, combinedStints: cr.combinedStints,
-            luck: proc === null || cr.result === null ? null : cr.result - proc };
+            // Luck (result − process) is off in v2: results are lineup-only, process grades are
+            // projection-based and assume every player plays, so the gap measures bench time, not luck.
+            luck: null };
         });
         const paRatios = {};
         prod.rows.filter(x => x.group === 'H').forEach(x => { paRatios[x.season + '|' + x.ottoneuId] = paRatio(x.ottoneuId, x.season); });

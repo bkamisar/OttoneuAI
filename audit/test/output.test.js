@@ -20,3 +20,7 @@ test('every move has a numeric result and no NaN anywhere', { skip: !a && 'no au
     if (m.process != null) assert.ok(Number.isFinite(m.process), m.id + ' process');
   }
 });
+
+test('v2: luck is not reported (process is projection-based, results are lineup-only)', { skip: !a && 'no audit.json' }, () => {
+  assert.ok(a.moves.every(m => m.luck === null), 'luck must be null in v2');
+});

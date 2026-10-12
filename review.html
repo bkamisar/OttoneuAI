@@ -36,8 +36,8 @@
   <script>
   (function () {
     var root = document.getElementById('root');
-    var ORDER = ['decisive', 'decisive-1', 'decisive-2', 'trade-of-year', 'win-win', 'pickup-of-year', 'cut-that-haunts',
-      'luckiest', 'unluckiest', 'most-active', 'most-patient', 'auction-best', 'auction-worst', 'all-time-trades'];
+    var ORDER = ['title-1', 'title-2', 'title-3', 'trade-of-year', 'win-win', 'pickup-of-year', 'cut-that-haunts',
+      'luckiest', 'unluckiest', 'most-active', 'most-patient', 'auction-best', 'auction-worst', 'winter-of-year', 'all-time-trades'];
 
     function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
     function money(x) { var r = Math.round(x); return (r > 0 ? '+$' : r < 0 ? '−$' : '$') + Math.abs(r); }
@@ -47,11 +47,14 @@
     function body(c) {
       var n = c.numbers || {};
       switch (c.id.replace(/-\d+$/, '')) {
-        case 'decisive':
-          return '<div class="big ' + cls(n.dPts) + '">' + (n.dPts > 0 ? '+' : '−') + Math.abs(n.dPts) + ' pts</div>' +
+        case 'title':
+          return '<div class="big ' + cls(n.pts) + '">' + (n.pts > 0 ? '+' : '−') + Math.abs(n.pts) + ' pts</div>' +
             '<div class="players"><b>' + list(c.players) + '</b></div>' +
-            '<div class="stat">Undo this move and they finish ' + Math.abs(n.dRank) + ' place' + (Math.abs(n.dRank) === 1 ? '' : 's') + (n.dRank > 0 ? ' lower' : ' higher') + '.' +
-            (n.closeCall ? '<span class="chip">close call</span>' : n.unchecked ? '<span class="chip">unverified</span>' : '') + '</div>';
+            '<div class="stat">Roto points these players\' counted stats were worth — more than the margin for that place.</div>';
+        case 'winter-of-year':
+          return '<div class="big ' + cls(n.auctionReturn) + '">' + money(n.auctionReturn) + '</div>' +
+            '<div class="stat">Auction: $' + n.auctionSpend + ' spent · cap freed by cuts $' + n.freed +
+            (n.resetSavings ? ' · salary resets ' + money(n.resetSavings) : '') + '. Return = what the auction buys counted for, minus their salaries.</div>';
         case 'trade-of-year':
           return '<div class="big pos">' + money(n.winner) + '</div><div class="players">Got <b>' + list(c.players) + '</b></div>' +
             '<div class="players">Gave <b>' + list(c.sent) + '</b></div><div class="stat">' + esc(n.victim) + ' came out ' + money(n.loser) + '. A ' + money(n.margin).replace('+', '') + ' swing.</div>';

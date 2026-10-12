@@ -92,15 +92,15 @@
       function tile(k, mineV, med, fmt, sub) {
         return '<div class="tile"><div class="k">' + k + '</div><div class="v ' + cls(mineV) + '">' + fmt(mineV) + '</div><div class="s">' + sub(med) + '</div></div>';
       }
-      var p = sum(mine, function (m) { return m.process; }), r = sum(mine, function (m) { return m.result; }), l = sum(mine, function (m) { return m.luck; });
-      var pts = sum(mine, function (m) { return m.standings ? m.standings.dPts : null; });
+      var p = sum(mine, function (m) { return m.process; }), r = sum(mine, function (m) { return m.result; });
+      var pts = sum(mine, function (m) { return m.ptsContributed; });
       var vs = function (med) { return 'league median ' + money(med); };
       var html = '<h2>Your ' + (season === 'all' ? '2024–2026' : season) + ' in one line</h2><div class="tiles">' +
         tile('Moves', mine.length, null, function (v) { return v; }, function () { return 'league avg ' + Math.round(ms.length / teamIds.length); }) +
         tile('Result', r, median(teamSums(function (m) { return m.result; })), money, vs) +
         tile('Process', season === 2026 || season === 'all' ? p : null, median(teamSums(function (m) { return m.process; })), money, function (med) { return season === 2026 || season === 'all' ? vs(med) : 'needs 2026 projections'; }) +
-        tile('Luck', season === 2026 || season === 'all' ? l : null, median(teamSums(function (m) { return m.luck; })), money, function (med) { return season === 2026 || season === 'all' ? 'result − process · ' + vs(med) : 'needs 2026 projections'; }) +
-        tile('Roto pts from moves', pts, null, function (v) { return signed(v); }, function () { return 'sum of one-at-a-time impacts'; }) +
+        tile('Roto pts from moves', pts, median(teamSums(function (m) { return m.ptsContributed; })), function (v) { return signed(v); },
+          function (med) { return 'what your moves\' counted stats were worth · league median ' + signed(med); }) +
         '</div>';
       html += '<details><summary>How to read these numbers</summary><ul>' + A.approximations.map(function (a) { return '<li>' + esc(a) + '</li>'; }).join('') + '</ul></details>';
       return html;
@@ -108,8 +108,10 @@
 
     function patterns(ms) {
       var mine = ms.filter(function (m) { return m.teamId === A.myTeamId; });
-      var groups = [['add', 'Pickups'], ['swap', 'Swaps (add + cut)'], ['cut', 'Cuts'], ['trade', 'Trades'], ['auction', 'Auction buys']]
-        .map(function (g) { return { label: g[1], f: function (m) { return m.kind === g[0]; } }; });
+      var groups = [['add', 'in-season', 'Pickups'], ['swap', 'in-season', 'Swaps (add + cut)'], ['cut', 'in-season', 'In-season cuts'],
+        ['cut', 'offseason', 'Offseason cuts (cap)'], ['reset', 'offseason', 'Salary resets'], ['trade', 'in-season', 'In-season trades'],
+        ['trade', 'offseason', 'Offseason trades'], ['auction', 'offseason', 'Auction buys']]
+        .map(function (g) { return { label: g[2], f: function (m) { return m.kind === g[0] && m.phase === g[1]; } }; });
       var allTags = {}; ms.forEach(function (m) { tagsOf(m).forEach(function (t) { allTags[t] = 1; }); });
       Object.keys(allTags).sort().forEach(function (t) { groups.push({ label: 'Tag: ' + t, f: function (m) { return tagsOf(m).indexOf(t) >= 0; } }); });
       var rows = groups.map(function (g) {
@@ -137,33 +139,44 @@
         money(orr) + ' per move vs ' + money(fr) + ' when you followed it.</div>';
     }
 
+    var TITLE_CHIP = { 'won-title': 'won the title', 'made-podium': 'made the podium', 'cost-title': 'cost the title', 'cost-podium': 'cost the podium' };
     function moveLine(m) {
-      var chips = (m.decisive ? '<span class="chip dec">decisive</span>' : '') +
-        (m.fragile === true ? '<span class="chip warn">close call</span>' : m.fragile === 'unchecked' && m.decisive ? '<span class="chip">unchecked</span>' : '');
+      var chip = m.titleDeciding ? '<span class="chip ' + (m.titleDeciding.indexOf('cost') === 0 ? 'warn' : 'dec') + '">' + TITLE_CHIP[m.titleDeciding] + '</span>' : '';
       return '<tr><td class="l">' + m.date + '</td><td class="l">' + m.kind + (m.counterTeamId ? ' w/ ' + esc(teamName(m.counterTeamId)) : '') + '</td><td class="l">' + esc(names(m.in)) +
-        '</td><td class="l">' + esc(names(m.out)) + '</td><td class="' + cls(m.standings && m.standings.dPts) + '">' + signed(m.standings && m.standings.dPts) + '</td><td>' + chips + '</td></tr>';
+        '</td><td class="l">' + esc(names(m.out)) + '</td><td class="' + cls(m.ptsContributed) + '">' + signed(m.ptsContributed) + '</td><td>' + chip + '</td></tr>';
     }
 
     function standings(ms) {
-      var mine = ms.filter(function (m) { return m.teamId === A.myTeamId && m.standings; });
+      var mine = ms.filter(function (m) { return m.teamId === A.myTeamId && m.ptsContributed != null && m.kind !== 'reset'; });
       if (!mine.length) return '';
-      var s = mine.slice().sort(function (a, b) { return a.standings.dPts - b.standings.dPts; });
-      var head = '<div class="tbl-wrap"><table><tr><th class="l">Date</th><th class="l">Move</th><th class="l">In</th><th class="l">Out</th><th>Δ roto pts</th><th></th></tr>';
-      var html = '<h2>Standings impact</h2><div class="note">Each move undone on its own, final standings replayed. Positive = the move gained you points.</div>';
+      var s = mine.slice().sort(function (a, b) { return a.ptsContributed - b.ptsContributed; });
+      var head = '<div class="tbl-wrap"><table><tr><th class="l">Date</th><th class="l">Move</th><th class="l">In</th><th class="l">Out</th><th>Pts contributed</th><th></th></tr>';
+      var html = '<h2>Standings impact</h2><div class="note">Roto points the players\' counted stats were worth to the team that had them. ' +
+        'For trades: what you got minus what you gave got the other team. Positive = good for you.</div>';
       html += '<h3 style="font-size:.9rem">Costliest</h3>' + head + s.slice(0, 5).map(moveLine).join('') + '</table></div>';
       html += '<h3 style="font-size:.9rem">Most valuable</h3>' + head + s.slice(-5).reverse().map(moveLine).join('') + '</table></div>';
-      var seasons = season === 'all' ? A.seasons : [season];
-      var joint = seasons.map(function (y) { var j = A.jointCuts[y] && A.jointCuts[y][A.myTeamId]; return j ? y + ': ' + signed(j.dPts) + ' pts, ' + signed(j.dRank) + ' places' : null; }).filter(Boolean);
-      if (joint.length) html += '<div class="note"><b>All your in-season cuts, undone together</b> (what cutting them was worth): ' + joint.join(' · ') + '</div>';
       return html;
     }
 
+    function winters() {
+      var ys = Object.keys(A.winters || {}).filter(function (y) { return A.winters[y][A.myTeamId]; }).sort();
+      if (!ys.length) return '';
+      var html = '<h2>Your winters</h2><div class="note">October to the auction: cap cleared, then what the auction money bought.</div>' +
+        '<div class="tbl-wrap"><table><tr><th class="l">Season</th><th>Cap freed by cuts</th><th>Reset savings</th><th>Net trade salary</th><th>Auction spend</th><th>Auction return</th><th>League median return</th></tr>';
+      ys.forEach(function (y) {
+        var w = A.winters[y][A.myTeamId];
+        var med = median(Object.keys(A.winters[y]).map(function (t) { return A.winters[y][t].auctionReturn; }));
+        html += '<tr><td class="l">' + y + '</td><td>$' + w.freed + '</td><td class="' + cls(w.resetSavings) + '">' + money(w.resetSavings) + '</td><td>' + money(w.tradeSalary) +
+          '</td><td>$' + w.auctionSpend + '</td><td class="' + cls(w.auctionReturn) + '">' + money(w.auctionReturn) + '</td><td>' + money(med) + '</td></tr>';
+      });
+      return html + '</table></div>';
+    }
+
     var COLS = [
-      ['date', 'Date', 'l'], ['kind', 'Move', 'l'], ['team', 'Team', 'l'], ['in', 'In', 'l'], ['out', 'Out', 'l'],
-      ['process', 'Process', ''], ['result', 'Result', ''], ['luck', 'Luck', ''], ['dPts', 'Δ pts', ''], ['tags', 'Tags', 'l'], ['note', 'Note', 'l'],
+      ['date', 'Date', 'l'], ['kind', 'Move', 'l'], ['phase', 'Phase', 'l'], ['team', 'Team', 'l'], ['in', 'In', 'l'], ['out', 'Out', 'l'],
+      ['process', 'Process', ''], ['result', 'Result', ''], ['ptsContributed', 'Δ pts', ''], ['tags', 'Tags', 'l'], ['note', 'Note', 'l'],
     ];
     function sortVal(m, k) {
-      if (k === 'dPts') return m.standings ? m.standings.dPts : -1e9;
       if (k === 'team') return teamName(m.teamId);
       if (k === 'in' || k === 'out') return names(m[k]);
       var v = m[k]; return v == null ? -1e9 : v;
@@ -178,9 +191,10 @@
       }).join('') + '</tr>';
       list.slice(0, 600).forEach(function (m) {
         var n = notes[m.id] || {};
-        html += '<tr><td class="l">' + m.date + '</td><td class="l">' + m.kind + '</td><td class="l">' + esc(teamName(m.teamId)) + '</td><td class="l">' + esc(names(m.in)) +
+        html += '<tr><td class="l">' + m.date + '</td><td class="l">' + m.kind + (m.combinedStints ? ' <span class="chip" title="two stints on this team this season, combined">2 stints</span>' : '') +
+          '</td><td class="l">' + (m.phase || '') + '</td><td class="l">' + esc(teamName(m.teamId)) + '</td><td class="l">' + esc(names(m.in)) +
           '</td><td class="l">' + esc(names(m.out)) + '</td><td class="' + cls(m.process) + '">' + money(m.process) + '</td><td class="' + cls(m.result) + '">' + money(m.result) +
-          '</td><td class="' + cls(m.luck) + '">' + money(m.luck) + '</td><td class="' + cls(m.standings && m.standings.dPts) + '">' + signed(m.standings && m.standings.dPts) +
+          '</td><td class="' + cls(m.ptsContributed) + '">' + signed(m.ptsContributed) +
           '</td><td class="l"><input data-tags="' + m.id + '" value="' + esc(n.tags != null ? n.tags : m.tags.join(', ')) + '"></td>' +
           '<td class="l"><input data-note="' + m.id + '" value="' + esc(n.note || '') + '" placeholder="why?"></td></tr>';
       });
@@ -194,7 +208,7 @@
       document.getElementById('seasonBtns').innerHTML = A.seasons.concat(['all']).map(function (y) {
         return '<button class="btn' + (season === y ? ' active' : '') + '" data-season="' + y + '">' + (y === 'all' ? 'All seasons' : y) + '</button>';
       }).join('');
-      root.innerHTML = headline(ms) + patterns(ms) + vsModel(ms) + standings(ms) + moveTable(ms);
+      root.innerHTML = headline(ms) + patterns(ms) + vsModel(ms) + standings(ms) + winters() + moveTable(ms);
     }
 
     document.addEventListener('click', function (ev) {

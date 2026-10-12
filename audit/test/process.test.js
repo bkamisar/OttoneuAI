@@ -33,3 +33,25 @@ test('no snapshot strictly before the move -> null; outside window -> null', () 
   assert.strictEqual(moveProcess(e, v, { kind: 'add', date: '2026-06-01', in: [{ ottoneuId: 'x', player: 'FA Bat', salary: 1 }], out: [] }), null);
   assert.strictEqual(moveProcess(e, v, { kind: 'add', date: '2025-06-10', in: [], out: [] }), null);
 });
+
+const { moveFuture } = require('../lib/process');
+// A ranked prospect (#10, FV 60) on a $2 contract with no projections, plus Y1 projection files.
+const prospectsCsv = 'Top 100,Name,FV,Risk\n10,Kid Prospect,60,Medium\n';
+const roster2 = roster + '\n100,"T0",9001,9001,,"Kid Prospect",NYY,OF,$2';
+const snaps2 = { roster: snap('2026-06-01'), hit: snap('2026-06-01'), pit: snap('2026-06-01'),
+  hitY1: snap('2026-06-01'), pitY1: snap('2026-06-01'), hitY2: [], pitY2: [], prospects: snap('2026-06-01'),
+  read: (sha, p) => (p.endsWith('roster.csv') ? roster2 : p.endsWith('prospects.csv') ? prospectsCsv : p.includes('hitting') ? hit : pit) };
+
+test('future value: a ranked prospect carries dynasty value; nobody is below $0', () => {
+  const e = loadEngine(); const v = makeValuer(e, snaps2).valuesAsOf('2026-06-10');
+  assert.ok(v.future('9001', 'Kid Prospect') > 25, `prospect future ${v.future('9001', 'Kid Prospect')}`);
+  for (const id of ['10', '11', '500', '511']) assert.ok(v.future(id, '') >= 0, id);
+});
+
+test('moveFuture: trading a veteran for a top prospect gains future value; outside the window -> null', () => {
+  const e = loadEngine(); const v = makeValuer(e, snaps2);
+  const move = { kind: 'trade', date: '2026-06-10', teamId: '101', counterTeamId: '100',
+    in: [{ ottoneuId: '9001', player: 'Kid Prospect', salary: 2 }], out: [{ ottoneuId: '10', player: 'H1_0', salary: 5 }] };
+  assert.ok(moveFuture(e, v, move) > 20);
+  assert.strictEqual(moveFuture(e, v, { ...move, date: '2026-04-01' }), null);
+});

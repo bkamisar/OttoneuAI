@@ -92,12 +92,13 @@
       function tile(k, mineV, med, fmt, sub) {
         return '<div class="tile"><div class="k">' + k + '</div><div class="v ' + cls(mineV) + '">' + fmt(mineV) + '</div><div class="s">' + sub(med) + '</div></div>';
       }
-      var p = sum(mine, function (m) { return m.process; }), r = sum(mine, function (m) { return m.result; }), gr = sum(mine, function (m) { return m.grade; });
+      var p = sum(mine, function (m) { return m.process; }), r = sum(mine, function (m) { return m.result; }), gr = sum(mine, function (m) { return m.grade; }); var fut = sum(mine, function (m) { return m.future; });
       var pts = sum(mine, function (m) { return m.ptsContributed; });
       var vs = function (med) { return 'league median ' + money(med); };
       var html = '<h2>Your ' + (season === 'all' ? '2024–2026' : season) + ' in one line</h2><div class="tiles">' +
         tile('Moves', mine.length, null, function (v) { return v; }, function () { return 'league avg ' + Math.round(ms.length / teamIds.length); }) +
         tile('Grade', gr, median(teamSums(function (m) { return m.grade; })), money, function (med) { return 'value of the counted stats your moves brought in (auctions: minus price) · league median ' + money(med); }) +
+        tile('Future value (trades)', fut, median(teamSums(function (m) { return m.future; })), money, function (med) { return 'value beyond this season gained in trades since 2026-05-24 · league median ' + money(med); }) +
         tile('After salary (info)', r, median(teamSums(function (m) { return m.result; })), money, function (med) { return 'production minus salary paid, plus salary freed · league median ' + money(med); }) +
         tile('Process', season === 2026 || season === 'all' ? p : null, median(teamSums(function (m) { return m.process; })), money, function (med) { return season === 2026 || season === 'all' ? vs(med) : 'needs 2026 projections'; }) +
         tile('Roto pts from moves', pts, median(teamSums(function (m) { return m.ptsContributed; })), function (v) { return signed(v); },
@@ -175,7 +176,7 @@
 
     var COLS = [
       ['date', 'Date', 'l'], ['kind', 'Move', 'l'], ['phase', 'Phase', 'l'], ['team', 'Team', 'l'], ['in', 'In', 'l'], ['out', 'Out', 'l'],
-      ['process', 'Process', ''], ['grade', 'Grade', ''], ['result', 'After salary', ''], ['ptsContributed', 'Δ pts', ''], ['tags', 'Tags', 'l'], ['note', 'Note', 'l'],
+      ['process', 'Process', ''], ['grade', 'Grade', ''], ['future', 'Future', ''], ['result', 'After salary', ''], ['ptsContributed', 'Δ pts', ''], ['tags', 'Tags', 'l'], ['note', 'Note', 'l'],
     ];
     function sortVal(m, k) {
       if (k === 'team') return teamName(m.teamId);
@@ -194,7 +195,7 @@
         var n = notes[m.id] || {};
         html += '<tr><td class="l">' + m.date + '</td><td class="l">' + m.kind + (m.cash ? ' <span class="chip" title="no players came back on one side; Ottoneu does not show loans or cash">cash/loan</span>' : '') + (m.combinedStints ? ' <span class="chip" title="two stints on this team this season, combined">2 stints</span>' : '') +
           '</td><td class="l">' + (m.phase || '') + '</td><td class="l">' + esc((A.managers && A.managers[m.manager]) || teamName(m.teamId)) + '</td><td class="l">' + esc(names(m.in)) +
-          '</td><td class="l">' + esc(names(m.out)) + '</td><td class="' + cls(m.process) + '">' + money(m.process) + '</td><td class="' + cls(m.grade) + '">' + money(m.grade) + '</td><td class="' + cls(m.result) + '">' + money(m.result) +
+          '</td><td class="l">' + esc(names(m.out)) + '</td><td class="' + cls(m.process) + '">' + money(m.process) + '</td><td class="' + cls(m.grade) + '">' + money(m.grade) + '</td><td class="' + cls(m.future) + '">' + money(m.future) + '</td><td class="' + cls(m.result) + '">' + money(m.result) +
           '</td><td class="' + cls(m.ptsContributed) + '">' + signed(m.ptsContributed) +
           '</td><td class="l"><input data-tags="' + m.id + '" value="' + esc(n.tags != null ? n.tags : m.tags.join(', ')) + '"></td>' +
           '<td class="l"><input data-note="' + m.id + '" value="' + esc(n.note || '') + '" placeholder="why?"></td></tr>';

@@ -121,3 +121,12 @@ test('all-time record: trades graded within $1 of zero are pushes, not wins', ()
   const me = buildCards(t, 2026).find(c => c.id === 'all-time-trades').numbers.rows.find(r => r.team === 'Me');
   assert.deepStrictEqual([me.w, me.l, me.t], [1, 1, 1]);
 });
+
+test('fleecing card carries future value when the trade has it (null otherwise)', () => {
+  const t = { myTeamId: '1', teams: { 1: { name: 'Me' }, 2: { name: 'You' } }, moves: [
+    mv({ id: 'a', teamId: '1', kind: 'trade', tradeId: 't1', counterTeamId: '2', result: 9, grade: 9, future: -30, in: [{ player: 'Yamamoto', salary: 33 }], out: [{ player: 'Clark', salary: 3 }] }),
+    mv({ id: 'b', teamId: '2', kind: 'trade', tradeId: 't1', counterTeamId: '1', result: -9, grade: -9, future: 30, in: [{ player: 'Clark', salary: 3 }], out: [{ player: 'Yamamoto', salary: 33 }] }),
+  ] };
+  const n = buildCards(t, 2026).find(c => c.id === 'trade-of-year').numbers;
+  assert.deepStrictEqual([n.winnerFuture, n.loserFuture], [-30, 30]);
+});

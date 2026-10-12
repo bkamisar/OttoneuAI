@@ -11,7 +11,7 @@ const g = require('./lib/gitdata');
 const { fetchDay, seasonDays, sumWindow } = require('./lib/stats');
 const { buildIdentity } = require('./lib/identity');
 const { seasonContext, countedResult } = require('./lib/result');
-const { makeValuer, moveProcess } = require('./lib/process');
+const { makeValuer, moveProcess, moveFuture } = require('./lib/process');
 const { parseProduction, makeCounted, teamsWithPlayer } = require('./lib/production');
 const { annotateOffseason } = require('./lib/offseason');
 const { ptsContributed, titleDeciding, teamTotalsFromLines, isCloseCall } = require('./lib/contributed');
@@ -91,8 +91,10 @@ function makeLookup(stats, ident, hint) {
   const stats = () => (statsIdx = statsIdx || makeStatsIndex(seasons));
 
   const phases = [
-    { name: 'snapshots', inputsHash: () => hashOf(headSha('data/roster.csv'), headSha('data/proj_hitting.csv'), headSha('data/standings.csv')),
-      run: async () => ({ roster: g.fileHistory('data/roster.csv'), hit: g.fileHistory('data/proj_hitting.csv'), pit: g.fileHistory('data/proj_pitching.csv'), standings: g.fileHistory('data/standings.csv') }) },
+    { name: 'snapshots', inputsHash: () => hashOf(headSha('data/roster.csv'), headSha('data/proj_hitting.csv'), headSha('data/standings.csv'), headSha('data/proj_hitting_y1.csv'), headSha('data/prospects.csv'), 'v2'),
+      run: async () => ({ roster: g.fileHistory('data/roster.csv'), hit: g.fileHistory('data/proj_hitting.csv'), pit: g.fileHistory('data/proj_pitching.csv'), standings: g.fileHistory('data/standings.csv'),
+        hitY1: g.fileHistory('data/proj_hitting_y1.csv'), pitY1: g.fileHistory('data/proj_pitching_y1.csv'), hitY2: g.fileHistory('data/proj_hitting_y2.csv'), pitY2: g.fileHistory('data/proj_pitching_y2.csv'),
+        prospects: g.fileHistory('data/prospects.csv') }) },
 
     { name: 'moves', inputsHash: () => hashOf(txText, prodText, 'v2'),
       run: async (r) => {
@@ -113,7 +115,7 @@ function makeLookup(stats, ident, hint) {
         return { days: n };
       } },
 
-    { name: 'grade', inputsHash: () => hashOf(txText, prodText, headSha('data/roster.csv'), headSha('data/proj_hitting.csv'), read('shared.js'), read('audit/lib/result.js'), 'v2'),
+    { name: 'grade', inputsHash: () => hashOf(txText, prodText, headSha('data/roster.csv'), headSha('data/proj_hitting.csv'), read('shared.js'), read('audit/lib/result.js'), read('audit/lib/process.js'), 'v2'),
       run: async (r) => {
         const { moves, stints } = r.moves;
         const st = stats();
@@ -154,7 +156,7 @@ function makeLookup(stats, ident, hint) {
           const ctx = ctxBySeason[m.season];
           const cr = ctx ? countedResult(engine, ctx, m, { counted, teamsWith, tenureEnd: stintEnd, stintCount }) : { result: null, production: null, combinedStints: false };
           const proc = m.kind === 'reset' ? null : moveProcess(engine, valuer, m);
-          return { ...m, process: proc, result: cr.result, production: cr.production ?? null, combinedStints: cr.combinedStints,
+          return { ...m, process: proc, future: moveFuture(engine, valuer, m), result: cr.result, production: cr.production ?? null, combinedStints: cr.combinedStints,
             // Luck (result − process) is off in v2: results are lineup-only, process grades are
             // projection-based and assume every player plays, so the gap measures bench time, not luck.
             luck: null };

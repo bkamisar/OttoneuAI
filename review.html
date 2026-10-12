@@ -59,7 +59,8 @@
         case 'trade-of-year':
           return '<div class="big pos">' + money(n.winner) + '</div><div class="players">Got <b>' + list(c.players) + '</b></div>' +
             '<div class="players">Gave <b>' + list(c.sent) + '</b></div><div class="stat">' + esc(n.victim) + ' came out ' + money(n.loser) + '. A ' + money(n.margin).replace('+', '') + ' swing.' +
-            '<br>After salary: ' + money(n.winnerAfterSalary) + ' vs ' + money(n.loserAfterSalary) + ' (shown for reference; freed salary only counts once it buys someone).</div>';
+            '<br>After salary: ' + money(n.winnerAfterSalary) + ' vs ' + money(n.loserAfterSalary) + ' (shown for reference; freed salary only counts once it buys someone).' +
+            (n.winnerFuture != null ? '<br>Future value (beyond this season): ' + money(n.winnerFuture) + ' vs ' + money(n.loserFuture) + '.' : '') + '</div>';
         case 'win-win':
           return '<div class="big pos">' + money(n.total) + '</div><div class="players">Got <b>' + list(c.players) + '</b></div>' +
             '<div class="players">Gave <b>' + list(c.sent) + '</b></div><div class="stat">Both sides finished in the black. Partner: ' + esc(n.partner) + '.</div>';

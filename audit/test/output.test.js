@@ -41,3 +41,10 @@ test('one-sided trades are flagged as cash/loan deals', { skip: !a && 'no audit.
   assert.strictEqual(sheehan.cash, true);
   assert.ok(a.moves.filter(m => m.kind === 'trade' && m.in.length && m.out.length).every(m => !m.cash));
 });
+
+test('future value: prospects sent away for Yamamoto show up as future value lost; sides mirror', { skip: !a && 'no audit.json' }, () => {
+  const mine = a.moves.find(m => m.kind === 'trade' && m.date === '2026-06-17' && m.teamId === a.myTeamId);
+  const theirs = a.moves.find(m => m.tradeId === mine.tradeId && m.teamId !== mine.teamId);
+  assert.ok(mine.future < 0 && Math.abs(mine.future + theirs.future) < 1e-6, `${mine.future} / ${theirs.future}`);
+  assert.ok(a.moves.filter(m => m.kind === 'trade' && m.date < '2026-05-24').every(m => m.future === null));
+});

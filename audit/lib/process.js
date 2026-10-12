@@ -5,6 +5,7 @@ const { latestOnOrBefore } = require('./gitdata');
 
 const PROCESS_FROM = '2026-05-24';
 const PROCESS_TO = '2026-09-28';
+const DYNASTY_WEIGHTS = { y1: 0.90, y2: 0.81 };   // the suite's defaults (bid/fa/roster/trade pages)
 const prevDay = d => { const x = new Date(d + 'T00:00:00Z'); x.setUTCDate(x.getUTCDate() - 1); return x.toISOString().slice(0, 10); };
 
 function makeValuer(engine, snapshots) {
@@ -54,7 +55,38 @@ function makeValuer(engine, snapshots) {
       return bench.length ? bench[0].ottoneuId : null;
     }
 
-    const out = { values: vm, keyOf, value, benchBest, f: engine.call('rosProrationFactor') };
+    // Future value (lazy): the suite's dynasty surplus minus this season's rental part, i.e. what a
+    // player is worth BEYOND this season. Never below $0 -- a bad contract can be cut free at
+    // season's end. Prospects get their scouting floor (prospectDynastyValue).
+    let dyn = null;
+    function dynasty() {
+      if (dyn) return dyn;
+      const at = k => latestOnOrBefore(snapshots[k] || [], before);
+      const load = (k, file, fn) => { const sn = at(k); return sn ? engine.call(fn, snapshots.read(sn.sha, file)) : null; };
+      const h1 = load('hitY1', 'data/proj_hitting_y1.csv', 'parseHittingProjections');
+      const p1 = load('pitY1', 'data/proj_pitching_y1.csv', 'parsePitchingProjections');
+      const h2 = load('hitY2', 'data/proj_hitting_y2.csv', 'parseHittingProjections');
+      const p2 = load('pitY2', 'data/proj_pitching_y2.csv', 'parsePitchingProjections');
+      const pr = at('prospects');
+      engine.localStorage.setItem('ottoneu_prospects', JSON.stringify(pr ? engine.call('parseProspectsCSV', snapshots.read(pr.sha, 'data/prospects.csv')) : []));
+      engine.setDate(before);
+      // Re-match: shared.js keeps rostered-set and FA baselines in module state, and other dates may have run since.
+      let rows = engine.call('matchPlayers', players, hp, pp);
+      if (h1 || p1) rows = engine.call('attachYearProjections', rows, h1, p1, 'proj_y1');
+      if (h2 || p2) rows = engine.call('attachYearProjections', rows, h2, p2, 'proj_y2');
+      const teams = new Map();
+      rows.forEach(m => { if (!teams.has(m.teamId)) teams.set(m.teamId, []); teams.get(m.teamId).push(m); });
+      dyn = engine.call('calculateDynastyValues', [...teams.values()], DYNASTY_WEIGHTS, null);
+      return dyn;
+    }
+    function future(ottoneuId, name) {
+      const d = dynasty()[keyOf(ottoneuId, name)];
+      if (!d) return 0;
+      const rental = (d.projectedValue || 0) - Math.max(1, d.actualSalary || 0);
+      return Math.max(0, d.dynastySurplus - rental);
+    }
+
+    const out = { values: vm, keyOf, value, benchBest, future, f: engine.call('rosProrationFactor') };
     cache.set(key, out);
     return out;
   }
@@ -75,4 +107,13 @@ function moveProcess(engine, valuer, move) {
   return total * v.f;
 }
 
-module.exports = { makeValuer, moveProcess, PROCESS_FROM, PROCESS_TO };
+// Future value a trade side gained: sum of future value received minus sum sent. Trades only; null
+// outside the window where saved projections exist.
+function moveFuture(engine, valuer, move) {
+  if (move.kind !== 'trade' || move.date < PROCESS_FROM || move.date >= PROCESS_TO) return null;
+  const v = valuer.valuesAsOf(move.date);
+  if (!v) return null;
+  return move.in.reduce((s, p) => s + v.future(p.ottoneuId, p.player), 0) - move.out.reduce((s, p) => s + v.future(p.ottoneuId, p.player), 0);
+}
+
+module.exports = { makeValuer, moveProcess, moveFuture, PROCESS_FROM, PROCESS_TO };

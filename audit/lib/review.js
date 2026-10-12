@@ -27,6 +27,7 @@ function buildCards(audit, season) {
   if (fleece) push({ id: 'trade-of-year', title: 'Fleecing of the Year', teamId: fleece.w.teamId, team: name(mk(fleece.w)),
     numbers: { margin: Math.round(fleece.margin), winner: Math.round(g(fleece.w)), loser: Math.round(g(fleece.l)), victim: name(mk(fleece.l)),
       winnerAfterSalary: Math.round(fleece.w.result), loserAfterSalary: Math.round(fleece.l.result),
+      winnerFuture: fleece.w.future == null ? null : Math.round(fleece.w.future), loserFuture: fleece.l.future == null ? null : Math.round(fleece.l.future),
       winnerProduction: Math.round(fleece.w.production || 0), loserProduction: Math.round(fleece.l.production || 0) },
     players: fleece.w.in.map(p => p.player), sent: fleece.w.out.map(p => p.player) });
   const winwin = tradeRows.filter(r => r.both).sort((x, y) => (g(y.w) + g(y.l)) - (g(x.w) + g(x.l)))[0];

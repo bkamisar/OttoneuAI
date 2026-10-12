@@ -514,6 +514,9 @@ Output: `data/audit.json`, `data/review.json`; commentary in `data/review-commen
   what it later buys, and offseason cuts are free, so dumping a contract is worth no more than cutting it; **value −
   price** for auction buys, where the price is the budget; **0** for salary resets (cap moves, see winter summary).
   Before this, salary flipped 60% of offseason-cut and 56% of offseason-trade verdicts (e.g. Pressmerlyn +51 → −20).
+- *Future value* (trades, 2026-05-24 → season end): Σ in − Σ out of each player's value BEYOND this season, as of
+  the trade date = suite dynasty surplus (weights 0.90/0.81, prospect floors from that day's prospects.csv) minus the
+  this-season rental surplus, floored at $0 (a bad contract can be cut free). Shown beside the grade, never mixed in.
 - *Production vs result:* every move carries `production` (what the counted stats were worth, no salary) and
   `result` (after salary: cost of holding, credit for freeing). Trades are zero-sum: the two sides are exact mirrors.
 - *Offseason* (Oct 1 → that season's auction): cut + same-team auction rebuy = **salary reset**, graded

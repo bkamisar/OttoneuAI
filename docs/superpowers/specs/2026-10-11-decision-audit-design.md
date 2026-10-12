@@ -87,7 +87,9 @@ All values in Ottoneu dollars from `shared.js`.
 - Add / auction buy: projected value that day − salary.
 - Cut: −(projected value − salary) vs. the in-season cut cost (half salary dead money;
   end-of-season cuts are free).
-- Trade: each side's projected value change using `tradefinder.js` marginal-value math.
+- Trade: each side's surplus change (Σ in − Σ out of projected value − salary). *(Plan
+  decision: the `tradefinder.js` marginal-value math was dropped as more complexity than
+  the grade needs.)*
 - Increase (keeper raise): projected next-year value − new salary.
 
 **Result** (every move): actual production during the stint, valued in the same dollars,
@@ -102,7 +104,8 @@ the receiving team, whichever is first.
 For each move: start from actual final category totals for all 12 teams. Undo the move by
 removing the player's actual stint production from the team and adding a replacement's over
 the same playing time. Trades are undone on both sides at once. Recompute roto points and
-ranks with `standingsim.js`.
+ranks with `buildStandings` in `shared.js` (deterministic roto; `standingsim.js` is the
+Monte Carlo simulator and isn't needed here).
 
 **Replacement:**
 - **Paired swaps:** an `add` and a `cut` by the same team within 30 minutes of each other are
@@ -146,8 +149,10 @@ site is public).
    places won/lost by my moves.
 2. **Patterns:** average grade by move type and tag, mine vs. league. **Shown only when
    n ≥ 5**; n always displayed.
-3. **Me vs. my tools** (process era only): adds/bids vs. `bid.html` ceiling that day; trades
-   vs. trade-finder acceptance. Scored by result.
+3. **Me vs. my tools** (process era only): "followed the model" = process ≥ 0, "overruled
+   the model" = process < 0, using the suite's own valuation that day (what `bid.html` and
+   the trade tools are built on). Scored by result. *(Plan decision: replaying `bid.html`'s
+   inline page logic was dropped.)*
 4. **Standings:** my costliest and most valuable moves in places/points; joint "all cuts
    undone".
 5. **Every move:** sortable table, my team by default, toggle for league.

@@ -94,3 +94,20 @@ test('title cards carry the close-call flag', () => {
   ] };
   assert.strictEqual(buildCards(t, 2026).find(c => c.id === 'title-1').numbers.closeCall, true);
 });
+
+test('cards rank by grade (production), with after-salary carried as information', () => {
+  const t = { myTeamId: '1', teams: { 1: { name: 'Me' }, 2: { name: 'You' }, 3: { name: 'Them' }, 4: { name: 'Us' } }, moves: [
+    // salary-dump trade: big after-salary swing, small production swing
+    mv({ id: 'a', teamId: '1', kind: 'trade', tradeId: 't1', counterTeamId: '2', result: 60, production: 5, grade: 5, in: [{ player: 'Kid', salary: 1 }], out: [{ player: 'Contract', salary: 50 }] }),
+    mv({ id: 'b', teamId: '2', kind: 'trade', tradeId: 't1', counterTeamId: '1', result: -60, production: -5, grade: -5, in: [{ player: 'Contract', salary: 50 }], out: [{ player: 'Kid', salary: 1 }] }),
+    // production trade: modest after-salary, big production
+    mv({ id: 'c', teamId: '3', kind: 'trade', tradeId: 't2', counterTeamId: '4', result: 10, production: 30, grade: 30, in: [{ player: 'Star', salary: 40 }], out: [{ player: 'Kid2', salary: 2 }] }),
+    mv({ id: 'd', teamId: '4', kind: 'trade', tradeId: 't2', counterTeamId: '3', result: -10, production: -30, grade: -30, in: [{ player: 'Kid2', salary: 2 }], out: [{ player: 'Star', salary: 40 }] }),
+  ] };
+  const c = Object.fromEntries(buildCards(t, 2026).map(x => [x.id, x]));
+  assert.strictEqual(c['trade-of-year'].team, 'Them');
+  assert.strictEqual(c['trade-of-year'].numbers.winner, 30);
+  assert.strictEqual(c['trade-of-year'].numbers.winnerAfterSalary, 10);
+  const me = c['all-time-trades'].numbers.rows.find(r => r.team === 'Me');
+  assert.strictEqual(me.net, 5); assert.strictEqual(me.afterSalary, 60);
+});

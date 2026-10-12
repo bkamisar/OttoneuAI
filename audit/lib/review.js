@@ -10,32 +10,36 @@ function buildCards(audit, season) {
   const mk = m => managerKey(m.teamId, m.date || '');
   const cards = [];
   const push = c => cards.push({ players: [], numbers: {}, ...c });
+  // Cards rank on the grade (production for trades/cuts/adds, value minus price for auction buys);
+  // after-salary results ride along as information.
+  const g = m => (m.grade != null ? m.grade : m.result);
 
   // Trades: pair the two sides by tradeId.
   const trades = new Map();
   mv.filter(m => m.kind === 'trade').forEach(m => { if (!trades.has(m.tradeId)) trades.set(m.tradeId, []); trades.get(m.tradeId).push(m); });
   const tradeRows = [...trades.values()].filter(s => s.length === 2).map(([a, b]) => {
-    const [w, l] = a.result >= b.result ? [a, b] : [b, a];
-    return { w, l, margin: w.result - l.result, both: a.result > 0 && b.result > 0 };
+    const [w, l] = g(a) >= g(b) ? [a, b] : [b, a];
+    return { w, l, margin: g(w) - g(l), both: g(a) > 0 && g(b) > 0 };
   });
   const fleece = [...tradeRows].sort((x, y) => y.margin - x.margin)[0];
   if (fleece) push({ id: 'trade-of-year', title: 'Fleecing of the Year', teamId: fleece.w.teamId, team: name(mk(fleece.w)),
-    numbers: { margin: Math.round(fleece.margin), winner: Math.round(fleece.w.result), loser: Math.round(fleece.l.result), victim: name(mk(fleece.l)),
+    numbers: { margin: Math.round(fleece.margin), winner: Math.round(g(fleece.w)), loser: Math.round(g(fleece.l)), victim: name(mk(fleece.l)),
+      winnerAfterSalary: Math.round(fleece.w.result), loserAfterSalary: Math.round(fleece.l.result),
       winnerProduction: Math.round(fleece.w.production || 0), loserProduction: Math.round(fleece.l.production || 0) },
     players: fleece.w.in.map(p => p.player), sent: fleece.w.out.map(p => p.player) });
-  const winwin = tradeRows.filter(r => r.both).sort((x, y) => (y.w.result + y.l.result) - (x.w.result + x.l.result))[0];
+  const winwin = tradeRows.filter(r => r.both).sort((x, y) => (g(y.w) + g(y.l)) - (g(x.w) + g(x.l)))[0];
   if (winwin) push({ id: 'win-win', title: 'Trade of the Year (everybody won)', teamId: winwin.w.teamId, team: name(mk(winwin.w)),
-    numbers: { total: Math.round(winwin.w.result + winwin.l.result), partner: name(mk(winwin.l)) },
+    numbers: { total: Math.round(g(winwin.w) + g(winwin.l)), partner: name(mk(winwin.l)) },
     players: winwin.w.in.map(p => p.player), sent: winwin.w.out.map(p => p.player) });
 
-  const adds = mv.filter(m => m.kind === 'add' || m.kind === 'swap').sort((a, b) => b.result - a.result);
+  const adds = mv.filter(m => m.kind === 'add' || m.kind === 'swap').sort((a, b) => g(b) - g(a));
   if (adds[0]) push({ id: 'pickup-of-year', title: 'Pickup of the Year', teamId: adds[0].teamId, team: name(mk(adds[0])),
-    numbers: { value: Math.round(adds[0].result), salary: adds[0].in[0].salary }, players: adds[0].in.map(p => p.player) });
+    numbers: { value: Math.round(g(adds[0])), salary: adds[0].in[0].salary }, players: adds[0].in.map(p => p.player) });
 
   // Plain cuts only: resets (cut + auction rebuy) and swaps have their own kinds.
-  const cuts = mv.filter(m => m.kind === 'cut').sort((a, b) => a.result - b.result);
-  if (cuts[0] && cuts[0].result < 0) push({ id: 'cut-that-haunts', title: 'The Cut That Haunts', teamId: cuts[0].teamId, team: name(mk(cuts[0])),
-    numbers: { lost: Math.round(-cuts[0].result) }, players: cuts[0].out.map(p => p.player) });
+  const cuts = mv.filter(m => m.kind === 'cut').sort((a, b) => g(a) - g(b));
+  if (cuts[0] && g(cuts[0]) < 0) push({ id: 'cut-that-haunts', title: 'The Cut That Haunts', teamId: cuts[0].teamId, team: name(mk(cuts[0])),
+    numbers: { lost: Math.round(-g(cuts[0])) }, players: cuts[0].out.map(p => p.player) });
 
   // Moves whose counted points decided a place (real margins); one card per trade.
   const seenTrade = new Set();
@@ -59,13 +63,13 @@ function buildCards(audit, season) {
     push({ id: 'unluckiest', title: 'Unluckiest Manager', teamId: lucky.at(-1)[0], team: name(lucky.at(-1)[0]), numbers: { luck: Math.round(lucky.at(-1)[1].luck) } });
   }
 
-  const auction = mv.filter(m => m.kind === 'auction').sort((a, b) => b.result - a.result);
+  const auction = mv.filter(m => m.kind === 'auction').sort((a, b) => g(b) - g(a));
   if (auction.length >= 2) {
     push({ id: 'auction-best', title: 'Best Auction Buy', teamId: auction[0].teamId, team: name(mk(auction[0])),
-      numbers: { value: Math.round(auction[0].result), salary: auction[0].in[0].salary }, players: auction[0].in.map(p => p.player) });
+      numbers: { value: Math.round(g(auction[0])), salary: auction[0].in[0].salary }, players: auction[0].in.map(p => p.player) });
     const worst = auction.at(-1);
     push({ id: 'auction-worst', title: 'Worst Auction Buy', teamId: worst.teamId, team: name(mk(worst)),
-      numbers: { value: Math.round(worst.result), salary: worst.in[0].salary }, players: worst.in.map(p => p.player) });
+      numbers: { value: Math.round(g(worst)), salary: worst.in[0].salary }, players: worst.in.map(p => p.player) });
   }
 
   const w = Object.entries((audit.winters || {})[season] || {}).sort((a, b) => b[1].auctionReturn - a[1].auctionReturn)[0];
@@ -75,10 +79,10 @@ function buildCards(audit, season) {
   // All-time trade record (every season in the file).
   const rec = new Map();
   audit.moves.filter(m => m.kind === 'trade' && m.result != null).forEach(m => {
-    const r = rec.get(mk(m)) || { w: 0, l: 0, net: 0, prod: 0 }; m.result >= 0 ? r.w++ : r.l++; r.net += m.result; r.prod += m.production || 0; rec.set(mk(m), r);
+    const r = rec.get(mk(m)) || { w: 0, l: 0, net: 0, prod: 0, afterSalary: 0 }; g(m) >= 0 ? r.w++ : r.l++; r.net += g(m); r.prod += m.production || 0; r.afterSalary += m.result; rec.set(mk(m), r);
   });
   if (rec.size) push({ id: 'all-time-trades', title: 'All-Time Trade Record', teamId: null, team: null,
-    numbers: { rows: [...rec.entries()].sort((a, b) => b[1].net - a[1].net).map(([id, r]) => ({ team: name(id), w: r.w, l: r.l, net: Math.round(r.net), prod: Math.round(r.prod) })) } });
+    numbers: { rows: [...rec.entries()].sort((a, b) => b[1].net - a[1].net).map(([id, r]) => ({ team: name(id), w: r.w, l: r.l, net: Math.round(r.net), prod: Math.round(r.prod), afterSalary: Math.round(r.afterSalary) })) } });
   return cards;
 }
 

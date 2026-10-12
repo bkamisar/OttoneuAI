@@ -510,6 +510,10 @@ Output: `data/audit.json`, `data/review.json`; commentary in `data/review-commen
   lines. Hitter PA ≈ AB × the player's MLB PA/AB that season (fallback 1.12).
 - *Short stints:* a counted pitcher's strikeouts are compared against a replacement prorated to the innings he
   threw (`result.js sgpOf`), the way hitters are prorated by PA. `calcPlayerSGP` alone docks a 3-IP arm ~$12.
+- *Grade* (what moves are judged on): **production** for trades, pickups, swaps and cuts — freed salary is only worth
+  what it later buys, and offseason cuts are free, so dumping a contract is worth no more than cutting it; **value −
+  price** for auction buys, where the price is the budget; **0** for salary resets (cap moves, see winter summary).
+  Before this, salary flipped 60% of offseason-cut and 56% of offseason-trade verdicts (e.g. Pressmerlyn +51 → −20).
 - *Production vs result:* every move carries `production` (what the counted stats were worth, no salary) and
   `result` (after salary: cost of holding, credit for freeing). Trades are zero-sum: the two sides are exact mirrors.
 - *Offseason* (Oct 1 → that season's auction): cut + same-team auction rebuy = **salary reset**, graded

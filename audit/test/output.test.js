@@ -24,3 +24,14 @@ test('every move has a numeric result and no NaN anywhere', { skip: !a && 'no au
 test('v2: luck is not reported (process is projection-based, results are lineup-only)', { skip: !a && 'no audit.json' }, () => {
   assert.ok(a.moves.every(m => m.luck === null), 'luck must be null in v2');
 });
+
+test('grade = production for trades/cuts/adds, value-minus-price for auction buys, 0 for resets', { skip: !a && 'no audit.json' }, () => {
+  for (const m of a.moves) {
+    if (m.production == null) continue;
+    const want = m.kind === 'auction' ? m.result : m.kind === 'reset' ? 0 : m.production;
+    assert.ok(Math.abs(m.grade - want) < 1e-9, `${m.id} ${m.kind}`);
+  }
+  // Pressmerlyn's January blockbuster: +51 production, negative only after salary -> graded a win now.
+  const mtp = a.moves.find(m => m.kind === 'trade' && m.date === '2026-01-10' && m.teamId === '10761');
+  assert.ok(mtp.grade > 40 && mtp.result < 0);
+});

@@ -230,7 +230,11 @@ function makeLookup(stats, ident, hint) {
 
     { name: 'write', inputsHash: () => hashOf(String(Date.now())),   // always rewrite outputs
       run: async (r) => {
-        const moves = r.grade.graded.map(m => ({ ...m, manager: managerKey(m.teamId, m.date), tags: r.tags[m.id] || [], ...(r.standings.byMove[m.id] || { ptsContributed: null, titleDeciding: null, closeCall: false }) }));
+        // grade: what the move is judged on. Production for trades/cuts/adds (freed salary is only worth
+        // what it later buys, and offseason cuts are free); value minus price for auction buys, where the
+        // price IS the budget; 0 for salary resets (pure cap moves, judged in the winter summary).
+        const gradeOf = m => (m.production == null ? null : m.kind === 'auction' ? m.result : m.kind === 'reset' ? 0 : m.production);
+        const moves = r.grade.graded.map(m => ({ ...m, grade: gradeOf(m), manager: managerKey(m.teamId, m.date), tags: r.tags[m.id] || [], ...(r.standings.byMove[m.id] || { ptsContributed: null, titleDeciding: null, closeCall: false }) }));
         const managers = Object.fromEntries([...new Set(moves.map(m => m.manager))].map(k => [k, managerName(r.moves.teams, k)]));
         // Winter cap summary: what each team freed and spent between October and the auction.
         const winters = {};

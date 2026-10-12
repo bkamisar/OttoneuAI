@@ -59,7 +59,7 @@
         case 'trade-of-year':
           return '<div class="big pos">' + money(n.winner) + '</div><div class="players">Got <b>' + list(c.players) + '</b></div>' +
             '<div class="players">Gave <b>' + list(c.sent) + '</b></div><div class="stat">' + esc(n.victim) + ' came out ' + money(n.loser) + '. A ' + money(n.margin).replace('+', '') + ' swing.' +
-            '<br>Production alone: ' + money(n.winnerProduction) + ' vs ' + money(n.loserProduction) + ' — the rest is salary.</div>';
+            '<br>After salary: ' + money(n.winnerAfterSalary) + ' vs ' + money(n.loserAfterSalary) + ' (shown for reference; freed salary only counts once it buys someone).</div>';
         case 'win-win':
           return '<div class="big pos">' + money(n.total) + '</div><div class="players">Got <b>' + list(c.players) + '</b></div>' +
             '<div class="players">Gave <b>' + list(c.sent) + '</b></div><div class="stat">Both sides finished in the black. Partner: ' + esc(n.partner) + '.</div>';
@@ -74,8 +74,8 @@
         case 'auction-best': case 'auction-worst':
           return '<div class="big ' + cls(n.value) + '">' + money(n.value) + '</div><div class="players"><b>' + list(c.players) + '</b> at $' + n.salary + '</div><div class="stat">Season value minus salary.</div>';
         case 'all-time-trades':
-          return '<table><tr><th>Team</th><th>W–L</th><th style="text-align:right">After salary</th><th style="text-align:right">Production</th></tr>' + (n.rows || []).map(function (r) {
-            return '<tr><td>' + esc(r.team) + '</td><td class="n">' + r.w + '–' + r.l + '</td><td class="n">' + money(r.net) + '</td><td class="n">' + money(r.prod) + '</td></tr>';
+          return '<table><tr><th>Team</th><th>W–L</th><th style="text-align:right">Grade</th><th style="text-align:right">After salary</th></tr>' + (n.rows || []).map(function (r) {
+            return '<tr><td>' + esc(r.team) + '</td><td class="n">' + r.w + '–' + r.l + '</td><td class="n">' + money(r.net) + '</td><td class="n">' + money(r.afterSalary) + '</td></tr>';
           }).join('') + '</table><div class="stat">Every trade since the 2024 auction, graded on what actually happened.</div>';
         default: return '';
       }

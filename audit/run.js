@@ -1,17 +1,20 @@
 #!/usr/bin/env node
 // audit/run.js — Decision audit pipeline.
 //   node audit/run.js [--force | --force=<phase>]
-// Phases checkpoint to audit/cache/. See docs/superpowers/specs/2026-10-11-decision-audit-design.md
+// Phases checkpoint to audit/cache/. Specs: docs/superpowers/specs/2026-10-11-decision-audit-design.md (v1),
+// 2026-10-12-decision-audit-v2-design.md (v2: counted production, offseason cap moves)
 const fs = require('fs'); const path = require('path'); const crypto = require('crypto');
 const { loadEngine } = require('./lib/engine');
 const { parseTransactions, buildMoves, parseCSVLine } = require('./lib/moves');
-const { replayRosters, diffAgainstSnapshot, makeTenureEnd: makeStintEnd } = require('./lib/stints');
+const { replayRosters, diffAgainstSnapshot, makeTenureEnd: makeStintEnd, countTenures } = require('./lib/stints');
 const g = require('./lib/gitdata');
 const { fetchDay, seasonDays, sumWindow } = require('./lib/stats');
 const { buildIdentity } = require('./lib/identity');
-const { seasonContext, moveResult, inSeason } = require('./lib/result');
+const { seasonContext, countedResult } = require('./lib/result');
 const { makeValuer, moveProcess } = require('./lib/process');
-const { undoMove } = require('./lib/counterfactual');
+const { parseProduction, makeCounted, teamsWithPlayer } = require('./lib/production');
+const { annotateOffseason } = require('./lib/offseason');
+const { ptsContributed, titleDeciding, teamTotalsFromLines } = require('./lib/contributed');
 const { tagMove, makeHotPercentile } = require('./lib/tags');
 const { buildCards } = require('./lib/review');
 const { runPhases } = require('./lib/phases');
@@ -36,7 +39,7 @@ const standingsStats = r => ({ R: +r.R, HR: +r.HR, OBP: +r.OBP, SLG: +r.SLG, SO:
 function finalStandings(engine, season) {
   const f = `data/standings-final-${season}.csv`;
   if (!fs.existsSync(path.join(ROOT, f))) return null;
-  return csvRows(read(f)).map(r => ({ teamId: r.TeamID, team: r.Team, ip: engine.call('parseIPInnings', r.IP) || 1500, stats: standingsStats(r) }));
+  return csvRows(read(f)).map(r => ({ teamId: r.TeamID, team: r.Team, ip: engine.call('parseIPInnings', r.IP) || 1500, points: +r.Points, stats: standingsStats(r) }));
 }
 
 // Per-player daily rows, so any window is a quick filter + sumWindow.
@@ -81,6 +84,7 @@ function makeLookup(stats, ident, hint) {
   const engine = loadEngine();
   const txText = read('data/transactions.csv');
   const txs = parseTransactions(txText);
+  const prodText = read('data/teamproduction.csv');
   const seasons = [...new Set(buildMoves(txs).map(m => m.season))].filter(s => s <= 2026).sort();
   let statsIdx = null;
   const stats = () => (statsIdx = statsIdx || makeStatsIndex(seasons));
@@ -89,7 +93,7 @@ function makeLookup(stats, ident, hint) {
     { name: 'snapshots', inputsHash: () => hashOf(headSha('data/roster.csv'), headSha('data/proj_hitting.csv'), headSha('data/standings.csv')),
       run: async () => ({ roster: g.fileHistory('data/roster.csv'), hit: g.fileHistory('data/proj_hitting.csv'), pit: g.fileHistory('data/proj_pitching.csv'), standings: g.fileHistory('data/standings.csv') }) },
 
-    { name: 'moves', inputsHash: () => hashOf(txText),
+    { name: 'moves', inputsHash: () => hashOf(txText, prodText, 'v2'),
       run: async (r) => {
         const { stints, rosterAt } = replayRosters(txs);
         const diffs = r.snapshots.roster.filter((_, i, a) => i % 30 === 0 || i === a.length - 1).map(s => {
@@ -98,7 +102,7 @@ function makeLookup(stats, ident, hint) {
           return { date: s.date, missing: d.missing.length, extra: d.extra.length, wrongTeam: d.wrongTeam.length };
         });
         const teams = {}; txs.forEach(t => { teams[t.teamId] = { name: t.team }; });
-        return { moves: buildMoves(txs), stints, teams, snapshotDiffs: diffs };
+        return { moves: annotateOffseason(buildMoves(txs)), stints, teams, snapshotDiffs: diffs };
       } },
 
     { name: 'stats', inputsHash: () => hashOf(seasons.join(',')),
@@ -108,7 +112,7 @@ function makeLookup(stats, ident, hint) {
         return { days: n };
       } },
 
-    { name: 'grade', inputsHash: () => hashOf(txText, headSha('data/roster.csv'), headSha('data/proj_hitting.csv'), read('shared.js'), 'v1'),
+    { name: 'grade', inputsHash: () => hashOf(txText, prodText, headSha('data/roster.csv'), headSha('data/proj_hitting.csv'), read('shared.js'), 'v2'),
       run: async (r) => {
         const { moves, stints } = r.moves;
         const st = stats();
@@ -121,6 +125,15 @@ function makeLookup(stats, ident, hint) {
         const lookup = makeLookup(st, ident.map, hint);
         const stintEnd = makeStintEnd(stints);
         const valuer = makeValuer(engine, { ...r.snapshots, read: g.fileAt });
+        // v2: what actually counted for each team (Ottoneu team production).
+        const prod = parseProduction(prodText);
+        const paRatio = (id, s) => {
+          const who = ident.map.get(String(id)); if (!who || who.group !== 'h') return null;
+          const l = st.window(who.mlbId, 'h', `${s}-03-01`, `${s}-10-15`); return l && l.ab ? l.pa / l.ab : null;
+        };
+        const counted = makeCounted(prod.rows, paRatio);
+        const stintCount = (id, team, s) => countTenures(stints, id, team, s);
+        const teamsWith = (id, s) => teamsWithPlayer(prod.rows, id, s);
 
         const ctxBySeason = {};
         for (const s of seasons) {
@@ -128,7 +141,7 @@ function makeLookup(stats, ident, hint) {
           if (!final) continue;
           const a = `${s}-03-28`, b = `${s}-09-28`;
           const sStints = stints.filter(x => x.start < b && (!x.end || x.end > a));
-          const stintLines = sStints.map(x => lookup(x.ottoneuId, x.start < a ? a : x.start, x.end && x.end < b ? x.end : b)).filter(x => x.line);
+          const stintLines = prod.rows.filter(x => x.season === s).map(x => counted(x.ottoneuId, x.teamId, s)).filter(x => x.line);
           const rosteredMlb = new Set(sStints.map(x => ident.map.get(x.ottoneuId)?.mlbId).filter(Boolean));
           const fa = [];
           for (const grp of ['h', 'p']) st.seasonIds[s][grp].forEach(id => {
@@ -138,55 +151,44 @@ function makeLookup(stats, ident, hint) {
         }
         const graded = moves.map(m => {
           const ctx = ctxBySeason[m.season];
-          const result = ctx ? moveResult(engine, ctx, m, lookup, id => stintEnd(id, m.teamId, m.date)) : null;
-          const proc = moveProcess(engine, valuer, m);
-          return { ...m, process: proc, result, luck: proc === null || result === null ? null : result - proc };
+          const cr = ctx ? countedResult(engine, ctx, m, { counted, teamsWith, tenureEnd: stintEnd, stintCount }) : { result: null, combinedStints: false };
+          const proc = m.kind === 'reset' ? null : moveProcess(engine, valuer, m);
+          return { ...m, process: proc, result: cr.result, combinedStints: cr.combinedStints,
+            luck: proc === null || cr.result === null ? null : cr.result - proc };
         });
-        return { graded, ctxBySeason, hint, identity: [...ident.map.entries()],
+        const paRatios = {};
+        prod.rows.filter(x => x.group === 'H').forEach(x => { paRatios[x.season + '|' + x.ottoneuId] = paRatio(x.ottoneuId, x.season); });
+        return { graded, ctxBySeason, hint, identity: [...ident.map.entries()], prodRows: prod.rows, paRatios,
           report: { unmatched: ident.unmatched.map(u => u.player), ambiguous: ident.ambiguous.map(x => x.player) } };
       } },
 
-    { name: 'standings', inputsHash: () => hashOf(txText, 'v2'),
+    { name: 'standings', inputsHash: () => hashOf(txText, prodText, 'v3'),
       run: async (r) => {
-        const st = stats();
-        const ident = new Map(r.grade.identity);
-        const lookup = makeLookup(st, ident, r.grade.hint);
-        const stintEnd = makeStintEnd(r.moves.stints);
-        const valuer = makeValuer(engine, { ...r.snapshots, read: g.fileAt });
-        const byMove = {}; const jointCuts = {};
+        // v2: roto points each player's COUNTED stats were worth to the team that had them.
+        const counted = makeCounted(r.grade.prodRows, (id, s) => r.grade.paRatios[s + '|' + id] || null);
+        const byMove = {};
         for (const s of seasons) {
-          const final = finalStandings(engine, s); const ctx = r.grade.ctxBySeason[s];
-          if (!final || !ctx) continue;
-          // Every decision attributed to the season, offseason ones included: a January cut or
-          // an auction buy shapes that season's standings as much as a July pickup.
-          const seasonMoves = r.grade.graded.filter(x => x.season === s);
-          for (const m of seasonMoves) {
-            const moveEnd = id => stintEnd(id, m.teamId, m.date);
-            const d = undoMove(engine, ctx, final, m, lookup, { moveEnd });
-            let fragile = null;
-            if (d.decisive) {
-              fragile = 'unchecked';
-              const p0 = m.in[0] || m.out[0];
-              const v = s === 2026 && p0 ? valuer.valuesAsOf(m.date) : null;
-              const benchId = v ? v.benchBest(m.teamId, lookup(p0.ottoneuId, m.date, m.date).type, p0.ottoneuId) : null;
-              if (benchId) {
-                const tough = undoMove(engine, ctx, final, m, lookup, { moveEnd, replacementLine: () => lookup(benchId, m.date, `${s}-09-28`).line });
-                fragile = !tough.decisive;
-              }
+          const final = finalStandings(engine, s); if (!final) continue;
+          const totals = {};
+          final.forEach(t => { totals[t.teamId] = teamTotalsFromLines(r.grade.prodRows.filter(x => x.season === s && x.teamId === t.teamId).map(x => counted(x.ottoneuId, x.teamId, s))); });
+          const memo = new Map();
+          const pts = (id, team) => {
+            const k = id + '|' + team;
+            if (!memo.has(k)) memo.set(k, totals[team] ? ptsContributed(engine, final, team, counted(id, team, s), totals[team]) : 0);
+            return memo.get(k);
+          };
+          for (const m of r.grade.graded.filter(x => x.season === s)) {
+            let net = 0;
+            if (m.kind === 'trade') net = m.in.reduce((q, p) => q + pts(p.ottoneuId, m.teamId), 0) - m.out.reduce((q, p) => q + pts(p.ottoneuId, m.counterTeamId), 0);
+            else if (m.kind !== 'reset') {
+              net = m.in.reduce((q, p) => q + pts(p.ottoneuId, m.teamId), 0);
+              m.out.forEach(p => teamsWithPlayer(r.grade.prodRows, p.ottoneuId, s)
+                .filter(t => t.teamId !== m.teamId && t.acquired >= m.date).forEach(t => { net -= pts(p.ottoneuId, t.teamId); }));
             }
-            byMove[m.id] = { standings: d.get(m.teamId) || null, decisive: d.decisive, fragile };
-          }
-          // Joint: all of a team's in-season cuts undone together.
-          jointCuts[s] = {};
-          for (const teamId of final.map(t => t.teamId)) {
-            const cuts = seasonMoves.filter(x => x.teamId === teamId && x.kind === 'cut' && inSeason(x.date));
-            if (!cuts.length) continue;
-            const cutDate = new Map(); cuts.forEach(c => c.out.forEach(p => cutDate.set(p.ottoneuId, c.date)));
-            const combined = { kind: 'cut', season: s, date: cuts[0].date, teamId, in: [], out: cuts.flatMap(c => c.out) };
-            jointCuts[s][teamId] = undoMove(engine, ctx, final, combined, (id, a, b) => lookup(id, cutDate.get(id) || a, b)).get(teamId);
+            byMove[m.id] = { ptsContributed: net, titleDeciding: titleDeciding(final, m.teamId, net) };
           }
         }
-        return { byMove, jointCuts, seasonsWithoutStandings: seasons.filter(s => !finalStandings(engine, s)) };
+        return { byMove, seasonsWithoutStandings: seasons.filter(s => !finalStandings(engine, s)) };
       } },
 
     { name: 'tags', inputsHash: () => hashOf(txText, headSha('data/standings.csv'), 'v1'),
@@ -221,14 +223,25 @@ function makeLookup(stats, ident, hint) {
 
     { name: 'write', inputsHash: () => hashOf(String(Date.now())),   // always rewrite outputs
       run: async (r) => {
-        const moves = r.grade.graded.map(m => ({ ...m, tags: r.tags[m.id] || [], ...(r.standings.byMove[m.id] || { standings: null, decisive: false, fragile: null }) }));
+        const moves = r.grade.graded.map(m => ({ ...m, tags: r.tags[m.id] || [], ...(r.standings.byMove[m.id] || { ptsContributed: null, titleDeciding: null }) }));
+        // Winter cap summary: what each team freed and spent between October and the auction.
+        const winters = {};
+        for (const m of moves) {
+          const ws = (winters[m.season] = winters[m.season] || {});
+          const w = (ws[m.teamId] = ws[m.teamId] || { freed: 0, resetSavings: 0, tradeSalary: 0, auctionSpend: 0, auctionReturn: 0 });
+          if (m.phase !== 'offseason') continue;
+          if (m.kind === 'cut') w.freed += m.out.reduce((q, p) => q + p.salary, 0);
+          if (m.kind === 'reset') w.resetSavings += m.resetGrade;
+          if (m.kind === 'trade') w.tradeSalary += m.capDelta || 0;
+          if (m.kind === 'auction') { w.auctionSpend += m.in.reduce((q, p) => q + p.salary, 0); w.auctionReturn += m.result || 0; }
+        }
         const audit = {
-          generated: new Date().toISOString(), myTeamId: MY_TEAM, seasons, teams: r.moves.teams, moves,
-          jointCuts: r.standings.jointCuts,
+          generated: new Date().toISOString(), myTeamId: MY_TEAM, seasons, teams: r.moves.teams, moves, winters,
           approximations: [
-            'Stats count while a player is rostered — Ottoneu lineups are not in the data, so bench players are overstated.',
-            'Each move is measured alone against what actually happened; moves interact, so individual impacts never add up.',
-            'Replacement for an undone pickup is the averaged top free-agent production that season; an add paired with a cut restores the cut player instead.',
+            'Results use what Ottoneu counted for each team (lineup-only stats), one line per player per team per season; players with two stints on a team in one season are combined and flagged.',
+            'Hitter plate appearances are estimated from at-bats using the player\'s own MLB ratio that season.',
+            'Points contributed = the team\'s final points minus its points with that player\'s counted stats removed. Nothing hypothetical is added back, so it measures what the stats were worth, not what a replacement would have done.',
+            'Offseason (October to the auction) cuts are cap moves: full salary freed; a cut bought back by the same team at the auction is a salary reset graded on the salary change.',
             'Process grades exist only from 2026-05-24 (first saved projections) to the end of the 2026 season.',
           ],
           report: { moves: moves.length, unmatched: r.grade.report.unmatched, ambiguous: r.grade.report.ambiguous,
@@ -242,7 +255,9 @@ function makeLookup(stats, ident, hint) {
   ];
 
   await runPhases(phases, { cacheDir: CACHE, force });
-  const rep = JSON.parse(read('data/audit.json')).report;
+  const out = JSON.parse(read('data/audit.json')); const rep = out.report;
+  console.log('resets', out.moves.filter(m => m.kind === 'reset').length, '· title-deciding', out.moves.filter(m => m.titleDeciding).length,
+    '· combined stints', out.moves.filter(m => m.combinedStints).length);
   console.log(`\nmoves ${rep.moves} · unmatched ${rep.unmatched.length} · ambiguous ${rep.ambiguous.length} · seasons without standings: ${rep.seasonsWithoutStandings.join(',') || 'none'}`);
   console.log('snapshot cross-check:', rep.snapshotDiffs.map(d => `${d.date} m${d.missing}/x${d.extra}/w${d.wrongTeam}`).join(' '));
   if (rep.unmatched.length) console.log('unmatched (first 30):', rep.unmatched.slice(0, 30).join(', '));

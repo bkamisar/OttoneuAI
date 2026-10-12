@@ -63,4 +63,13 @@ function makeTenureEnd(stints) {
   };
 }
 
-module.exports = { replayRosters, diffAgainstSnapshot, makeTenureEnd };
+// How many separate tenures a team had with a player during a season (Mar 28 - Sep 28).
+// Same-day add/drops don't count; stints split by a salary increase are one tenure.
+function countTenures(stints, id, teamId, season) {
+  const a = `${season}-03-28`, b = `${season}-09-28`;
+  const mine = stints.filter(s => s.ottoneuId === String(id) && s.teamId === teamId && s.start !== s.end
+    && s.start < b && (!s.end || s.end > a)).sort((x, y) => (x.start < y.start ? -1 : 1));
+  return mine.filter((s, i) => i === 0 || s.start !== mine[i - 1].end).length;
+}
+
+module.exports = { replayRosters, diffAgainstSnapshot, makeTenureEnd, countTenures };

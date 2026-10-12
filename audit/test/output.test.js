@@ -5,10 +5,13 @@ const fs = require('fs'); const path = require('path');
 const file = path.join(__dirname, '..', '..', 'data', 'audit.json');
 const a = fs.existsSync(file) ? JSON.parse(fs.readFileSync(file, 'utf8')) : null;
 
-test('offseason cuts and auction buys get a standings impact too', { skip: !a && 'no audit.json' }, () => {
-  const yordan = a.moves.find(m => m.kind === 'cut' && m.date === '2026-01-31' && m.out.some(p => p.player === 'Yordan Alvarez'));
-  assert.ok(yordan && yordan.standings, 'Jan 2026 Yordan cut has standings');
-  assert.ok(a.moves.filter(m => m.kind === 'auction' && m.standings).length > 100, 'auction buys have standings');
+test('v2: Yordan 2026 cut is a +$1 reset; Donovan trade gives Bureau ~0 points', { skip: !a && 'no audit.json' }, () => {
+  const y = a.moves.find(m => m.kind === 'reset' && m.season === 2026 && m.out.some(p => p.player === 'Yordan Alvarez'));
+  assert.ok(y, 'reset exists'); assert.strictEqual(Math.round(y.result), 1);
+  const bur = a.moves.find(m => m.kind === 'trade' && m.date === '2026-05-13' && m.teamId === '10818');
+  assert.ok(bur.ptsContributed !== null && Math.abs(bur.ptsContributed) <= 2, `Bureau pts ${bur.ptsContributed}`);
+  assert.ok(a.winters && a.winters['2026'] && a.winters['2026']['10925'], 'winters present');
+  assert.ok(a.moves.every(m => m.phase === 'offseason' || m.phase === 'in-season'));
 });
 
 test('every move has a numeric result and no NaN anywhere', { skip: !a && 'no audit.json' }, () => {

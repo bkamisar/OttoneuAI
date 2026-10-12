@@ -57,3 +57,19 @@ test('zero-length stint (added and cut the same day) terminates', () => {
   ]);
   assert.strictEqual(end('2', 'A', '2026-06-01'), '2026-06-10');
 });
+
+const { countTenures } = require('../lib/stints');
+
+test('countTenures: ignores same-day stints and salary-increase splits; counts real re-adds', () => {
+  const st = [
+    { ottoneuId: '1', teamId: 'A', start: '2024-03-14', end: '2024-07-25' },
+    { ottoneuId: '1', teamId: 'A', start: '2024-08-25', end: '2024-10-10' },   // real re-add
+    { ottoneuId: '2', teamId: 'A', start: '2024-03-14', end: '2024-07-26' },
+    { ottoneuId: '2', teamId: 'A', start: '2024-08-27', end: '2024-08-27' },   // same-day add/drop
+    { ottoneuId: '3', teamId: 'A', start: '2024-03-14', end: '2024-06-01' },
+    { ottoneuId: '3', teamId: 'A', start: '2024-06-01', end: null },           // increase split
+  ];
+  assert.strictEqual(countTenures(st, '1', 'A', 2024), 2);
+  assert.strictEqual(countTenures(st, '2', 'A', 2024), 1);
+  assert.strictEqual(countTenures(st, '3', 'A', 2024), 1);
+});

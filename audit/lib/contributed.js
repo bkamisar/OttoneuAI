@@ -22,7 +22,9 @@ function removeLine(stats, ip, c, totals) {
   const dropP = l => {
     const lip = l.ip || 0, restIP = Math.max(1, totals.ip - lip);
     for (const [k, f] of [['ERA', 'era'], ['WHIP', 'whip'], ['HR9', 'hr9']]) s[k] = (stats[k] * totals.ip - (l[f] || 0) * lip) / restIP;
-    s.SO -= l.so || 0; tip = ip - lip;
+    // Team IP is left as-is: a team that reached the 1,250-IP minimum would have
+    // filled one pitcher's innings from its bench, so removal never trips that cliff.
+    s.SO -= l.so || 0;
   };
   if (c.type === 'H') { dropH(c.line); if (c.line.pitch) dropP(c.line.pitch); } else if (c.type === 'P') dropP(c.line);
   return { stats: s, ip: tip };

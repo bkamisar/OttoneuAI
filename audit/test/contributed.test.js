@@ -17,11 +17,11 @@ test('a 30-HR counted line is worth points; a 1-AB line is worth ~nothing', () =
   assert.strictEqual(ptsContributed(e, final, 'A', { type: 'H', line: { pa: 1, hr: 0, r: 0, obp: 0, slg: 0 } }, totals), 0);
 });
 
-test('removing innings that drop a staff under 1,250 IP costs all pitching points', () => {
+test('removing one pitcher never trips the 1,250-IP cliff (bench arms would fill the innings)', () => {
   const totals = { pa: 6000, ip: 1300 };
-  const f = final.map(t => (t.teamId === 'A' ? { ...t, ip: 1300 } : t));
-  const pts = ptsContributed(e, f, 'A', { type: 'P', line: { ip: 60, so: 50, era: 3.9, whip: 1.22, hr9: 1.15 } }, totals);
-  assert.ok(pts >= 4, `lost pitching points ${pts}`);
+  const f2 = final.map(t => (t.teamId === 'A' ? { ...t, ip: 1300 } : t));
+  const pts = ptsContributed(e, f2, 'A', { type: 'P', line: { ip: 60, so: 50, era: 3.9, whip: 1.22, hr9: 1.15 } }, totals);
+  assert.ok(pts <= 3, `cliff not applied, got ${pts}`);
 });
 
 test('teamTotalsFromLines sums PA and IP', () => {

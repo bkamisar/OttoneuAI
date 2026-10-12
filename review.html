@@ -74,8 +74,8 @@
         case 'auction-best': case 'auction-worst':
           return '<div class="big ' + cls(n.value) + '">' + money(n.value) + '</div><div class="players"><b>' + list(c.players) + '</b> at $' + n.salary + '</div><div class="stat">Season value minus salary.</div>';
         case 'all-time-trades':
-          return '<table><tr><th>Team</th><th>W–L</th><th style="text-align:right">Grade</th><th style="text-align:right">After salary</th></tr>' + (n.rows || []).map(function (r) {
-            return '<tr><td>' + esc(r.team) + '</td><td class="n">' + r.w + '–' + r.l + '</td><td class="n">' + money(r.net) + '</td><td class="n">' + money(r.afterSalary) + '</td></tr>';
+          return '<table><tr><th>Team</th><th>W–L–T</th><th style="text-align:right">Grade</th><th style="text-align:right">After salary</th></tr>' + (n.rows || []).map(function (r) {
+            return '<tr><td>' + esc(r.team) + '</td><td class="n">' + r.w + '–' + r.l + '–' + (r.t || 0) + '</td><td class="n">' + money(r.net) + '</td><td class="n">' + money(r.afterSalary) + '</td></tr>';
           }).join('') + '</table><div class="stat">Every trade since the 2024 auction, graded on what actually happened.</div>';
         default: return '';
       }

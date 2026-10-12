@@ -35,3 +35,9 @@ test('grade = production for trades/cuts/adds, value-minus-price for auction buy
   const mtp = a.moves.find(m => m.kind === 'trade' && m.date === '2026-01-10' && m.teamId === '10761');
   assert.ok(mtp.grade > 40 && mtp.result < 0);
 });
+
+test('one-sided trades are flagged as cash/loan deals', { skip: !a && 'no audit.json' }, () => {
+  const sheehan = a.moves.find(m => m.kind === 'trade' && m.date === '2026-07-23' && m.teamId === a.myTeamId);
+  assert.strictEqual(sheehan.cash, true);
+  assert.ok(a.moves.filter(m => m.kind === 'trade' && m.in.length && m.out.length).every(m => !m.cash));
+});

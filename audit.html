@@ -192,7 +192,7 @@
       }).join('') + '</tr>';
       list.slice(0, 600).forEach(function (m) {
         var n = notes[m.id] || {};
-        html += '<tr><td class="l">' + m.date + '</td><td class="l">' + m.kind + (m.combinedStints ? ' <span class="chip" title="two stints on this team this season, combined">2 stints</span>' : '') +
+        html += '<tr><td class="l">' + m.date + '</td><td class="l">' + m.kind + (m.cash ? ' <span class="chip" title="no players came back on one side; Ottoneu does not show loans or cash">cash/loan</span>' : '') + (m.combinedStints ? ' <span class="chip" title="two stints on this team this season, combined">2 stints</span>' : '') +
           '</td><td class="l">' + (m.phase || '') + '</td><td class="l">' + esc((A.managers && A.managers[m.manager]) || teamName(m.teamId)) + '</td><td class="l">' + esc(names(m.in)) +
           '</td><td class="l">' + esc(names(m.out)) + '</td><td class="' + cls(m.process) + '">' + money(m.process) + '</td><td class="' + cls(m.grade) + '">' + money(m.grade) + '</td><td class="' + cls(m.result) + '">' + money(m.result) +
           '</td><td class="' + cls(m.ptsContributed) + '">' + signed(m.ptsContributed) +

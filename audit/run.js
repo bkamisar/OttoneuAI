@@ -234,7 +234,8 @@ function makeLookup(stats, ident, hint) {
         // what it later buys, and offseason cuts are free); value minus price for auction buys, where the
         // price IS the budget; 0 for salary resets (pure cap moves, judged in the winter summary).
         const gradeOf = m => (m.production == null ? null : m.kind === 'auction' ? m.result : m.kind === 'reset' ? 0 : m.production);
-        const moves = r.grade.graded.map(m => ({ ...m, grade: gradeOf(m), manager: managerKey(m.teamId, m.date), tags: r.tags[m.id] || [], ...(r.standings.byMove[m.id] || { ptsContributed: null, titleDeciding: null, closeCall: false }) }));
+        // cash: one side of a trade received no players (Ottoneu's log doesn't show loans/cash).
+        const moves = r.grade.graded.map(m => ({ ...m, grade: gradeOf(m), cash: m.kind === 'trade' && (!m.in.length || !m.out.length), manager: managerKey(m.teamId, m.date), tags: r.tags[m.id] || [], ...(r.standings.byMove[m.id] || { ptsContributed: null, titleDeciding: null, closeCall: false }) }));
         const managers = Object.fromEntries([...new Set(moves.map(m => m.manager))].map(k => [k, managerName(r.moves.teams, k)]));
         // Winter cap summary: what each team freed and spent between October and the auction.
         const winters = {};

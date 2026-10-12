@@ -111,3 +111,13 @@ test('cards rank by grade (production), with after-salary carried as information
   const me = c['all-time-trades'].numbers.rows.find(r => r.team === 'Me');
   assert.strictEqual(me.net, 5); assert.strictEqual(me.afterSalary, 60);
 });
+
+test('all-time record: trades graded within $1 of zero are pushes, not wins', () => {
+  const t = { myTeamId: '1', teams: { 1: { name: 'Me' }, 2: { name: 'You' } }, moves: [
+    mv({ id: 'w', teamId: '1', kind: 'trade', tradeId: 'a', counterTeamId: '2', result: 9, grade: 9, in: [{ player: 'A', salary: 1 }], out: [{ player: 'B', salary: 1 }] }),
+    mv({ id: 'z', teamId: '1', kind: 'trade', tradeId: 'b', counterTeamId: '2', result: 0, grade: 0.4, in: [], out: [{ player: 'C', salary: 1 }] }),
+    mv({ id: 'l', teamId: '1', kind: 'trade', tradeId: 'c', counterTeamId: '2', result: -3, grade: -3, in: [{ player: 'D', salary: 1 }], out: [{ player: 'E', salary: 1 }] }),
+  ] };
+  const me = buildCards(t, 2026).find(c => c.id === 'all-time-trades').numbers.rows.find(r => r.team === 'Me');
+  assert.deepStrictEqual([me.w, me.l, me.t], [1, 1, 1]);
+});

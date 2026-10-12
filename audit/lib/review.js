@@ -3,6 +3,8 @@
 // (data/review-commentary.json) by Claude after reading these.
 const { managerKey, managerName, coversSeason } = require('./eras');
 
+const PUSH = 1;   // |grade| under $1 = push
+
 function buildCards(audit, season) {
   const mv = audit.moves.filter(m => m.season === season && m.result != null);
   // Labels and per-team totals go through manager eras (teams that changed hands split).
@@ -79,10 +81,12 @@ function buildCards(audit, season) {
   // All-time trade record (every season in the file).
   const rec = new Map();
   audit.moves.filter(m => m.kind === 'trade' && m.result != null).forEach(m => {
-    const r = rec.get(mk(m)) || { w: 0, l: 0, net: 0, prod: 0, afterSalary: 0 }; g(m) >= 0 ? r.w++ : r.l++; r.net += g(m); r.prod += m.production || 0; r.afterSalary += m.result; rec.set(mk(m), r);
+    const r = rec.get(mk(m)) || { w: 0, l: 0, t: 0, net: 0, prod: 0, afterSalary: 0 };
+    // Within $1 of zero is a push (cash/loan deals and wash trades), not a win.
+    if (Math.abs(g(m)) < PUSH) r.t++; else if (g(m) > 0) r.w++; else r.l++; r.net += g(m); r.prod += m.production || 0; r.afterSalary += m.result; rec.set(mk(m), r);
   });
   if (rec.size) push({ id: 'all-time-trades', title: 'All-Time Trade Record', teamId: null, team: null,
-    numbers: { rows: [...rec.entries()].sort((a, b) => b[1].net - a[1].net).map(([id, r]) => ({ team: name(id), w: r.w, l: r.l, net: Math.round(r.net), prod: Math.round(r.prod), afterSalary: Math.round(r.afterSalary) })) } });
+    numbers: { rows: [...rec.entries()].sort((a, b) => b[1].net - a[1].net).map(([id, r]) => ({ team: name(id), w: r.w, l: r.l, t: r.t, net: Math.round(r.net), prod: Math.round(r.prod), afterSalary: Math.round(r.afterSalary) })) } });
   return cards;
 }
 

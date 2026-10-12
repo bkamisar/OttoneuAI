@@ -146,7 +146,7 @@ function makeLookup(stats, ident, hint) {
           report: { unmatched: ident.unmatched.map(u => u.player), ambiguous: ident.ambiguous.map(x => x.player) } };
       } },
 
-    { name: 'standings', inputsHash: () => hashOf(txText, 'v1'),
+    { name: 'standings', inputsHash: () => hashOf(txText, 'v2'),
       run: async (r) => {
         const st = stats();
         const ident = new Map(r.grade.identity);
@@ -157,7 +157,9 @@ function makeLookup(stats, ident, hint) {
         for (const s of seasons) {
           const final = finalStandings(engine, s); const ctx = r.grade.ctxBySeason[s];
           if (!final || !ctx) continue;
-          const seasonMoves = r.grade.graded.filter(x => x.season === s && x.kind !== 'auction' && inSeason(x.date));
+          // Every decision attributed to the season, offseason ones included: a January cut or
+          // an auction buy shapes that season's standings as much as a July pickup.
+          const seasonMoves = r.grade.graded.filter(x => x.season === s);
           for (const m of seasonMoves) {
             const moveEnd = id => stintEnd(id, m.teamId, m.date);
             const d = undoMove(engine, ctx, final, m, lookup, { moveEnd });
@@ -177,7 +179,7 @@ function makeLookup(stats, ident, hint) {
           // Joint: all of a team's in-season cuts undone together.
           jointCuts[s] = {};
           for (const teamId of final.map(t => t.teamId)) {
-            const cuts = seasonMoves.filter(x => x.teamId === teamId && x.kind === 'cut');
+            const cuts = seasonMoves.filter(x => x.teamId === teamId && x.kind === 'cut' && inSeason(x.date));
             if (!cuts.length) continue;
             const cutDate = new Map(); cuts.forEach(c => c.out.forEach(p => cutDate.set(p.ottoneuId, c.date)));
             const combined = { kind: 'cut', season: s, date: cuts[0].date, teamId, in: [], out: cuts.flatMap(c => c.out) };

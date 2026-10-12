@@ -117,7 +117,8 @@ ranks with `standingsim.js`.
 **Robustness check on decisive moves:** re-run each decisive move with a tougher replacement —
 the best player on that team's own roster at that position that day (2026, from roster
 snapshots). If the decisive verdict flips, the move is marked `fragile` and its card says
-"close call" instead of stating it as fact.
+"close call" instead of stating it as fact. 2024–25 decisive moves have no roster snapshots
+to check against; they are marked `unchecked` and their cards say so.
 
 Output per move: roto points Δ and rank Δ for every team affected. **Decisive** = undoing
 the move changes 1st place or a podium spot.

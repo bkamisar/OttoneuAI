@@ -1,2 +1,5 @@
 # Claude Code local config, worktrees, and session data — never commit
 .claude/
+
+# Decision audit pipeline cache (MLB daily stats, phase checkpoints)
+audit/cache/

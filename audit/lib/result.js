@@ -74,4 +74,35 @@ function moveResult(engine, ctx, move, lookup, moveEnd = () => null) {
   return total;
 }
 
-module.exports = { seasonContext, lineValue, fracOfSeason, moveResult, inSeason };
+// v2: grade on what actually counted for each team (Ottoneu team production).
+function countedValue(engine, ctx, c) {
+  if (!c || !c.line) return 0;
+  let v = lineValue(engine, ctx, c.type, c.line);
+  if (c.type === 'H' && c.line.pitch && (c.line.pitch.ip || 0) >= engine.get('TWO_WAY_IP_MIN')) v += lineValue(engine, ctx, 'P', c.line.pitch);
+  return v;
+}
+
+function countedResult(engine, ctx, move, { counted, teamsWith, tenureEnd, stintCount }) {
+  if (move.kind === 'reset') return { result: move.resetGrade, combinedStints: false };
+  const S = move.season, d = move.date;
+  let total = 0, combined = false;
+  for (const p of move.in) {
+    const end = tenureEnd(p.ottoneuId, move.teamId, d);
+    total += countedValue(engine, ctx, counted(p.ottoneuId, move.teamId, S)) - p.salary * fracOfSeason(S, d, end);
+    if (stintCount(p.ottoneuId, move.teamId, S) > 1) combined = true;
+  }
+  for (const p of move.out) {
+    if (move.kind === 'trade') {
+      const end = tenureEnd(p.ottoneuId, move.counterTeamId, d);
+      total -= countedValue(engine, ctx, counted(p.ottoneuId, move.counterTeamId, S)) - p.salary * fracOfSeason(S, d, end);
+    } else {
+      // Cut: salary freed minus what the player went on to count for later owners.
+      const freed = p.salary * (move.phase === 'offseason' ? 1 : 0.5) * fracOfSeason(S, d, null);
+      const later = teamsWith(p.ottoneuId, S).filter(t => t.teamId !== move.teamId && t.acquired >= d);
+      total += freed - later.reduce((s, t) => s + countedValue(engine, ctx, counted(p.ottoneuId, t.teamId, S)), 0);
+    }
+  }
+  return { result: total, combinedStints: combined };
+}
+
+module.exports = { seasonContext, lineValue, fracOfSeason, moveResult, inSeason, countedValue, countedResult };

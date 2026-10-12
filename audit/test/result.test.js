@@ -43,3 +43,42 @@ test('cut result: freed salary minus what the player did afterward', () => {
   const r = moveResult(e, ctx, move, look);
   assert.ok(r > 0 && r < 20);
 });
+
+const { countedResult } = require('../lib/result');
+const look = map => (id, team) => map[id + '|' + team] || { type: null, line: null };
+const hitL = (pa, hr, r, obp, slg) => ({ type: 'H', line: { pa, hr, r, obp, slg } });
+const opts = (map, teams = {}, stints = {}) => ({
+  counted: look(map), teamsWith: (id) => teams[id] || [], tenureEnd: () => null, stintCount: (id, t) => stints[id + '|' + t] || 1,
+});
+
+test('trade: received player counted almost nothing -> that side loses', () => {
+  const move = { kind: 'trade', season: 2026, date: '2026-05-13', teamId: 'BUR', counterTeamId: 'ME', phase: 'in-season',
+    in: [{ ottoneuId: 'don', salary: 7 }], out: [{ ottoneuId: 'lugo', salary: 3 }] };
+  const map = { 'don|BUR': hitL(17, 0, 2, .333, .533), 'lugo|ME': { type: 'P', line: { ip: 90, so: 85, era: 3.4, whip: 1.15, hr9: 1.0 } } };
+  const r = countedResult(e, ctx, move, opts(map));
+  assert.ok(r.result < 0, `Bureau side ${r.result}`);
+});
+
+test('traded-away player with no production row counts zero; trade still grades', () => {
+  const move = { kind: 'trade', season: 2026, date: '2026-07-01', teamId: 'A', counterTeamId: 'B', phase: 'in-season',
+    in: [{ ottoneuId: 'star', salary: 10 }], out: [{ ottoneuId: 'prospect', salary: 1 }] };
+  const r = countedResult(e, ctx, move, opts({ 'star|A': hitL(250, 15, 40, .36, .52) }));
+  assert.ok(Number.isFinite(r.result) && r.result > 0);
+});
+
+test('offseason cut frees full salary; production only from later teams', () => {
+  const move = { kind: 'cut', season: 2026, date: '2025-11-15', teamId: 'A', phase: 'offseason', in: [], out: [{ ottoneuId: 'q', salary: 20 }] };
+  const r = countedResult(e, ctx, move, opts({}, { q: [] }));
+  assert.ok(Math.abs(r.result - 20) < 1e-9);
+});
+
+test('reset returns its salary grade', () => {
+  const r = countedResult(e, ctx, { kind: 'reset', resetGrade: 1, season: 2026, date: '2026-01-31', in: [], out: [] }, opts({}));
+  assert.strictEqual(r.result, 1);
+});
+
+test('player with two stints on the same team in a season is flagged combinedStints', () => {
+  const move = { kind: 'add', season: 2026, date: '2026-07-01', teamId: 'A', phase: 'in-season', in: [{ ottoneuId: 'x', salary: 1 }], out: [] };
+  const r = countedResult(e, ctx, move, opts({ 'x|A': hitL(100, 3, 12, .31, .40) }, {}, { 'x|A': 2 }));
+  assert.strictEqual(r.combinedStints, true);
+});

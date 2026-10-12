@@ -502,23 +502,26 @@ Output: `data/audit.json`, `data/review.json`; commentary in `data/review-commen
 - *Process* (2026-05-24 → 2026-09-28 only, prior day's roster + projections): add
   `(projValue − salary) × f`; cut `(0.5·salary − projValue) × f`; trade side
   `(Σ in surplus − Σ out surplus) × f`; swap = add + cut.
-- *Result* (all seasons): `SGP(actual line over the window) × rate − salary × fracHeld`.
-  SGP denominators from the real final standings; replacement = averaged top free-agent
-  cohort by actual production (same rule as `computeFABaselines`); rate spreads
-  `SALARY_POOL − 480` over all rostered production. Cuts: freed salary − production after.
-- *Luck* = result − process.
+- *Result* (v2, all seasons): from **what Ottoneu counted for the team** (`data/teamproduction.csv`,
+  lineup-only, one line per player/team/season). Add/auction/swap-in: `value(counted line) − salary × fracHeld`;
+  cut: freed salary (half in-season, full offseason) − what the player counted for later owners;
+  trade side: `Σ in (counted for me − salary) − Σ out (counted for them − salary)`. Values use SGP vs the
+  season FA cohort with final-standings denominators; $/SGP spreads `SALARY_POOL − 480` over all counted
+  lines. Hitter PA ≈ AB × the player's MLB PA/AB that season (fallback 1.12).
+- *Offseason* (Oct 1 → that season's auction): cut + same-team auction rebuy = **salary reset**, graded
+  `old − new salary`. Winter summary per team: cap freed, reset savings, net trade salary, auction spend/return.
+- *Luck* is **off in v2** (null): lineup-only results vs every-day projections measured bench time, not luck.
 
-**Standings replay** (`audit/lib/counterfactual.js`): undo one move against the real final
-category totals, re-rank. **Ottoneu rule:** a team under 1,250 IP scores 0 in all four
-pitching categories (verified: reproduces 2024–26 final points within tie half-points).
-Swaps restore the cut player's actual production; other undos use the FA replacement.
-Decisive = 1st place or top-3 membership changes; 2026 decisive moves are re-tested with
-the team's best bench player as replacement (`fragile` = verdict flips).
+**Points contributed** (`audit/lib/contributed.js`): team final points minus its points with that player's
+counted line removed (rates re-weighted over the team's counted PA/IP). No invented replacement. Removing a
+pitcher never trips the 1,250-IP cliff (a team that reached the minimum had bench arms). **Ottoneu rule:** a team
+under 1,250 IP scores 0 in all four pitching categories (reproduces 2024–26 final points within tie half-points).
+Title-deciding = net points ≥ the real margin for 1st or the top-3 line.
 
 **Data quirks handled:** Ottoneu links only the receiving team on trade rows (from-team id
 filled from names); one trade's rows can be stamped 1–2 s apart (grouped within 60 s);
 offseason cut rows show $0 (last carried salary used); commissioner rows read `add (C)`.
 
-**Accepted approximations:** stats count while rostered (lineups unknown → bench players
-overstated); moves are evaluated one at a time (impacts don't sum); buildStandings doesn't
+**Accepted approximations:** per-season production lines (two stints on one team in a season are
+combined and flagged); moves are evaluated one at a time (impacts don't sum); buildStandings doesn't
 split ties into half points.

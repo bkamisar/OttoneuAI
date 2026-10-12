@@ -8,6 +8,9 @@
 - Refresh: `node audit/run.js` (re-run after new transactions; finished phases are skipped).
 - New transactions: paste `audit/tools/fetch-transactions.browser.js` into the console on the
   Ottoneu transactions page, move the downloaded CSV to `data/transactions.csv`, re-run.
+- Counted production (v2): fetch `/1648/teamproduction/<teamId>/<year>` for the 12 teams from inside an
+  Ottoneu tab (same in-tab approach), save as `data/teamproduction.csv`
+  (`season,teamId,group,ottoneuId,player,acquired,G,c1..c5`), then `node audit/run.js --force=moves`.
 
 # data/
 

@@ -193,6 +193,12 @@ test('parses and sorts oldest first', () => {
   assert.strictEqual(t[0].date, '2024-03-14');
 });
 
+test('commissioner adds ("add   (C)") parse as adds, flagged', () => {
+  const t = parseTransactions(H + row('2024-05-18T12:13:02', 'add                 (C)', 'Ryne Nelson', 37826, 10897));
+  assert.strictEqual(t[0].type, 'add');
+  assert.strictEqual(t[0].commissioner, true);
+});
+
 test('seasonOf maps offseason to the right season', () => {
   assert.strictEqual(seasonOf('2026-06-01'), 2026);
   assert.strictEqual(seasonOf('2026-10-15'), 2027);
@@ -270,7 +276,8 @@ function parseTransactions(text) {
   return lines.slice(1).map(l => {
     const v = parseCSVLine(l); const r = {}; head.forEach((h, i) => { r[h] = v[i] ?? ''; });
     return {
-      ts: r.date, date: r.date.slice(0, 10), type: r.type, player: r.player,
+      // Commissioner actions arrive as e.g. "add      (C)" -- same move, flagged.
+      ts: r.date, date: r.date.slice(0, 10), type: r.type.trim().split(/\s+/)[0], commissioner: /\(C\)/.test(r.type), player: r.player,
       ottoneuId: String(r.ottoneuId), teamId: String(r.teamId), team: r.team,
       fromTeamId: r.fromTeamId ? String(r.fromTeamId) : '', fromTeam: r.fromTeam,
       salary: parseInt(String(r.salary).replace(/[$,]/g, ''), 10) || 0,

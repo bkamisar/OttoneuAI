@@ -82,3 +82,33 @@ test('player with two stints on the same team in a season is flagged combinedSti
   const r = countedResult(e, ctx, move, opts({ 'x|A': hitL(100, 3, 12, .31, .40) }, {}, { 'x|A': 2 }));
   assert.strictEqual(r.combinedStints, true);
 });
+
+test('short-stint pitcher is not docked strikeouts as if full-time; full-time pitchers unchanged', () => {
+  const direct = line => e.call('calcPlayerSGP', { type: 'P' }, line, ctx.repl.P, ctx.sgpDenom, ctx.avgPA, ctx.avgIP) * ctx.rate;
+  const reliever = { ip: 20, so: 25, era: 3.0, whip: 1.1, hr9: 0.9 };    // good K rate, few innings
+  assert.ok(direct(reliever) < 0, 'precondition: the old formula docks this reliever below zero');
+  assert.ok(lineValue(e, ctx, 'P', reliever) > 0, 'prorated strikeouts: a good short stint is worth something');
+  const starter = { ip: 180, so: 200, era: 3.2, whip: 1.1, hr9: 1.0 };
+  assert.ok(Math.abs(lineValue(e, ctx, 'P', starter) - direct(starter)) < 1e-9);
+  const tiny = { ip: 3.3, so: 3, era: 10.8, whip: 2.1, hr9: 0 };            // Rico Garcia: three innings
+  // The only change is the strikeout term: the replacement's K is cut to the innings actually thrown.
+  const expectedGain = ctx.repl.P.so * (1 - tiny.ip / ctx.repl.P.ip) / ctx.sgpDenom.SO * ctx.rate;
+  assert.ok(Math.abs((lineValue(e, ctx, 'P', tiny) - direct(tiny)) - expectedGain) < 1e-9);
+});
+
+test('countedResult also reports production alone; result - production is the salary effect', () => {
+  const move = { kind: 'trade', season: 2026, date: '2026-06-23', teamId: 'BUR', counterTeamId: 'ME', phase: 'in-season',
+    in: [{ ottoneuId: 'don', salary: 7 }], out: [{ ottoneuId: 'lugo', salary: 3 }] };
+  const map = { 'don|BUR': hitL(250, 12, 40, .35, .50), 'lugo|ME': { type: 'P', line: { ip: 90, so: 85, era: 3.4, whip: 1.15, hr9: 1.0 } } };
+  const r = countedResult(e, ctx, move, opts(map));
+  const frac = fracOfSeason(2026, '2026-06-23', null);
+  assert.ok(Math.abs(r.production - (lineValue(e, ctx, 'H', map['don|BUR'].line) - lineValue(e, ctx, 'P', map['lugo|ME'].line))) < 1e-9);
+  assert.ok(Math.abs((r.result - r.production) - (-7 * frac + 3 * frac)) < 1e-9);
+});
+
+test('production is 0 for a reset and for an offseason cut nobody picked up', () => {
+  assert.strictEqual(countedResult(e, ctx, { kind: 'reset', resetGrade: 1, season: 2026, date: '2026-01-31', in: [], out: [] }, opts({})).production, 0);
+  const cut = { kind: 'cut', season: 2026, date: '2025-11-15', teamId: 'A', phase: 'offseason', in: [], out: [{ ottoneuId: 'q', salary: 20 }] };
+  const r = countedResult(e, ctx, cut, opts({}, { q: [] }));
+  assert.strictEqual(r.production, 0); assert.ok(Math.abs(r.result - 20) < 1e-9);
+});

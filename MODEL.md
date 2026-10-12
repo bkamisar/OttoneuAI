@@ -508,6 +508,10 @@ Output: `data/audit.json`, `data/review.json`; commentary in `data/review-commen
   trade side: `Σ in (counted for me − salary) − Σ out (counted for them − salary)`. Values use SGP vs the
   season FA cohort with final-standings denominators; $/SGP spreads `SALARY_POOL − 480` over all counted
   lines. Hitter PA ≈ AB × the player's MLB PA/AB that season (fallback 1.12).
+- *Short stints:* a counted pitcher's strikeouts are compared against a replacement prorated to the innings he
+  threw (`result.js sgpOf`), the way hitters are prorated by PA. `calcPlayerSGP` alone docks a 3-IP arm ~$12.
+- *Production vs result:* every move carries `production` (what the counted stats were worth, no salary) and
+  `result` (after salary: cost of holding, credit for freeing). Trades are zero-sum: the two sides are exact mirrors.
 - *Offseason* (Oct 1 → that season's auction): cut + same-team auction rebuy = **salary reset**, graded
   `old − new salary`. Winter summary per team: cap freed, reset savings, net trade salary, auction spend/return.
 - *Luck* is **off in v2** (null): lineup-only results vs every-day projections measured bench time, not luck.

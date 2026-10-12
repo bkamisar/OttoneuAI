@@ -75,3 +75,15 @@ test('a partial-season manager is not "most patient"', () => {
   ] };
   assert.strictEqual(buildCards(t, 2026).find(c => c.id === 'most-patient').team, 'You');
 });
+
+test('trade cards and the all-time record carry production (before salary) next to the result', () => {
+  const t = { myTeamId: '1', teams: { 1: { name: 'Me' }, 2: { name: 'You' } }, moves: [
+    mv({ id: 'a', teamId: '1', kind: 'trade', tradeId: 't1', counterTeamId: '2', result: 40, production: 15, in: [{ player: 'Big', salary: 52 }], out: [{ player: 'Y', salary: 1 }] }),
+    mv({ id: 'b', teamId: '2', kind: 'trade', tradeId: 't1', counterTeamId: '1', result: -40, production: -15, in: [{ player: 'Y', salary: 1 }], out: [{ player: 'Big', salary: 52 }] }),
+  ] };
+  const c = Object.fromEntries(buildCards(t, 2026).map(x => [x.id, x]));
+  assert.strictEqual(c['trade-of-year'].numbers.winnerProduction, 15);
+  assert.strictEqual(c['trade-of-year'].numbers.loserProduction, -15);
+  const row = c['all-time-trades'].numbers.rows.find(r => r.team === 'Me');
+  assert.strictEqual(row.net, 40); assert.strictEqual(row.prod, 15);
+});

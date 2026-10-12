@@ -113,7 +113,7 @@ function makeLookup(stats, ident, hint) {
         return { days: n };
       } },
 
-    { name: 'grade', inputsHash: () => hashOf(txText, prodText, headSha('data/roster.csv'), headSha('data/proj_hitting.csv'), read('shared.js'), 'v2'),
+    { name: 'grade', inputsHash: () => hashOf(txText, prodText, headSha('data/roster.csv'), headSha('data/proj_hitting.csv'), read('shared.js'), read('audit/lib/result.js'), 'v2'),
       run: async (r) => {
         const { moves, stints } = r.moves;
         const st = stats();
@@ -152,9 +152,9 @@ function makeLookup(stats, ident, hint) {
         }
         const graded = moves.map(m => {
           const ctx = ctxBySeason[m.season];
-          const cr = ctx ? countedResult(engine, ctx, m, { counted, teamsWith, tenureEnd: stintEnd, stintCount }) : { result: null, combinedStints: false };
+          const cr = ctx ? countedResult(engine, ctx, m, { counted, teamsWith, tenureEnd: stintEnd, stintCount }) : { result: null, production: null, combinedStints: false };
           const proc = m.kind === 'reset' ? null : moveProcess(engine, valuer, m);
-          return { ...m, process: proc, result: cr.result, combinedStints: cr.combinedStints,
+          return { ...m, process: proc, result: cr.result, production: cr.production ?? null, combinedStints: cr.combinedStints,
             // Luck (result − process) is off in v2: results are lineup-only, process grades are
             // projection-based and assume every player plays, so the gap measures bench time, not luck.
             luck: null };

@@ -20,7 +20,8 @@ function buildCards(audit, season) {
   });
   const fleece = [...tradeRows].sort((x, y) => y.margin - x.margin)[0];
   if (fleece) push({ id: 'trade-of-year', title: 'Fleecing of the Year', teamId: fleece.w.teamId, team: name(mk(fleece.w)),
-    numbers: { margin: Math.round(fleece.margin), winner: Math.round(fleece.w.result), loser: Math.round(fleece.l.result), victim: name(mk(fleece.l)) },
+    numbers: { margin: Math.round(fleece.margin), winner: Math.round(fleece.w.result), loser: Math.round(fleece.l.result), victim: name(mk(fleece.l)),
+      winnerProduction: Math.round(fleece.w.production || 0), loserProduction: Math.round(fleece.l.production || 0) },
     players: fleece.w.in.map(p => p.player), sent: fleece.w.out.map(p => p.player) });
   const winwin = tradeRows.filter(r => r.both).sort((x, y) => (y.w.result + y.l.result) - (x.w.result + x.l.result))[0];
   if (winwin) push({ id: 'win-win', title: 'Trade of the Year (everybody won)', teamId: winwin.w.teamId, team: name(mk(winwin.w)),
@@ -74,10 +75,10 @@ function buildCards(audit, season) {
   // All-time trade record (every season in the file).
   const rec = new Map();
   audit.moves.filter(m => m.kind === 'trade' && m.result != null).forEach(m => {
-    const r = rec.get(mk(m)) || { w: 0, l: 0, net: 0 }; m.result >= 0 ? r.w++ : r.l++; r.net += m.result; rec.set(mk(m), r);
+    const r = rec.get(mk(m)) || { w: 0, l: 0, net: 0, prod: 0 }; m.result >= 0 ? r.w++ : r.l++; r.net += m.result; r.prod += m.production || 0; rec.set(mk(m), r);
   });
   if (rec.size) push({ id: 'all-time-trades', title: 'All-Time Trade Record', teamId: null, team: null,
-    numbers: { rows: [...rec.entries()].sort((a, b) => b[1].net - a[1].net).map(([id, r]) => ({ team: name(id), w: r.w, l: r.l, net: Math.round(r.net) })) } });
+    numbers: { rows: [...rec.entries()].sort((a, b) => b[1].net - a[1].net).map(([id, r]) => ({ team: name(id), w: r.w, l: r.l, net: Math.round(r.net), prod: Math.round(r.prod) })) } });
   return cards;
 }
 

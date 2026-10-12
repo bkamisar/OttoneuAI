@@ -92,12 +92,13 @@
       function tile(k, mineV, med, fmt, sub) {
         return '<div class="tile"><div class="k">' + k + '</div><div class="v ' + cls(mineV) + '">' + fmt(mineV) + '</div><div class="s">' + sub(med) + '</div></div>';
       }
-      var p = sum(mine, function (m) { return m.process; }), r = sum(mine, function (m) { return m.result; });
+      var p = sum(mine, function (m) { return m.process; }), r = sum(mine, function (m) { return m.result; }), prod = sum(mine, function (m) { return m.production; });
       var pts = sum(mine, function (m) { return m.ptsContributed; });
       var vs = function (med) { return 'league median ' + money(med); };
       var html = '<h2>Your ' + (season === 'all' ? '2024–2026' : season) + ' in one line</h2><div class="tiles">' +
         tile('Moves', mine.length, null, function (v) { return v; }, function () { return 'league avg ' + Math.round(ms.length / teamIds.length); }) +
-        tile('Result', r, median(teamSums(function (m) { return m.result; })), money, vs) +
+        tile('Production', prod, median(teamSums(function (m) { return m.production; })), money, function (med) { return 'what the counted stats were worth · league median ' + money(med); }) +
+        tile('Result (after salary)', r, median(teamSums(function (m) { return m.result; })), money, function (med) { return 'production minus salary paid, plus salary freed · league median ' + money(med); }) +
         tile('Process', season === 2026 || season === 'all' ? p : null, median(teamSums(function (m) { return m.process; })), money, function (med) { return season === 2026 || season === 'all' ? vs(med) : 'needs 2026 projections'; }) +
         tile('Roto pts from moves', pts, median(teamSums(function (m) { return m.ptsContributed; })), function (v) { return signed(v); },
           function (med) { return 'what your moves\' counted stats were worth · league median ' + signed(med); }) +
@@ -116,12 +117,12 @@
       Object.keys(allTags).sort().forEach(function (t) { groups.push({ label: 'Tag: ' + t, f: function (m) { return tagsOf(m).indexOf(t) >= 0; } }); });
       var rows = groups.map(function (g) {
         var a = mine.filter(g.f), b = ms.filter(g.f);
-        return { label: g.label, n: a.length, myR: avg(a, function (m) { return m.result; }), lgR: avg(b, function (m) { return m.result; }),
+        return { label: g.label, n: a.length, myR: avg(a, function (m) { return m.result; }), myPr: avg(a, function (m) { return m.production; }), lgR: avg(b, function (m) { return m.result; }),
           myP: avg(a, function (m) { return m.process; }), lgP: avg(b, function (m) { return m.process; }) };
       }).filter(function (r) { return r.n >= 5; });
-      var html = '<h2>Patterns</h2><div class="tbl-wrap"><table><tr><th class="l">Move type / tag</th><th>Your n</th><th>Your avg result</th><th>League avg result</th><th>Your avg process</th><th>League avg process</th></tr>';
+      var html = '<h2>Patterns</h2><div class="tbl-wrap"><table><tr><th class="l">Move type / tag</th><th>Your n</th><th>Your avg result</th><th>Your avg production</th><th>League avg result</th><th>Your avg process</th><th>League avg process</th></tr>';
       rows.forEach(function (r) {
-        html += '<tr><td class="l">' + esc(r.label) + '</td><td>' + r.n + '</td><td class="' + cls(r.myR) + '">' + money(r.myR) + '</td><td>' + money(r.lgR) +
+        html += '<tr><td class="l">' + esc(r.label) + '</td><td>' + r.n + '</td><td class="' + cls(r.myR) + '">' + money(r.myR) + '</td><td class="' + cls(r.myPr) + '">' + money(r.myPr) + '</td><td>' + money(r.lgR) +
           '</td><td class="' + cls(r.myP) + '">' + money(r.myP) + '</td><td>' + money(r.lgP) + '</td></tr>';
       });
       return html + '</table></div><div class="note">Patterns need at least 5 of your moves to show. Averages are per move.</div>';
@@ -174,7 +175,7 @@
 
     var COLS = [
       ['date', 'Date', 'l'], ['kind', 'Move', 'l'], ['phase', 'Phase', 'l'], ['team', 'Team', 'l'], ['in', 'In', 'l'], ['out', 'Out', 'l'],
-      ['process', 'Process', ''], ['result', 'Result', ''], ['ptsContributed', 'Δ pts', ''], ['tags', 'Tags', 'l'], ['note', 'Note', 'l'],
+      ['process', 'Process', ''], ['production', 'Production', ''], ['result', 'After salary', ''], ['ptsContributed', 'Δ pts', ''], ['tags', 'Tags', 'l'], ['note', 'Note', 'l'],
     ];
     function sortVal(m, k) {
       if (k === 'team') return teamName(m.teamId);
@@ -193,7 +194,7 @@
         var n = notes[m.id] || {};
         html += '<tr><td class="l">' + m.date + '</td><td class="l">' + m.kind + (m.combinedStints ? ' <span class="chip" title="two stints on this team this season, combined">2 stints</span>' : '') +
           '</td><td class="l">' + (m.phase || '') + '</td><td class="l">' + esc((A.managers && A.managers[m.manager]) || teamName(m.teamId)) + '</td><td class="l">' + esc(names(m.in)) +
-          '</td><td class="l">' + esc(names(m.out)) + '</td><td class="' + cls(m.process) + '">' + money(m.process) + '</td><td class="' + cls(m.result) + '">' + money(m.result) +
+          '</td><td class="l">' + esc(names(m.out)) + '</td><td class="' + cls(m.process) + '">' + money(m.process) + '</td><td class="' + cls(m.production) + '">' + money(m.production) + '</td><td class="' + cls(m.result) + '">' + money(m.result) +
           '</td><td class="' + cls(m.ptsContributed) + '">' + signed(m.ptsContributed) +
           '</td><td class="l"><input data-tags="' + m.id + '" value="' + esc(n.tags != null ? n.tags : m.tags.join(', ')) + '"></td>' +
           '<td class="l"><input data-note="' + m.id + '" value="' + esc(n.note || '') + '" placeholder="why?"></td></tr>';

@@ -14,8 +14,13 @@ function fracOfSeason(season, start, end) {
 
 function sgpOf(engine, ctx, type, line) {
   if (!line) return 0;
-  const repl = ctx.repl[type];
+  let repl = ctx.repl[type];
   if (!repl) return 0;
+  // calcPlayerSGP docks a pitcher's strikeouts against a FULL-TIME replacement and never prorates
+  // down (right for rostering a reliever, wrong for grading what a short stint actually did):
+  // three innings would cost ~$13. Prorate the replacement's strikeouts to the innings thrown,
+  // the way hitters are prorated by plate appearances.
+  if (type === 'P' && repl.ip > 0 && (line.ip || 0) < repl.ip) repl = { ...repl, so: repl.so * (line.ip || 0) / repl.ip };
   return engine.call('calcPlayerSGP', { type }, line, repl, ctx.sgpDenom, ctx.avgPA, ctx.avgIP);
 }
 
@@ -82,27 +87,31 @@ function countedValue(engine, ctx, c) {
   return v;
 }
 
+// Returns { result, production, combinedStints }. production = what the players' counted stats
+// were worth, ignoring salary; result = production after salary (cost of holding, credit for freeing).
 function countedResult(engine, ctx, move, { counted, teamsWith, tenureEnd, stintCount }) {
-  if (move.kind === 'reset') return { result: move.resetGrade, combinedStints: false };
+  if (move.kind === 'reset') return { result: move.resetGrade, production: 0, combinedStints: false };
   const S = move.season, d = move.date;
-  let total = 0, combined = false;
+  let production = 0, salary = 0, combined = false;
   for (const p of move.in) {
     const end = tenureEnd(p.ottoneuId, move.teamId, d);
-    total += countedValue(engine, ctx, counted(p.ottoneuId, move.teamId, S)) - p.salary * fracOfSeason(S, d, end);
+    production += countedValue(engine, ctx, counted(p.ottoneuId, move.teamId, S));
+    salary -= p.salary * fracOfSeason(S, d, end);
     if (stintCount(p.ottoneuId, move.teamId, S) > 1) combined = true;
   }
   for (const p of move.out) {
     if (move.kind === 'trade') {
       const end = tenureEnd(p.ottoneuId, move.counterTeamId, d);
-      total -= countedValue(engine, ctx, counted(p.ottoneuId, move.counterTeamId, S)) - p.salary * fracOfSeason(S, d, end);
+      production -= countedValue(engine, ctx, counted(p.ottoneuId, move.counterTeamId, S));
+      salary += p.salary * fracOfSeason(S, d, end);
     } else {
-      // Cut: salary freed minus what the player went on to count for later owners.
-      const freed = p.salary * (move.phase === 'offseason' ? 1 : 0.5) * fracOfSeason(S, d, null);
+      // Cut: salary freed, minus what the player went on to count for later owners.
       const later = teamsWith(p.ottoneuId, S).filter(t => t.teamId !== move.teamId && t.acquired >= d);
-      total += freed - later.reduce((s, t) => s + countedValue(engine, ctx, counted(p.ottoneuId, t.teamId, S)), 0);
+      production -= later.reduce((s, t) => s + countedValue(engine, ctx, counted(p.ottoneuId, t.teamId, S)), 0);
+      salary += p.salary * (move.phase === 'offseason' ? 1 : 0.5) * fracOfSeason(S, d, null);
     }
   }
-  return { result: total, combinedStints: combined };
+  return { result: production + salary, production, combinedStints: combined };
 }
 
 module.exports = { seasonContext, lineValue, fracOfSeason, moveResult, inSeason, countedValue, countedResult };

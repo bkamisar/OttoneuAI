@@ -87,8 +87,8 @@
 
     function headline(ms) {
       var mine = ms.filter(function (m) { return m.teamId === A.myTeamId; });
-      var teamIds = Object.keys(A.teams);
-      function teamSums(f) { return teamIds.map(function (id) { return sum(ms.filter(function (m) { return m.teamId === id; }), f); }); }
+      var teamIds = Object.keys(A.managers || A.teams);   // managers: teams that changed hands are split
+      function teamSums(f) { return teamIds.map(function (id) { return sum(ms.filter(function (m) { return (m.manager || m.teamId) === id; }), f); }); }
       function tile(k, mineV, med, fmt, sub) {
         return '<div class="tile"><div class="k">' + k + '</div><div class="v ' + cls(mineV) + '">' + fmt(mineV) + '</div><div class="s">' + sub(med) + '</div></div>';
       }
@@ -192,7 +192,7 @@
       list.slice(0, 600).forEach(function (m) {
         var n = notes[m.id] || {};
         html += '<tr><td class="l">' + m.date + '</td><td class="l">' + m.kind + (m.combinedStints ? ' <span class="chip" title="two stints on this team this season, combined">2 stints</span>' : '') +
-          '</td><td class="l">' + (m.phase || '') + '</td><td class="l">' + esc(teamName(m.teamId)) + '</td><td class="l">' + esc(names(m.in)) +
+          '</td><td class="l">' + (m.phase || '') + '</td><td class="l">' + esc((A.managers && A.managers[m.manager]) || teamName(m.teamId)) + '</td><td class="l">' + esc(names(m.in)) +
           '</td><td class="l">' + esc(names(m.out)) + '</td><td class="' + cls(m.process) + '">' + money(m.process) + '</td><td class="' + cls(m.result) + '">' + money(m.result) +
           '</td><td class="' + cls(m.ptsContributed) + '">' + signed(m.ptsContributed) +
           '</td><td class="l"><input data-tags="' + m.id + '" value="' + esc(n.tags != null ? n.tags : m.tags.join(', ')) + '"></td>' +

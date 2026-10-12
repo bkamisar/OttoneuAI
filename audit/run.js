@@ -17,6 +17,7 @@ const { annotateOffseason } = require('./lib/offseason');
 const { ptsContributed, titleDeciding, teamTotalsFromLines } = require('./lib/contributed');
 const { tagMove, makeHotPercentile } = require('./lib/tags');
 const { buildCards } = require('./lib/review');
+const { managerKey, managerName } = require('./lib/eras');
 const { runPhases } = require('./lib/phases');
 
 const ROOT = path.join(__dirname, '..');
@@ -225,7 +226,8 @@ function makeLookup(stats, ident, hint) {
 
     { name: 'write', inputsHash: () => hashOf(String(Date.now())),   // always rewrite outputs
       run: async (r) => {
-        const moves = r.grade.graded.map(m => ({ ...m, tags: r.tags[m.id] || [], ...(r.standings.byMove[m.id] || { ptsContributed: null, titleDeciding: null }) }));
+        const moves = r.grade.graded.map(m => ({ ...m, manager: managerKey(m.teamId, m.date), tags: r.tags[m.id] || [], ...(r.standings.byMove[m.id] || { ptsContributed: null, titleDeciding: null }) }));
+        const managers = Object.fromEntries([...new Set(moves.map(m => m.manager))].map(k => [k, managerName(r.moves.teams, k)]));
         // Winter cap summary: what each team freed and spent between October and the auction.
         const winters = {};
         for (const m of moves) {
@@ -238,7 +240,7 @@ function makeLookup(stats, ident, hint) {
           if (m.kind === 'auction') { w.auctionSpend += m.in.reduce((q, p) => q + p.salary, 0); w.auctionReturn += m.result || 0; }
         }
         const audit = {
-          generated: new Date().toISOString(), myTeamId: MY_TEAM, seasons, teams: r.moves.teams, moves, winters,
+          generated: new Date().toISOString(), myTeamId: MY_TEAM, seasons, teams: r.moves.teams, managers, moves, winters,
           approximations: [
             'Results use what Ottoneu counted for each team (lineup-only stats), one line per player per team per season; players with two stints on a team in one season are combined and flagged.',
             'Hitter plate appearances are estimated from at-bats using the player\'s own MLB ratio that season.',

@@ -518,6 +518,10 @@ pitcher never trips the 1,250-IP cliff (a team that reached the minimum had benc
 under 1,250 IP scores 0 in all four pitching categories (reproduces 2024–26 final points within tie half-points).
 Title-deciding = net points ≥ the real margin for 1st or the top-3 line.
 
+**Manager changes** (`audit/lib/eras.js`): teams that changed hands are split by date for anything summed per
+team. Prospects R Us: new manager from 2025-10-01 (the 2026 offseason). Misiorowski Index: new manager from
+2026-08-15. Season-long counts (most active/patient) only compare managers who ran the team all season.
+
 **Data quirks handled:** Ottoneu links only the receiving team on trade rows (from-team id
 filled from names); one trade's rows can be stamped 1–2 s apart (grouped within 60 s);
 offseason cut rows show $0 (last carried salary used); commissioner rows read `add (C)`.

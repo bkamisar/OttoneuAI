@@ -46,3 +46,32 @@ test('title cards: one per trade, only moves that decided a place; winter card f
   assert.notStrictEqual(c.find(x => x.id === 'cut-that-haunts').players[0], 'Yordan');
   assert.strictEqual(c.find(x => x.id === 'winter-of-year').teamId, '1');
 });
+
+test('all-time trade record splits a team that changed managers', () => {
+  const t = { myTeamId: '1', teams: { 10899: { name: 'Prospects R Us' }, 1: { name: 'Me' } }, moves: [
+    mv({ id: 'p1', season: 2025, date: '2025-06-01', teamId: '10899', kind: 'trade', tradeId: 'x1', counterTeamId: '1', result: 10, in: [{ player: 'A', salary: 1 }], out: [{ player: 'B', salary: 1 }] }),
+    mv({ id: 'p2', season: 2026, date: '2026-06-01', teamId: '10899', kind: 'trade', tradeId: 'x2', counterTeamId: '1', result: -4, in: [{ player: 'C', salary: 1 }], out: [{ player: 'D', salary: 1 }] }),
+  ] };
+  const rows = buildCards(t, 2026).find(c => c.id === 'all-time-trades').numbers.rows.map(r => r.team);
+  assert.ok(rows.includes('Prospects R Us (2024–25)') && rows.includes('Prospects R Us (2026)'));
+});
+
+test('season cards count a mid-season manager change as two managers', () => {
+  const t = { myTeamId: '1', teams: { 10758: { name: 'Misiorowski Index' }, 1: { name: 'Me' } }, moves: [
+    ...[1, 2, 3].map(i => mv({ id: 'o' + i, date: '2026-05-0' + i, teamId: '10758', result: 1, in: [{ player: 'O' + i, salary: 1 }] })),
+    ...[1, 2, 3].map(i => mv({ id: 'n' + i, date: '2026-08-2' + i, teamId: '10758', result: 1, in: [{ player: 'N' + i, salary: 1 }] })),
+    ...[1, 2, 3, 4].map(i => mv({ id: 'm' + i, date: '2026-06-0' + i, teamId: '1', result: 1, in: [{ player: 'M' + i, salary: 1 }] })),
+  ] };
+  const c = Object.fromEntries(buildCards(t, 2026).map(x => [x.id, x]));
+  assert.strictEqual(c['most-active'].team, 'Me');
+  assert.strictEqual(c['most-active'].numbers.moves, 4);
+});
+
+test('a partial-season manager is not "most patient"', () => {
+  const t = { myTeamId: '1', teams: { 10758: { name: 'Misiorowski Index' }, 1: { name: 'Me' }, 2: { name: 'You' } }, moves: [
+    mv({ id: 'n1', date: '2026-08-21', teamId: '10758', result: 1, in: [{ player: 'N', salary: 1 }] }),
+    ...[1, 2].map(i => mv({ id: 'y' + i, date: '2026-06-0' + i, teamId: '2', result: 1, in: [{ player: 'Y' + i, salary: 1 }] })),
+    ...[1, 2, 3].map(i => mv({ id: 'm' + i, date: '2026-06-0' + i, teamId: '1', result: 1, in: [{ player: 'M' + i, salary: 1 }] })),
+  ] };
+  assert.strictEqual(buildCards(t, 2026).find(c => c.id === 'most-patient').team, 'You');
+});

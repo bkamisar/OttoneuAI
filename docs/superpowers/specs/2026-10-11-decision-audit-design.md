@@ -101,8 +101,23 @@ the receiving team, whichever is first.
 
 For each move: start from actual final category totals for all 12 teams. Undo the move by
 removing the player's actual stint production from the team and adding a replacement's over
-the same playing time (the `shared.js` FA baseline, prorated). Trades are undone on both
-sides at once. Recompute roto points and ranks with `standingsim.js`.
+the same playing time. Trades are undone on both sides at once. Recompute roto points and
+ranks with `standingsim.js`.
+
+**Replacement:**
+- **Paired swaps:** an `add` and a `cut` by the same team within 30 minutes of each other are
+  one decision (`swap`). Undoing it restores the cut player's actual production for that
+  team over the same window (what he actually produced that season, prorated to the stint),
+  not a generic replacement. Ambiguous pairings (several adds/cuts in the window) pair in
+  timestamp order; leftovers stay unpaired. Swaps are graded as one move in all phases.
+- **Everything else** (unpaired adds/cuts, trades): the `shared.js` FA baseline, prorated.
+- **Not modelled:** which bench player would have started — lineups are unknown, so this would
+  be a guess on a guess, and there are no roster snapshots before 2026-05-24.
+
+**Robustness check on decisive moves:** re-run each decisive move with a tougher replacement —
+the best player on that team's own roster at that position that day (2026, from roster
+snapshots). If the decisive verdict flips, the move is marked `fragile` and its card says
+"close call" instead of stating it as fact.
 
 Output per move: roto points Δ and rank Δ for every team affected. **Decisive** = undoing
 the move changes 1st place or a podium spot.

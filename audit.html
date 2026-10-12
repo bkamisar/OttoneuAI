@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ottoneu Tools — Decision Audit</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: system-ui, sans-serif; background: #f5f5f5; margin: 0; padding: 20px; color: #222; }
+    h1 { font-size: 1.3rem; margin-bottom: 4px; }
+    h2 { font-size: 1.05rem; margin: 26px 0 8px; }
+    .nav { display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+    .nav a { padding: 7px 14px; background: #1a73e8; color: #fff; border-radius: 6px; text-decoration: none; font-size: 0.88rem; }
+    .nav a.active { background: #1557b0; }
+    .stamp { font-size: 0.82rem; color: #888; margin-bottom: 12px; }
+    .error { background: #fce8e6; border-left: 4px solid #c62828; padding: 12px 16px; border-radius: 4px; margin-bottom: 16px; }
+    .note { color: #777; font-size: 0.84rem; margin: 6px 0; line-height: 1.45; }
+    .btns { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 12px; }
+    .btn { padding: 5px 11px; border: 1px solid #ddd; border-radius: 20px; background: #fff; font-size: 0.82rem; cursor: pointer; color: #444; }
+    .btn.active { background: #1a73e8; color: #fff; border-color: #1a73e8; }
+    .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+    .tile { background: #fff; border-radius: 10px; padding: 12px 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .tile .k { font-size: 0.75rem; color: #888; text-transform: uppercase; letter-spacing: .04em; }
+    .tile .v { font-size: 1.5rem; font-weight: 700; margin: 2px 0; }
+    .tile .s { font-size: 0.78rem; color: #777; }
+    .pos { color: #1b7f3b; } .neg { color: #c62828; }
+    .tbl-wrap { overflow-x: auto; margin-bottom: 12px; }
+    table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 10px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.1); font-size: 0.84rem; }
+    th { background: #1a73e8; color: #fff; padding: 8px 10px; text-align: right; font-weight: 600; white-space: nowrap; }
+    th.sortable { cursor: pointer; user-select: none; }
+    th.sorted::after { content: ' ▾'; }
+    th.l, td.l { text-align: left; }
+    td { padding: 6px 10px; text-align: right; border-bottom: 1px solid #f0f0f0; vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+    .chip { font-size: 0.68rem; padding: 1px 6px; border-radius: 8px; background: #eee; color: #666; margin: 0 3px 2px 0; display: inline-block; }
+    .chip.dec { background: #fff3cd; color: #8a6d00; }
+    .chip.warn { background: #fce8e6; color: #a33; }
+    td input { width: 100%; min-width: 120px; padding: 3px 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.8rem; }
+    details { margin: 8px 0 0; font-size: 0.82rem; color: #666; }
+    details li { margin: 3px 0; }
+  </style>
+  <link rel="stylesheet" href="theme.css">
+</head>
+<body>
+  <h1>Decision Audit</h1>
+  <nav class="nav">
+    <a href="index.html">Data Hub</a>
+    <a href="standings.html">Standings</a>
+    <a href="roster.html">Roster Analysis</a>
+    <a href="trade.html">Trade Evaluator</a>
+    <a href="fa.html">FA Finder</a>
+    <a href="bid.html">Bid Advisor</a>
+    <a href="briefing.html">Daily Briefing</a>
+    <a href="hot.html">Hot FAs</a>
+    <a href="prospects.html">Prospects</a>
+    <a href="targets.html">Trade Targets</a>
+    <a href="audit.html" class="active">Audit</a>
+  </nav>
+
+  <div id="stamp" class="stamp"></div>
+  <div id="err"></div>
+  <div id="seasonBtns" class="btns"></div>
+  <div id="root"></div>
+
+  <script>
+  (function () {
+    var root = document.getElementById('root');
+    var NOTES_KEY = 'audit_notes_v1';
+    var A = null, season = null, scope = 'mine', sortKey = 'date', sortDesc = true;
+
+    function loadNotes() { try { return JSON.parse(localStorage.getItem(NOTES_KEY) || '{}'); } catch (e) { return {}; } }
+    function saveNotes(n) { try { localStorage.setItem(NOTES_KEY, JSON.stringify(n)); } catch (e) {} }
+    var notes = loadNotes();
+
+    function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+    function money(x) { if (x == null || isNaN(x)) return '—'; var r = Math.round(x); return (r > 0 ? '+$' : r < 0 ? '−$' : '$') + Math.abs(r); }
+    function cls(x) { return x == null ? '' : x > 0.5 ? 'pos' : x < -0.5 ? 'neg' : ''; }
+    function signed(x, unit) { if (x == null) return '—'; var r = Math.round(x * 10) / 10; return (r > 0 ? '+' : r < 0 ? '−' : '') + Math.abs(r) + (unit || ''); }
+    function sum(arr, f) { return arr.reduce(function (s, m) { var v = f(m); return s + (v == null ? 0 : v); }, 0); }
+    function avg(arr, f) { var xs = arr.map(f).filter(function (v) { return v != null; }); return xs.length ? xs.reduce(function (a, b) { return a + b; }, 0) / xs.length : null; }
+    function median(xs) { if (!xs.length) return null; var s = xs.slice().sort(function (a, b) { return a - b; }); var m = Math.floor(s.length / 2); return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; }
+    function teamName(id) { return (A.teams[id] && A.teams[id].name) || id; }
+    function names(ps) { return ps.map(function (p) { return p.player; }).join(', '); }
+    function tagsOf(m) { var n = notes[m.id]; return n && n.tags ? n.tags.split(',').map(function (t) { return t.trim(); }).filter(Boolean) : m.tags; }
+
+    function seasonMoves() { return A.moves.filter(function (m) { return season === 'all' || m.season === season; }); }
+
+    function headline(ms) {
+      var mine = ms.filter(function (m) { return m.teamId === A.myTeamId; });
+      var teamIds = Object.keys(A.teams);
+      function teamSums(f) { return teamIds.map(function (id) { return sum(ms.filter(function (m) { return m.teamId === id; }), f); }); }
+      function tile(k, mineV, med, fmt, sub) {
+        return '<div class="tile"><div class="k">' + k + '</div><div class="v ' + cls(mineV) + '">' + fmt(mineV) + '</div><div class="s">' + sub(med) + '</div></div>';
+      }
+      var p = sum(mine, function (m) { return m.process; }), r = sum(mine, function (m) { return m.result; }), l = sum(mine, function (m) { return m.luck; });
+      var pts = sum(mine, function (m) { return m.standings ? m.standings.dPts : null; });
+      var vs = function (med) { return 'league median ' + money(med); };
+      var html = '<h2>Your ' + (season === 'all' ? '2024–2026' : season) + ' in one line</h2><div class="tiles">' +
+        tile('Moves', mine.length, null, function (v) { return v; }, function () { return 'league avg ' + Math.round(ms.length / teamIds.length); }) +
+        tile('Result', r, median(teamSums(function (m) { return m.result; })), money, vs) +
+        tile('Process', season === 2026 || season === 'all' ? p : null, median(teamSums(function (m) { return m.process; })), money, function (med) { return season === 2026 || season === 'all' ? vs(med) : 'needs 2026 projections'; }) +
+        tile('Luck', season === 2026 || season === 'all' ? l : null, median(teamSums(function (m) { return m.luck; })), money, function (med) { return season === 2026 || season === 'all' ? 'result − process · ' + vs(med) : 'needs 2026 projections'; }) +
+        tile('Roto pts from moves', pts, null, function (v) { return signed(v); }, function () { return 'sum of one-at-a-time impacts'; }) +
+        '</div>';
+      html += '<details><summary>How to read these numbers</summary><ul>' + A.approximations.map(function (a) { return '<li>' + esc(a) + '</li>'; }).join('') + '</ul></details>';
+      return html;
+    }
+
+    function patterns(ms) {
+      var mine = ms.filter(function (m) { return m.teamId === A.myTeamId; });
+      var groups = [['add', 'Pickups'], ['swap', 'Swaps (add + cut)'], ['cut', 'Cuts'], ['trade', 'Trades'], ['auction', 'Auction buys']]
+        .map(function (g) { return { label: g[1], f: function (m) { return m.kind === g[0]; } }; });
+      var allTags = {}; ms.forEach(function (m) { tagsOf(m).forEach(function (t) { allTags[t] = 1; }); });
+      Object.keys(allTags).sort().forEach(function (t) { groups.push({ label: 'Tag: ' + t, f: function (m) { return tagsOf(m).indexOf(t) >= 0; } }); });
+      var rows = groups.map(function (g) {
+        var a = mine.filter(g.f), b = ms.filter(g.f);
+        return { label: g.label, n: a.length, myR: avg(a, function (m) { return m.result; }), lgR: avg(b, function (m) { return m.result; }),
+          myP: avg(a, function (m) { return m.process; }), lgP: avg(b, function (m) { return m.process; }) };
+      }).filter(function (r) { return r.n >= 5; });
+      var html = '<h2>Patterns</h2><div class="tbl-wrap"><table><tr><th class="l">Move type / tag</th><th>Your n</th><th>Your avg result</th><th>League avg result</th><th>Your avg process</th><th>League avg process</th></tr>';
+      rows.forEach(function (r) {
+        html += '<tr><td class="l">' + esc(r.label) + '</td><td>' + r.n + '</td><td class="' + cls(r.myR) + '">' + money(r.myR) + '</td><td>' + money(r.lgR) +
+          '</td><td class="' + cls(r.myP) + '">' + money(r.myP) + '</td><td>' + money(r.lgP) + '</td></tr>';
+      });
+      return html + '</table></div><div class="note">Patterns need at least 5 of your moves to show. Averages are per move.</div>';
+    }
+
+    function vsModel(ms) {
+      var mine = ms.filter(function (m) { return m.teamId === A.myTeamId && m.process != null; });
+      if (!mine.length) return '<h2>You vs. the model</h2><div class="note">Needs moves made after 2026-05-24 (first saved projections).</div>';
+      var fol = mine.filter(function (m) { return m.process >= 0; }), over = mine.filter(function (m) { return m.process < 0; });
+      var fr = avg(fol, function (m) { return m.result; }), orr = avg(over, function (m) { return m.result; });
+      return '<h2>You vs. the model</h2><div class="tiles">' +
+        '<div class="tile"><div class="k">Followed the model</div><div class="v ' + cls(fr) + '">' + money(fr) + '</div><div class="s">avg result · ' + fol.length + ' moves</div></div>' +
+        '<div class="tile"><div class="k">Overruled the model</div><div class="v ' + cls(orr) + '">' + money(orr) + '</div><div class="s">avg result · ' + over.length + ' moves</div></div></div>' +
+        '<div class="note">"Followed" = the suite\'s own valuation that day said the move was worth it (process ≥ 0). When you overruled the model you averaged ' +
+        money(orr) + ' per move vs ' + money(fr) + ' when you followed it.</div>';
+    }
+
+    function moveLine(m) {
+      var chips = (m.decisive ? '<span class="chip dec">decisive</span>' : '') +
+        (m.fragile === true ? '<span class="chip warn">close call</span>' : m.fragile === 'unchecked' && m.decisive ? '<span class="chip">unchecked</span>' : '');
+      return '<tr><td class="l">' + m.date + '</td><td class="l">' + m.kind + (m.counterTeamId ? ' w/ ' + esc(teamName(m.counterTeamId)) : '') + '</td><td class="l">' + esc(names(m.in)) +
+        '</td><td class="l">' + esc(names(m.out)) + '</td><td class="' + cls(m.standings && m.standings.dPts) + '">' + signed(m.standings && m.standings.dPts) + '</td><td>' + chips + '</td></tr>';
+    }
+
+    function standings(ms) {
+      var mine = ms.filter(function (m) { return m.teamId === A.myTeamId && m.standings; });
+      if (!mine.length) return '';
+      var s = mine.slice().sort(function (a, b) { return a.standings.dPts - b.standings.dPts; });
+      var head = '<div class="tbl-wrap"><table><tr><th class="l">Date</th><th class="l">Move</th><th class="l">In</th><th class="l">Out</th><th>Δ roto pts</th><th></th></tr>';
+      var html = '<h2>Standings impact</h2><div class="note">Each move undone on its own, final standings replayed. Positive = the move gained you points.</div>';
+      html += '<h3 style="font-size:.9rem">Costliest</h3>' + head + s.slice(0, 5).map(moveLine).join('') + '</table></div>';
+      html += '<h3 style="font-size:.9rem">Most valuable</h3>' + head + s.slice(-5).reverse().map(moveLine).join('') + '</table></div>';
+      var seasons = season === 'all' ? A.seasons : [season];
+      var joint = seasons.map(function (y) { var j = A.jointCuts[y] && A.jointCuts[y][A.myTeamId]; return j ? y + ': ' + signed(j.dPts) + ' pts, ' + signed(j.dRank) + ' places' : null; }).filter(Boolean);
+      if (joint.length) html += '<div class="note"><b>All your in-season cuts, undone together</b> (what cutting them was worth): ' + joint.join(' · ') + '</div>';
+      return html;
+    }
+
+    var COLS = [
+      ['date', 'Date', 'l'], ['kind', 'Move', 'l'], ['team', 'Team', 'l'], ['in', 'In', 'l'], ['out', 'Out', 'l'],
+      ['process', 'Process', ''], ['result', 'Result', ''], ['luck', 'Luck', ''], ['dPts', 'Δ pts', ''], ['tags', 'Tags', 'l'], ['note', 'Note', 'l'],
+    ];
+    function sortVal(m, k) {
+      if (k === 'dPts') return m.standings ? m.standings.dPts : -1e9;
+      if (k === 'team') return teamName(m.teamId);
+      if (k === 'in' || k === 'out') return names(m[k]);
+      var v = m[k]; return v == null ? -1e9 : v;
+    }
+    function moveTable(ms) {
+      var list = scope === 'mine' ? ms.filter(function (m) { return m.teamId === A.myTeamId; }) : ms;
+      list = list.slice().sort(function (a, b) { var x = sortVal(a, sortKey), y = sortVal(b, sortKey); return (x < y ? -1 : x > y ? 1 : 0) * (sortDesc ? -1 : 1); });
+      var html = '<h2>Every move</h2><div class="btns"><button class="btn' + (scope === 'mine' ? ' active' : '') + '" data-scope="mine">My team</button>' +
+        '<button class="btn' + (scope === 'all' ? ' active' : '') + '" data-scope="all">Whole league</button></div>';
+      html += '<div class="tbl-wrap"><table><tr>' + COLS.map(function (c) {
+        return '<th class="sortable ' + c[2] + (sortKey === c[0] ? ' sorted' : '') + '" data-sort="' + c[0] + '">' + c[1] + '</th>';
+      }).join('') + '</tr>';
+      list.slice(0, 600).forEach(function (m) {
+        var n = notes[m.id] || {};
+        html += '<tr><td class="l">' + m.date + '</td><td class="l">' + m.kind + '</td><td class="l">' + esc(teamName(m.teamId)) + '</td><td class="l">' + esc(names(m.in)) +
+          '</td><td class="l">' + esc(names(m.out)) + '</td><td class="' + cls(m.process) + '">' + money(m.process) + '</td><td class="' + cls(m.result) + '">' + money(m.result) +
+          '</td><td class="' + cls(m.luck) + '">' + money(m.luck) + '</td><td class="' + cls(m.standings && m.standings.dPts) + '">' + signed(m.standings && m.standings.dPts) +
+          '</td><td class="l"><input data-tags="' + m.id + '" value="' + esc(n.tags != null ? n.tags : m.tags.join(', ')) + '"></td>' +
+          '<td class="l"><input data-note="' + m.id + '" value="' + esc(n.note || '') + '" placeholder="why?"></td></tr>';
+      });
+      html += '</table></div>';
+      if (list.length > 600) html += '<div class="note">Showing 600 of ' + list.length + ' — sort to see others.</div>';
+      return html + '<div class="note">Notes and tag edits are saved in this browser only.</div>';
+    }
+
+    function render() {
+      var ms = seasonMoves();
+      document.getElementById('seasonBtns').innerHTML = A.seasons.concat(['all']).map(function (y) {
+        return '<button class="btn' + (season === y ? ' active' : '') + '" data-season="' + y + '">' + (y === 'all' ? 'All seasons' : y) + '</button>';
+      }).join('');
+      root.innerHTML = headline(ms) + patterns(ms) + vsModel(ms) + standings(ms) + moveTable(ms);
+    }
+
+    document.addEventListener('click', function (ev) {
+      var t = ev.target;
+      if (t.dataset.season) { season = t.dataset.season === 'all' ? 'all' : +t.dataset.season; render(); }
+      else if (t.dataset.scope) { scope = t.dataset.scope; render(); }
+      else if (t.dataset.sort) { if (sortKey === t.dataset.sort) sortDesc = !sortDesc; else { sortKey = t.dataset.sort; sortDesc = true; } render(); }
+    });
+    document.addEventListener('change', function (ev) {
+      var t = ev.target, id = t.dataset.note || t.dataset.tags;
+      if (!id) return;
+      notes[id] = notes[id] || {};
+      if (t.dataset.note) notes[id].note = t.value; else notes[id].tags = t.value;
+      saveNotes(notes);
+    });
+
+    fetch('data/audit.json').then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); }).then(function (a) {
+      A = a; season = Math.max.apply(null, a.seasons);
+      document.getElementById('stamp').textContent = 'Generated ' + new Date(a.generated).toLocaleString() + ' · ' + a.moves.length + ' moves · re-run with node audit/run.js';
+      render();
+    }).catch(function (e) {
+      document.getElementById('err').innerHTML = '<div class="error">Could not load data/audit.json (' + esc(e.message) + '). Open this page from the GitHub Pages site, not as a local file.</div>';
+    });
+  })();
+  </script>
+</body>
+</html>

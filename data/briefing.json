@@ -1,6 +1,6 @@
 {
- "generatedAt": "2026-10-21T09:09:01.510Z",
- "dateLabel": "Wednesday, October 21",
+ "generatedAt": "2026-10-22T09:09:02.669Z",
+ "dateLabel": "Thursday, October 22",
  "teamId": "10759",
  "yesterday": {
   "note": "No games yesterday.",
@@ -10,6 +10,16 @@
  "news": {
   "transactions": [],
   "flagged": [
+   {
+    "name": "Juan Soto",
+    "reason": "",
+    "items": [
+     {
+      "title": "Mets To Interview Kevin Long About Coaching Job - MLB Trade Rumors",
+      "link": "https://news.google.com/rss/articles/CBMilgFBVV95cUxPbUEzMXpCaktPX0JOblJzbjdlNElFMlBpYk9NOVYwb1ZwM1dfV1M4amhJY0UxXzZQNF92WGRtWW5xcDFkaUs1Z2Y4S29fT25yZTJBNlVOWHJhcGpFZTJ4RnFyaHFxeEMxSGY4MTd4MEtUZHBSWkE2dEJ1WjU5QXQ4NkwyUzdnY05XQ2JuNXZwZ3laaHhVcHc?oc=5"
+     }
+    ]
+   },
    {
     "name": "Fernando Tatis Jr.",
     "reason": "",
@@ -31,6 +41,10 @@
      {
       "title": "Kyle Tucker sends promising message to Dodgers fans after atrocious debut season - Yahoo Sports",
       "link": "https://news.google.com/rss/articles/CBMijAFBVV95cUxOVnpscGZ5cU8xeEVyWTczN3F5TlZNbnJPTTBhZVV1WVpBVUhIMnZRNDBtU0doQTA4SW0xMFBVQzlyai1Hck1HZDZKQmlPQnc2Ylp3c0VmS2NtYlVlaEpwcDM1TXUtSWtmaDJLX2JWQThZMkdUNU9NNmtsNE9YUng5dmloUFY0bkphSFh4dw?oc=5"
+     },
+     {
+      "title": "2027 Fantasy Baseball Mock Draft: Can you trust Garrett Crochet in 2027? What about Byron Buxton? - NBC Sports",
+      "link": "https://news.google.com/rss/articles/CBMi3wFBVV95cUxOQ2w4M1NDTE9yLWI2bDdzQVo3ZFR2cEhwRkJiVXNBcHJQd3RXUFdZbUhKX0lKUFFJSmxiNjNSTHVSQkJWa2k5QXZ5bnplSk9VUU9Xek1VZDFLOGc2Y1k3Z0xybEVpNU1tVWduV2Y5R2tMT1JRdEVUcWN1eFBYVV9Fd19XNlJJUHZnVldub3hmY1AtQTVXWVhMZHd2WXlYLXFMVDNtTHhFVU1mTTJtMHdZa3hld001M1VDcDhGQzNiQVY2NXgwdkhYY1F0c3U2QVJ6QUthbnVBUE9seWJsS0Nr?oc=5"
      }
     ]
    },
@@ -39,22 +53,8 @@
     "reason": "",
     "items": [
      {
-      "title": "Yoshinobu Yamamoto's best moments of 2026 - MLB.com",
-      "link": "https://news.google.com/rss/articles/CBMigAFBVV95cUxObUpuWlVxbFBoR2o4dEtkZXZrYlNmNjV4MXh3bFBpczJ0bzU3TzVKNDBITElLbTRlSU96QWp0MVhxR1hRS1YyVnpYb1Q3TG5VaGRQV3dRQXhkaXExUUJTNWVTb2ZTaURxblYtNWQxMFk1cXhjenk1Q1M1Q1lVanhKNA?oc=5"
-     }
-    ]
-   },
-   {
-    "name": "George Springer",
-    "reason": "",
-    "items": [
-     {
-      "title": "MLB in Brief: The J.T. Realmuto Case | The Value of George Springer - Dose.ca",
-      "link": "https://news.google.com/rss/articles/CBMilgFBVV95cUxQbVQzYmxERm4yQmhQaWNlZV9nbktQUno2aUo0WGI5ZklINXNZNnNsWnA5WXdvTEFDajdfbndXaHVTaG9FRExEUGd6UWRJMzVTV1pYc3Z2MHJQY1BRNUZtVkpxdzhLMmxRR0l3UnNXZUh2QnNuN25McDBkVzdGWDdSYk84c0ZZZ0VnR1g4TU5udU1Kczk5OFE?oc=5"
-     },
-     {
-      "title": "George Springer singles on a ground ball to shortstop Brock Rodden. Vladimir Guerrero Jr. to 3rd. Vladimir Guerrero Jr. advances to 3rd, on a throwing error by shortstop Brock Rodden. - Baseball Savant",
-      "link": "https://news.google.com/rss/articles/CBMikgFBVV95cUxQbGs1TjkyeVZ6MmJINUhZbEhWcXBUYXZyRXdIeF9wSFFQSGpsem1tV0RrVDJqUkhsSklIakNZQnhBRE9FN0t6cFJhTVRTWG5MZGl5ZTFwYXFKUENPZjJIZ0NWN0FvWndNSG5SY0V4RkpxYlpwc3N3TDdzbW0xMVBWZ05CR18xR2ppOThPbWdpV3pxUQ?oc=5"
+      "title": "Japanese slugger Teruaki Sato seeking a move to Major League Baseball - FOX Sports",
+      "link": "https://news.google.com/rss/articles/CBMirAFBVV95cUxQX0YxMFdTcHFwZHJudFRITy0tdUU1VnJ6S2NlX3I3Q3Nzbkp6dXZfaFNlVEVzZzY4M0R2TG5Jci1FVklmeWtLdGIwcjluSk1UcnlUbE5zSlRVYjI0Sy0xQkhjeWZ0T2JWN0l5bktYWXk1STVOdjNPek1zT0FSQUdiN3lMOWVKYlVKcXF3UUk4TzhQNFZ1VFM2T043ekFRYmJ4R0g5TGZsUkU4a21O?oc=5"
      }
     ]
    },
@@ -63,12 +63,12 @@
     "reason": "",
     "items": [
      {
-      "title": "Angels are approaching a Mike Trout reckoning with MLB lockout on the horizon - Halo Hangout",
-      "link": "https://news.google.com/rss/articles/CBMiowFBVV95cUxQZE1xLWtWNG0yTm5zc2dqU3M2QmRtakpjZFVsT1k2bklXVHZZYnNRajZPbjh5V2ZzY09xVWhGN2cycnFmbmk4a1dfYzMxQWttOXNRRnMxaEd1bG5LVEVWUm5WSDdncDRjRENFSmZvVHE4Y1YtRUV3anJIVUtoR2JFMGpsZFBHUHZyZjBLb28xM2VUM0UxQmIwYXZaSDAxcklfbG9r?oc=5"
+      "title": "With Trout moving to left field, who could replace star in center? - MLB.com",
+      "link": "https://news.google.com/rss/articles/CBMigwFBVV95cUxOVHIzMFNzeTNTWmhvMWtyUGltd0JuNnFFR3RtTmhVajlCQlBWWkhHaXN4NzkwdkpadGh0Vklkd28wMjg2XzZlZzRxUkQ4Y1phYkhPZ0o0ZWd5UUpRZ2Nyc2dQYW5CNFo2alV5aUd3TzF4emhBR2JWRlJWcllUbWd1ZnFOdw?oc=5"
      },
      {
-      "title": "Mike Trout Named AL Comeback Player of the Year Finalist: How 2026 Stats Prove He’s Still a Star - Sports Illustrated",
-      "link": "https://news.google.com/rss/articles/CBMi2wFBVV95cUxPUFJhV0JFX3hjOEUxVS10ZUIxdkZwRjA2SzVmSzlEbmZ0SWNyNHdabENnRHBJbVA1ZV9aUW4zdkZsVGhadVdvTmZ1Q01ac2pDSi1sVElEOEktOEVmMEh1MnI3aEdPYWFoU3FDS2xBYS1hWkctU2dUYTlzdkRDTlNKaE1TOFdRSE1LQWEtZGtISXhxWnJ1dUZYdzlKQzBYbHdBVXk3VE5ERkM0NmpNNmcxb3dLdEhTVk92WUtLd1Rndmg5WjY0ZTVOU3BrWlFZVU4xaE1HVm5abndYcGc?oc=5"
+      "title": "Angels are approaching a Mike Trout reckoning with MLB lockout on the horizon - Halo Hangout",
+      "link": "https://news.google.com/rss/articles/CBMiowFBVV95cUxQZE1xLWtWNG0yTm5zc2dqU3M2QmRtakpjZFVsT1k2bklXVHZZYnNRajZPbjh5V2ZzY09xVWhGN2cycnFmbmk4a1dfYzMxQWttOXNRRnMxaEd1bG5LVEVWUm5WSDdncDRjRENFSmZvVHE4Y1YtRUV3anJIVUtoR2JFMGpsZFBHUHZyZjBLb28xM2VUM0UxQmIwYXZaSDAxcklfbG9r?oc=5"
      }
     ]
    },
@@ -77,22 +77,12 @@
     "reason": "",
     "items": [
      {
-      "title": "Have MLB home run celebrations gone too far? Junior Caminero's long run around the bases sparks debate - Fox News",
-      "link": "https://news.google.com/rss/articles/CBMivwFBVV95cUxQdWduZnFvRUVWYktuYVRoRzU4eWZJeElBbHo4bGhVb0s2eVdOT3FVaDRQWDRoZUZidnVEZUZmY2U1RDBQZ1FiMDNJMlRraUU5TGIwWEhCV1VoSl95c01CS0hHeEFBbWdESTd0NzdEQkFrSm1LM3NNWTlsR3pvOFVjSGJEUWUzVGswVXNWYkdEUXBiM1NLUmJUZDExZ2VFd3pyQUhaVlpDVURKQjBqMm4xVFJOUFFaS3Z3MUpBX1ZGSQ?oc=5"
+      "title": "How many Simpson sprints can you fit into one Caminero trot? - MLB.com",
+      "link": "https://news.google.com/rss/articles/CBMikAFBVV95cUxNOWl5OXVXc0NodWNBVmYxUkhZSTNFM3Z2NEgzVVlqaWxTRjR1RWpFVmpVSjUwRjlBQ2ZqLTAzb3BJbVdxakhvZ0VrN2pJOEc1VTBNR1Q0R29LaUV5Z2c4SG9zMnk4eXMwSVVHUmo3emVfOGx4SmM5THM1U0NQbkdfZWk3Z3Fic3pZSVhGVndnQUY?oc=5"
      },
      {
-      "title": "How the Brewers might pitch to Caminero in the World Series - MLB.com",
-      "link": "https://news.google.com/rss/articles/CBMijAFBVV95cUxNZktseldPV0NYb25XUDlDeEFDd056Y0FpTGtrWG1PMWhVaUExYU11dEJFbWJvSXdobmRlclJOVkRJS1cxVVhNTWpSNUNabzB1ZEw3cWxGWkVJWmpUZmVMdlZaQzBEZXRVVVBRTHZ1MmIyRk55M1dnam4walVRc3pzSV8zU09FSUs5Q001Zw?oc=5"
-     }
-    ]
-   },
-   {
-    "name": "Wyatt Langford",
-    "reason": "",
-    "items": [
-     {
-      "title": "Did Injuries or Slump Hold Rangers Slugger Wyatt Langford Back in 2026? - Sports Illustrated",
-      "link": "https://news.google.com/rss/articles/CBMiqgFBVV95cUxOY1YtOWFSaElDSWoyZEVqQ1NQSmJpeEpkUkxkZy1HMXhWWGlkQVRBMndQd1FaT0cwUjRSTktwX0tiM0RsQ2dYd2RrSVpaRURFNnZlRms1N2hoSWFHeGNwZ0w5MFhCcjR6cDk2MGNUZW9kOW0zcmRfTS1ReW9wbDA1QUs2bHQzb254UkR5R0UtQWxLd2tweXAxUW5PVnJiZFk1YkFBUUl2azFjQQ?oc=5"
+      "title": "Have MLB home run celebrations gone too far? Junior Caminero's long run around the bases sparks debate - Fox News",
+      "link": "https://news.google.com/rss/articles/CBMivwFBVV95cUxQdWduZnFvRUVWYktuYVRoRzU4eWZJeElBbHo4bGhVb0s2eVdOT3FVaDRQWDRoZUZidnVEZUZmY2U1RDBQZ1FiMDNJMlRraUU5TGIwWEhCV1VoSl95c01CS0hHeEFBbWdESTd0NzdEQkFrSm1LM3NNWTlsR3pvOFVjSGJEUWUzVGswVXNWYkdEUXBiM1NLUmJUZDExZ2VFd3pyQUhaVlpDVURKQjBqMm4xVFJOUFFaS3Z3MUpBX1ZGSQ?oc=5"
      }
     ]
    },
@@ -100,10 +90,6 @@
     "name": "Austin Riley",
     "reason": "",
     "items": [
-     {
-      "title": "Atlanta Braves Still Owe Struggling All-Star Player $132 Million - Yahoo Sports",
-      "link": "https://news.google.com/rss/articles/CBMijAFBVV95cUxOWU1rejFaeG1XUmhLVjVPN29TZF9OUHM3VWx4ZWhxZGZpekhfbENTN1JHbzlFVnFmZnRoaDA0eG1iQWMwaUcyMjRpNEhaUTNfMEJ6T1djS3hOSEFHbVg5ZXQ2VmdvNnNuSEU3Vk9KaU9ST3B3Ukl1ZU51a2tCOUhNUFRmWElnUUNpcFFZUw?oc=5"
-     },
      {
       "title": "Atlanta Braves Trade Suggestion for Yankees' $70 Million Infielder Creates Austin Riley Problem - Heavy.com",
       "link": "https://news.google.com/rss/articles/CBMirwFBVV95cUxQeHZ6UC1JX01QTGJVRlNkWWlzWDlvM2JXM0lyVlBoRWRmY2FYaEpKWHMyWDNmZ19oREhJUUw3ODhuQ253WTdUZXNIWEg4aXVBdkx0bTRNOXJGTWpWdU1oNTNpSXF0Wk5MVnl1b2dab01OUEdmWUlPc25EM0hlMGlNU0prUm5FTGZnOXhfQ2tQei13cU9ER183UVNTX3J2OU1IUDlTWXNfNFFObGp3cmxF?oc=5"
@@ -115,12 +101,12 @@
     "reason": "",
     "items": [
      {
-      "title": "Twins Face an Unexpected Question About Key Piece of Jhoan Duran Trade - Sports Illustrated",
-      "link": "https://news.google.com/rss/articles/CBMinwFBVV95cUxNbk5tQTZCb205MXpHcHh5eHZORHFCMVY1LVAtWmNISFZLbGwtV1cySEtSaUp2YkVlS1JUdlJuclJQYVV0RzBZSmRSYy05Qk9WeGRuRVZUYWl4bmROWWtlTU5CSjdWMGZlTmF2VFZYNXlxcUFEVU9WeGRZNUgzUl9JTDFUUjgwamFxR00weVZWeDBoSktEc2R5ZzV4MTRucWs?oc=5"
+      "title": "JHOAN DURAN 2025 GAME LOG - FOX Sports",
+      "link": "https://news.google.com/rss/articles/CBMipAFBVV95cUxPWng2RVBDLWp3YngzZUJCdkZfclVpZmswcW44QnZPSkNTT2dybEZUOF92aGxiU3VnSEhzOS1WLTZGOUl6MXI0X0RYSmdZbFNLWlYzWS04VzhxbG91eXh2eXRvQk81dFVCS0cyT012MkQyTHhLeTNxTU4wNXpMb3dhTy1VbE14ZUU1UmNRZFM2dnpNNDduYWxoWk9xelhQdW4yV2dNUw?oc=5"
      },
      {
-      "title": "Jhoan Duran Game Log - MLB - FOX Sports",
-      "link": "https://news.google.com/rss/articles/CBMipAFBVV95cUxPWng2RVBDLWp3YngzZUJCdkZfclVpZmswcW44QnZPSkNTT2dybEZUOF92aGxiU3VnSEhzOS1WLTZGOUl6MXI0X0RYSmdZbFNLWlYzWS04VzhxbG91eXh2eXRvQk81dFVCS0cyT012MkQyTHhLeTNxTU4wNXpMb3dhTy1VbE14ZUU1UmNRZFM2dnpNNDduYWxoWk9xelhQdW4yV2dNUw?oc=5"
+      "title": "Twins Face an Unexpected Question About Key Piece of Jhoan Duran Trade - Yahoo Sports",
+      "link": "https://news.google.com/rss/articles/CBMihwFBVV95cUxPTTRpOTUxX0s0b3JKMFhWZWVwbGhBRlNlbGtfNjFXN3dtVHBaNzBFOTJPWUhZeGg3VzNMMnFmYUlPaVh6V0QyTGpmTVZ0clhwNmZZRExpNnJlRlJZRjhFWDJIUG5oay1pS0pKSG9GakFIMDN6VW1OWTRrVl9zVkx2cmpRcjdsdVU?oc=5"
      }
     ]
    },
@@ -129,12 +115,12 @@
     "reason": "",
     "items": [
      {
-      "title": "Reds first baseman Sal Stewart ranked as the #20 rookie in MLB - Redleg Nation",
-      "link": "https://news.google.com/rss/articles/CBMiswFBVV95cUxNQVlFdUlyNUgyUEtOUFA2YU9sS2JWUEZZajJYRTJ6LWYwQlJyX0h4UThuN1lObFA2SDRvZVRjbm5KRG1JMTBHZy0ybnJLdUhGZnM0NVRPbFVLV1p2M2FaOFpuQVhQVWloUFNxdGtOdGNxVHExUG1oOTUwZWttbldpU05COGhvR2xLbkREMEZrbjRzMWNWQW96YUhpTEVLSlM5d3JJRlRmaEE5XzNhWjF6QTJNVQ?oc=5"
+      "title": "Cincinnati Reds Star Sal Stewart Slighted (again) in Latest Rookie Rankings - Sports Illustrated",
+      "link": "https://news.google.com/rss/articles/CBMiuwFBVV95cUxQWjRHTVNha3B0MF9VNGRXUW1uMkNudnI0OVJuUGlnMnFLTWF0TjRmZzJWUGdWTEhmeVFmQ1lBbDBrY2FkVEJFVEdITVhGalM4QzFuZm9jd0ZlOVBYaHpOcjZCWVo3UGRITUVXcGdJVTg2SldSTXJ6dGpCemcxWTNnMHJMNXJjcTFHTG91N3R5TVlDb19CVjVXSGpWRmYtV0VJbkFVYk01bHNpaTRxekVZWDl4Ym1UaHF1QWNF?oc=5"
      },
      {
-      "title": "Cincinnati Reds’ Sal Stewart Named Finalist for Major Award - Yahoo Sports",
-      "link": "https://news.google.com/rss/articles/CBMiigFBVV95cUxOal8yYWxlUV8tbkxpMldzd0poY2xZSk9lN2Q2UUJndWxsbC1oSWhheTZLMVU5T1VHMXFNNjFfbXJ3YVA2MGc5Q1ppVU5MeGlmLXB6QlU3QjhfM0huT20wY3BwOUFxajJraS1lMjIxTlVJSUtSaTRWM1E2NUgtUGdWUmVwSVFFU2tDWFE?oc=5"
+      "title": "Reds first baseman Sal Stewart ranked as the #20 rookie in MLB - Redleg Nation",
+      "link": "https://news.google.com/rss/articles/CBMiswFBVV95cUxNQVlFdUlyNUgyUEtOUFA2YU9sS2JWUEZZajJYRTJ6LWYwQlJyX0h4UThuN1lObFA2SDRvZVRjbm5KRG1JMTBHZy0ybnJLdUhGZnM0NVRPbFVLV1p2M2FaOFpuQVhQVWloUFNxdGtOdGNxVHExUG1oOTUwZWttbldpU05COGhvR2xLbkREMEZrbjRzMWNWQW96YUhpTEVLSlM5d3JJRlRmaEE5XzNhWjF6QTJNVQ?oc=5"
      }
     ]
    },
@@ -149,42 +135,12 @@
     ]
    },
    {
-    "name": "Bryson Stott",
-    "reason": "",
-    "items": [
-     {
-      "title": "Christian Walker grounds into a force out, third baseman Bryson Stott to second baseman Luis Arraez. Yainer Diaz out at 2nd. - Baseball Savant",
-      "link": "https://news.google.com/rss/articles/CBMikgFBVV95cUxPYzBWTDk2X1lJVDRfSHRnMW4tWVBSM0taTks1QzBSZ3N5TDN0REIzNmt5Skl3X1g1VVZobjZzVHVOQzl5VW1pTzRpNEJaQ0I2b3ZOczhfY2M2Z1VTeDI5SDdRZTNuNG1ZNHZoaXJBdGVSWDRlVGJYNDVjUWNWa1kyY0ZEQkMyM2lwc09Sai1ROGxpQQ?oc=5"
-     }
-    ]
-   },
-   {
-    "name": "Andrew Vaughn",
-    "reason": "",
-    "items": [
-     {
-      "title": "Two Former White Sox Players Clinch Trip to World Series - roundtable.io",
-      "link": "https://news.google.com/rss/articles/CBMipwFBVV95cUxPRm1SUEJBVmZPY0FkOVhpemppSXhtaC1rNktqcEtoanVVMlljVGh4ZjJlVGhRU3E0VktKbG1OdWI3RzJnQjJ2MGxrXzBycXJRRnVFYUNndllSTFVUeTdNVWt0cDNVMnNRYVducEtjUXNSeUFqeUU2T0NPOXJJSFFudmFybEJPUXN2WTNIS2dOeVNPRXZMVFRJdHhDajZNQS1HMVY0bEN2bw?oc=5"
-     }
-    ]
-   },
-   {
     "name": "Kyle Bradish",
     "reason": "",
     "items": [
      {
       "title": "Kyle Bradish on 2026 season, Orioles' rotation, more - MLB.com",
       "link": "https://news.google.com/rss/articles/CBMigAFBVV95cUxQWFJNMDF4R1RrdUhPd3RTdWVnbWYxalQ1RXc3ekVUbEMxZ0ljMkd2cW55WHlTVUhMMWJjdnpVQV96ZGYxbUpOQURFNVVTZGE0YVJ0dnJBRUFRTlFNSG1Pd0dacHc0RlkybUpHSW56NU1BZ19uQk9vb3J6SnpiNEtyOQ?oc=5"
-     }
-    ]
-   },
-   {
-    "name": "Luke Keaschall",
-    "reason": "",
-    "items": [
-     {
-      "title": "Luke Keaschall singles on a line drive to left fielder Jose Siri. - Baseball Savant",
-      "link": "https://news.google.com/rss/articles/CBMikgFBVV95cUxPakNiTDJvOWpYLUI3SEcybDFfTDAzbzZseTBreXNpZEUxQ1FlcGUzV0N5ajBoOXhHaEtfeGNHaEs2a1VOTGNfb3F5dG9XU2FILXRSQkhyYXNPU0VDdURXeGE4NUxEWjZ5bnp2eDk3a3lzbmlyYm40Y2tsSF9Eb3ZwUWtSNFRwOTF6SzFtSGptVDF0QQ?oc=5"
      }
     ]
    },
@@ -213,8 +169,8 @@
     "reason": "",
     "items": [
      {
-      "title": "Trevor Rogers Is the A's Free-Agent Test Case - Yahoo Sports",
-      "link": "https://news.google.com/rss/articles/CBMihAFBVV95cUxQX2lvNXd4MWhLdmZpWGxBZ0NXZkdla2kxVlQ5UUd0V0F1ME1uT3hzb2NyMTFNQjNvYk52ZDFOcm1GMHFTTm04eFU3b0FnSy1ERFZEb1o4Q19wZWZvbWJ1ckJIV2JvRzh0WkFodTBxR2FUaUY5d0FsODkwN05VdjZDQzYxOWY?oc=5"
+      "title": "Trevor Rogers Is the A's Free-Agent Test Case - roundtable.io",
+      "link": "https://news.google.com/rss/articles/CBMilwFBVV95cUxPbnVrR3JVN2s4ZFlUVnNLUU55d0hHblFRRnBfd2FmcHpXemJRbjVRRTJEa0xRWTNXWEJWNzFETlpkSENVWkFzQW9sNnhIa0QzMUg1X2IxamNEYmxFMkxIQ0JoTHhxVWpxTnhKeHdweUY4VEtZOF95ZlFOM3c4QjZ4RXVJME8weVhMZkRmVkstNDNVSUxaTTln?oc=5"
      },
      {
       "title": "Trevor Rogers emerges as potential pitching target for Cubs - CubsHQ",
@@ -237,8 +193,8 @@
     "reason": "",
     "items": [
      {
-      "title": "Why Ashby's run as Brewers' fireman is reaching historic heights - MLB.com",
-      "link": "https://news.google.com/rss/articles/CBMie0FVX3lxTFBhbGVMVk5DZnkzdF8xR1Z0bEVFVGhTc0J5ek9EMzdlbkpaRURGSDlUVHdOZXlYQVNiNzdtb1pVbFlGT0o3bEo5dHR4NkNUdHk2U0FVQzNzbGZCQVM2VTEtbWk0X2FpdlU1eVRRNkdRQl96T1RtSHUxdjk4MA?oc=5"
+      "title": "How a junior college in Missouri produced two World Series pitchers - MLB.com",
+      "link": "https://news.google.com/rss/articles/CBMilAFBVV95cUxOUE9tNWlXbV8ybXNSWWFyQ0tQaHJlSlA4bEE3VFV5QlIyZTdtdXhHS2lwV2xhaXE5WEduaDRaelF3TEUxRWdRNGNlRmxlZXJXOGk3QVZpcFcwMldjQ2ZjQXFSeGI3V19KY2F5MzctSzdwcm1IWUZvNEJRc19hTzZZYzJsVGMtYXhqSUtYVlBJUTQxekF3?oc=5"
      },
      {
       "title": "Aaron Ashby makes MLB History in heroic NLCS performance - Reviewing the Brew",
@@ -251,8 +207,8 @@
     "reason": "",
     "items": [
      {
-      "title": "Will the Cubs Make Another Trade Push for Reid Detmers This Offseason? - Yahoo Sports",
-      "link": "https://news.google.com/rss/articles/CBMigwFBVV95cUxNOWpmV1Z3d1pJU1haRWdBV3MwRC1PdG5hTV9nZ1BfSjZxcWRJd1lYWUJYMm1UbW93MUpGeFhzanVNQ01qVzVOZ2R5b0pkdnRrLWp1X1BueEktXzAtQUZPNU12M211US1PcGdYRnZrdnN1V2huOW5tQTNuNFBETlltbnNfRQ?oc=5"
+      "title": "MLB rumors: Cubs faced ‘astronomical’ asking price from Angels in Reid Detmers trade pursuit - Yahoo Sports",
+      "link": "https://news.google.com/rss/articles/CBMiiwFBVV95cUxQM2tZUF9pcU5tRUpvck43aWRta3pDSTEyam10Y3ViaEx1dDY2NkZqU1NjOU9qU0lWcEtIYTdqRjVWUERPZGpvMFhuNXYya1JhZTF5S2JJdzF2YzA5RmNudVhDWDlDSFFtTWJyYS1ELU9nd1FEbXVQMlk0VDdGR1hWekE1ZjdOYnFYMWMw?oc=5"
      },
      {
       "title": "Report Says the Cubs Had a Deal in Place for Reid Detmers at the 2026 MLB Trade Deadline After All - Bleacher Nation",
@@ -265,12 +221,12 @@
     "reason": "",
     "items": [
      {
-      "title": "Justin Martinez Has UNREAL Potential to Become MLB’s MOST DOMINANT Closer—Can He Get There? - KTVB",
-      "link": "https://news.google.com/rss/articles/CBMiqgJBVV95cUxNUUZOdHU4OHdiSTR0NlQyODNKaDR6UlBKdkFoQnh0STVWWUZaT3Zvd1BfVWI2a1Z5UGR6VnJMZU9RU19tYndkY1E4bkltYklGSXpYYVpTdEdadnU3SmFDLXdUNFAzYlNlWTNHek1sRzFnYlF2OUJUWDNZazNvcGE2dlNIUnNjN3lwNzRMS3kydVpLUktKUXFPTmJlRDVpX0g3d0xaOEZOaTU4TFJvMFhuQXJPVV96MS1MU1Z5SlhURkJmWEFnZ2ZDc3RZNi13VTdEeF9hYW51SFprc2tEcUlFNjhtZ0NUV295aWo2YWJoMXliWm5BM0JVM0dETC1WOE96c3lMclRUMmVjbFRZUDY1UEM4WENGUjh6dDc2MGhITWprMGhqV0tFT1Z3?oc=5"
-     },
-     {
       "title": "Justin Martinez Game Log - MLB - FOX Sports",
       "link": "https://news.google.com/rss/articles/CBMiekFVX3lxTE1vd0h0MGhVcW55S3kyc3hjUlo5YjFsaEpYWXNUanZSSnQ3eVh1dFBlMWdtcFdSb3owdi1NRjh2d3NHeXlZcWZKbmVYR2YtVk1MRjVieXcxd1U4YS1UeHk1S1NaYjlVMGp6R1Y3VGo5Y2xnUk9CMXBkc3Zn?oc=5"
+     },
+     {
+      "title": "Justin Martinez Has UNREAL Potential to Become MLB’s MOST DOMINANT Closer—Can He Get There? - KTVB",
+      "link": "https://news.google.com/rss/articles/CBMiqgJBVV95cUxNUUZOdHU4OHdiSTR0NlQyODNKaDR6UlBKdkFoQnh0STVWWUZaT3Zvd1BfVWI2a1Z5UGR6VnJMZU9RU19tYndkY1E4bkltYklGSXpYYVpTdEdadnU3SmFDLXdUNFAzYlNlWTNHek1sRzFnYlF2OUJUWDNZazNvcGE2dlNIUnNjN3lwNzRMS3kydVpLUktKUXFPTmJlRDVpX0g3d0xaOEZOaTU4TFJvMFhuQXJPVV96MS1MU1Z5SlhURkJmWEFnZ2ZDc3RZNi13VTdEeF9hYW51SFprc2tEcUlFNjhtZ0NUV295aWo2YWJoMXliWm5BM0JVM0dETC1WOE96c3lMclRUMmVjbFRZUDY1UEM4WENGUjh6dDc2MGhITWprMGhqV0tFT1Z3?oc=5"
      }
     ]
    },
@@ -285,12 +241,12 @@
     ]
    },
    {
-    "name": "Keibert Ruiz",
+    "name": "Brandon Marsh",
     "reason": "",
     "items": [
      {
-      "title": "Keibert Ruiz challenged (pitch result), call on the field was confirmed: Jordan Beck walks. - Baseball Savant",
-      "link": "https://news.google.com/rss/articles/CBMikgFBVV95cUxQR0I4a2ViWk9FRFluYl9MTEVkMXFFd2F1REo2aTZSZUotNUdlX3BiOWNfSzdRZWFyWnBhQWd2OExVQ092OWNuYk5nR0stWHNuUGdqZ2JJR2hJYU9HcmRqYVVmVVBkekVMRXJ2WDJ3eVJtZGtqd29TczQyQVJWaE14czNsX3pzZzBpZGc5b1h5WjZGdw?oc=5"
+      "title": "The Numbers Behind Brandon Marsh’s Second-Half Collapse - The Lead Sports Media",
+      "link": "https://news.google.com/rss/articles/CBMigwFBVV95cUxNcnRuellGLThpTHYzZDFaRVdFMl8tYXdjdngtMGpJejBUWnhsLXNkSEZiWEdHMjRVdkxzNjZqVFRMREVrT3RYNjQyNHZFZXZNaTFCdEx0cGhYcDNwaGUwekFDcUE1UGVpbHZMd2Y2N2ZwRVhqVFFVeUtfQWlKMFRRcU92OA?oc=5"
      }
     ]
    }

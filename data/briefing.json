@@ -1,10 +1,23 @@
 {
- "generatedAt": "2026-10-26T09:09:01.662Z",
- "dateLabel": "Monday, October 26",
+ "generatedAt": "2026-10-27T09:09:03.090Z",
+ "dateLabel": "Tuesday, October 27",
  "teamId": "10759",
  "yesterday": {
-  "note": "No games yesterday.",
-  "hitters": [],
+  "note": "",
+  "hitters": [
+   {
+    "name": "Junior Caminero",
+    "mlb": "TB",
+    "line": "0-3",
+    "blurb": ""
+   },
+   {
+    "name": "Andrew Vaughn",
+    "mlb": "MIL",
+    "line": "0-1",
+    "blurb": ""
+   }
+  ],
   "pitchers": []
  },
  "news": {
@@ -17,6 +30,10 @@
      {
       "title": "Earn your first 2026 Finest Series players in Weekend Classic 8 + all-new rewards in the 9th Inning XP Path in MLB The Show 26 - MLB® The Show",
       "link": "https://news.google.com/rss/articles/CBMiYkFVX3lxTE1fMUFkVEx3MVI4T045LUlOUElhYWluNWNZVGlfdkFqdV9TUUl2aWstLXZFWGpNUTNMaWFTT0ROQmoydl9reGxMcDV2LUtidWNCZzlac0hmeFRZVWl5OXpqZFlB?oc=5"
+     },
+     {
+      "title": "“They do a great job of maximizing their players’ abilities” - MLB insider sheds light on the Rays' winning formula - Sportskeeda",
+      "link": "https://news.google.com/rss/articles/CBMiygFBVV95cUxPdXcyLWF0ODBxVTloRzNMOENQSHZKUWtCSGFHeDhyMXF1Si14dXhBeUVHTnhtM1N2UlFGNGJzSUtobGxNVjg1NE9rclY0WEppS1Y3UXZObjF4NjV0VmxFdVB6b3VBZGtxajA1UVFjZ2RlNE9lYVlkT0pFYlJOS184TDNZM19Vc09OTEtiSUtSczV4ODBqYU9HLWo4cTJzQ2ZHU2VmZ2ROU1VtN2lRWVhKYXVIVDNldlBKVTlCZWYyV3JNNWNqQU9zOWdB?oc=5"
      }
     ]
    },
@@ -24,6 +41,10 @@
     "name": "Fernando Tatis Jr.",
     "reason": "",
     "items": [
+     {
+      "title": "Padres Make Clear Decision on Trading Fernando Tatis Jr. & Manny Machado - Yahoo Sports",
+      "link": "https://news.google.com/rss/articles/CBMikAFBVV95cUxOcDBidW8xX0JkcFpoVWZidUUwVzk0REJfMk9kSUVEd3pVd2IwcDduU0lvMVVycldaRFA3d0g0cG1xcXVzMWJWdS1BV0lkelJ3TEhZdTNVdU81MTRMTXFZc1pvdVhCbkl5RWs4RTZCX0w5WFZUSXZQTi1KNWRGcmdZNkdsLWpzbkl1cXpUU0JzOFI?oc=5"
+     },
      {
       "title": "Padres Make Clear Decision on Trading Fernando Tatis Jr. & Manny Machado - Heavy.com",
       "link": "https://news.google.com/rss/articles/CBMilAFBVV95cUxNejZhR25WTnpVNEp3bmI0Qi0zb1V1Z0tSLWZjT3U5Vm9VZEk5a3N6UzhpdU1hQTlGSWRvcmtZQkFpMjRSZTFkYTk0OWFzSHpwZFV6N2NLay1OcHRINFdYVERIUVlOc2o3UGM1cV9aMVhkN0RwX0RLeUJWdXhBTzFKWXBnSUdPWVk5V3hSSE1WRmhhR1ZW?oc=5"
@@ -35,8 +56,8 @@
     "reason": "",
     "items": [
      {
-      "title": "Inside the Rollercoaster Season of Dodgers' Kyle Tucker - Yahoo Sports",
-      "link": "https://news.google.com/rss/articles/CBMikwFBVV95cUxOUUFEQ3NWWVhQSHVHT001Qzlxa1ZKMWZZOG1BMXBNdjF3d1VYWjVsWVBOYmpBNkhFX09obGJNaG96YXI5NjdNZnpKc2lJZ3RRbWlDUlczTU9pLW42SzYxdllmSFZqejRlMTF5ODNOQmhWMW1Cd1ZsTXoyQVBHZTQ1NWFFbVNNS1hkd01hX2M1YWRuekE?oc=5"
+      "title": "Kyle Tucker Sends Direct Message to Dodgers Fans After Disappointing First Season - Sports Illustrated",
+      "link": "https://news.google.com/rss/articles/CBMirAFBVV95cUxNQ3doVmxHaUdrMHZ2UW9nVmRQdjdCNldrZ0llcHRGS0I2OEo0SXFLMzlXdzE3TDV1anRjX21VakFxcEl3WkVQWmtfc1BPVWd0LTQtcmRQR1V5eERHYy1vNzYxeHk2c1pVMW10Smg5OGh0cmJuZXhsZU9qbURlSFVsV2JUTUdDYklEUU92MkxwRFAtRktsUk92WWp2aElVdjhadm9TdFVJNGdtcnFE?oc=5"
      },
      {
       "title": "Dodgers GM reaffirms commitment to Kyle Tucker, Edwin Diaz heading into next season - Bolavip US",
@@ -63,12 +84,22 @@
     "reason": "",
     "items": [
      {
-      "title": "Freddie Freeman Among MLB Stars In New ‘Avengers: Doomsday’ Promo - Dodger Blue",
-      "link": "https://news.google.com/rss/articles/CBMilwFBVV95cUxQaGFZU3lyN2Y2X0tzaWV2YW5uXy0zbFVab29XU1hROFlGZWI2cExfLURCLUpCcjd3V0JHZ29pMHZ6dzlBTjUzQTdzOEVhNzRaYXhiRmNmSDRzZHhPNWdURWxwUzBEYkJPYzV1RG5PY3o3UkxFN2g3ZXZZVFRab3V0Z0RYQXlTLTRSRkx3T3UyZGZTZ2dkcFE00gGcAUFVX3lxTE8xbjFYbTJ0Q2xhSGdwSXJKbWwzbUZzNkJNVUxHX1didjJXZGRMMXpzUXNkajhKM2tlVXZZRXo3ZFdBd3NuQVNXWFpMdlV6SFl2VTJhQjNHRkVCRWx1bGNEU2VVUzF0Ri0tUVVtYkh2OUpkSURpUzBLUnZLU0pFaUQyd3ZPV0VXLXo3ZFFvOXRnMXVQS2w0Skh2bDlZUw?oc=5"
+      "title": "Dodgers Could Discuss Contract Extension With Freddie Freeman This Offseason: Report - Sports Illustrated",
+      "link": "https://news.google.com/rss/articles/CBMipAFBVV95cUxNSHVOQTVaM0d0aTdqMzhUeVJ4TkcweDZhUVBEX3JPaG9INTZYMEVGeHQ0V1FYUHVXMlk4b0ZMUW5sMnY3bnNERVlYcTdBRllGeVh1cXFZTHlhTktXN1dWdEFEd3BkN3JIRy00UVNqZlE2dGFTcjRDTGEtdGhsbFJaR2x3T2l1ZVNkZDg2dUhXQlFCSGZWNFZnMWVkeXNtNEh0TzNzZA?oc=5"
      },
      {
-      "title": "Freddie Freeman explains why money cannot guarantee World Series titles - Yahoo Sports",
-      "link": "https://news.google.com/rss/articles/CBMiiwFBVV95cUxOcmprVHYyVEgxRHBYMlF0RUkwZTlRTWZlUVp0SERiWGNDRElab3psdElQc0VHNFlOOGppY0cxSk1Ta0hpWFdSQkdLTlR6XzlXbndFNF8wbjRXM3Y5ckpLdUJjUWQzdUk5bDRaNmlyZUFZMnl6a1JFMWI1ZmRGcHdobldWdVRlVlVVVl9B?oc=5"
+      "title": "Freddie Freeman Among MLB Stars In New ‘Avengers: Doomsday’ Promo - Dodger Blue",
+      "link": "https://news.google.com/rss/articles/CBMilwFBVV95cUxQaGFZU3lyN2Y2X0tzaWV2YW5uXy0zbFVab29XU1hROFlGZWI2cExfLURCLUpCcjd3V0JHZ29pMHZ6dzlBTjUzQTdzOEVhNzRaYXhiRmNmSDRzZHhPNWdURWxwUzBEYkJPYzV1RG5PY3o3UkxFN2g3ZXZZVFRab3V0Z0RYQXlTLTRSRkx3T3UyZGZTZ2dkcFE00gGcAUFVX3lxTE8xbjFYbTJ0Q2xhSGdwSXJKbWwzbUZzNkJNVUxHX1didjJXZGRMMXpzUXNkajhKM2tlVXZZRXo3ZFdBd3NuQVNXWFpMdlV6SFl2VTJhQjNHRkVCRWx1bGNEU2VVUzF0Ri0tUVVtYkh2OUpkSURpUzBLUnZLU0pFaUQyd3ZPV0VXLXo3ZFFvOXRnMXVQS2w0Skh2bDlZUw?oc=5"
+     }
+    ]
+   },
+   {
+    "name": "George Springer",
+    "reason": "",
+    "items": [
+     {
+      "title": "Toronto Blue Jays Paid Beloved 37-Year-Old Over $22 Million This Season - Heavy.com",
+      "link": "https://news.google.com/rss/articles/CBMikwFBVV95cUxQRjNrRGk4MlU1cmwyaWlEbFJKbkR5eV9FUFIyOGZlZy0wUktadFk4T0lMLVBlNndyQkQ5WE9iVnVWWnBkX3pqWlNXYXU2UUVQM0wtYkxBU2VCcTh4ekpQeHZUdFZPZlVyUEE2SVQybU1oWGFhTUU3YUkyUGYxVGJ3YlBCTmpRMnM0aENOMGdzWkU4cDA?oc=5"
      }
     ]
    },
@@ -76,10 +107,6 @@
     "name": "Mike Trout",
     "reason": "",
     "items": [
-     {
-      "title": "With Trout moving to left field, who could replace star in center? - MLB.com",
-      "link": "https://news.google.com/rss/articles/CBMigwFBVV95cUxOVHIzMFNzeTNTWmhvMWtyUGltd0JuNnFFR3RtTmhVajlCQlBWWkhHaXN4NzkwdkpadGh0Vklkd28wMjg2XzZlZzRxUkQ4Y1phYkhPZ0o0ZWd5UUpRZ2Nyc2dQYW5CNFo2alV5aUd3TzF4emhBR2JWRlJWcllUbWd1ZnFOdw?oc=5"
-     },
      {
       "title": "White Sox Prospect Caleb Bonemer Is Being Compared to Mike Trout - roundtable.io",
       "link": "https://news.google.com/rss/articles/CBMitgFBVV95cUxPRnU3aDBKR3dxbzBDMl9XLXF0OGFiS3VmYkJ0THA4NXB2NEJLSTFhSllad21xZDh6RFcxZENHcV9uODRubFFaWVNJelVCdDB3eUlFODczaVN2SHE0OXBBM3ZqZWdNSGpla2NiTWFsT2lVOF9WalJjNHg2bHQyYzYtZTY2dEFNUDViWmhzX05TWkdRQXZuU1FXSlFTS05obUFqdEtzSEcyM3VTeFl1MFdqSHRsVWVLUQ?oc=5"
@@ -91,12 +118,8 @@
     "reason": "",
     "items": [
      {
-      "title": "Riley Greene and Dillon Dingler Earn All-Star Honors From Their Peers - Yahoo Sports",
-      "link": "https://news.google.com/rss/articles/CBMiiAFBVV95cUxQSGZ2SkkyYUJ1UUx6T2EtekU1N3ZTcmh2R2JWVmhhU2Iza2hqUlVCbXR0S2tzU280RGZMRy1NaW9SZF9fUUF4SGNZWjduN0Nra1dYU01pUXZyVlZNb3lLTDJXWFVUbTI4ejIwLUlySWVhN3NXbFo3alhOZ2VSTG1kTnlSbGZnbW15?oc=5"
-     },
-     {
-      "title": "Video - Riley Greene and Dillon Dingler Earn All-Star Honors From Their Peers - roundtable.io",
-      "link": "https://news.google.com/rss/articles/CBMitgFBVV95cUxPTFppbHZMTTI1SWM2OEN1RzgxWHY1akhzclRPekYyM1haWWZBVkotRW1vaXA1aU5nNHVWQk1pZnQ2SE5pNHRDT3BKSWQ5dmdtRjF1NllmUGliZ0FrdUEyaC1MeENULWxoTTNxNlhDVTluZVhNa2dMbmVWamZEa1Q3Z0V1aVZFNk53M3E0ZjVrNExmdjFwdlUtOGZ5YnZFQlZudUNxQ1dvSUNrYWZFek1FWXRNWnpaQQ?oc=5"
+      "title": "Detroit Tigers News: World Series, Kevin McGonigle, Dillon Dingler, Riley Greene, Zach McKinstry, Fielding Bible, Sporting News Awards - Yahoo Sports",
+      "link": "https://news.google.com/rss/articles/CBMiiAFBVV95cUxNRzdrdlJSVnZqeC1vdWQtWktUOFpvM2pSVHl4UGE5ODdUT3NkdmFmWU5WaGxsdENHajA5TFJCNy1hSlE1OGgwTFdEd1JuNDhXTjByZ3BtZktrR25CZlBHcDg3ZGdxTTJaeHZEUlFuenFsU1hZNlRJXzlLa3oxcGVWYVppckliVEZE?oc=5"
      }
     ]
    },
@@ -105,12 +128,12 @@
     "reason": "",
     "items": [
      {
-      "title": "What Jackson Chourio, Junior Caminero bring to World Series - ESPN",
-      "link": "https://news.google.com/rss/articles/CBMiowFBVV95cUxNaTV6QTQ3TXRKREd6bng4TE0ydDJkRGY3eGJHWDYwZHFOczJ6bW10aWdLT29BOTU1eTYwME1rQ3VUN1JWTU1TanVfNWY1R01PNWVBMm1vTEY1UU9UV1VMUm1kdVA4TktpQ1UyYWVzMFZoRjJLQjk5MlAwYmpDNk8wUlc5YkFyUjJwQXlwOEJlcVNSOVBPekhsNzEybEJoRTE1eTV3?oc=5"
+      "title": "Junior Caminero gets fired up in the 7th inning | 10/24/2026 - MLB.com",
+      "link": "https://news.google.com/rss/articles/CBMifkFVX3lxTE14QWM0N3h0V1NFRUprUzAwWlZMT085VXkyNU5iMnQ4VTM4V3RnREloRWlpWDU3UUhZcFRMZ1VIUWFUTlduN3ZoT2ZGUVJYZll3UlZxLTZnYXBLeC1Yc1hHVnk3d1FKV1BkS1dyWFFrc0VpZ1VWb041T1E1YTBQZw?oc=5"
      },
      {
-      "title": "Fiery Caminero airs frustrations about Rays' miscues as focus shifts to Game 3 - MLB.com",
-      "link": "https://news.google.com/rss/articles/CBMihAFBVV95cUxPRnA0YmtfZ2lhdW4tNGoybC1WZUNhNTlKOE15RW1pbGt5LWYtRkpDVXFqUFVnSVJUNWlkQ2VDUmZvRnN4ODZMalZVa3ZtekNxTWV6S2dQSFdKbWIzTlREakpHdm1XakZNTHd4Q2c2a0VKZDJEVXF5RGRxRktZRnJNakhxY3PSAZABQVVfeXFMTm11TXV1UjBFZFlzUlA0bkhNa2VhMEVrT2FWakdaZ0RhMFpCQ1dETDRpRktBcEVpRnlKSVpaVDE1RUVHUVdVYUJMUHZ6UUxHV0RBWXVUamNJdXUyLXkxOTM2b0Y2SjFHMFRObjZmcDFRbS1vbVdlbDNhMWItZWotUl93dmNWMjIxbnlyWVhjZ3dE?oc=5"
+      "title": "Rays looking to Junior Caminero's bat, leadership in World Series - ESPN",
+      "link": "https://news.google.com/rss/articles/CBMijgFBVV95cUxOS3Myc1VpY2MyNGVCVEpEV1FXalFuT0pCcVBMRW4yZ3lQQy1JcG16NTFOcnUzaVI3bnNqZWVrVENLeVEwSjdXN2JjT01uMmFKTHRqQVREUzh0XzlUS2pCX0o3UkR2Q0J2TWdLd2YyajZidXBhQlNrdEk5VmFzUEJkTk9XeUIwMUNwUHlTREl3?oc=5"
      }
     ]
    },
@@ -125,16 +148,6 @@
     ]
    },
    {
-    "name": "Jhoan Duran",
-    "reason": "",
-    "items": [
-     {
-      "title": "What Jhoan Duran being repped by Scott Boras means for his future with Phillies - On Pattison",
-      "link": "https://news.google.com/rss/articles/CBMirgFBVV95cUxNLTd5aEtScVdUOFlORnAyQjF2U3NJYmVoOUd2SFRtb1Y2TTZLNUptV185Sjhya19JV29kc3BOQk9FazdhcXZvc2QxMFltdVEzVTJPeVhuZ1ZocWdyQTZfSXo4SnZURGVucUU4VDczbVJkeUU4VldPekVqZVZ4ZVR6aWsydHdWemViNEFySk90ejc0VklBeFZmaGNyRkdnQVNzNHdFU0VwTHdoTVd3amc?oc=5"
-     }
-    ]
-   },
-   {
     "name": "Sal Stewart",
     "reason": "",
     "items": [
@@ -143,8 +156,8 @@
       "link": "https://news.google.com/rss/articles/CBMi0gFBVV95cUxNd2xZSGFtVzZjMGFxb0xRTXhOVGhaeWpGNnQxRFZhM3lWZEFDNjg0OTR3NjBlZDYxTklMLWUwbWp6UTk1WDZVSnE2Q2xQdF8xcmRoMWx6VkJkcnJjZWdfU3FGdWhyT0IxajBTaEhqZUIzTHQ4T3dBYlNUelJpT205OFkyY3FxLXdPOHFRa042QVZEQzFFWHNhMTRGN3NoREhyd0J6Z200dW13ZXhHZkVmQU5kNE1aWXMwUTV5TDdNaVhKTFJYZjRYOUVpbUxVMzVpVGc?oc=5"
      },
      {
-      "title": "Sal Stewart Is All but Locked In to Win NL Rookie of the Year - roundtable.io",
-      "link": "https://news.google.com/rss/articles/CBMiqwFBVV95cUxPSHFRSTAxMWxEOVkzZDlpSkltUmxCMTRONDJPSEtYdV9OYlQ0ZWlLQXowOTFtczVhelg2VjR4Z1ljTWJOb1NPZjRzZWpLamNYNGNyQkpIRmNTRUZlaGlES3RSN1BCZ0kwaWJfb3ZXclVZdHQtYUU0MGtLRTlkQ2Q3MUtwQjFPbFc4Zi05bXBoZ0J2eXJjbjUzc1lHZkJ6UWQ2TEJxa0NIcGExSE0?oc=5"
+      "title": "Reds’ Sal Stewart Named Sporting News Rookie of the Year - Redleg Nation",
+      "link": "https://news.google.com/rss/articles/CBMiqwFBVV95cUxOc3Y5aDBpQlV3SE83bHpsR0oyaVZ4eHd4T1RvbWNac1htNFNNcExTbW1sRHFoVXN6RFUybnNuS095OVZMNjVrUHJON21yOG9KOWtUaE9qc3JJR0tjSm9VYzVhNHpqVUgxbWJsSUVJODRFeU1hT2d5M1NQSGhOQnc2bjB1bF9PVlZ6cmwyS1Nma3ZPa0R4WDd5R0RHYjV2aTVkVVN4Q0h3Wng3YnM?oc=5"
      }
     ]
    },
@@ -173,12 +186,12 @@
     "reason": "",
     "items": [
      {
-      "title": "Adrian Morejon Predicted to Earn $90 Million Contract; Can Padres Afford Him? - Sports Illustrated",
-      "link": "https://news.google.com/rss/articles/CBMipAFBVV95cUxNMkZxeTZHVnF5aGdOWTY4Y1Fqa2VwY1VzaHlVMXpJMS1tbXBtX2VYMmZxQ0VvenZaenV1aG44VjdSWnpqd3BnSC1uM1paT2hCLUlWeERNTzh0cVBxTFE3SmU5ZTNwWXUzNHZFUkhOTWdQZEY1bUtvTG9peEVtV0VmT0RPQkRFQzYwWnlmZ1J4SC11NXJCakZkdnJVUVdMWVJ6c0lSNg?oc=5"
+      "title": "Adrian Morejon could give the Yankees more than a new closer - Yahoo Sports",
+      "link": "https://news.google.com/rss/articles/CBMiigFBVV95cUxPWkk4SjU0RkhpV2JqYmgxNE1ZcmYtNFpoNEhjOFlxa1g5LTBWbzVYczF6VjBpZzVIUGVCYTJiX3BQYkFvR1daOEtoVk5TQWR5YWcwN0RrdkctNnhLV2dLUC1Wam1yN2RlZE9RLU02Z2NHRzg0b191N1Z5U0RsaW5hZGVvallTNDM2TVE?oc=5"
      },
      {
-      "title": "Padres Notes: Adrian Morejon Contract Prediction, Ethan Salas in Competition, Relievers Market Value - Yahoo Sports",
-      "link": "https://news.google.com/rss/articles/CBMijgFBVV95cUxOYzQyb1RiTTRxd09XWHlHcHNFLVh0b1oxWE9SeThidk5KRkFFOHVyM01wQVlMU3FtenlwcFJrNTh6VUhGTGUxVGpDWkxjZmxDNU5qb0pIcTlZSG5ZNkZKSmp1T3g0SGpfaXdvT21TcHUtNXpyN2Z6VkpuTm9BMnFWRU5PQV8tY1FZNXRVSndR?oc=5"
+      "title": "Adrian Morejon Predicted to Earn $90 Million Contract; Can Padres Afford Him? - Sports Illustrated",
+      "link": "https://news.google.com/rss/articles/CBMipAFBVV95cUxNMkZxeTZHVnF5aGdOWTY4Y1Fqa2VwY1VzaHlVMXpJMS1tbXBtX2VYMmZxQ0VvenZaenV1aG44VjdSWnpqd3BnSC1uM1paT2hCLUlWeERNTzh0cVBxTFE3SmU5ZTNwWXUzNHZFUkhOTWdQZEY1bUtvTG9peEVtV0VmT0RPQkRFQzYwWnlmZ1J4SC11NXJCakZkdnJVUVdMWVJ6c0lSNg?oc=5"
      }
     ]
    },
@@ -187,12 +200,12 @@
     "reason": "",
     "items": [
      {
-      "title": "Abner Uribe on going against the Rays, Pat Murphy | 10/22/2026 - MLB.com",
-      "link": "https://news.google.com/rss/articles/CBMiigFBVV95cUxNLUJZdlBVZy1DVUJNR3lSSF9IVnZkSmZQVGVxNVB0ZWhjaDVjTElLRzFfYUpCNjJtaDdtOWVuTDFzRnlMVFlIZDJtdzVSZUJjZzZRQ0FsNExvQ3ZRODVnb0VHc0Eyc1dkT0RiWTBlUjYyM3hMa19NVmlvelBoYW5uUzczM3E2ZTNrakE?oc=5"
+      "title": "Abner Uribe on Brewers' strong bullpen - MLB.com",
+      "link": "https://news.google.com/rss/articles/CBMicEFVX3lxTFBxcDA1UDVtUHF6MjlKZXUteERUYkVsYkJjUUpEUm5LbDNodHlNVGg1cjBPYkpPZWVJMm5US3FRc2Rqc3hPNHJGYmwyZlVReUtVYk5RRzE0TzNLX2VZSEdXRVllV2stb2xyU1poWVdHMmc?oc=5"
      },
      {
-      "title": "Brewers' Abner Uribe strikes out Chandler Simpson, William Contreras throws out Jonathan Aranda to complete double play - FOX Sports",
-      "link": "https://news.google.com/rss/articles/CBMiYkFVX3lxTE1XYnUtck9LT0U0VlpLUVdTcUhabG5uZ2dVLWY5bmRlUk5vZmQ2Vng5NUZyN3dQb2cwX1JoaS1kVDUxTHZfYXRNeGR5UEV1V0lvdWViMnBObGQ2UmhNREU0ZWVn?oc=5"
+      "title": "Abner Uribe on going against the Rays, Pat Murphy | 10/22/2026 - MLB.com",
+      "link": "https://news.google.com/rss/articles/CBMiigFBVV95cUxNLUJZdlBVZy1DVUJNR3lSSF9IVnZkSmZQVGVxNVB0ZWhjaDVjTElLRzFfYUpCNjJtaDdtOWVuTDFzRnlMVFlIZDJtdzVSZUJjZzZRQ0FsNExvQ3ZRODVnb0VHc0Eyc1dkT0RiWTBlUjYyM3hMa19NVmlvelBoYW5uUzczM3E2ZTNrakE?oc=5"
      }
     ]
    },
@@ -207,36 +220,16 @@
     ]
    },
    {
-    "name": "Grant Taylor",
-    "reason": "",
-    "items": [
-     {
-      "title": "Brice Matthews or Grant Taylor: Who Should I Start? Fantasy Baseball (2026) - RotoBaller",
-      "link": "https://news.google.com/rss/articles/CBMioAFBVV95cUxOT0NVdm1HblVESEJDTHhfaDNqcUliWkpsT1JNbS1EV0RVM1ozanh5cVBkczdnVVJEV0ZLR0xyVW5sWTJYa3RNQ0NLTkdqTDczUXNqRUNDR2VQQ05fVExFMmhiVGl6VDBZN1o4T0licUtLdElPSW9RbjFNUnByUG9xY2l3cUdXOURxTG11ejlpSHNfdVhzSngxLTRVZ3VsZy1N?oc=5"
-     },
-     {
-      "title": "Garrett Cleavinger or Grant Taylor: Who Should I Draft? Fantasy Baseball (2026) - RotoBaller",
-      "link": "https://news.google.com/rss/articles/CBMipgFBVV95cUxNektpcjM1Y0JsME52MWJGQ2xhWUlFM1J1Q18zM1ZReXg3elB2bHhVQWdQdG5sTHhXd2hTOERLMVFHdWUzMmRhRC1tTy1NMHFlMHhvQzhCYV9lWmFUeElDdWpNb2JFbTkydTYxdmxMRl80cmpGWnNjZkdWNWl0dVZSU1h0TjB2VHY0aFBYZlNFTV96RXhxVlRlSkZQYUFfVkZ2LWFuY3B3?oc=5"
-     }
-    ]
-   },
-   {
-    "name": "Alfredo Duno",
-    "reason": "",
-    "items": [
-     {
-      "title": "Alfredo Duno Makes History Friday Night in the Venezuelan Winter League - Yahoo Sports",
-      "link": "https://news.google.com/rss/articles/CBMiigFBVV95cUxOaUFBUkxCeXFLS1lHZ0ZpX3hrUDM3dDRDaUl2OEpUSTRDTkJBdzZVT3V2N2NQQTdEbVFRelE1R1hOcWtjZ0dpRDRYOGJFZlY4dzZ3UFpGSjkzaTlQeFk1elNEOVJPTzFpNHVmZTFOdXNNdXVlNy1NTFZDaEdwQXNwXzlFeHc2bWpIWlE?oc=5"
-     }
-    ]
-   },
-   {
     "name": "Trevor Rogers",
     "reason": "",
     "items": [
      {
       "title": "How the Baltimore Orioles Can Bring Back Trevor Rogers - roundtable.io",
       "link": "https://news.google.com/rss/articles/CBMipgFBVV95cUxOTXdOWmVraS04STlPMnpaTHZZRTBiLWdEY2g4OEo0NWNZSFRzY3M5TktTbk5DcDVXTkw3dWl2SUJydWdaNjM3V1J1SS04czJEdjMtMGFvcFNHb0N5QnNCaGhwYWVPdnctcWxwR1pMdXI5b1RqVWVOMThhUWd1eF83WUpDWUhzeFBZYV96VnJhWWR6T2FDeTBuVEtadHpLVVRPc19UdW1B?oc=5"
+     },
+     {
+      "title": "Justin Sterner or Trevor Rogers: Who Should I Start? Fantasy Baseball (2026) - RotoBaller",
+      "link": "https://news.google.com/rss/articles/CBMiogFBVV95cUxNbHBUUjVYdVplSWQ5S1lYNnFGbUhUTldfOHBBMk9mTFd1eU9Qc2R6bXIydVNYcFBxUDNsZHFBaVJ0SnBzSW1EdlBXRkxjbkhkblRlYi0yeDZnWUVQMGdrenRCZ2NLbVlJY0dkUldQblBkWVNJZnpaQmVvN2xEMUtCVHkwUUZuZ3dEWjR3WlNMdXZFc2dnLUYxSmFhT0NNU3JoVXc?oc=5"
      }
     ]
    },
@@ -249,18 +242,8 @@
       "link": "https://news.google.com/rss/articles/CBMinwFBVV95cUxPQWNMNm5GSHZsZ09TbE1CM094RkV0TjlmSUxGYjc2cmV4YXNDaDBWSjRHNE9MSUFiRzhXeC1VRkhTTm9MdV9LNHNtTi1jbFFZM1dkRmJlSVJuUzV2aVZuY042VWFIMHR5SXNsdUN5QWc4OXFTOXg1Rm5KcEprYXVxV3pZOUh5ZjlyNWFLT0szenlDQzVRNXpJUjY4c2JDNTA?oc=5"
      },
      {
-      "title": "Brewers postseason star Aaron Ashby on letting teammate DL Hall shave his head - Yahoo Sports",
-      "link": "https://news.google.com/rss/articles/CBMijAFBVV95cUxNWlQwLTlMdktPM01fRlVncHhkLXdBbzk1dG9FSUM0SlJpemlySWlIM0JSN2hEdTlZQmhPZEtVQjJvT3NxYmpITnYtUW90WlRWcVBvbURSTUVDamhjWmJVUnhvN3h0OTlsMVFBclFoWjhadzZNSTJjSW10d2lvbWFYaEllTW43NS1ST1ZjSQ?oc=5"
-     }
-    ]
-   },
-   {
-    "name": "Reid Detmers",
-    "reason": "",
-    "items": [
-     {
-      "title": "MLB rumors: Cubs faced ‘astronomical’ asking price from Angels in Reid Detmers trade pursuit - Yahoo Sports",
-      "link": "https://news.google.com/rss/articles/CBMiiwFBVV95cUxQM2tZUF9pcU5tRUpvck43aWRta3pDSTEyam10Y3ViaEx1dDY2NkZqU1NjOU9qU0lWcEtIYTdqRjVWUERPZGpvMFhuNXYya1JhZTF5S2JJdzF2YzA5RmNudVhDWDlDSFFtTWJyYS1ELU9nd1FEbXVQMlk0VDdGR1hWekE1ZjdOYnFYMWMw?oc=5"
+      "title": "Brewers star pitcher Aaron Ashby on letting DL Hall shave his head - Milwaukee Journal Sentinel",
+      "link": "https://news.google.com/rss/articles/CBMiwAFBVV95cUxOaXF5b0NzM3BReTBXTGN1TEtZSFd2M0pNU0pRcTA0bTRJY2FlOWpQZFhGamEwVEN5UzhOdDNUaHg3SmFVUl93T0RXcnM5cDNLOXhTbWVWTGFrYXN2TVdCY2psRkJRUGpjVWt0X1B0Wm0zV25RS2VfdTc4WVhOa0ZJbzdUY1RCdUNRXzYzQ2pSdWZhaUhwTlQyeEV4cDlpN25LOWJHTG93bFN0eHY0QWY4dTNDa1NPM1hGRURlZG5pVUw?oc=5"
      }
     ]
    },
@@ -269,18 +252,12 @@
     "reason": "",
     "items": [
      {
-      "title": "DL Hall on fulfilling childhood dream by playing WS - MLB.com",
-      "link": "https://news.google.com/rss/articles/CBMijgFBVV95cUxPejZoOGg2LUlLSng2UmN4MGVndk1fRkZORkRhcENneWgyUXFpRFZFdmtjWWdRSndrNWpqXzhTY2xvQ3laWDAydktfck1odXhWY2hDWVNTSzQ3alZhSHRPTEUtbVNhQ1Q1WXlzLTM4Vi03NnYwTmREZmFPcjFtZzVsb2YyNzJZdl9MamJmMVhR?oc=5"
-     }
-    ]
-   },
-   {
-    "name": "Brandon Marsh",
-    "reason": "",
-    "items": [
+      "title": "DL Hall discusses Brewers' bullpen success - MLB.com",
+      "link": "https://news.google.com/rss/articles/CBMidkFVX3lxTE1PSUpHNmprWFhMbkNLUEhaLUVGRXhOTEZVUGVxNXdQRGlFdXNyOTNwSXZhbWx6UTU1MEx5Z0dyckFXdTFBYnZzOXRTQl8yaTVONnRHeTVYRTNtaHVvTWl1MHB3cTNZQ09DaUF4TmxLWWhCTVp3TFE?oc=5"
+     },
      {
-      "title": "Phillies Make Harsh Brandon Marsh Decision After Brutal All-Star Disappointment - Yahoo Sports",
-      "link": "https://news.google.com/rss/articles/CBMijwFBVV95cUxPNXVHQXhGVGtQRmw4UmpYNXdWZmJ5cjdjUGpQSjdpRTR2MTBNNHp2dXBXbFN6TXlZMXhOa3VvYnMzaWZhb1Yzb3hwNC1GaWlTMjVreVdoYTFLM25mRHhpUU5BQzFYel82MXlYQ01fdWd3Nk05WFpDSTFOVjRyMTgydmE1SlRHM3RUZnZCYWtKRQ?oc=5"
+      "title": "Brewers postseason star Aaron Ashby on letting teammate DL Hall shave his head - Yahoo Sports",
+      "link": "https://news.google.com/rss/articles/CBMijAFBVV95cUxNWlQwLTlMdktPM01fRlVncHhkLXdBbzk1dG9FSUM0SlJpemlySWlIM0JSN2hEdTlZQmhPZEtVQjJvT3NxYmpITnYtUW90WlRWcVBvbURSTUVDamhjWmJVUnhvN3h0OTlsMVFBclFoWjhadzZNSTJjSW10d2lvbWFYaEllTW43NS1ST1ZjSQ?oc=5"
      }
     ]
    },
@@ -305,8 +282,8 @@
      "Junior Caminero"
     ],
     "game": "TB vs MIL 8:00 PM",
-    "opp": "vs LP Robert Gasser",
-    "era": 3.87,
+    "opp": "vs TBD",
+    "era": null,
     "flag": ""
    },
    {
@@ -315,9 +292,9 @@
      "Andrew Vaughn"
     ],
     "game": "MIL @ TB 8:00 PM",
-    "opp": "vs RP Freddy Peralta",
-    "era": 3.25,
-    "flag": "tough"
+    "opp": "vs RP Griffin Jax",
+    "era": 3.53,
+    "flag": ""
    }
   ],
   "myStarters": [],

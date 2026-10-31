@@ -150,7 +150,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10764,"Wrecking Crews",36669,25816,sa3010329,"Shea Langeliers",ATH,C,$7
 10764,"Wrecking Crews",33395,20539,sa921576,"Edwin Uceta",TBR,RP,$7
 10764,"Wrecking Crews",40820,30076,sa3017869,"Landen Roupp",SFG,SP,$7
-10764,"Wrecking Crews",32611,19716,sa917992,"Dustin May",MIL,SP,$7
+10764,"Wrecking Crews",32611,19716,sa917992,"Dustin May",FA,SP,$7
 10764,"Wrecking Crews",18619,15009,sa708446,"Kyle Finnegan",DET,RP,$7
 10764,"Wrecking Crews",22701,19924,sa874984,"Bryan Hudson",CHW,SP/RP,$7
 10764,"Wrecking Crews",34601,21454,sa3006649,"Lars Nootbaar",ARI,OF,$6
@@ -180,7 +180,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10818,"Bureau of Gleyber Statistics",14393,10603,sa392121,"Chris Sale",ATL,SP,$20
 10818,"Bureau of Gleyber Statistics",18487,16997,sa830372,"Gleyber Torres",FA,2B,$19
 10818,"Bureau of Gleyber Statistics",18517,16578,sa823741,"Yandy Diaz",TBR,Util,$15
-10818,"Bureau of Gleyber Statistics",18113,12768,sa455516,"Sonny Gray",BOS,SP,$11
+10818,"Bureau of Gleyber Statistics",18113,12768,sa455516,"Sonny Gray",FA,SP,$11
 10818,"Bureau of Gleyber Statistics",20545,18568,sa828153,"Luis Arraez",FA,2B,$10
 10818,"Bureau of Gleyber Statistics",44336,33703,sa3023053,"Nolan McLean",NYM,SP,$9
 10818,"Bureau of Gleyber Statistics",33685,24617,sa3006786,"Jarren Duran",BOS,OF,$8
@@ -221,7 +221,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10881,"Look Out Bello",18359,16137,sa598286,"Carlos Rodon",NYY,SP,$16
 10881,"Look Out Bello",19168,18679,sa737343,"Freddy Peralta",FA,SP,$16
 10881,"Look Out Bello",18126,12927,sa597760,"Brandon Nimmo",TEX,OF,$16
-10881,"Look Out Bello",23613,14542,sa598491,"Carlos Estevez","KCR ST",RP,$11
+10881,"Look Out Bello",23613,14542,sa598491,"Carlos Estevez","KCR AAA",RP,$11
 10881,"Look Out Bello",19398,15454,sa737889,"Nick Pivetta",SDP,SP,$10
 10881,"Look Out Bello",18378,16505,sa828672,"Matt Chapman",SFG,3B,$10
 10881,"Look Out Bello",33767,23920,sa3005436,"Brayan Bello",BOS,SP/RP,$10
@@ -256,14 +256,14 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10881,"Look Out Bello",26446,19769,sa3004101,"Will Vest",DET,RP,$3
 10881,"Look Out Bello",31505,21306,sa829008,"Jacob Latz",TEX,SP/RP,$3
 10881,"Look Out Bello",33669,21537,sa3007588,"Daniel Lynch IV",KCR,SP/RP,$3
-10881,"Look Out Bello",18152,13145,sa597768,"Josh Bell",MIN,1B,$3
+10881,"Look Out Bello",18152,13145,sa597768,"Josh Bell",FA,1B,$3
 10897,"Five-cent head",33625,23697,sa3005720,"Julio Rodriguez",SEA,OF,$54
 10897,"Five-cent head",36338,26668,sa3009289,"Elly De La Cruz",CIN,SS,$45
 10897,"Five-cent head",18386,14344,sa657863,"Matt Olson",ATL,1B,$33
 10897,"Five-cent head",40927,30116,sa3018052,"Seiya Suzuki",FA,OF,$33
 10897,"Five-cent head",23654,19197,sa873265,"Will Smith",LAD,C,$31
 10897,"Five-cent head",18480,17678,sa659419,"Alex Bregman",CHC,3B,$28
-10897,"Five-cent head",31751,19853,sa874220,"Michael King",SDP,SP,$19
+10897,"Five-cent head",31751,19853,sa874220,"Michael King",FA,SP,$19
 10897,"Five-cent head",23651,13066,sa596861,"Teoscar Hernandez",LAD,OF,$18
 10897,"Five-cent head",38312,27463,,"Garrett Crochet",BOS,SP,$17
 10897,"Five-cent head",40862,31757,sa3017934,"Mason Miller",SDP,RP,$16
@@ -371,7 +371,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10908,"South Side Shitshow",40714,29995,sa3017698,"Daylen Lile",WSN,OF,$6
 10908,"South Side Shitshow",40181,29514,sa3016863,"River Ryan",DET,SP/RP,$5
 10908,"South Side Shitshow",44630,33891,sa3023505,"Zach Thornton",NYM,SP,$5
-10908,"South Side Shitshow",18465,15440,sa621603,"Matthew Boyd",CHC,SP,$5
+10908,"South Side Shitshow",18465,15440,sa621603,"Matthew Boyd",FA,SP,$5
 10908,"South Side Shitshow",42299,31448,sa3020006,"Henry Bolte",ATH,OF,$4
 10908,"South Side Shitshow",43841,32157,sa3022324,"Jonah Tong",NYM,SP/RP,$4
 10908,"South Side Shitshow",42279,31695,sa3019983,"Dylan Beavers",BAL,OF,$4

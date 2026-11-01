@@ -144,7 +144,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10764,"Wrecking Crews",33634,22186,sa3008294,"Brice Turang",MIL,2B,$9
 10764,"Wrecking Crews",38327,27769,sa3014458,"Pete Crow-Armstrong",CHC,OF,$9
 10764,"Wrecking Crews",22078,30115,sa869798,"Robert Suarez",ATL,RP,$8
-10764,"Wrecking Crews",9668,12552,sa505033,"Eugenio Suarez",CIN,3B,$8
+10764,"Wrecking Crews",9668,12552,sa505033,"Eugenio Suarez",FA,3B,$8
 10764,"Wrecking Crews",39285,28820,sa3015713,"Moises Ballesteros",LAA,C/1B,$8
 10764,"Wrecking Crews",33620,25377,sa3008613,"Brady Singer",FA,SP,$8
 10764,"Wrecking Crews",36669,25816,sa3010329,"Shea Langeliers",ATH,C,$7
@@ -362,7 +362,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10908,"South Side Shitshow",37295,25931,sa3010684,"Michael Harris II",ATL,OF,$17
 10908,"South Side Shitshow",48240,37120,sa3063258,"Munetaka Murakami",CHW,1B,$17
 10908,"South Side Shitshow",42156,31347,sa3019855,"Zach Neto",LAA,SS,$11
-10908,"South Side Shitshow",23780,20043,sa3003396,"Luis Robert Jr.",BAL,OF,$9
+10908,"South Side Shitshow",23780,20043,sa3003396,"Luis Robert Jr.",FA,OF,$9
 10908,"South Side Shitshow",40941,30122,sa3018106,"Gavin Williams",CLE,SP,$9
 10908,"South Side Shitshow",34619,24679,sa3006675,"Brendan Donovan",SEA,3B,$9
 10908,"South Side Shitshow",42737,31846,sa3020703,"Spencer Schwellenbach",ATL,RP,$7

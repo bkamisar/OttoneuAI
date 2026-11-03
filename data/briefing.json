@@ -1,6 +1,6 @@
 {
- "generatedAt": "2026-11-02T10:09:01.246Z",
- "dateLabel": "Monday, November 2",
+ "generatedAt": "2026-11-03T10:09:02.403Z",
+ "dateLabel": "Tuesday, November 3",
  "teamId": "10759",
  "yesterday": {
   "note": "No games yesterday.",
@@ -8,19 +8,37 @@
   "pitchers": []
  },
  "news": {
-  "transactions": [],
+  "transactions": [
+   "11/02 — Baltimore Orioles activated RHP Kyle Bradish from the 60-day injured list.",
+   "11/02 — Athletics activated 1B Nick Kurtz from the 60-day injured list."
+  ],
   "flagged": [
+   {
+    "name": "Kyle Bradish",
+    "reason": "transaction",
+    "items": [
+     {
+      "title": "Latest O's injuries & transactions - MLB.com",
+      "link": "https://news.google.com/rss/articles/CBMiakFVX3lxTFBMVjNzTzVOSEVPZ3hkYURrYXoxcFhJWjhjLWFmM0VISXo3TGJyTWJOTUhGQTQ2bUR4M3JlU0NyOE9sUEsxSW1kQmotSklyU1pteFFRcEV1Y0hqOE9ia2xUR2ZtcWRVazFTN0HSAXZBVV95cUxOUHdIWmtHTkdwWTNKaFpucDFibS10dzZ1X3ROUnJNbjRCX3FqSlRIMXg0OU9DczAtUEJkV1piRmdSVlE4MG81Y25LejZQdlQ3ankzR243eC1QdjVYRFhiekVhSTZDajdsS0x0aklFYUc4LWRMUmVB?oc=5"
+     }
+    ]
+   },
+   {
+    "name": "Nick Kurtz",
+    "reason": "transaction",
+    "items": []
+   },
    {
     "name": "Juan Soto",
     "reason": "",
     "items": [
      {
-      "title": "\"Who’s gonna give him more?\" - MLB fans in shock as Joc Pederson declines $18.5M Rangers mutual option - Sportskeeda",
-      "link": "https://news.google.com/rss/articles/CBMixwFBVV95cUxOV3NUMGlSWElNVmRBVU1na3dGS3U4cXJSank5a0ZfX1o5ejZoVmZSOThqams3MlVoU0ZOUThaSG9odmlTRWpqb3lxNHFVRzJyWFRCU0lWd19UVU0zU05XT0lpZlJrallIZllSbm9oUEo2ZkxMVG9xX0NLODlrdXJETzhMajltdmVKMUZCT0tCQ1RKMXktOElrUXdYRVdibXpCdVBqR1BwS001TGo1Q3pTTl9MT0thbFdZNXpScmZDRFRzYXhGMUtn?oc=5"
+      "title": "\"Another Jackson Merrill\" - MLB analyst hails Mets rookie after stellar debut season despite NY's struggles - Sportskeeda",
+      "link": "https://news.google.com/rss/articles/CBMi1gFBVV95cUxOUm0tbjNGcE4weV9GZnVaejlhYURVMGQxYVQxNXRHTnpianA1RXRldlJwckFMUm02VU0xQ3RJQVFBZnl0X3FJbXJUVkFWcDZiemVuYU5WMzU1VzBIdnVjVjI5LW1UYjdBcE1KemVqanh0ZlFVXzFUY2NWd3cxMFBkeU1tYUxDWldRcVJXZmJCSTMzWTlXREVKcUJySk9ia1M3QXJzTDVDbVk1eXVJRC1VUERQMkR1VlMxZ1FON282OU5pXzVZWHdfT1F4SEpyOGd0QS1nWGl3?oc=5"
      },
      {
-      "title": "\"Shohei Ohtani was actually hitting on the field\" - MLB insider offers inside account of Dodgers superstar's debated decision in NLCS - Sportskeeda",
-      "link": "https://news.google.com/rss/articles/CBMi6gFBVV95cUxPWU44aTBlUWI0bHU3MkNpdjZzdFpVd205Z0VrWDJDT1RTVnFaWjk5eENkbVBsUDNockdGNzhFSUFRUkllSTlycERLMkN2X0NBa0lleWRKQlh5MXRpenZ2TmlhOHR3MGVoYmhLb3RyYUV3SVkxT3pEUmZGSzFtLVdxUUx6cHpudTdLajVycWp3eTFsOGpMMHphV0xKRkhfbHJuT2Fyd0xUOG95TGhHZ3dSdFUydWZFOU1YZEZCWkI4UUNGVWJ6ZWtoUkZFTUR1bmU0QTJBVDBaeW4tb1RWMWViUlhZM29oUGhneFE?oc=5"
+      "title": "\"Passion does not equal intelligence\" - Fans blast NY radio host for throwing shade at Juan Soto's performance with Mets - Sportskeeda",
+      "link": "https://news.google.com/rss/articles/CBMi0wFBVV95cUxQSDIzNXIyay05TjdWWUtvcHVLRkFjbXJQLXluVWhCUVNzWDhGTHhmQ1VKYlh4UjUzSUo5cF82QUtnNnNZemZoblZGektNalNfQ2tmWFp0bmJvUWZBYVFDN0JLNllQSkJ6QVZSX2pGRkVzUER4SVd5VnJGTE5kNW1EdzlucW5aRDljNjkycmhSQWZBTGpZR3o2UGd4a1lOWmpweWgtOXpMcjJLQXpHeFpsdUM1UHFHdGFIVGN3TWFnb3R4NnVkZnNjNkt5TEw4LXp4NFZF?oc=5"
      }
     ]
    },
@@ -29,8 +47,8 @@
     "reason": "",
     "items": [
      {
-      "title": "San Diego's Tatis, Miller Named To All-MLB Team - Yahoo Sports",
-      "link": "https://news.google.com/rss/articles/CBMihAFBVV95cUxQWjhrb191QXpHUFB4ZmtvSVJGN0lwQ2ZzcVIyRzdtYjladHRuNmJsUHdpOWJPQUI4NEJMMThWdlJpLU84Y0NhOVdLS0M1eWFSaXN3c0xwcnktN21MX1VURVo0TUpvTFYwNUNFZUZhekgwbzVLYko2TFl0TkhtcW4wZ01Lc3Q?oc=5"
+      "title": "Padres predicted to sign $10.2M speedster Silver Slugger winner to pair with Fernando Tatis Jr. - Sporting News",
+      "link": "https://news.google.com/rss/articles/CBMi9wFBVV95cUxOTGliZGVvaDhfd0c2NTlSXzVBcEw1Y3FpV3hHWlEwdU9uZlNJeFFtM25iNlNuX0NrOHBGYkJnNXVRWXRmdVpMem5iNHNzMmtmZ1hkOGlBb1pvMzJiMEUzbDNSazJqNTdkcG52b1M5UTBYX2xGZUtLNC1CS0NxQU82eURBUlZpamVTcnhhOTJCMHpXRUl4elQwVC10b29RN2pRRWZENG1WZlpWcXoxb2drV3g4OE1XQVVfc21SUWhPaEVQeWlyQXRYZEo3c0xvTVRaNW9YT0NGaTdhVFJBZ1BCSjNTWHd6d3hMc1lQWEF6VF9JRnZHUjM0?oc=5"
      }
     ]
    },
@@ -39,12 +57,12 @@
     "reason": "",
     "items": [
      {
-      "title": "Dodgers News: Kyle Tucker Named To 2026 MLB All-Postseason Team - Dodger Blue",
-      "link": "https://news.google.com/rss/articles/CBMingFBVV95cUxQSm9XcGRrS3Q1djRhVjlCU2ZkbnVDT2VGeXNadjdMR21OQlpENTBDV2RFc0Z6R3hWV1Nad3JaeXhRV1pWV0sxTk5DYktIUmc1cW51YnJaQ3VWVGtsQ251a3lOOWlBUXpiRF9sU3V0NjhTRjVNd2VIT0pQSVR3eWdxMGhaZGdoUkYwRG9HQVQ4WjNwMEpQbDBfanNGN2dCQdIBowFBVV95cUxNa0l2LWVrcFZpd1NnT2F5WjJ5RWR0VXZlUXpoZVA0WW96WV9OQVVLY1NySTBMWk5teUNoTnJGVzlJQl94M2RSeDZSU0JNZ3AzZzNDRUdQSWx1OHF3dk9rUGgtOUJqY0I2VUJWX1NnZE5oT21WbUZZa212Z09Tb0NuZmVYMFowTFZtSXh5dktuU0htVm9URnlLTTF4ekhNSEFOQkVV?oc=5"
-     },
-     {
       "title": "Kyle Tucker Earns Major MLB Honor After Dodgers Postseason Redemption - Dodgers Nation",
       "link": "https://news.google.com/rss/articles/CBMiqwFBVV95cUxOaHJfT0U3bng0NWhraGJJQUo3TEE5Yms2TmpkV1Jnak1CLVMycHVkUFFTZm92bl9FSkRSTTFLQjRpTVhZLVRBblhaV3VwUGtUZ1JWUHZWSkR2WnJTSjZhQWVtTWkzNS1OcjdtZXpNR0dBMHZTazNNNGwtZHhmMFNpMi04N3ZNV3NGN2ZJV1gzSG90X2oyRTVrNmtYa0ZkQ2UzZEZSZGpmTFpWdEk?oc=5"
+     },
+     {
+      "title": "Kyle Tucker Makes MLB.com All-Postseason Team After Frustrating Dodgers Debut - DodgersBeat",
+      "link": "https://news.google.com/rss/articles/CBMiswFBVV95cUxOSW0xZEx4dWdCRUlfX1FMX291UVBmYnNXVWxaWUh6Uk5FNTJTOGxHci10YTNnWGpEc0NxaGVhZ0pUWms0bjJZUnJWME9KUFF0eUNuWlRKd0dpU0NURmVGalRsTEZ5S1h0VlFzaDY5N1Nwd3RsUVYwM25TN21NSWtvc1B0c2wwZjJaOGVyTF8yODBYX1l5Qm44OEpETlp2eU1abEpOTVJOSGctZHZGRGlYa0NNOA?oc=5"
      }
     ]
    },
@@ -67,8 +85,8 @@
     "reason": "",
     "items": [
      {
-      "title": "Freddie Freeman gets a Halloween surprise when he spots a trick-or-treater dressed as him - MARCA",
-      "link": "https://news.google.com/rss/articles/CBMi7AFBVV95cUxObkQxRXRLZTdZSDJPMHdvN3AzX2pIcHpkaUVzc0ZDSWJYOUUwUWFjLWFsdElmOTVNbjkwdkFGRnVwaHRRV3k5QzcwMGJGSThPTGQyOUhXRWI1Y0Fkd3RObHhqTEdPQ3Vvd3U4S0xuTk5BMVNjSHNRZzl1Z3ZvYnh6X1o4Vkt3LW4wUU5yaEgyWFdQclYtMF9EbGhLLVFHX3RwVUZHTmxFWG50OTcxX3hPUWJFWHk4QlhzNXJ2ckNvWGs0STFFQVNMX2FVb2RFZWI5dHc0UXhhQTcxblMtTERUR1YycHVuR0NxRTF4cdIB7AFBVV95cUxQSVcwQjFFeFQ2OXFCSDBxdEJnVGtPSVIzYlFicHU3ZVVpOVc5cDBkYlBCcVlLV0gzczVVSlIxeGJYYWJQMUZzMVJMLV8zM2s4WVlMdkJxRVNuR0RCMmVkdzV1VGtrVFd4dC00MXU3SURXanZRaV9sSEw5OXFYd0NKOUQ2Q0ZtYzk1a29sTUx5OUMzZnlRY2VXLXd3WU5mQkJhM0kxem5obVR3MUp6RXA4Z2xXNWltTnU2VHhaQnVvWVI3Z2xyMDFYdUdicjhkeEpIejVaUDJ3VzJhb210akVib0pVdkFrUjNSMUZHYg?oc=5"
+      "title": "Freddie Freeman on the Sting of Falling Short in October - DodgersBeat",
+      "link": "https://news.google.com/rss/articles/CBMiiwFBVV95cUxNSW81eWNzR1ZtQmkzUUJfX0l5bjJ1LXdhbmR3WjR3M3ZFR0xYdldwR3ZtMlJDSzVyR3VRZ1BkcnpSYk9aem81bFhLS3p6ZVFyeHZ2ZGU1bHhFYXBMcGZMbkxrWDUwNkQzS3hHZnVOVDM5alZBTlZpM3BtXzZpY1htZjdueGIyZDkyeWpV?oc=5"
      }
     ]
    },
@@ -77,12 +95,12 @@
     "reason": "",
     "items": [
      {
-      "title": "Blue Jays’ George Springer Included in Major MLB Free Agency Announcement - Heavy.com",
-      "link": "https://news.google.com/rss/articles/CBMivAFBVV95cUxNZVlpTi11X0tmTkEwOFBXQkJKZFYzQVZ3VDk3Yzk2T2pFb182WG5tSEN6QjZqN0VhMVl2ODhidTlHb0VickRyUkw2aTlrcWgtVXptb3AyVGRGblVIQVgtVFhmbEFsS2htT2I5UkR5ZFc3OGdCSUVva1YyMldFVWFqR0pseUozOGpWY2FEV2ZpZ2g4cGh0Nk4xRGE0bXIyMmF2cnFhR2RaMzNybV90TTFnQk5BeFFfTkxYLVVPNg?oc=5"
+      "title": "Blue Jays predicted to sign Yankees' two-time Gold Glove winner to replace George Springer - Yahoo Sports",
+      "link": "https://news.google.com/rss/articles/CBMiiAFBVV95cUxQWnVVSk9pWFEtS2xoVUswOEVVU3VOYkQ5S01jQXNCTFg3UGsyYTJVN3BjWUF0dUdFbDdLY0F3ZDBta2dfVmxISVF0dnpfREJsUDc2dGIyb0kyRVdRQTlGNXBOdVpTbDYyc1diSGdCS0FqR2d0UUFGMnphTjk3YWNWN01Ib01uWnFf?oc=5"
      },
      {
-      "title": "Eight Blue Jays Become Free Agents - Yahoo Sports",
-      "link": "https://news.google.com/rss/articles/CBMiggFBVV95cUxON2NNcFJVd2RUSVVZMFU4eml4Y0FhM2tydlhScHY3RHNiT0ttT2M2d2RfLVYyU1BfUE4wQmNxd3U5MnY2b2Y2Q2d3RVZuWWtoSkhzUGNHUDdENG5CdzUzUFZ5bWdkVG8wTmtmZW55Nm12WWtLTmVJMk9HSDJwUFcwUFZR?oc=5"
+      "title": "Blue Jays’ George Springer Included in Major MLB Free Agency Announcement - Heavy.com",
+      "link": "https://news.google.com/rss/articles/CBMivAFBVV95cUxNZVlpTi11X0tmTkEwOFBXQkJKZFYzQVZ3VDk3Yzk2T2pFb182WG5tSEN6QjZqN0VhMVl2ODhidTlHb0VickRyUkw2aTlrcWgtVXptb3AyVGRGblVIQVgtVFhmbEFsS2htT2I5UkR5ZFc3OGdCSUVva1YyMldFVWFqR0pseUozOGpWY2FEV2ZpZ2g4cGh0Nk4xRGE0bXIyMmF2cnFhR2RaMzNybV90TTFnQk5BeFFfTkxYLVVPNg?oc=5"
      }
     ]
    },
@@ -101,12 +119,26 @@
     "reason": "",
     "items": [
      {
-      "title": "Caminero returns for season-ending Game 5 after late scare in Game 4 - MLB.com",
-      "link": "https://news.google.com/rss/articles/CBMif0FVX3lxTFBQbFpCX0hzTmVMLU14OGZGYjdmSHRaaVVkZXZRMTN2bWVnMm50NlA5azdDRFQxYVA1Q3dabTBNNHB2R0RGOXZzSzlmdUxyU0wyZkJQY1E1Ym5tLWVZd1h0alN0VUJUdktEYl9ueU40Znd1azhyanRjM1NmTjdnamM?oc=5"
+      "title": "Alvarez, Caminero, Witt Jr. finalists for AL MVP - NBC Sports",
+      "link": "https://news.google.com/rss/articles/CBMisAFBVV95cUxQVHVCUHhhYzBsWkYxMVJ0Y2xUcjZmS290SXkwNTZYRzNSd0RQcHFSdFpwUmdDU21RQVBVRjJSdlI1dzRWZjktYUJRWERJZlJielFqdy02WWZ4ZklhVWhsU3pnMTRWcXFOZjhKc0VXd0s3Mlg0WVhMMW1wNWdaYjQwVlBsSEdBZ1NuUk9ERmZLNHliVjNwUzZLZ05xWkt0QlVTcjk5RFVPTS1QZ0dDWUZSUw?oc=5"
      },
      {
-      "title": "Junior Caminero reflects on Rays' World Series loss - MLB.com",
-      "link": "https://news.google.com/rss/articles/CBMiggFBVV95cUxPakJOTzNXUnd3TWFDcVVqYk52YlBlSU5talFVUlQ3SThhRm1sbVZpVDFEOFVYcnVZUDQ3azBTOXg5d1Ftal9kUURlLTJVRm5QZUtpVkxPQ1k2V25MVWRxc3lETXYwYnB6X0xyaEZURnZuRlA1OU5ZNHE4a3V6Y2tXaUJn?oc=5"
+      "title": "Rays well represented with 3 finalists for BBWAA Awards - MLB.com",
+      "link": "https://news.google.com/rss/articles/CBMilgFBVV95cUxPZmxPSVlSSUY0QU9laU5VZ2hfc1FRS0t5andCNWpWTzQzOWFIaEdxakk3MWF1QVZzS2hsc1dqLThhNGF2ck1mMkhLMmVHR09paUMxbVRuQWhESTNfSmNKX29GNEYtd2dxVHpCU2h5OElaMXYwNHYxWjVKUWE0SlFmR2JPVWRzSUNvWXZjbkdjNUlNNkM2SUE?oc=5"
+     }
+    ]
+   },
+   {
+    "name": "Corey Seager",
+    "reason": "",
+    "items": [
+     {
+      "title": "Rangers mailbag: Walcott in the OF? Seager at DH full-time? - MLB.com",
+      "link": "https://news.google.com/rss/articles/CBMikwFBVV95cUxQRWwxdlJBWFYxZVVweTZjbEh4bV8tVzlkeVc0bGpfVi1EWEZ1bGcyYW1LVzRCWXJLUWhqNmltTTZBYm9ZeUpyS2xVWG55RE5WTnVLQkp3MFVkdjdmclJrRm1XYk5pbWFVajlEZFNnS2hVcmpMQkpEeXd2cGZsTk9DZkJHNDlwQ2haWEdpb193RHVUMXM?oc=5"
+     },
+     {
+      "title": "Change is coming for the Rangers this offseason, and it could start with the team's star players - Dallas News",
+      "link": "https://news.google.com/rss/articles/CBMirgFBVV95cUxORjg0NlRJaU1rdG5NVEhrc1lsMVl2cjdzNkdRdi1XbFlVbWdqR0JmQV8tWXcyX0d0LXhaSmt6N0V4bDFwZ2ZxcldBLTRxRjB4anpYMVhYcUIyZGk4bTg4UXY3ZWRiSlNLNlo4bmVNSndfNW51aUJrdm4xY0hpTC1ubEVPYmhicDBGcG9TMkpJZDZJVUlUbUdxb1BabnRkckRqOTBpM2RTbnU3NFIxUVE?oc=5"
      }
     ]
    },
@@ -121,16 +153,30 @@
     ]
    },
    {
+    "name": "Jhoan Duran",
+    "reason": "",
+    "items": [
+     {
+      "title": "Phillies’ Cristopher Sánchez, Jhoan Duran and Don Mattingly named finalists for MLB awards - Inquirer.com",
+      "link": "https://news.google.com/rss/articles/CBMirAFBVV95cUxPM1pVc0JMUXQ0d0dDRXZFcVRzaG93V2ttcm8yanNIQ3JsNHhGSlN2OVhqSHhrQXpLY256dDBZRXo3QU5UdFRPZThFcEdoakgyMEU4OTZSWDBJNW0wRVRmN19RV2QzZmg2N0ZQMjJldU5Fa2tpUWpwdjFwZUJGMnN1aXZoXzRQVDFzdmxVSXpoV3p6Z0s0b0RBWUFsQkJ6WC05cC1oQzEwaFE0aU52?oc=5"
+     },
+     {
+      "title": "Cristopher Sánchez, Jhoan Duran, Don Mattingly named 2026 BBWAA Award finalists - MLB.com",
+      "link": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxPa2MzQjMzRmM4RDB4NFVvSFdZMi03N194NVpnSjJpN1RuMjlnREVSbEI4ckVBUk81NjFmdXFmelF3TnByeHFRUUl1bElrYzNCcE1jMGl2RF9zUFpFbnlkdWFIT1pUekRKZXV0emd6V3Brdy1ybkNJdmtkdlQwbkVyQVV4MVJOQjRGTndkMFJ4dXlOem11ZEN2bTVzeTVKejE4Wkc4VENyVDY?oc=5"
+     }
+    ]
+   },
+   {
     "name": "Sal Stewart",
     "reason": "",
     "items": [
      {
-      "title": "Stewart is in thick of ROY race; which other Reds could snag hardware? - MLB.com",
-      "link": "https://news.google.com/rss/articles/CBMiiAFBVV95cUxNeGJKRzVnNTdyYjByWXhIVDBnQ0Q3a2NKTExnTV8wRFJaYWxEdDdJR2FfNnljRmc4VHJ3TUlQem9ZVmpiTUJzeThQMGdQY3plRExvWmZ5ZmVxa2F0OUtXenhZVTJHaG1DZEUyMGdQOHhXVGFpUjZfbDhaOUlfck4yd0hXUWNwS3lK?oc=5"
+      "title": "Stewart earns NL Rookie of the Year finalist nod after historic campaign - MLB.com",
+      "link": "https://news.google.com/rss/articles/CBMihAFBVV95cUxPcXdtQzJWUGdzTDdPbEtHaEl2THB2NVFGRDc0QVE0YmZhVDhqRm9wcnJpX3dOZWxrcXJuUGpXRXZzWXZsM19hczZGUUpLYmtnY0liTnB6WU15RkpRU1hYRGpDQ1ZCNjlra3pKU0VkbXc5SDd4ekRXU2d3bVgzNVpickI0ZUo?oc=5"
      },
      {
-      "title": "Sal Stewart named 2026 Players Choice Awards NL Outstanding Rookie - Yahoo Sports",
-      "link": "https://news.google.com/rss/articles/CBMihgFBVV95cUxNTXlxaDlrYXBrUlNxRlFRME9fdkp1S3laRGRRMzNGYkdKWk91RE0zVXZjbW9uSUFESzIxbldXYmZZS3JXQnNsR2lfOG9teG5qa1ZTT0Y5dXJsTDk3YjdOM2tvVlliNUMtd1dwNnJTLTZYVHZfWVQ5NUQ2bFhOUDd6a0t0SDJHUQ?oc=5"
+      "title": "Sal Stewart named finalist for NL Rookie of the Year Award - Yahoo Sports",
+      "link": "https://news.google.com/rss/articles/CBMihAFBVV95cUxPZVRHcEx4c1lndVdVaWMzQ0lTeEh0ZGx5VHZKVk1ZMG1qU29wUC1Nck1Id1J6M0oxMzY0WXBoMF9NcHRSdTNPbXFlSmtFWXYxRVVOQURUa1pNT3V1cVAxaGNBM3hFUlJLNTB4d0xiZ2plNlI5MWUtOW5nZE1Ba3ozdVVrcDg?oc=5"
      }
     ]
    },
@@ -139,12 +185,12 @@
     "reason": "",
     "items": [
      {
-      "title": "Yankees' Cam Schlittler on what it means to receive MLB Players Choice Award - CBS News",
-      "link": "https://news.google.com/rss/articles/CBMiqgFBVV95cUxPamJ5d0dyTTNFaVFFeGRHZURrWm9yeU5yMkZUaVdhWkQtMXU0bUloeDIxTzBtb1VxUjBHRGZyUWRrbTM1dmk0ZmdpUGdYaTdZYjE2MEhhaTBxRTV0cE5TRzl3RnlhaGJNdVFPZ1Mzam5ZX2dvWkdfVk51Q1FQalFDV2c4Qk5SNExqTmlJMDhmc1hPbV9BZzh1UTVCVHFCWDVNczRnaWdiZm9kUQ?oc=5"
+      "title": "Schlittler named AL Cy Young finalist on heels of dominant season - MLB.com",
+      "link": "https://news.google.com/rss/articles/CBMie0FVX3lxTE5aRkpZU3lrNWE5ZVppZzgyd2U5WGNDSUV6cEZ5U2stN1dVMGhTZE8xWExXLVplUkhhREhTc2lpRTBiaUxHa18wOEtwY2xlRlRHSEl0d0xhX2FPNUc0UjBuNXVJV2UzMlk1cWdOXzg1Y2RvQXhtLUtlNlJQYw?oc=5"
      },
      {
-      "title": "Yankees' Cam Schlittler Wins First Award After Stellar Season - Yahoo Sports",
-      "link": "https://news.google.com/rss/articles/CBMiigFBVV95cUxNeWNhR0d3RjFvZ1ZPRVp1azNrWjVjWlUwMC1lSzF3dkRfZzJqV25DUUNUd2UydnRqb1J0MVMwdEhGVEtsaVNJUDJVYmhHOWdEQVdqUGxtamNPRU9DX2UzeWpWOVQ4ay1aUmFmNVJmUnBEMWhhbVl6WFh3Y25xVldqeExqQlE0ZkVZb0E?oc=5"
+      "title": "Cam Schlittler named finalist for AL Cy Young Award - Yahoo Sports",
+      "link": "https://news.google.com/rss/articles/CBMiiAFBVV95cUxNYmJBcXQyS3BuTlZWVG5yeTdjQ3UwTFZUZjJqNG00NVQ2cE0yTDVxVWRqaGtPdWlacXNVUVVXbkliUUdSSEJ4TlpEMWVoRV9zdHdwV09KMWpCdWVIbTBIalZOOEVHVnVoTFNuT0JMWHNUczJXei1CenkyMzlkX0pLY29wR3JINzFw?oc=5"
      }
     ]
    },
@@ -167,12 +213,12 @@
     "reason": "",
     "items": [
      {
-      "title": "Top 10 Free Agent Relievers for the 2026-27 MLB Offseason - Just Baseball",
-      "link": "https://news.google.com/rss/articles/CBMie0FVX3lxTE9oYUxTLThhVWFOTGplOVBaZl9oUWdzTnpkSGNadW5sal9wVHZNRFNBZ3lCTURzY2s0SVpFVm5GbjFmbmFKaWVqZHd6Um13ZjBERzFJTldSb2p1ZzY0ZDUtOUdUVjctZGRvVDJvdmRxT1VSYmg3LWFoUG83OA?oc=5"
+      "title": "Padres extend qualifying offer to hard-throwing lefty Morejon - MLB.com",
+      "link": "https://news.google.com/rss/articles/CBMifEFVX3lxTE5tZlZfZFNoYmhsM1d3QUxFM0pWSm9QbUhlUmpIU2Z1VDI1LWJERGxoMDVEQ0s5clJCVVFXSlA3UzdtMzhscG1jUWxKNjB2c0t6VmRjRXpYRHZnQklhdm9ZSzZtdEVjVDA2cWIxWjIxOVNQRUFKZ0d6MkxmWmc?oc=5"
      },
      {
-      "title": "Phillies Expected to Sign $42 Million Star to Fill Key Role - Heavy.com",
-      "link": "https://news.google.com/rss/articles/CBMipwFBVV95cUxNajV5QmdvTHhFN1FkamtyTThfZ3Fobld1M3pWQk4tNHcxZU9MaGVUSUF6VWxqUV9NOEpZWkQ3MjlmQXBCRmR5bEVOREFXc3p6Skg5bF9TZnEta3dZaGNrZDFwVVFrUlA5SEg1bUJWU09oeDVfV2t3SUJWX0FVQnZEdUxTdExwQ3ZtOGFKUlhoU19NR2xSV1ljd0I5aVNsQ0ZQZHFlLXp3UQ?oc=5"
+      "title": "Adrian Morejon Receives Qualifying Offer From Padres - Padres Mission",
+      "link": "https://news.google.com/rss/articles/CBMizAFBVV95cUxNd04tSW03V3F2cVpwLWljTU10cEJPa29nRnZfYlFmYlUzSl8zOHRiZzN3SVN6dlRLalhTOXgtRVRIdVo0a3dtcDQycFdLLS1iRDJOWHd3TWJqdHduY0JWMnhaSFFPd3hxMy1mQlVjR19EQjZKTHZKU2JYLTc0T2JEMjhUZzF3Njg3MzhuTkdZd0RPUERjYnZBbU1vV1hXLUdFdVFVN0JzR3JLU2xjdzZ1NjNFNWNRYVd0QzNrM3E0eEZwZ2N1cjZNbktxMS0?oc=5"
      }
     ]
    },
@@ -205,26 +251,16 @@
     ]
    },
    {
-    "name": "Josuar Gonzalez",
-    "reason": "",
-    "items": [
-     {
-      "title": "Giants Top Prospect Josuar Gonzalez Shined In His 2026 Stateside Debut - Sports Illustrated",
-      "link": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxQLXREU0JpVDZqLXNYckl0d2d6VmJ3ZW1DUkY3Y2JENGZJSU1HcFFQM2UzWWY5TDhWeWdDOFVDWThON1VaaGtJZ1VsRTRhVW51UnlmWEJCLVhBcmhFdkNLX3JEUFRBeFJBS1ZPbVlsd1lpaWxqNER6UGJqNU02UGxScEdFWHRsZ25HbzFvcEc5eXVPbElKbWFWWks5N1Nza2lvNUVUdXlpeFA?oc=5"
-     }
-    ]
-   },
-   {
     "name": "Trevor Rogers",
     "reason": "",
     "items": [
      {
-      "title": "Orioles Face an Important Decision as Trevor Rogers’ Free Agency Begins - roundtable.io",
-      "link": "https://news.google.com/rss/articles/CBMiuwFBVV95cUxNRWdTNkVaRFUzWmpwV2xaUVByVWxMSFZKQzFaR0R0dkRjdmhBbnhlUXZZN0JkbHYxUDNORS1XZ3doZGtVNXo4Ni1GMDJ3LVRTYjQ1cHJySE1UcTdJX3ZFSkwwOFpTVzdXZmJwMENnY3pBQjdiTXZIeVNDSm9ocl9XcmNYdHlmYVdFMUlkYWxGa21TbGFtOEYyb2tUWXZ6SlphZVJySFRQWEVQT21fRHY4REN2bkVIWDJHNEsw?oc=5"
+      "title": "LHP Rogers receives qualifying offer from Orioles - MLB.com",
+      "link": "https://news.google.com/rss/articles/CBMigwFBVV95cUxNbmM4ZzdIY1lia0x1NnJhMUNzRU8ycWRINmdkNllLZzcyUUVEVXNtYXFNTW91YUFpeGQ1X0JxYzBrYVJxdjl4cWoxZG5aOXdNLUNxLTZGYW56aFYwZ1NHWWtfYmZhcXhhS2tROFF6OU1oWW5yLVhoN0FHRnB2WW1yYy1PUQ?oc=5"
      },
      {
-      "title": "This Free Agent Pitcher Named Best Fit for Pirates - Yahoo Sports",
-      "link": "https://news.google.com/rss/articles/CBMihAFBVV95cUxPYU14SjQ2NEFiQ2o1UXpmSlZ2d0lNOVRnTWZ3U1gtWVBnRk9tTGVvSmJZbVBKYmtpZFA1bDVSdER6N0JreW5VNUJvMEhOMEtFR0hVZFhGaDZPMHFaNW9pNVBTZFBscU95bG9wNHFiMjYyVGsxSXhOZnlpd0hReEZ3U0prbk4?oc=5"
+      "title": "Trevor Rogers Named Top Player to Watch Ahead of MLB Free Agency - Yahoo Sports",
+      "link": "https://news.google.com/rss/articles/CBMihgFBVV95cUxPbVB3X3VIQXVYR2xxelM0R0Exdk5FNW51aFNBb1RJZUVyZ0pVd2xvODJGUnBsc0ZiV1UzWktJZERGMU9acTZRY2pEbTc4RGNFaXdEVkt3aDFrc3lJT2NCSU45SEdWOVBscGRWQ0JJWGFsTVR4M3hETUZjQ2JBSnJGMDhoWHBOUQ?oc=5"
      }
     ]
    },
@@ -233,12 +269,12 @@
     "reason": "",
     "items": [
      {
-      "title": "Ashby available for Game 5? 'Yes,' says Crew's pitching coordinator - MLB.com",
-      "link": "https://news.google.com/rss/articles/CBMickFVX3lxTE9XSnhHNEFKMWlKeTFSRmRmQ1ZsS1pYRXpMT05RcjV6TmtFQVBUOU5wUDV1NGhtWUVfQ21ELVUzTk9zT1NJSUpXUnhCX1hjRjY3MnVCNmJVd0J2QTZ0YmVkSS1HWl8xdDJuY3hwVFNOTVNSdw?oc=5"
+      "title": "Aaron Ashby: 'This has been the most special day' | 10/30/2026 - MLB.com",
+      "link": "https://news.google.com/rss/articles/CBMihwFBVV95cUxNYXJITXQ3TUhXT2s3V05nZ01IdjE5bjlIQjUwVWxYN3QzTkx5TEZoV19RTXRoaXF0OFEwVWpka25vSzZ5em1QQnY0QnJTWmRLRU1DYUwtTV90TjdDc3h0eGdfRUZmb2x6TmpXUktoa2E3SklGemNnYzVZZWNKX19UWGJ1ampES1U?oc=5"
      },
      {
-      "title": "Brewers’ Aaron Ashby breaks Andrew Miller’s postseason scoreless-innings streak - The New York Times",
-      "link": "https://news.google.com/rss/articles/CBMipgFBVV95cUxNODlKYVU0WUtKcUhKdXNfekFSMjJkY1NjNWUtcXl2dTRURVBUZGdkSEp0MGtBdHJhaG52TGh4V2ZHdWFXTEhCOEpoTmhOMF9HbXRqUUlHd0g5VGUyYjFaTkZOQ1BPOVFFdVowZFJJTERncDFIZml0SU9ZcE9vVzJ4cnhOQjJ6c2pzNWNNUGZ5NHc3WnlQMTBpNlVQYXJFVFZ4aG5PZGFn?oc=5"
+      "title": "Aaron Ashby: 'This is unbelievable' - MLB.com",
+      "link": "https://news.google.com/rss/articles/CBMiakFVX3lxTE9XbkZITDhqdzd6czVibC0zYW4zb2szTXJYVk5yOVFObmZxRUlBUnZUUC02NnlVTHVBSkZSbWsxNk9GeHhYSTd0aE5YdHNqSTlGZVNOcGFfQ2xCdXdVa3Y5bVctbHNXN2NJSlE?oc=5"
      }
     ]
    },
@@ -246,10 +282,6 @@
     "name": "Reid Detmers",
     "reason": "",
     "items": [
-     {
-      "title": "Angels instability could give Guardians great chance to turn their rotation in MLB’s best - Away Back Gone",
-      "link": "https://news.google.com/rss/articles/CBMitAFBVV95cUxNbDlubEVDRUpnNEw1Q2FsSXk1Q2dEYjMwamE3ZmNzYkhjQjQ4SWdvYWdPS2VZdGZHaVBZM0F6ZWh1b012MHJlTmY2MUVjZjZWUzJnbkc5UGE4ZGgzM2JtekFDME9sZFlkeVlfMnpOUklzTjc1QV9ralJRVHNmSmEzQnNGbVhlSDRyUjlQeGVpbnptZjZCM2VqNTJXMHhWYmZqakgwaHV5aEptYm83MlNIUFEwUTc?oc=5"
-     },
      {
       "title": "Top 40 Trade Candidates Of The 2026-27 MLB Offseason - MLB Trade Rumors",
       "link": "https://news.google.com/rss/articles/CBMijwFBVV95cUxPYUVfOUxuZFl6NDVSRE5ycV9LSVZsTkVqU1RzWUJPdVM1QmJxenUzWWpPLThkcW45dEI5Uk14b21OMFQ3dmYyWlk4Yl9MT1JwUlFuWTAzcHNrMEthd2ZBUXB4cmpZbm9MYUM1YnJyR0dXeHhLaFdCazkzNmVPeGNVcHZPd1ptX2FabFZKQklzOA?oc=5"
@@ -261,8 +293,8 @@
     "reason": "",
     "items": [
      {
-      "title": "DL Hall: 'These dudes are my brothers' - MLB.com",
-      "link": "https://news.google.com/rss/articles/CBMieEFVX3lxTE1JSzZHcUJSVU9RYmRuNTd1TkFFTnd1cDJzdUN2aEd2WktsVWZmMk8tSkI5YmF5djZURVJ6TDNJOVZ1eUx6NlBlWWhCWm9ORmpQRnpyQTI5SXBHZ3V5Q1Vvd25XQXJxMGVNTXBqbFdBY0ZnZVBXNmlxVg?oc=5"
+      "title": "Brewers Roundup, Oct 29: 2024 Postseason Performance, 2026 World Series Win, DL Hall's Sinker - Brewer Fanatic",
+      "link": "https://news.google.com/rss/articles/CBMizwFBVV95cUxNcUo4NWxzeDlBM29kYnhwNnpfa1JzaFBFRHdPRU1EQUdWbDA2eVVYYmIzWWhYMzdxcWVFSDJCOW96Q19rVXdCM0otNFUtMnVSd2haaXdDMkd6TWg2dXRQZmhZMDZYM1hxUGI1aTRNTDc2Z1pBbnVRbkhqSTEtVUNFU3p6a1Q2Y082T05ua2xieWdyeHh0NWlCUUo4eVJEdDVIclZ2SUxXeHFaM0Y5T1I5anJvTUJlTnp4ai13czA1dHpwWHhmZjVrYy1zeG5za1k?oc=5"
      }
     ]
    }

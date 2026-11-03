@@ -148,7 +148,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10764,"Wrecking Crews",39285,28820,sa3015713,"Moises Ballesteros",LAA,C/1B,$8
 10764,"Wrecking Crews",33620,25377,sa3008613,"Brady Singer",FA,SP,$8
 10764,"Wrecking Crews",36669,25816,sa3010329,"Shea Langeliers",ATH,C,$7
-10764,"Wrecking Crews",33395,20539,sa921576,"Edwin Uceta",TBR,RP,$7
+10764,"Wrecking Crews",33395,20539,sa921576,"Edwin Uceta","TBR ST",RP,$7
 10764,"Wrecking Crews",40820,30076,sa3017869,"Landen Roupp",SFG,SP,$7
 10764,"Wrecking Crews",32611,19716,sa917992,"Dustin May",FA,SP,$7
 10764,"Wrecking Crews",18619,15009,sa708446,"Kyle Finnegan",DET,RP,$7
@@ -162,7 +162,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10764,"Wrecking Crews",35618,21504,sa3008223,"Jake Irvin",WSN,SP,$5
 10764,"Wrecking Crews",35548,21267,sa3008097,"Jake Bird","WSN ST",RP,$5
 10764,"Wrecking Crews",38043,26440,sa3011818,"Ryan Gusto",MIA,SP/RP,$5
-10764,"Wrecking Crews",26783,20308,sa3004621,"Jake Meyers",HOU,OF,$5
+10764,"Wrecking Crews",26783,20308,sa3004621,"Jake Meyers","HOU ST",OF,$5
 10764,"Wrecking Crews",26080,21897,sa3003171,"Christopher Morel",NYM,1B,$4
 10764,"Wrecking Crews",38317,27562,sa3014440,"Austin Wells",NYY,C,$4
 10764,"Wrecking Crews",40301,29630,sa3017050,"Joey Loperfido","HOU ST",OF,$3
@@ -446,7 +446,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10944,"Si Se Fuentes",37257,26288,sa3011643,"Adley Rutschman",BOS,C,$18
 10944,"Si Se Fuentes",23831,20036,sa920275,"Isaac Paredes",HOU,1B/3B,$18
 10944,"Si Se Fuentes",37094,27676,sa1115762,"Vinnie Pasquantino",KCR,1B,$18
-10944,"Si Se Fuentes",21039,17312,sa828960,"Justin Steele",CHC,RP,$14
+10944,"Si Se Fuentes",21039,17312,sa828960,"Justin Steele","CHC AAA",RP,$14
 10944,"Si Se Fuentes",13117,12161,sa550735,"Xander Bogaerts",SDP,SS,$11
 10944,"Si Se Fuentes",23794,22264,sa3004765,"Shane Baz",BAL,SP,$10
 10944,"Si Se Fuentes",22655,18839,sa874243,"Josh Naylor",SEA,1B,$9
@@ -501,7 +501,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10974,"Ketel Corn",44524,33824,sa3012640,"Jung Hoo Lee",SFG,OF,$12
 10974,"Ketel Corn",44515,33666,sa3023308,"Connelly Early",WSN,SP,$11
 10974,"Ketel Corn",18255,13301,sa503373,"Max Muncy",LAD,3B,$11
-10974,"Ketel Corn",22651,18138,sa874172,"Ryan Helsley",BAL,RP,$11
+10974,"Ketel Corn",22651,18138,sa874172,"Ryan Helsley","BAL AAA",RP,$11
 10974,"Ketel Corn",42719,31872,sa3020860,"Cade Horton",CHC,RP,$10
 10974,"Ketel Corn",40260,29976,sa3017662,"Jordan Lawlar",ARI,OF,$10
 10974,"Ketel Corn",33612,24492,sa3008130,"Grayson Rodriguez",LAA,SP,$9

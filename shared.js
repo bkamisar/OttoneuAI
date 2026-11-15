@@ -43,14 +43,29 @@ const TWO_WAY_IP_MIN = 30; // Min projected IP for a hitter to count as a true t
 // Returns the fraction of the MLB season remaining as of today.
 // Used by FA and trade tools to show rest-of-season dollar value alongside
 // full-season value. Approximates opening day as March 28, end as September 28.
+// Offseason (after Sep 28, before Mar 28): the whole NEXT season lies ahead, so
+// the factor is 1.0 and "this season" means next season's full-year projections.
+// (Returning 0 after Sep 28 used to shrink every PA/IP budget to the 10% floor.)
 function rosProrationFactor() {
   const year  = new Date().getFullYear();
   const start = new Date(year, 2, 28);  // March 28
   const end   = new Date(year, 8, 28);  // September 28
   const today = new Date();
-  if (today <= start) return 1.0;
-  if (today >= end)   return 0.0;
+  if (today <= start || today > end) return 1.0;
   return (end - today) / (end - start);
+}
+
+// True between seasons (after Sep 28, before Mar 28) — same window as above.
+function isOffseason() {
+  const year  = new Date().getFullYear();
+  const today = new Date();
+  return today < new Date(year, 2, 28) || today > new Date(year, 8, 28, 23, 59, 59);
+}
+
+// Current standings for the RoS blend. In the offseason they belong to the season
+// that just ended, so they are ignored and pages value next season on projections alone.
+function loadCurrStandings() {
+  return isOffseason() ? null : loadData('ottoneu_curr_standings');
 }
 
 // ── REPO AUTO-LOAD ───────────────────────────────────────────────────────────

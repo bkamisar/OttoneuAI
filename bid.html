@@ -146,7 +146,7 @@
     var projHit   = loadData('ottoneu_proj_hitting');
     var projPitch = loadData('ottoneu_proj_pitching');
     var myTeam    = loadData('ottoneu_my_team') || '';
-    var currData  = loadData('ottoneu_curr_standings');
+    var currData  = loadCurrStandings();   // null in the offseason (last season's standings)
 
     if (!hasRows(roster) || !hasRows(projHit) || !hasRows(projPitch)) { showErr('Missing or unreadable data — re-load CSVs on the', 'Data Hub.', 'index.html'); return; }
     if (!myTeam) { showErr('Set your team on the', 'Data Hub.', 'index.html'); return; }

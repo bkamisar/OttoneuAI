@@ -11,7 +11,9 @@ test('engine exposes shared.js constants and functions', () => {
 test('setDate drives rosProrationFactor', () => {
   const e = loadEngine();
   e.setDate('2026-03-01'); assert.strictEqual(e.call('rosProrationFactor'), 1);
-  e.setDate('2026-10-01'); assert.strictEqual(e.call('rosProrationFactor'), 0);
+  // Offseason: the whole NEXT season lies ahead (was 0, which shrank every budget to 10%).
+  e.setDate('2026-10-01'); assert.strictEqual(e.call('rosProrationFactor'), 1);
+  e.setDate('2026-11-15'); assert.strictEqual(e.call('rosProrationFactor'), 1);
   e.setDate('2026-06-27');
   const f = e.call('rosProrationFactor');
   assert.ok(f > 0.45 && f < 0.55, `mid-season factor ${f}`);
@@ -27,4 +29,14 @@ test('buildStandings ranks a toy league', () => {
   const mk = (name, x) => ({ name, stats: { OBP: x, SLG: x, HR: x, R: x, ERA: 5 - x, WHIP: 5 - x, HR9: 5 - x, SO: x } });
   const s = e.call('buildStandings', [mk('a', 1), mk('b', 3), mk('c', 2)]);
   assert.deepStrictEqual(s.map(t => t.name), ['b', 'c', 'a']);
+});
+
+test('offseason: isOffseason(), and loadCurrStandings() ignores the finished season', () => {
+  const e = loadEngine();
+  for (const [d, off] of [['2026-11-15', true], ['2027-02-01', true], ['2026-06-01', false], ['2026-09-28', false], ['2026-09-29', true]]) {
+    e.setDate(d); assert.strictEqual(e.call('isOffseason'), off, d);
+  }
+  e.localStorage.setItem('ottoneu_curr_standings', JSON.stringify([{ name: 'A', games: 162 }]));
+  e.setDate('2026-11-15'); assert.strictEqual(e.call('loadCurrStandings'), null);
+  e.setDate('2026-06-01'); assert.deepStrictEqual(e.call('loadCurrStandings'), [{ name: 'A', games: 162 }]);
 });

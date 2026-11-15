@@ -1381,7 +1381,7 @@
 
       var projHit   = loadData('ottoneu_proj_hitting');
       var projPitch = loadData('ottoneu_proj_pitching');
-      var currData  = loadData('ottoneu_curr_standings');
+      var currData  = loadCurrStandings();   // null in the offseason (last season's standings)
       // Both pools are required, not just one. Valuation splits a fixed league
       // dollar pool between hitting and pitching by SGP share, so running with
       // one side empty hands the entire pool to the other and every trade the

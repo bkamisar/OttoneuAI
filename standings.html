@@ -127,7 +127,7 @@
       var projHit   = loadData('ottoneu_proj_hitting');
       var projPitch = loadData('ottoneu_proj_pitching');
       var myTeam    = loadData('ottoneu_my_team') || '';
-      var currData  = loadData('ottoneu_curr_standings');   // may be null
+      var currData  = loadCurrStandings();   // may be null; always null in the offseason
 
       if (!hasRows(roster) || !hasRows(projHit) || !hasRows(projPitch)) {
         var errDiv = document.createElement('div');
@@ -388,7 +388,7 @@
       var roster    = loadData('ottoneu_roster');
       var projHit   = loadData('ottoneu_proj_hitting');
       var projPitch = loadData('ottoneu_proj_pitching');
-      var currData  = loadData('ottoneu_curr_standings');
+      var currData  = loadCurrStandings();   // null in the offseason (last season's standings)
       if (!hasRows(roster) || !hasRows(projHit) || !hasRows(projPitch)) return inputs;
 
       var merged  = matchPlayers(roster, projHit, projPitch);

@@ -15,10 +15,10 @@ Because it's 4 hitting + 4 pitching categories, scoring opportunity is split
 
 | File | Source | Cadence |
 |---|---|---|
-| `data/proj_hitting.csv` / `proj_pitching.csv` | Google Apps Script → FanGraphs Steamer **rest-of-season** (`steamerr`) | daily ~8:57 ET |
+| `data/proj_hitting.csv` / `proj_pitching.csv` | Google Apps Script → FanGraphs Steamer: **rest-of-season** (`steamerr`) in season, **next season's preseason** (`steamer`) in the offseason (Sep 29 → Mar 27) | daily ~8:57 ET |
 | `data/standings.csv` | Apps Script → Ottoneu `standingsMeter` AJAX | daily ~7:32 ET |
 | `data/roster.csv` | Apps Script → Ottoneu `rosterexport?csv=1` | daily (trigger) |
-| `proj_*_y1/y2.csv` | Apps Script → FanGraphs ZiPS `zipsp1`/`zipsp2` (full-season) | weekly (trigger) |
+| `proj_*_y1/y2.csv` | Apps Script → FanGraphs ZiPS `zipsp1`/`zipsp2` (full-season; empty from FanGraphs' early-November rollover until that winter's ZiPS release — the row guard keeps the last good files) | weekly (trigger) |
 | `data/prospects.csv` | Apps Script → FanGraphs Board `prospects-list-combined`. **Board is Cloudflare-blocked (403) since ~2026-08-24; file frozen at that snapshot** | manual export until it reopens |
 | `data/prospects_stats_hitting.csv` / `_pitching.csv` | same Board call (`dataStats`); frozen with it | see above |
 
@@ -69,6 +69,20 @@ SGP model: a player's value = standings-gain-points above replacement × $/SGP.
    pool conserved (2026-07-19 audit, finding 3).
 6. **Two-way players** (type `H` with `projP` ≥ 30 IP): pitching SGP added on
    top of hitting SGP. Valid because hit/pit $-rates are close by construction.
+
+### Offseason mode (added 2026-11-15)
+
+Between seasons (after Sep 28, before Mar 28) `rosProrationFactor()` returns **1.0** (the whole next
+season lies ahead; it used to return 0, which shrank every PA/IP budget to the 10% floor) and
+`loadCurrStandings()` returns **null**, so standings/targets/bid value next season on projections
+alone instead of adding last season's final standings. "This season" (Y0) = next season's preseason
+Steamer; Y1/Y2 = the following years. The Apps Script source is `scripts/updaters.gs` (paste over the
+project's main file); it refuses to push a projection file with < 1,000 rows (< 500 for ZiPS
+multi-year), which is what blanked every projection file on 2026-11-01 / 11-04.
+
+**Offseason anchor @ 2026-11-15 (Steamer 2027 Y0, proration 1.0):** pool $4,800, hitShare 48.5%,
+Ohtani $70 / Judge $64, top arms Misiorowski $94 / Skubal $90 / Sale $87 — aces ~20% above the ZiPS Y1
+anchor below (Steamer is more bullish on elite arms), 531/534 rostered matched.
 
 ### Sanity anchors — read the date first
 

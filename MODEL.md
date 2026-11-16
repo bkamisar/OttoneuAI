@@ -84,6 +84,16 @@ multi-year), which is what blanked every projection file on 2026-11-01 / 11-04.
 Ohtani $70 / Judge $64, top arms Misiorowski $94 / Skubal $90 / Sale $87 — aces ~20% above the ZiPS Y1
 anchor below (Steamer is more bullish on elite arms), 531/534 rostered matched.
 
+**Projection flags + ZiPS fills (2026-11-15):** `node tools/build_proj_flags.js` compares Steamer Y0 with
+ZiPS for the same season (last pre-rollover zipsp1 from git history) for established players (200+ PA /
+50+ IP in their best season of 2024–26) and writes `data/proj_flags.csv` plus `data/proj_fills_*.csv`.
+`zips-fill` = rostered player Steamer has at a placeholder (≤10 PA / ≤5 IP) — `autoLoadFromRepo` swaps in
+the ZiPS line while the placeholder remains (Ramírez, Greene, Ragans, Mason Miller, Dollander, Falter);
+`steamer-zero` = same case unrostered (flag only, so free agents don't inflate replacement level);
+`workload` = |Steamer − ZiPS| ≥ 250 PA / 60 IP. Pages show a yellow chip via `addProjFlag()` (trade,
+targets, roster, bid, fa); hover for the numbers. Re-run when Steamer moves or ZiPS 2027 preseason lands
+(point `ZIPS_SOURCE` at it then).
+
 ### Sanity anchors — read the date first
 
 **Y0 anchors are DATE-DEPENDENT and must be quoted with their proration factor.**

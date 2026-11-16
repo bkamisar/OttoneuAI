@@ -392,7 +392,7 @@
         }
 
         var nameTd = document.createElement('td');
-        nameTd.textContent = p.rawName || p.name;
+        nameTd.textContent = p.rawName || p.name; addProjFlag(nameTd, p);
         if (row.prospect) {
           var fvBadge = document.createElement('span');
           fvBadge.className = 'badge badge-fv ' + fvClass(row.prospect.fv);

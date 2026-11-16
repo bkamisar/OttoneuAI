@@ -439,7 +439,7 @@
       var card = document.createElement('div'); card.className = 'advice';
 
       var nm = document.createElement('div'); nm.className = 'advice-name';
-      nm.textContent = (fa.rawName || fa.name) + ' (' + fa.type + ')';
+      nm.textContent = (fa.rawName || fa.name) + ' (' + fa.type + ')'; addProjFlag(nm, fa);
       var pr = prospectMap[fa.name];
       if (pr && pr.fv) {
         var b = document.createElement('span'); b.className = 'badge-fv ' + fvClass(pr.fv); b.textContent = 'FV ' + pr.fv;
@@ -575,7 +575,7 @@
         function td(txt, cls) { var c = document.createElement('td'); c.textContent = txt; if (cls) c.className = cls; return c; }
         var vNow = a.valueNow;
         var vCls = vNow >= 15 ? 'val-strong' : vNow >= 4 ? 'val-mid' : 'val-zero';
-        tr.appendChild(td(fa.rawName || fa.name));
+        tr.appendChild(addProjFlag(td(fa.rawName || fa.name), fa));
         tr.appendChild(td(fa.type));
         tr.appendChild(td('$' + Math.round(vNow), vCls));
         if (hasDynasty) tr.appendChild(td('$' + Math.round(a.dynastyValue)));

@@ -295,7 +295,7 @@
       selected.forEach(function (p, i) {
         var chip = document.createElement('span');
         chip.className = 'chip';
-        chip.appendChild(document.createTextNode((p.rawName || p.name) + ' '));
+        chip.appendChild(document.createTextNode((p.rawName || p.name) + ' ')); addProjFlag(chip, p);
         var btn = document.createElement('button');
         btn.title = 'Remove'; btn.textContent = '×';
         btn.addEventListener('click', (function (idx) {
@@ -483,7 +483,7 @@
 
           var prospect = prospectMap[p.name] || null;
           var tr = el('tr');
-          var tdN = el('td'); tdN.textContent = p.rawName || p.name;
+          var tdN = el('td'); tdN.textContent = p.rawName || p.name; addProjFlag(tdN, p);
           if (prospect) {
             var fvBadge = el('span'); fvBadge.className = 'badge badge-fv ' + fvClass(prospect.fv);
             fvBadge.textContent = 'FV ' + prospect.fv; tdN.appendChild(fvBadge);

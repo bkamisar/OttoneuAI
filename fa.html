@@ -427,7 +427,7 @@
       }
       var valCls = val >= 20 ? 'val-strong' : (val >= 5 ? 'val-mid' : 'val-zero');
 
-      tr.appendChild(td(p.rawName || p.name));
+      tr.appendChild(addProjFlag(td(p.rawName || p.name), p));
       tr.appendChild(td('H'));
       tr.appendChild(td(vm.noProj ? '—' : '$' + Math.round(val), valCls));
       var rosFactorH = rosProrationFactor();
@@ -462,7 +462,7 @@
       }
       var valCls = val >= 10 ? 'val-strong' : (val >= 3 ? 'val-mid' : 'val-zero');
 
-      tr.appendChild(td(p.rawName || p.name));
+      tr.appendChild(addProjFlag(td(p.rawName || p.name), p));
       tr.appendChild(td('P'));
       tr.appendChild(td(vm.noProj ? '—' : '$' + Math.round(val), valCls));
       var rosFactorP = rosProrationFactor();

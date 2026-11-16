@@ -40,3 +40,30 @@ test('offseason: isOffseason(), and loadCurrStandings() ignores the finished sea
   e.setDate('2026-11-15'); assert.strictEqual(e.call('loadCurrStandings'), null);
   e.setDate('2026-06-01'); assert.deepStrictEqual(e.call('loadCurrStandings'), [{ name: 'A', games: 162 }]);
 });
+
+test('projection fills replace Steamer placeholders only while the placeholder remains', () => {
+  const e = loadEngine();
+  const ph = e.call('parseHittingProjections', 'Name,Team,PA,AB,H,HR,R,BB,HBP,OBP,SLG\nJose Ramirez,CLE,1,1,0,0,0,0,0,0,0\nSteady Bat,NYY,600,540,150,25,90,55,5,.340,.480');
+  const fill = e.call('parseHittingProjections', 'Name,Team,PA,AB,H,HR,R,BB,HBP,OBP,SLG\nJose Ramirez,CLE,600,531,141,23,81,59,4,.340,.461');
+  const out = e.call('applyProjectionFills', ph, fill, 'H');
+  assert.strictEqual(out.find(p => p.rawName === 'Jose Ramirez').proj.pa, 600);
+  assert.strictEqual(out.find(p => p.rawName === 'Jose Ramirez').filled, true);
+  assert.strictEqual(out.find(p => p.rawName === 'Steady Bat').proj.pa, 600);
+  // Steamer later projects him properly -> its line wins
+  const real = e.call('parseHittingProjections', 'Name,Team,PA,AB,H,HR,R,BB,HBP,OBP,SLG\nJose Ramirez,CLE,620,560,150,28,90,55,5,.345,.480');
+  assert.strictEqual(e.call('applyProjectionFills', real, fill, 'H')[0].proj.pa, 620);
+});
+
+test('projFlagFor finds a flag by name; label says what to check', () => {
+  const e = loadEngine();
+  e.localStorage.setItem('ottoneu_proj_flags', JSON.stringify([
+    { Name: 'Jacob Misiorowski', Type: 'P', Kind: 'workload', Unit: 'IP', Steamer: '183', Zips: '116' },
+    { Name: 'José Ramírez', Type: 'H', Kind: 'zips-fill', Unit: 'PA', Steamer: '1', Zips: '600' }]));
+  const m = e.call('projFlagFor', { name: 'jacob misiorowski', rawName: 'Jacob Misiorowski' });
+  assert.strictEqual(m.Kind, 'workload');
+  assert.strictEqual(e.call('projFlagFor', { name: 'jose ramirez' }).Kind, 'zips-fill');
+  assert.strictEqual(e.call('projFlagFor', { name: 'tarik skubal' }), null);
+  const lab = e.call('projFlagLabel', m);
+  assert.ok(lab.text.length <= 8 && /183 IP/.test(lab.title) && /116 IP/.test(lab.title));
+  assert.ok(/ZiPS/.test(e.call('projFlagLabel', e.call('projFlagFor', { name: 'jose ramirez' })).title));
+});

@@ -81,6 +81,10 @@ const REPO_FILES = [
   { file: 'proj_pitching_y2.csv', key: 'ottoneu_proj_pitching_y2',  parse: parsePitchingProjections },
   { file: 'prospects.csv',        key: 'ottoneu_prospects',          parse: parseProspectsCSV },
   { file: 'standings.csv',        key: 'ottoneu_curr_standings',     parse: parseCurrStandings },
+  // Shaky-value flags + ZiPS fills for Steamer placeholders (tools/build_proj_flags.js).
+  { file: 'proj_flags.csv',          key: 'ottoneu_proj_flags',          parse: parseCSV },
+  { file: 'proj_fills_hitting.csv',  key: 'ottoneu_proj_fills_hitting',  parse: parseHittingProjections },
+  { file: 'proj_fills_pitching.csv', key: 'ottoneu_proj_fills_pitching', parse: parsePitchingProjections },
 ];
 
 // Fetches all data/ CSVs from the repo, parses them, and writes to localStorage.
@@ -192,6 +196,14 @@ async function autoLoadFromRepo() {
     while (queue.length) await loadOne(queue.shift());
   }));
 
+  // ZiPS fills for established, rostered players whom Steamer has at ~0 playing time.
+  // Idempotent, and only while Steamer still shows the placeholder.
+  [['ottoneu_proj_hitting', 'ottoneu_proj_fills_hitting', 'H'], ['ottoneu_proj_pitching', 'ottoneu_proj_fills_pitching', 'P']]
+    .forEach(function(x) {
+      const proj = loadData(x[0]), fills = loadData(x[1]);
+      if (Array.isArray(proj) && Array.isArray(fills) && fills.length) saveData(x[0], applyProjectionFills(proj, fills, x[2]));
+    });
+
   // Refine the stamped files' timestamps to the REAL last-commit time so the UI
   // shows when the data actually changed, not when the tab loaded. Best-effort.
   await Promise.all(STAMPED_FILES.map(async function(file) {
@@ -203,6 +215,62 @@ async function autoLoadFromRepo() {
   }));
 
   return status;
+}
+
+// ── PROJECTION FILLS + SHAKY-VALUE FLAGS ─────────────────────────────────────
+// Steamer gives some established players a placeholder line (1 PA / 1 IP). For
+// rostered ones, tools/build_proj_flags.js writes the ZiPS season as a fill; it
+// replaces the Steamer row only while that row is still a placeholder, so a real
+// Steamer projection takes over automatically. Filled rows carry filled:true.
+function applyProjectionFills(proj, fills, type) {
+  if (!Array.isArray(proj) || !Array.isArray(fills) || !fills.length) return proj;
+  const byName = {};
+  fills.forEach(function(f) { byName[f.name] = f; });
+  const isPlaceholder = function(p) {
+    return type === 'P' ? (p.proj && (p.proj.ip || 0) <= 5) : (p.proj && (p.proj.pa || 0) <= 10);
+  };
+  const seen = {};
+  const out = proj.map(function(p) {
+    const f = byName[p.name];
+    if (f && isPlaceholder(p)) { seen[p.name] = true; return Object.assign({}, f, { filled: true }); }
+    if (f) seen[p.name] = true;
+    return p;
+  });
+  fills.forEach(function(f) { if (!seen[f.name]) out.push(Object.assign({}, f, { filled: true })); });
+  return out;
+}
+
+let _projFlagRaw = null, _projFlagMap = null;
+function projFlagFor(p) {
+  const raw = (typeof localStorage !== 'undefined') ? localStorage.getItem('ottoneu_proj_flags') : null;
+  if (!raw) return null;
+  if (raw !== _projFlagRaw) {
+    _projFlagRaw = raw; _projFlagMap = {};
+    (JSON.parse(raw) || []).forEach(function(f) { if (f && f.Name) _projFlagMap[normalizeName(f.Name)] = f; });
+  }
+  const key = p && (p.name || normalizeName(p.rawName || ''));
+  return (key && _projFlagMap[key]) || null;
+}
+
+function projFlagLabel(f) {
+  const s = f.Steamer + ' ' + f.Unit, z = f.Zips + ' ' + f.Unit;
+  if (f.Kind === 'zips-fill') return { text: 'ZiPS', title: 'Using ZiPS ' + z + ': Steamer 2027 has ' + s + ' (likely injury or not projected yet). Check news before trading.' };
+  if (f.Kind === 'steamer-zero') return { text: '⚠ ~0', title: 'Steamer 2027 has ' + s + ' vs ZiPS ' + z + ' — value is near $0. Check news.' };
+  return { text: '⚠ ' + f.Unit, title: 'Playing-time split: Steamer ' + s + ' vs ZiPS ' + z + ' — the value uses Steamer, so treat it as shaky.' };
+}
+
+// Adds a small chip after a player's name element. No-op when the player isn't flagged.
+function addProjFlag(el, p) {
+  const f = projFlagFor(p);
+  if (!f || !el || typeof document === 'undefined') return el;
+  const lab = projFlagLabel(f);
+  const chip = document.createElement('span');
+  chip.className = 'proj-flag';
+  chip.textContent = lab.text;
+  chip.title = lab.title;
+  chip.style.cssText = 'display:inline-block;margin-left:5px;padding:0 5px;border-radius:7px;font-size:0.72em;font-weight:600;line-height:1.5;vertical-align:middle;cursor:help;background:#fff3cd;color:#7a5c00;border:1px solid #e8d48a';
+  el.appendChild(chip);
+  return el;
 }
 
 // ── DATA FRESHNESS STAMPS ────────────────────────────────────────────────────

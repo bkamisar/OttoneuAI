@@ -508,7 +508,7 @@
 
         // Name + optional FV badge
         var nameTd = document.createElement('td');
-        nameTd.textContent = row.rawName || row.name;
+        nameTd.textContent = row.rawName || row.name; addProjFlag(nameTd, row);
         if (row.fv) {
           var fvBadge = document.createElement('span');
           fvBadge.className = 'badge badge-fv ' + fvClass(row.fv);
@@ -715,7 +715,7 @@
           myOffers.forEach(function(p) {
             var row = document.createElement('div'); row.className = 'chip-row';
             var left = document.createElement('div');
-            var nm = document.createElement('span'); nm.className = 'chip-name'; nm.textContent = p.rawName || p.name;
+            var nm = document.createElement('span'); nm.className = 'chip-name'; nm.textContent = p.rawName || p.name; addProjFlag(nm, p);
             var pos = document.createElement('span'); pos.className = 'chip-meta';
             pos.textContent = ' ' + (p.positions || []).map(function(x){ return x.toUpperCase(); }).join('/');
             left.appendChild(nm); left.appendChild(pos);
@@ -746,7 +746,7 @@
           theirChips.forEach(function(p) {
             var row = document.createElement('div'); row.className = 'chip-row';
             var left = document.createElement('div');
-            var nm = document.createElement('span'); nm.className = 'chip-name'; nm.textContent = p.rawName || p.name;
+            var nm = document.createElement('span'); nm.className = 'chip-name'; nm.textContent = p.rawName || p.name; addProjFlag(nm, p);
             var pos = document.createElement('span'); pos.className = 'chip-meta';
             pos.textContent = ' ' + (p.positions || []).map(function(x){ return x.toUpperCase(); }).join('/');
             left.appendChild(nm); left.appendChild(pos);
@@ -982,7 +982,7 @@
       pkg.forEach(function(p, i) {
         var chip = document.createElement('div'); chip.className = 'pkg-chip';
         var nm = document.createElement('span'); nm.className = 'pkg-chip-name';
-        nm.textContent = p.rawName || p.name;
+        nm.textContent = p.rawName || p.name; addProjFlag(nm, p);
         var meta = document.createElement('span'); meta.className = 'pkg-chip-meta';
         meta.textContent = ' ' + (p.teamName || p.team || '');
         var surpSpan = document.createElement('span'); surpSpan.className = 'pkg-chip-surp';

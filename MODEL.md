@@ -161,6 +161,24 @@ players worth $15+ cleared at 0.71x (hitters 0.76, n=14; pitchers 0.56, n=4); pl
 0.90 and 0.81) with no aging; projection files carry no ages. Ohtani's pitching innings do not count
 against his team's innings budget (a few dollars).
 
+### Foundation backtest (2026-11-16) — formula checked against real outcomes, no change made
+
+- **Formula vs real standings points** (every counted line 2024-26 on competitive teams, player swapped for a
+  replacement-rate line of the same volume, smooth roto points): one formula SGP converts to real points at a
+  similar rate in every category (hitting 2.1-2.9, pitching rates 1.7-2.3; the common factor is stdev vs
+  per-place gap). Hitting converts ~15-20% better than pitching, inside the noise of 27 team-seasons and in
+  the direction the market already leans. Slope-per-place denominators are the stdev ones divided by ~2.7 in
+  every category, so they change nothing.
+- **Predicted vs realized rest-of-season SGP** (2026-05-24 and 2026-07-15): hitters returned 0.53 / 0.60 of
+  predicted, full-time starters 0.53 / 1.04. No evidence arms are the riskier bet, so no pitcher discount.
+- **The strikeout clamp (invariant #3) is a stand-in, not a truth.** Starters projected under replacement
+  innings returned 0.99 / 2.05 of predicted vs 0.53 / 1.04 for full-timers: the clamp charges a 120-IP starter
+  ~20 K he never owed (about $3-5). The clean form (per-inning replacement by role) was simulated and
+  REJECTED for now: the "reliever" free-agent cohort is swingmen (99 IP, 4.26 ERA), relievers jumped to 33%
+  of pitching dollars (Duran $16, a dozen setup men at $12) and Skubal fell to $40. It needs a true reliever
+  replacement cohort (ranked per inning, not by volume) before it can ship. Until then top RP ~$11 matches
+  the league ($10-14) and partial-workload starters read a few dollars light.
+
 ### Sanity anchors — read the date first
 
 **Y0 anchors are DATE-DEPENDENT and must be quoted with their proration factor.**

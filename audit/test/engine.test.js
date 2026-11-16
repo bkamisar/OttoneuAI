@@ -110,3 +110,60 @@ test('offseason trade value charges salary once at the cap rate, floors at $0, a
   assert.strictEqual(e.call('marketValueFor', { name: 'shohei ohtani', type: 'H' }).actual, 52);
   assert.strictEqual(e.call('marketValueFor', { name: 'nobody', type: 'H' }), null);
 });
+
+test('SGP_DENOMS match the real final standings (rerun tools/build_sgp_denoms.js when a season is added)', () => {
+  const e = loadEngine();
+  const { denoms } = require('../../tools/build_sgp_denoms').computeDenoms();
+  assert.deepStrictEqual({ ...e.get('SGP_DENOMS') }, denoms);
+});
+
+test('leagueSGPDenoms scales only the counting stats by the share of season left', () => {
+  const e = loadEngine();
+  const full = e.call('leagueSGPDenoms', 1), half = e.call('leagueSGPDenoms', 0.5);
+  for (const k of ['R', 'HR', 'SO']) assert.ok(Math.abs(half[k] - full[k] / 2) < 1e-9, k);
+  for (const k of ['OBP', 'SLG', 'ERA', 'WHIP', 'HR9']) assert.strictEqual(half[k], full[k], k);
+  assert.strictEqual(e.call('leagueSGPDenoms', 0).SO, full.SO * 0.1);   // floor, never divide by 0
+});
+
+test('blendProjections: 50/50 playing time and rates, skips placeholders, fills, duplicate names; idempotent', () => {
+  const e = loadEngine();
+  const P = (name, ip, so, era, extra) => ({ name, type: 'P', proj: { ip, so, era, whip: 1.2, hr9: 1, hr: ip / 9, h: ip, bb: ip / 3, er: era * ip / 9 }, ...extra });
+  const steamer = [P('ace', 180, 220, 3.0), P('placeholder', 1, 1, 4), P('filled', 120, 100, 4, { filled: true }), P('twin', 100, 90, 4), P('twin', 60, 50, 5), P('no zips', 150, 150, 4)];
+  const zips = [P('ace', 120, 120, 3.6), P('placeholder', 150, 150, 3.5), P('filled', 60, 60, 3), P('twin', 80, 80, 3)];
+  const out = e.call('blendProjections', steamer, zips, 'P');
+  const ace = out[0].proj;
+  assert.strictEqual(ace.ip, 150);
+  assert.ok(Math.abs(ace.era - 3.3) < 1e-9);
+  assert.ok(Math.abs(ace.so - (220 / 180 + 120 / 120) / 2 * 150) < 1e-9);   // blended K rate x blended innings
+  assert.ok(Math.abs(ace.er - 3.3 * 150 / 9) < 1e-9);
+  assert.strictEqual(out[0].blended, true);
+  for (const i of [1, 2, 3, 4, 5]) assert.strictEqual(out[i], steamer[i], steamer[i].name + ' untouched');
+  const again = e.call('blendProjections', out, zips, 'P');
+  assert.strictEqual(again[0].proj.ip, 150);
+  const H = (name, pa, hr, obp) => ({ name, type: 'H', proj: { pa, ab: pa * 0.9, h: pa * 0.25, bb: pa * 0.08, hbp: 0, hr, r: pa / 8, obp, slg: 0.45 } });
+  const h = e.call('blendProjections', [H('bat', 600, 30, 0.36)], [H('bat', 400, 16, 0.34)], 'H')[0].proj;
+  assert.strictEqual(h.pa, 500);
+  assert.ok(Math.abs(h.hr - (30 / 600 + 16 / 400) / 2 * 500) < 1e-9);
+  assert.ok(Math.abs(h.obp - 0.35) < 1e-9);
+});
+
+test('offseason: hitter replacement is the post-auction boundary, not a cut star waiting for the auction', () => {
+  const e = loadEngine();
+  const H = (name, obp) => ({ name, fgId: '', type: 'H', proj: { pa: 600, hr: 20, r: 80, obp, slg: obp + 0.1 } });
+  const P = (name, era) => ({ name, fgId: '', type: 'P', proj: { ip: 150, so: 140, era, whip: 1.2, hr9: 1 } });
+  // 20 hitters best to worst; the best one ("star") is unrostered, #2-#11 are rostered.
+  const hit = Array.from({ length: 20 }, (_, i) => H(i === 0 ? 'star' : 'h' + i, 0.40 - i * 0.005));
+  const pit = Array.from({ length: 14 }, (_, i) => P('p' + i, 3 + i * 0.1));
+  const roster = hit.slice(1, 11).map(p => ({ ...p, positions: ['of'], salary: 5, team: 't' }));
+  e.setDate('2026-11-15');
+  e.call('matchPlayers', roster, hit, pit);
+  const off = e.get('FA_BASELINES').proj.H.obp;
+  e.setDate('2026-06-27');
+  e.call('matchPlayers', roster, hit, pit);
+  const inSeason = e.get('FA_BASELINES').proj.H.obp;
+  const avg = a => a.reduce((s, p) => s + p.proj.obp, 0) / a.length;
+  assert.ok(Math.abs(off - avg(hit.slice(10, 18))) < 1e-9, 'offseason: the 8 bats after the 10 the league rosters (star gets bought)');
+  const fa = hit.filter(p => !roster.some(r => r.name === p.name));
+  assert.ok(Math.abs(inSeason - avg(fa.slice(0, 8))) < 1e-9, 'in season: the best actual free agents, star included');
+  assert.ok(off < inSeason);
+});

@@ -145,6 +145,9 @@ const REPO_FILES = [
   { file: 'proj_fills_hitting.csv',  key: 'ottoneu_proj_fills_hitting',  parse: parseHittingProjections },
   { file: 'proj_fills_pitching.csv', key: 'ottoneu_proj_fills_pitching', parse: parsePitchingProjections },
   { file: 'market_2026.csv',         key: 'ottoneu_market_2026',         parse: parseCSV },
+  // ZiPS for the same season as proj_*.csv, blended into it in the offseason (blendProjections).
+  { file: 'proj_zips_hitting.csv',   key: 'ottoneu_proj_zips_hitting',   parse: parseHittingProjections },
+  { file: 'proj_zips_pitching.csv',  key: 'ottoneu_proj_zips_pitching',  parse: parsePitchingProjections },
 ];
 
 // Fetches all data/ CSVs from the repo, parses them, and writes to localStorage.
@@ -264,6 +267,15 @@ async function autoLoadFromRepo() {
       if (Array.isArray(proj) && Array.isArray(fills) && fills.length) saveData(x[0], applyProjectionFills(proj, fills, x[2]));
     });
 
+  // Offseason: "this season" = Steamer blended 50/50 with ZiPS for the same season.
+  if (isOffseason()) {
+    [['ottoneu_proj_hitting', 'ottoneu_proj_zips_hitting', 'H'], ['ottoneu_proj_pitching', 'ottoneu_proj_zips_pitching', 'P']]
+      .forEach(function(x) {
+        const proj = loadData(x[0]), alt = loadData(x[1]);
+        if (Array.isArray(proj) && Array.isArray(alt) && alt.length) saveData(x[0], blendProjections(proj, alt, x[2]));
+      });
+  }
+
   // Refine the stamped files' timestamps to the REAL last-commit time so the UI
   // shows when the data actually changed, not when the tab loaded. Best-effort.
   await Promise.all(STAMPED_FILES.map(async function(file) {
@@ -298,6 +310,40 @@ function applyProjectionFills(proj, fills, type) {
   });
   fills.forEach(function(f) { if (!seen[f.name]) out.push(Object.assign({}, f, { filled: true })); });
   return out;
+}
+
+// ── STEAMER + ZIPS BLEND (offseason "this season") ───────────────────────────
+// Preseason Steamer hands almost every starter a full workload (Nov 2026: 44
+// rostered SP at 170+ IP; Misiorowski 183 vs ZiPS 116), and one system's rates are
+// noisier than an average of two. In the offseason "this season" is therefore the
+// 50/50 blend of Steamer and ZiPS for the same season: playing time averaged,
+// rates averaged, counting stats = blended rate x blended playing time.
+// alt = ZiPS rows for the SAME season (data/proj_zips_*.csv, written by
+// tools/build_proj_flags.js). Matched by name (the files carry no ids); a name
+// that appears twice in either file is left alone rather than risk blending two
+// different players. Steamer placeholders and ZiPS-filled rows are left alone.
+// Idempotent: blended rows carry blended:true.
+function blendProjections(proj, alt, type) {
+  if (!Array.isArray(proj) || !Array.isArray(alt) || !alt.length) return proj;
+  const count = function(rows) { const c = {}; rows.forEach(function(p) { c[p.name] = (c[p.name] || 0) + 1; }); return c; };
+  const nProj = count(proj), nAlt = count(alt), byName = {};
+  alt.forEach(function(p) { byName[p.name] = p.proj; });
+  const vol = type === 'P' ? 'ip' : 'pa';
+  const minVol = type === 'P' ? 5 : 10;
+  const counting = type === 'P' ? ['hr', 'h', 'bb', 'so'] : ['ab', 'h', 'bb', 'hbp', 'hr', 'r'];
+  const rates = type === 'P' ? ['era', 'whip', 'hr9'] : ['obp', 'slg'];
+  return proj.map(function(p) {
+    const s = p.proj, z = byName[p.name];
+    if (!s || !z || p.blended || p.filled || nProj[p.name] > 1 || nAlt[p.name] > 1) return p;
+    if ((s[vol] || 0) <= minVol || (z[vol] || 0) <= 0) return p;
+    const v = (s[vol] + z[vol]) / 2;
+    const b = Object.assign({}, s);
+    b[vol] = v;
+    counting.forEach(function(k) { b[k] = ((s[k] || 0) / s[vol] + (z[k] || 0) / z[vol]) / 2 * v; });
+    rates.forEach(function(k) { b[k] = ((s[k] || 0) + (z[k] || 0)) / 2; });
+    if (type === 'P') b.er = b.era * v / 9;
+    return Object.assign({}, p, { proj: b, blended: true });
+  });
 }
 
 let _projFlagRaw = null, _projFlagMap = null;
@@ -799,8 +845,21 @@ function computeFABaselines(hittingProj, pitchingProj, rosterPlayers, yearKey) {
     .sort((a, b) => valProxy({ type: 'P' }, b.proj) - valProxy({ type: 'P' }, a.proj));
 
   const future = yearKey && yearKey !== 'proj';
+  // OFFSEASON Y0, HITTERS: today's free agents are not free. They go to the March
+  // auction at market prices (Vladimir Guerrero Jr., cut 9/27/2026, sat in this
+  // cohort and put replacement at the ~140th-best bat: 52% of rostered players
+  // read $1, including Turner/Altuve/Holliday whom the league had just paid
+  // $18-22). Replacement is what is left AFTER the auction re-rosters the best
+  // bats: the same post-reshuffle boundary future years use. Pitchers keep the
+  // free-agent cohort: the boundary cohort for arms is reliever-heavy (77 IP) and,
+  // through the K workload scaling, prices every starter against 2.3 relievers.
+  const offseasonY0 = !future && typeof isOffseason === 'function' && isOffseason();
   let faH, faP;
-  if (future) {
+  if (offseasonY0) {
+    const nH = hPool.filter(p => !isFA(p)).length;   // rostered bats with a real role
+    faH = hPool.slice(nH, nH + FA_COHORT_H);
+    faP = pPool.filter(isFA).slice(0, FA_COHORT_P);
+  } else if (future) {
     // FUTURE YEARS: "unrostered today" is NOT "freely available next season."
     // The roster boundary dissolves each October — cutting is free and ~60% of
     // contracts resolve to the rental horizon (§4) — so the league re-rosters
@@ -1397,8 +1456,10 @@ function calculateAllValues(allTeamRosters, extraPlayers, quiet, yearKey) {
     return { lineup, pitPool, stats, roster };
   });
 
-  // 2. SGP denominators from stdev of each category across all teams
-  const sgpDenom = calcSGPDenoms(teamLineups.map(t => t.stats));
+  // 2. SGP denominators: the league's real final-standings spreads (see
+  //    SGP_DENOMS). Y0 lines are rest-of-season in season, so counting-stat
+  //    spreads scale with the share of the season left.
+  const sgpDenom = leagueSGPDenoms(isFutureYear ? 1 : rosProrationFactor());
 
   // 3. Average team PA and IP (for rate-stat normalization)
   const avgPA = teamLineups.reduce((s, t) =>
@@ -1527,6 +1588,28 @@ function calculateAllValues(allTeamRosters, extraPlayers, quiet, yearKey) {
   return valueMap;
 }
 
+// ── LEAGUE SGP DENOMINATORS (real standings) ─────────────────────────────────
+// One standings point is worth this much of each stat: the spread (stdev) between
+// teams in the league's ACTUAL final standings, averaged over 2024-26, teams that
+// reached the 1,250 IP minimum only (the 3 that miss it each year are abandoned on
+// the hitting side too). Regenerate with `node tools/build_sgp_denoms.js` when a
+// new data/standings-final-YYYY.csv lands (a test pins these to the files).
+// Why not the spread between PROJECTED teams (calcSGPDenoms): projections regress
+// pitching far harder than hitting, so projected spreads ran 0.53-0.77x of real for
+// K/HR9/ERA/WHIP against 0.93-1.23x for the hitting four. Every pitcher's SGP was
+// inflated ~1.7x against hitters (Nov 2026: Misiorowski $89, Gavin Williams $63
+// next to Witt $32; $20+ salary hit share 58% model vs 75% league).
+const SGP_DENOMS = { R: 54.8, HR: 34.1, OBP: 0.00725, SLG: 0.0164, SO: 112, HR9: 0.119, ERA: 0.331, WHIP: 0.0523 };
+// countScale: share of a season the stat lines cover. Rest-of-season lines add
+// only that share of a season's counting stats, so R/HR/SO spreads shrink with it;
+// rate-stat effects are already volume-weighted by the caller (pa/avgPA, ip/avgIP).
+function leagueSGPDenoms(countScale) {
+  const k = countScale == null ? 1 : Math.max(0.1, countScale);
+  return Object.assign({}, SGP_DENOMS, { R: SGP_DENOMS.R * k, HR: SGP_DENOMS.HR * k, SO: SGP_DENOMS.SO * k });
+}
+
+// Spread between the teams passed in. Still used by the audit (real final teams);
+// player valuation and trade math use leagueSGPDenoms.
 function calcSGPDenoms(teamStatsArr) {
   const result = {};
   CATS.forEach(cat => {

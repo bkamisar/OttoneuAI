@@ -46,8 +46,10 @@ SGP model: a player's value = standings-gain-points above replacement × $/SGP.
    ~694 IP in early July). Without this cap the team-SO stdev was 191.6 (vs
    HR's 17.4) because rosters hold 655–1,172 RoS IP, and strikeouts became
    nearly worthless in SGP terms. Y1/Y2 passes use the full 1,500.
-2. **SGP denominators** — stdev of each category across the 12 aggregated
-   teams (`calcSGPDenoms`). Small-sample noisy but self-consistent.
+2. **SGP denominators** — `leagueSGPDenoms()`: the spread between teams in the
+   league's REAL final standings (`SGP_DENOMS`, see "Valuation review" below).
+   Until 2026-11-16 this was the stdev across the 12 PROJECTED teams
+   (`calcSGPDenoms`), which overvalued every pitcher ~1.7x.
 3. **Replacement level** — `FA_BASELINES`: the averaged stat line of the top
    free-agent cohort (8 hitters ≥100 PA / 10 pitchers ≥30 IP, ranked by
    `valProxy`). "Replacement = best freely available alternative." Computed
@@ -80,7 +82,7 @@ Steamer; Y1/Y2 = the following years. The Apps Script source is `scripts/updater
 project's main file); it refuses to push a projection file with < 1,000 rows (< 500 for ZiPS
 multi-year), which is what blanked every projection file on 2026-11-01 / 11-04.
 
-**Offseason anchor @ 2026-11-15 (Steamer 2027 Y0, proration 1.0):** pool $4,800, hitShare 48.5%,
+**Offseason anchor @ 2026-11-15, SUPERSEDED by "Valuation review" below (Steamer 2027 Y0, proration 1.0):** pool $4,800, hitShare 48.5%,
 Ohtani $70 / Judge $64, top arms Misiorowski $94 / Skubal $90 / Sale $87 — aces ~20% above the ZiPS Y1
 anchor below (Steamer is more bullish on elite arms), 531/534 rostered matched.
 
@@ -118,6 +120,46 @@ the ZiPS line while the placeholder remains (Ramírez, Greene, Ragans, Mason Mil
 `workload` = |Steamer − ZiPS| ≥ 250 PA / 60 IP. Pages show a yellow chip via `addProjFlag()` (trade,
 targets, roster, bid, fa); hover for the numbers. Re-run when Steamer moves or ZiPS 2027 preseason lands
 (point `ZIPS_SOURCE` at it then).
+
+### Valuation review (2026-11-16) — three changes, measured together
+
+1. **Real-standings SGP denominators.** `SGP_DENOMS` = stdev of each category across teams that reached
+   1,250 IP, averaged over `data/standings-final-2024..26.csv` (`node tools/build_sgp_denoms.js`; a test
+   pins the constants to the files). The spread between PROJECTED teams was 0.53–0.77x of real for
+   K / HR9 / ERA / WHIP and 0.93–1.23x for R / HR / OBP / SLG, because projections regress pitching harder.
+   The sub-1,250 IP teams are left out of all eight categories: they are abandoned teams (1,367 games vs
+   ~1,940), not part of the race. In season the counting denominators scale by `rosProrationFactor()`
+   (a rest-of-season line adds that share of a season's R/HR/K; rate effects are already volume-weighted).
+   The same denominators drive trade math: targets.html (`tfBuildContext`, `simCtx.denoms`) and bid.html.
+   `calcSGPDenoms` survives only for the audit, where the teams ARE real final teams.
+2. **Offseason hitter replacement = post-auction boundary.** In the offseason today's free agents are not
+   free: they are sold in March (Vladimir Guerrero Jr., cut 9/27, sat in the "free agent" cohort and set
+   replacement at the ~140th-best bat; 52% of rostered players read $1). `computeFABaselines` now takes the
+   Y0 hitter cohort from the 8 bats ranked just after the N the league rosters (N = rostered bats with
+   100+ PA). Pitchers keep the free-agent cohort: the boundary cohort for arms is reliever-heavy (77 IP)
+   and, through the K workload scaling, crushed starters (top arm $31 when tried).
+3. **Offseason "this season" = 50/50 Steamer + ZiPS** (`blendProjections`, applied in `autoLoadFromRepo`
+   while `isOffseason()`). Preseason Steamer had 44 rostered SP at 170+ IP (Misiorowski 183 vs ZiPS 116).
+   ZiPS rows come from `data/proj_zips_*.csv`, written by `tools/build_proj_flags.js` (today: the last
+   pre-rollover ZiPS 2027, 2026-10-28; point `ZIPS_SOURCE` at the preseason release when it lands and
+   re-run). Name-matched; duplicate names, Steamer placeholders and ZiPS-filled rows are left alone.
+   The data files on disk stay raw Steamer; node harnesses must call `blendProjections` themselves.
+
+**Anchor @ 2026-11-15 (after all three):** pool $4,800, hitShare 71.6% (Y1 74.1%), 206/531 (39%) at the
+$1 floor (was 275). Hitters: Ohtani $81, Soto $71, Judge $70, Kurtz $59, Yordan $52, Tatis $43, Witt $42,
+Tucker $34, Turner ~$15. Arms: Skubal $54, Skenes $44, Crochet $40, Sánchez $36, Misiorowski $33, Sale $32,
+Cease $29, Schlittler $23; top RP ~$11. **The invariant-#5 check now passes again:** among $20+ salaries
+hitters hold 74.7% of salary and 76.0% of model value (58.3% before). Before: Misiorowski $89, Skubal $85,
+Sale $82, Gavin Williams $63, Witt $32, hitShare 49.8%.
+
+**Auction ratio re-measured on the new engine** (March 2026 prices vs 2026-05-24 values, 97 buys matched):
+players worth $15+ cleared at 0.71x (hitters 0.76, n=14; pitchers 0.56, n=4); players who COST $15+ at
+0.80x. Selecting on value biases the ratio down and on price biases it up, so the truth sits between:
+`AUCTION_PRICE_RATIO` 0.8 stays. Under the old engine the two types were far apart (arms ~0.3x).
+
+**Not fixed, known:** the year-after file is empty, so dynasty counts the ZiPS 2028 line twice (weights
+0.90 and 0.81) with no aging; projection files carry no ages. Ohtani's pitching innings do not count
+against his team's innings budget (a few dollars).
 
 ### Sanity anchors — read the date first
 
@@ -444,6 +486,9 @@ Odds panel on standings.html. Spec:
    the full $4,800 pool at any date, so salary and value are already on the same
    scale (see §4). Invariant #1's RoS-vs-full-season distinction applies to
    projection STAT LINES only.
+
+11. Player values and trade z-scores use `leagueSGPDenoms` (real final-standings spreads), never the
+   spread between projected teams. Projected spreads understate pitching variance and inflate every arm.
 
 ## 8. Known limitations (accepted, documented)
 

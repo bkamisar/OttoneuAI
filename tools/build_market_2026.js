@@ -61,8 +61,10 @@ const pitCSV = ['Name,Team,GS,G,IP,HR,SO,BB,HR/9,WHIP,ERA'].concat([...P.values(
 // Value the actual RATES at 2027 projected playing time, exactly as the pages
 // value projections. Players with no 2027 projection keep their actual volume.
 const rd = f => fs.readFileSync(path.join(ROOT, 'data', f), 'utf8');
-const projH = new Map(e.call('parseHittingProjections', rd('proj_hitting.csv')).map(p => [p.name, p.proj]));
-const projP = new Map(e.call('parsePitchingProjections', rd('proj_pitching.csv')).map(p => [p.name, p.proj]));
+// Same playing time the pages use: Steamer blended 50/50 with ZiPS (blendProjections).
+const blended = (file, zips, parse, type) => e.call('blendProjections', e.call(parse, rd(file)), e.call(parse, rd(zips)), type);
+const projH = new Map(blended('proj_hitting.csv', 'proj_zips_hitting.csv', 'parseHittingProjections', 'H').map(p => [p.name, p.proj]));
+const projP = new Map(blended('proj_pitching.csv', 'proj_zips_pitching.csv', 'parsePitchingProjections', 'P').map(p => [p.name, p.proj]));
 const sample = new Map();
 const hp = e.call('parseHittingProjections', hitCSV).map(p => {
   sample.set(p.name + '|H', Math.min(1, p.proj.pa / FULL.pa));

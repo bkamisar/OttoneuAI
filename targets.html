@@ -1477,7 +1477,7 @@
         var tfBudget   = tfIpBudget();
         var tfStatsArr = teamNames.map(function(t) { return tfTeamStats(tfTeamMap[t], tfBudget); });
         tfCtx = tfBuildContext(tfTeamMap, valueMap, dynastyValueMap,
-                               calcSGPDenoms(tfStatsArr), tfBudget);
+                               leagueSGPDenoms(rosProrationFactor()), tfBudget);
       } catch (e) {
         console.warn('[targets] archetype context unavailable:', e);
         tfCtx = null;
@@ -1524,7 +1524,7 @@
         currByName:    currByName,
         baseStats:     {},
         basePoints:    {},
-        denoms:        calcSGPDenoms(teamStatsArr.map(function(t) { return t.stats; })),
+        denoms:        leagueSGPDenoms(1),   // blended stats are full-season totals
       };
       teamNames.forEach(function(t) {
         simCtx.playersByTeam[t] = merged.filter(function(p) { return p.team === t; });

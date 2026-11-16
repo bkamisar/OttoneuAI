@@ -220,7 +220,7 @@
       return z;
     }
     var baseArr = teamNames.map(function (t) { return { name: t, stats: blendedStatsFor(teamMap[t], t) }; });
-    simCtx.denoms = calcSGPDenoms(baseArr.map(function (t) { return t.stats; }));
+    simCtx.denoms = leagueSGPDenoms(1);   // blended stats are full-season totals
     baseArr.forEach(function (t) { simCtx.baseStats[t.name] = t.stats; });
     var baseStandings = buildStandings(baseArr);
     baseStandings.forEach(function (s) { simCtx.basePoints[s.name] = s.points; });

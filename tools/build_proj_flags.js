@@ -66,4 +66,7 @@ const hCols = steamerHText.split(/\r?\n/)[0].split(','), pCols = steamerPText.sp
 fs.writeFileSync(path.join(ROOT, 'data/proj_flags.csv'), csv(r.flags, ['Name', 'Type', 'Kind', 'Unit', 'Steamer', 'Zips']));
 fs.writeFileSync(path.join(ROOT, 'data/proj_fills_hitting.csv'), csv(r.fillsH, hCols));
 fs.writeFileSync(path.join(ROOT, 'data/proj_fills_pitching.csv'), csv(r.fillsP, pCols));
+// The same ZiPS season, whole: shared.js blends it 50/50 into "this season" in the offseason (blendProjections).
+fs.writeFileSync(path.join(ROOT, 'data/proj_zips_hitting.csv'), zh.text);
+fs.writeFileSync(path.join(ROOT, 'data/proj_zips_pitching.csv'), zp.text);
 console.log(`ZiPS source ${zh.date} / ${zp.date} · flags ${r.flags.length} (zips-fill ${r.flags.filter(f => f.Kind === 'zips-fill').length}, steamer-zero ${r.flags.filter(f => f.Kind === 'steamer-zero').length}, workload ${r.flags.filter(f => f.Kind === 'workload').length}) · fills ${r.fillsH.length} hitters, ${r.fillsP.length} pitchers`);

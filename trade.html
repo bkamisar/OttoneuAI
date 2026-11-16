@@ -553,6 +553,61 @@
 
       vexGrid.appendChild(buildVexCol(teamA + ' gives', givePlayers));
       vexGrid.appendChild(buildVexCol(teamB + ' gives', recvPlayers));
+      if (isOffseason()) vexGrid.appendChild(buildOffseasonBox(teamA, teamB));
+    }
+
+    // Offseason: cuts are free until the January deadline, so a player is worth
+    // what he beats his salary by (never below $0), and cap room is money at the
+    // March auction (teamCapPlan / CAP_DOLLAR_BASE in shared.js).
+    function buildOffseasonBox(teamA, teamB) {
+      var surpOf = function (p) {
+        var vm = valueMap[p.fgId || p.name] || {};
+        return hasDynasty ? (vm.dynastySurplus || 0) : (vm.surplus || 0);
+      };
+      var sumSal = function (arr) { return arr.reduce(function (s, p) { return s + (p.salary || 0); }, 0); };
+      var sumOff = function (arr) { return arr.reduce(function (s, p) { return s + offseasonValue(surpOf(p)); }, 0); };
+      var planOf = function (name) {
+        return teamCapPlan((teamMap[name] || []).map(function (p) { return { salary: p.salary || 0, surplus: surpOf(p) }; }));
+      };
+      var box = el('div', 'vex-col');
+      box.style.gridColumn = '1 / -1';
+      var h4 = el('h4'); h4.textContent = 'Offseason view (bad contracts = $0, cap room = money)'; box.appendChild(h4);
+      var tbl = el('table', 'vex-tbl');
+      var htr = el('tr');
+      ['Team', 'Player value in', 'Player value out', 'Cap room', 'Cap room $', 'Net', 'Payroll after'].forEach(function (h) {
+        var th = el('th'); th.textContent = h; htr.appendChild(th);
+      });
+      tbl.appendChild(htr);
+      [[teamA, recvPlayers, givePlayers], [teamB, givePlayers, recvPlayers]].forEach(function (row) {
+        var name = row[0], inP = row[1], outP = row[2];
+        var plan = planOf(name);
+        var freed = sumSal(outP) - sumSal(inP);
+        var capVal = freed * plan.rate;
+        var net = sumOff(inP) - sumOff(outP) + capVal;
+        var after = plan.payroll - freed;
+        var tr = el('tr');
+        var cells = [
+          name,
+          '$' + Math.round(sumOff(inP)),
+          '$' + Math.round(sumOff(outP)),
+          (freed >= 0 ? '+$' : '-$') + Math.abs(Math.round(freed)),
+          (capVal >= 0 ? '+$' : '-$') + Math.abs(Math.round(capVal)) + ' (@' + plan.rate.toFixed(2) + ')',
+          (net >= 0 ? '+$' : '-$') + Math.abs(Math.round(net)),
+          '$' + Math.round(after) + (after > SALARY_CAP_LIMIT ? ' (cut $' + Math.round(after - SALARY_CAP_LIMIT) + ' by Jan)' : ''),
+        ];
+        cells.forEach(function (c, i) {
+          var td = el('td'); td.textContent = c;
+          if (i === 5) td.className = net >= 0 ? 'surplus-pos' : 'surplus-neg';
+          tr.appendChild(td);
+        });
+        tbl.appendChild(tr);
+      });
+      box.appendChild(tbl);
+      var note = el('p'); note.style.fontSize = '12px'; note.style.color = '#666';
+      note.textContent = 'Player value = dynasty surplus floored at $0 (offseason cuts are free). A dollar of cap room is worth $'
+        + CAP_DOLLAR_BASE.toFixed(2) + ' (March auctions sell real players at ~0.8x value), more for a team that would otherwise have to cut players worth keeping.';
+      box.appendChild(note);
+      return box;
     }
 
     // ── Evaluate ──────────────────────────────────────────────────────────────

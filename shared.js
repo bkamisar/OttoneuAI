@@ -68,6 +68,48 @@ function loadCurrStandings() {
   return isOffseason() ? null : loadData('ottoneu_curr_standings');
 }
 
+// ── OFFSEASON TRADE ECONOMICS ────────────────────────────────────────────────
+// Between seasons every team must be under the $400 cap by the January cut
+// deadline, and cuts before then are free. Two consequences for trades:
+//   1. A bad contract is worth $0 to its owner, never less: he can cut it free.
+//   2. Cap room is money. A dollar freed buys value at the March auction, and
+//      league history says that auction is cheap for real players: the 2026
+//      auction cleared $15+ players at 0.64–0.92x model value (109 buys
+//      matched to May-2026 values; Yordan $51 vs $67, Harper $30 vs $44).
+//      At AUCTION_PRICE_RATIO 0.8, $1 of room buys $1.25 of value = $0.25 surplus.
+//      A team that must cut players with positive surplus to get legal values a
+//      dollar more: its marginal cut's surplus per dollar is added on top.
+const SALARY_CAP_LIMIT    = 400;
+const AUCTION_PRICE_RATIO = 0.8;
+const CAP_DOLLAR_BASE     = 1 / AUCTION_PRICE_RATIO - 1;
+
+function offseasonValue(surplus) { return Math.max(0, surplus || 0); }
+
+// players: [{ salary, surplus }] for one team (surplus in the lens being used).
+// Returns { payroll, over, keptPay, need, cuts, rate }:
+//   keptPay = salary of the players worth keeping (surplus > 0)
+//   need    = $ of positive-surplus players that still must go to reach $400
+//   rate    = what one dollar of cap room is worth to this team, in surplus $
+function teamCapPlan(players, cap) {
+  cap = cap || SALARY_CAP_LIMIT;
+  const sal = p => Math.max(0, p.salary || 0);
+  const payroll = players.reduce((s, p) => s + sal(p), 0);
+  const keep = players.filter(p => (p.surplus || 0) > 0);
+  const keptPay = keep.reduce((s, p) => s + sal(p), 0);
+  const need = Math.max(0, keptPay - cap);
+  const cuts = [];
+  let lambda = 0;
+  if (need > 0) {
+    const order = keep.slice().sort((a, b) => a.surplus / Math.max(1, sal(a)) - b.surplus / Math.max(1, sal(b)));
+    let freed = 0;
+    for (const p of order) {
+      if (freed >= need) break;
+      cuts.push(p); freed += sal(p); lambda = p.surplus / Math.max(1, sal(p));
+    }
+  }
+  return { payroll, over: Math.max(0, payroll - cap), keptPay, need, cuts, rate: CAP_DOLLAR_BASE + lambda };
+}
+
 // ── REPO AUTO-LOAD ───────────────────────────────────────────────────────────
 // Maps data/ filenames to localStorage keys and parser functions.
 // Matches the keys the rest of the app reads from localStorage.

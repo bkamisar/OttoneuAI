@@ -78,3 +78,20 @@ test('UTIL floor: a 1B-only bat never grades below a UTIL-only bat with the same
   const first = e.call('hitterSGP', { type: 'H', positions: ['1b'] }, b, repl, offs, denom, 550, 150);
   assert.ok(first >= util, `1B ${first} < UTIL ${util}`);
 });
+
+test('offseason economics: bad contracts are $0, cap room is worth the auction rate, more when forced to cut', () => {
+  const e = loadEngine();
+  assert.strictEqual(e.call('offseasonValue', -19), 0);
+  assert.strictEqual(e.call('offseasonValue', 12), 12);
+  const base = e.get('CAP_DOLLAR_BASE');
+  assert.ok(Math.abs(base - 0.25) < 1e-9);
+  // Over $400 only because of a bad contract: nothing good must go, room is worth the base rate.
+  const a = e.call('teamCapPlan', [{ salary: 300, surplus: 40 }, { salary: 150, surplus: -20 }]);
+  assert.deepStrictEqual([a.payroll, a.over, a.keptPay, a.need], [450, 50, 300, 0]);
+  assert.strictEqual(a.rate, base);
+  // Good players alone exceed $400: the lowest surplus-per-dollar one goes, and its ratio is added.
+  const b = e.call('teamCapPlan', [{ salary: 300, surplus: 60 }, { salary: 120, surplus: 12 }, { salary: 30, surplus: 30 }]);
+  assert.strictEqual(b.need, 50);
+  assert.strictEqual(b.cuts.length, 1);
+  assert.ok(Math.abs(b.rate - (base + 0.1)) < 1e-9);
+});

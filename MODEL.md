@@ -84,6 +84,17 @@ multi-year), which is what blanked every projection file on 2026-11-01 / 11-04.
 Ohtani $70 / Judge $64, top arms Misiorowski $94 / Skubal $90 / Sale $87 — aces ~20% above the ZiPS Y1
 anchor below (Steamer is more bullish on elite arms), 531/534 rostered matched.
 
+**Offseason trade economics (2026-11-15):** cap must be met by the January cut deadline; cuts before it
+are free. In the offseason (`isOffseason()`) targets.html and trade.html value a player at
+`offseasonValue(surplus)` = surplus floored at $0 (bad contracts are $0, never negative), and price cap room
+as money: `teamCapPlan()` gives each team a $-per-cap-dollar rate = `CAP_DOLLAR_BASE` (1/0.8 − 1 = 0.25)
+plus, if its positive-surplus players alone exceed $400, the surplus/salary of its marginal forced cut.
+`AUCTION_PRICE_RATIO` 0.8 comes from the March 2026 auction: $15+ players cleared at 0.64–0.92× their
+May-2026 model value (109 buys matched). Realized production was rejected as the yardstick (injury
+noise: Yordan's 48-game 2025). At launch every team's keepers fit under $400, so every rate is 0.25.
+Assumption to watch: if many teams cut fair-priced stars, the March 2027 auction has far more money than
+2026's ($995 spent) and the 0.8 ratio will rise.
+
 **1B / UTIL fix (2026-11-15):** `HIT_POS_DEPTH['1b']` 12 → 24 (the 1B slot + the UTIL slot, which 1B/DH
 bats fill), and `hitterSGP` floors every hitter at the general (UTIL) baseline — a 1B-only bat can always
 play UTIL. Before: Freeman $1 vs Yandy Díaz (UTIL-only, same line) $22; Olson $11, Alonso $19. After:

@@ -336,6 +336,8 @@
     var mergedByKey = {};   // fgId AND name → full merged player (for sim lookups)
     var myTeamName  = '';   // set during load; used by lens/sim helpers
     var teamSalaries = {};  // teamName → total committed salary (for cap checks)
+    var teamCapPlans = {};  // teamName → teamCapPlan() (offseason: cap room priced like money)
+    var OFFSEASON    = isOffseason();
     var SALARY_CAP   = 400; // Ottoneu cap; exceeding it requires loans
 
     function isTradeable(p) {
@@ -819,6 +821,10 @@
       return teamStatusOf(teamName) === 'rebuilder' ? 'dynasty' : 'current';
     }
     function lensValue(p, lens) {
+      // Offseason: cuts are free until the January deadline and the March
+      // auction sells players at about their value, so a player is worth what
+      // he beats his salary by -- never less than $0.
+      if (OFFSEASON) return offseasonValue(lens === 'dynasty' ? p.dynastySurplus : p.surplus);
       return Math.max(0, lens === 'dynasty' ? (p.dynValue || 0) : (p.projValue || 0));
     }
     function pkgLensValue(players, lens) {
@@ -917,7 +923,7 @@
     var FUTURE_WEIGHT = { contender: 0.25, fringe: 0.6, rebuilder: 1.0  };
     var MIN_UTILITY   = 1;    // deal must be worth ≥ $1 in that team's terms
 
-    function benefitFor(status, ptsDelta, zD, dynDelta) {
+    function benefitFor(status, ptsDelta, zD, dynDelta, capDollars) {
       // zDelta ≈ expected standings points from continuous category movement
       // (1 stdev of a category ≈ 1 rank in expectation across 12 teams);
       // it credits real improvement that coarse integer roto points miss.
@@ -925,15 +931,22 @@
       var util = hasDynasty
         ? PTS_DOLLARS * gain * (PTS_WEIGHT[status] || 0.6) + dynDelta * (FUTURE_WEIGHT[status] || 0.6)
         : PTS_DOLLARS * gain;
-      return { ok: util >= MIN_UTILITY, util: util, gain: gain, dyn: dynDelta };
+      // Offseason: each dollar of cap room freed is money at the March auction
+      // (or saves a good player from the cut). Money is money: no status weight.
+      var cap = OFFSEASON ? (capDollars || 0) : 0;
+      util += cap;
+      return { ok: util >= MIN_UTILITY, util: util, gain: gain, dyn: dynDelta, cap: cap };
     }
 
-    function fmtBenefit(status, ptsDelta, zD, dynDelta) {
+    function fmtBenefit(status, ptsDelta, zD, dynDelta, capDollars) {
       var parts = [];
       if (ptsDelta !== 0) parts.push((ptsDelta > 0 ? '+' : '') + ptsDelta.toFixed(1) + ' pts');
       else parts.push(zD > 0.05 ? 'even pts, stronger cats' : zD < -0.05 ? 'even pts, weaker cats' : 'standings even');
       if (hasDynasty && Math.abs(dynDelta) >= 1) {
         parts.push((dynDelta > 0 ? '+' : '−') + '$' + Math.abs(dynDelta).toFixed(0) + ' future value');
+      }
+      if (OFFSEASON && Math.abs(capDollars || 0) >= 1) {
+        parts.push((capDollars > 0 ? '+' : '−') + '$' + Math.abs(capDollars).toFixed(0) + ' cap room');
       }
       return parts.join(' · ');
     }
@@ -942,7 +955,7 @@
     // keeper cost), not gross value — a rebuilder acquiring an expensive aging
     // star with high gross value but negative surplus is making a bad trade.
     function dynastyDelta(received, given) {
-      var v = function(p) { return p.dynastySurplus || 0; };
+      var v = function(p) { return OFFSEASON ? offseasonValue(p.dynastySurplus) : (p.dynastySurplus || 0); };
       return received.reduce(function(s, p) { return s + v(p); }, 0)
            - given.reduce(function(s, p) { return s + v(p); }, 0);
     }
@@ -1119,6 +1132,20 @@
     // then full standings simulation. Keeps only trades BOTH sides would accept.
     var MAX_SIMS_PER_TEAM = 40;
 
+    // Dollars of cap room a team gains (negative = takes on salary), priced at
+    // that team's rate (teamCapPlan in shared.js). Offseason only.
+    function capValueFor(team, freed) {
+      if (!OFFSEASON) return 0;
+      var plan = teamCapPlans[team];
+      return freed * (plan ? plan.rate : CAP_DOLLAR_BASE);
+    }
+    function offseasonCapNote(myNewSal, thNewSal) {
+      var parts = [];
+      if (myNewSal > SALARY_CAP) parts.push('you $' + Math.round(myNewSal) + ' (cut $' + Math.round(myNewSal - SALARY_CAP) + ')');
+      if (thNewSal > SALARY_CAP) parts.push('them $' + Math.round(thNewSal) + ' (cut $' + Math.round(thNewSal - SALARY_CAP) + ')');
+      return parts.length ? 'Payroll after: ' + parts.join(', ') + ' to reach $' + SALARY_CAP + ' by the January cut deadline' : '';
+    }
+
     function evaluateCandidates(theirTeam, myPkgsOrFixed, theirPkgsOrFixed) {
       var myStatus = teamStatusOf(myTeamName);
       var thStatus = teamStatusOf(theirTeam);
@@ -1132,23 +1159,26 @@
           sims++;
           var sim = simulateTrade(myTeamName, mine, theirTeam, theirs);
           var myDyn = dynastyDelta(theirs, mine);
-          var myB   = benefitFor(myStatus, sim.aPts, sim.aZ, myDyn);
-          var thB   = benefitFor(thStatus, sim.bPts, sim.bZ, -myDyn);
-          if (!myB.ok || !thB.ok) continue;
-          // Cap feasibility: does either side end up over the $400 cap?
           var salOut = mine.reduce(function(s, p) { return s + (p.salary || 0); }, 0);
           var salIn  = theirs.reduce(function(s, p) { return s + (p.salary || 0); }, 0);
+          var myCap = capValueFor(myTeamName, salOut - salIn);
+          var thCap = capValueFor(theirTeam,  salIn - salOut);
+          var myB   = benefitFor(myStatus, sim.aPts, sim.aZ, myDyn, myCap);
+          var thB   = benefitFor(thStatus, sim.bPts, sim.bZ, -myDyn, thCap);
+          if (!myB.ok || !thB.ok) continue;
+          // Cap feasibility: does either side end up over the $400 cap?
           var myNewSal = (teamSalaries[myTeamName] || 0) - salOut + salIn;
           var thNewSal = (teamSalaries[theirTeam]  || 0) - salIn + salOut;
           var capNote = '';
-          if (myNewSal > SALARY_CAP)      capNote = '⚠ Puts you $' + Math.round(myNewSal - SALARY_CAP) + ' over the $' + SALARY_CAP + ' cap (needs a loan or cuts)';
+          if (OFFSEASON) capNote = offseasonCapNote(myNewSal, thNewSal);
+          else if (myNewSal > SALARY_CAP) capNote = '⚠ Puts you $' + Math.round(myNewSal - SALARY_CAP) + ' over the $' + SALARY_CAP + ' cap (needs a loan or cuts)';
           else if (thNewSal > SALARY_CAP) capNote = '⚠ Puts them $' + Math.round(thNewSal - SALARY_CAP) + ' over the $' + SALARY_CAP + ' cap — they may need a loan';
           accepted.push({
             players:    theirs,
             myPlayers:  mine,
             myScore:    myB.util,
-            myLine:     fmtBenefit(myStatus, sim.aPts, sim.aZ, myDyn),
-            theirLine:  fmtBenefit(thStatus, sim.bPts, sim.bZ, -myDyn),
+            myLine:     fmtBenefit(myStatus, sim.aPts, sim.aZ, myDyn, myCap),
+            theirLine:  fmtBenefit(thStatus, sim.bPts, sim.bZ, -myDyn, thCap),
             capNote:    capNote,
           });
         }
@@ -1490,6 +1520,10 @@
       teamNames.forEach(function(t) {
         simCtx.playersByTeam[t] = merged.filter(function(p) { return p.team === t; });
         teamSalaries[t] = simCtx.playersByTeam[t].reduce(function(s, p) { return s + (p.salary || 0); }, 0);
+        teamCapPlans[t] = teamCapPlan(simCtx.playersByTeam[t].map(function(p) {
+          var v = getVm(p);
+          return { salary: p.salary || 0, surplus: hasDynasty ? v.dynastySurplus : v.surplus };
+        }));
       });
       teamStatsArr.forEach(function(t) { simCtx.baseStats[t.name]  = t.stats; });
       standings.forEach(function(s)    { simCtx.basePoints[s.name] = s.points; });

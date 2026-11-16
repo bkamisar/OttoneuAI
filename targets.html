@@ -820,15 +820,20 @@
       if (!hasDynasty) return 'current';
       return teamStatusOf(teamName) === 'rebuilder' ? 'dynasty' : 'current';
     }
-    function lensValue(p, lens) {
-      // Offseason: cuts are free until the January deadline and the March
-      // auction sells players at about their value, so a player is worth what
-      // he beats his salary by -- never less than $0.
-      if (OFFSEASON) return offseasonValue(lens === 'dynasty' ? p.dynastySurplus : p.surplus);
+    // team: whose eyes (sets the cap rate); partner = true blends in 2026 actual
+    // value (MARKET_BLEND), since partners price on what they watched.
+    function lensValue(p, lens, team, partner) {
+      if (OFFSEASON) {
+        var dyn  = lens === 'dynasty';
+        var val  = dyn ? (p.dynValue || 0) : (p.projValue || 0);
+        var cost = val - (dyn ? (p.dynastySurplus || 0) : (p.surplus || 0));
+        var mv   = partner ? marketValueFor(p) : null;
+        return offseasonTradeValue(val, cost, capRateFor(team), mv == null ? null : { actual: mv, proj: p.projValue || 0 });
+      }
       return Math.max(0, lens === 'dynasty' ? (p.dynValue || 0) : (p.projValue || 0));
     }
-    function pkgLensValue(players, lens) {
-      return players.reduce(function(s, p) { return s + lensValue(p, lens); }, 0);
+    function pkgLensValue(players, lens, team, partner) {
+      return players.reduce(function(s, p) { return s + lensValue(p, lens, team, partner); }, 0);
     }
 
     // side = 'offer' (what I give) | 'return' (what I get) — used for display
@@ -836,7 +841,7 @@
     // $72 salary is worth $70 in a trade; salary is displayed separately.
     function playerSurp(p, side) {
       var lens = side === 'offer' ? lensFor('my', myTeamName) : lensFor('their', p.teamName || p.team || '');
-      return lensValue(p, lens);
+      return side === 'offer' ? lensValue(p, lens, myTeamName) : lensValue(p, lens, p.teamName || p.team || '', true);
     }
 
     // Dual-value display: "$14 now / $62 dyn", bolding the lens that the trade
@@ -931,10 +936,9 @@
       var util = hasDynasty
         ? PTS_DOLLARS * gain * (PTS_WEIGHT[status] || 0.6) + dynDelta * (FUTURE_WEIGHT[status] || 0.6)
         : PTS_DOLLARS * gain;
-      // Offseason: each dollar of cap room freed is money at the March auction
-      // (or saves a good player from the cut). Money is money: no status weight.
+      // Offseason: salary is already charged once (at the cap rate) inside the
+      // player values, so the cap-room line is shown, never added a second time.
       var cap = OFFSEASON ? (capDollars || 0) : 0;
-      util += cap;
       return { ok: util >= MIN_UTILITY, util: util, gain: gain, dyn: dynDelta, cap: cap };
     }
 
@@ -955,7 +959,10 @@
     // keeper cost), not gross value — a rebuilder acquiring an expensive aging
     // star with high gross value but negative surplus is making a bad trade.
     function dynastyDelta(received, given) {
-      var v = function(p) { return OFFSEASON ? offseasonValue(p.dynastySurplus) : (p.dynastySurplus || 0); };
+      var v = function(p) {
+        if (!OFFSEASON) return p.dynastySurplus || 0;
+        return offseasonTradeValue(p.dynValue || 0, (p.dynValue || 0) - (p.dynastySurplus || 0), CAP_DOLLAR_BASE);
+      };
       return received.reduce(function(s, p) { return s + v(p); }, 0)
            - given.reduce(function(s, p) { return s + v(p); }, 0);
     }
@@ -965,15 +972,15 @@
     // plus a consolidation premium when they're handing back fewer, better players.
     function fairEnough(myPkg, theirPkg, theirTeam) {
       var thLens  = lensFor('their', theirTeam);
-      var receive = pkgLensValue(myPkg, thLens);
-      var give    = pkgLensValue(theirPkg, thLens);
+      var receive = pkgLensValue(myPkg, thLens, theirTeam, true);
+      var give    = pkgLensValue(theirPkg, thLens, theirTeam, true);
       var premium = 1 + CONSOL_PREM * Math.max(0, myPkg.length - theirPkg.length);
       var tol     = tradeTol(give);
       if (receive < give * premium - tol) return false;   // they'd feel underpaid
       // And I shouldn't wildly overpay in MY lens:
       var myLens  = lensFor('my', myTeamName);
-      var myGive  = pkgLensValue(myPkg, myLens);
-      var myGet   = pkgLensValue(theirPkg, myLens);
+      var myGive  = pkgLensValue(myPkg, myLens, myTeamName);
+      var myGet   = pkgLensValue(theirPkg, myLens, myTeamName);
       var myPrem  = 1 + CONSOL_PREM * Math.max(0, theirPkg.length - myPkg.length);
       if (myGive > myGet * myPrem + tradeTol(myGet)) return false;
       return true;
@@ -1134,10 +1141,12 @@
 
     // Dollars of cap room a team gains (negative = takes on salary), priced at
     // that team's rate (teamCapPlan in shared.js). Offseason only.
-    function capValueFor(team, freed) {
-      if (!OFFSEASON) return 0;
+    function capRateFor(team) {
       var plan = teamCapPlans[team];
-      return freed * (plan ? plan.rate : CAP_DOLLAR_BASE);
+      return plan ? plan.rate : CAP_DOLLAR_BASE;
+    }
+    function capValueFor(team, freed) {
+      return OFFSEASON ? freed * capRateFor(team) : 0;
     }
     function offseasonCapNote(myNewSal, thNewSal) {
       var parts = [];

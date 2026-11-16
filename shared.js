@@ -85,6 +85,22 @@ const CAP_DOLLAR_BASE     = 1 / AUCTION_PRICE_RATIO - 1;
 
 function offseasonValue(surplus) { return Math.max(0, surplus || 0); }
 
+// Offseason trade value: gross value minus the salary charged ONCE at the cap
+// rate c (a dollar of salary costs what a dollar of cap room is worth, $0.25 --
+// charging the full dollar assumes freed cap always rebuys equal value, which
+// the thin market for elite bats does not guarantee: Judge $59 at $62 is not
+// worth $0). Floored at $0: a bad contract is cut free.
+//   value  = gross value in the lens (Y0 $ or dynasty $)
+//   cost   = salary cost over the same horizon (value - surplus)
+//   market = optional { actual: 2026 actual $, proj: Y0 projected $ } -- blends
+//            MARKET_BLEND of what he actually did into the value (partners' view)
+const MARKET_BLEND = 0.25;
+function offseasonTradeValue(value, cost, c, market) {
+  let v = value || 0;
+  if (market && market.actual != null) v += MARKET_BLEND * (market.actual - (market.proj || 0));
+  return Math.max(0, v - (c == null ? CAP_DOLLAR_BASE : c) * Math.max(0, cost || 0));
+}
+
 // players: [{ salary, surplus }] for one team (surplus in the lens being used).
 // Returns { payroll, over, keptPay, need, cuts, rate }:
 //   keptPay = salary of the players worth keeping (surplus > 0)
@@ -127,6 +143,7 @@ const REPO_FILES = [
   { file: 'proj_flags.csv',          key: 'ottoneu_proj_flags',          parse: parseCSV },
   { file: 'proj_fills_hitting.csv',  key: 'ottoneu_proj_fills_hitting',  parse: parseHittingProjections },
   { file: 'proj_fills_pitching.csv', key: 'ottoneu_proj_fills_pitching', parse: parsePitchingProjections },
+  { file: 'market_2026.csv',         key: 'ottoneu_market_2026',         parse: parseCSV },
 ];
 
 // Fetches all data/ CSVs from the repo, parses them, and writes to localStorage.
@@ -292,6 +309,21 @@ function projFlagFor(p) {
   }
   const key = p && (p.name || normalizeName(p.rawName || ''));
   return (key && _projFlagMap[key]) || null;
+}
+
+// What a player's ACTUAL 2026 season was worth (tools/build_market_2026.js), or
+// null if he had no real 2026 season. Used only to guess what trade partners
+// will accept -- managers price on what they watched.
+let _marketRaw = null, _marketMap = null;
+function marketValueFor(p) {
+  const raw = (typeof localStorage !== 'undefined') ? localStorage.getItem('ottoneu_market_2026') : null;
+  if (!raw || !p) return null;
+  if (raw !== _marketRaw) {
+    _marketRaw = raw; _marketMap = {};
+    (JSON.parse(raw) || []).forEach(function(r) { if (r && r.Name) _marketMap[normalizeName(r.Name) + '|' + r.Type] = +r.Value2026; });
+  }
+  const key = (p.name || normalizeName(p.rawName || '')) + '|' + (p.type || 'H');
+  return key in _marketMap ? _marketMap[key] : null;
 }
 
 function projFlagLabel(f) {

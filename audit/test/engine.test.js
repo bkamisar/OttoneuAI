@@ -95,3 +95,15 @@ test('offseason economics: bad contracts are $0, cap room is worth the auction r
   assert.strictEqual(b.cuts.length, 1);
   assert.ok(Math.abs(b.rate - (base + 0.1)) < 1e-9);
 });
+
+test('offseason trade value charges salary once at the cap rate, floors at $0, and blends 25% of 2026 for partners', () => {
+  const e = loadEngine();
+  const v = (val, cost, c, m) => e.call('offseasonTradeValue', val, cost, c, m);
+  assert.strictEqual(v(59, 62, 0.25), 59 - 15.5);                 // Judge: a fair-priced star is worth real value
+  assert.strictEqual(v(14, 35, 1), 0);                            // a bad contract is $0, never negative
+  assert.strictEqual(v(36, 57, 0.25, { actual: 44, proj: 36 }), 36 + 2 - 14.25);
+  e.localStorage.setItem('ottoneu_market_2026', JSON.stringify([{ Name: 'Shohei Ohtani', Type: 'H', Value2026: '52' }, { Name: 'Shohei Ohtani', Type: 'P', Value2026: '20' }]));
+  assert.strictEqual(e.call('marketValueFor', { name: 'shohei ohtani', type: 'P' }), 20);
+  assert.strictEqual(e.call('marketValueFor', { name: 'shohei ohtani', type: 'H' }), 52);
+  assert.strictEqual(e.call('marketValueFor', { name: 'nobody', type: 'H' }), null);
+});

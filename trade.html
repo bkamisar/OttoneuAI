@@ -565,16 +565,22 @@
         return hasDynasty ? (vm.dynastySurplus || 0) : (vm.surplus || 0);
       };
       var sumSal = function (arr) { return arr.reduce(function (s, p) { return s + (p.salary || 0); }, 0); };
-      var sumOff = function (arr) { return arr.reduce(function (s, p) { return s + offseasonValue(surpOf(p)); }, 0); };
+      // Gross value minus salary charged once at the cap rate, floored at $0.
+      var offVal = function (p) {
+        var vm = valueMap[p.fgId || p.name] || {};
+        var val = hasDynasty ? (vm.dynastyValue || 0) : (vm.projectedValue || 0);
+        return offseasonTradeValue(val, val - surpOf(p), CAP_DOLLAR_BASE);
+      };
+      var sumOff = function (arr) { return arr.reduce(function (s, p) { return s + offVal(p); }, 0); };
       var planOf = function (name) {
         return teamCapPlan((teamMap[name] || []).map(function (p) { return { salary: p.salary || 0, surplus: surpOf(p) }; }));
       };
       var box = el('div', 'vex-col');
       box.style.gridColumn = '1 / -1';
-      var h4 = el('h4'); h4.textContent = 'Offseason view (bad contracts = $0, cap room = money)'; box.appendChild(h4);
+      var h4 = el('h4'); h4.textContent = 'Offseason view (salary charged at the cap rate, bad contracts = $0)'; box.appendChild(h4);
       var tbl = el('table', 'vex-tbl');
       var htr = el('tr');
-      ['Team', 'Player value in', 'Player value out', 'Cap room', 'Cap room $', 'Net', 'Payroll after'].forEach(function (h) {
+      ['Team', 'Value in', 'Value out', 'Cap room', '(of which salary charge)', 'Net', 'Payroll after'].forEach(function (h) {
         var th = el('th'); th.textContent = h; htr.appendChild(th);
       });
       tbl.appendChild(htr);
@@ -583,7 +589,7 @@
         var plan = planOf(name);
         var freed = sumSal(outP) - sumSal(inP);
         var capVal = freed * plan.rate;
-        var net = sumOff(inP) - sumOff(outP) + capVal;
+        var net = sumOff(inP) - sumOff(outP);   // salary already charged inside each value
         var after = plan.payroll - freed;
         var tr = el('tr');
         var cells = [
@@ -604,8 +610,9 @@
       });
       box.appendChild(tbl);
       var note = el('p'); note.style.fontSize = '12px'; note.style.color = '#666';
-      note.textContent = 'Player value = dynasty surplus floored at $0 (offseason cuts are free). A dollar of cap room is worth $'
-        + CAP_DOLLAR_BASE.toFixed(2) + ' (March auctions sell real players at ~0.8x value), more for a team that would otherwise have to cut players worth keeping.';
+      note.textContent = 'Value = ' + (hasDynasty ? 'dynasty' : 'projected') + ' value minus salary charged at $' + CAP_DOLLAR_BASE.toFixed(2)
+        + ' per dollar (what a dollar of cap room buys at the March auction, where real players sell at ~0.8x value), floored at $0 because offseason cuts are free.'
+        + ' Cap room shows salary moved and what it is worth; it is already inside Net.';
       box.appendChild(note);
       return box;
     }

@@ -92,6 +92,13 @@ plus, if its positive-surplus players alone exceed $400, the surplus/salary of i
 `AUCTION_PRICE_RATIO` 0.8 comes from the March 2026 auction: $15+ players cleared at 0.64–0.92× their
 May-2026 model value (109 buys matched). Realized production was rejected as the yardstick (injury
 noise: Yordan's 48-game 2025). At launch every team's keepers fit under $400, so every rate is 0.25.
+**Revised same day (user review):** salary is charged ONCE, at the cap rate c = 0.25, inside each player's
+offseason trade value: `offseasonTradeValue(value, cost, c)` = max(0, value − c·cost). The first version
+charged salary at $1 (surplus floor) AND added the cap term — double counting, and it made Judge ($59 at
+$62) worth $0. The cap-room line is now display-only. Partners' view (fairness filter, "their" lens) blends
+`MARKET_BLEND` 25% of the player's ACTUAL 2026 value (data/market_2026.csv from
+`node tools/build_market_2026.js`, MLB Stats API daily cache, valued by the same engine); your own view
+stays projection-only.
 Assumption to watch: if many teams cut fair-priced stars, the March 2027 auction has far more money than
 2026's ($995 spent) and the 0.8 ratio will rise.
 

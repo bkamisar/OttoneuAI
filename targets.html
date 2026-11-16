@@ -828,7 +828,7 @@
         var val  = dyn ? (p.dynValue || 0) : (p.projValue || 0);
         var cost = val - (dyn ? (p.dynastySurplus || 0) : (p.surplus || 0));
         var mv   = partner ? marketValueFor(p) : null;
-        return offseasonTradeValue(val, cost, capRateFor(team), mv == null ? null : { actual: mv, proj: p.projValue || 0 });
+        return offseasonTradeValue(val, cost, capRateFor(team), mv == null ? null : { actual: mv.actual, sample: mv.sample, proj: p.projValue || 0 });
       }
       return Math.max(0, lens === 'dynasty' ? (p.dynValue || 0) : (p.projValue || 0));
     }

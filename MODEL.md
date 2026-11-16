@@ -98,7 +98,9 @@ charged salary at $1 (surplus floor) AND added the cap term — double counting,
 $62) worth $0. The cap-room line is now display-only. Partners' view (fairness filter, "their" lens) blends
 `MARKET_BLEND` 25% of the player's ACTUAL 2026 value (data/market_2026.csv from
 `node tools/build_market_2026.js`, MLB Stats API daily cache, valued by the same engine); your own view
-stays projection-only.
+stays projection-only. The 2026 line is RATES, not totals: actual 2026 rates spread over 2027 projected
+playing time (injured stars who raked when healthy keep credit: Judge $21 → $41, Soto $33 → $44), and the blend
+is scaled by Sample = min(1, PA/500 or IP/150) so a short stretch gets a smaller say.
 Assumption to watch: if many teams cut fair-priced stars, the March 2027 auction has far more money than
 2026's ($995 spent) and the 0.8 ratio will rise.
 

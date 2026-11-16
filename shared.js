@@ -92,12 +92,13 @@ function offseasonValue(surplus) { return Math.max(0, surplus || 0); }
 // worth $0). Floored at $0: a bad contract is cut free.
 //   value  = gross value in the lens (Y0 $ or dynasty $)
 //   cost   = salary cost over the same horizon (value - surplus)
-//   market = optional { actual: 2026 actual $, proj: Y0 projected $ } -- blends
-//            MARKET_BLEND of what he actually did into the value (partners' view)
+//   market = optional { actual: 2026 $ (rates at 2027 playing time), sample: 0-1,
+//            proj: Y0 projected $ } -- blends MARKET_BLEND x sample of what he
+//            actually did into the value (partners' view)
 const MARKET_BLEND = 0.25;
 function offseasonTradeValue(value, cost, c, market) {
   let v = value || 0;
-  if (market && market.actual != null) v += MARKET_BLEND * (market.actual - (market.proj || 0));
+  if (market && market.actual != null) v += MARKET_BLEND * (market.sample == null ? 1 : market.sample) * (market.actual - (market.proj || 0));
   return Math.max(0, v - (c == null ? CAP_DOLLAR_BASE : c) * Math.max(0, cost || 0));
 }
 
@@ -311,8 +312,9 @@ function projFlagFor(p) {
   return (key && _projFlagMap[key]) || null;
 }
 
-// What a player's ACTUAL 2026 season was worth (tools/build_market_2026.js), or
-// null if he had no real 2026 season. Used only to guess what trade partners
+// What a player's ACTUAL 2026 season was worth -- his 2026 rates at his 2027
+// projected playing time (tools/build_market_2026.js) -- as { actual, sample },
+// or null if he had no real 2026 season. sample (0-1) = how full that season was. Used only to guess what trade partners
 // will accept -- managers price on what they watched.
 let _marketRaw = null, _marketMap = null;
 function marketValueFor(p) {
@@ -320,7 +322,9 @@ function marketValueFor(p) {
   if (!raw || !p) return null;
   if (raw !== _marketRaw) {
     _marketRaw = raw; _marketMap = {};
-    (JSON.parse(raw) || []).forEach(function(r) { if (r && r.Name) _marketMap[normalizeName(r.Name) + '|' + r.Type] = +r.Value2026; });
+    (JSON.parse(raw) || []).forEach(function(r) {
+      if (r && r.Name) _marketMap[normalizeName(r.Name) + '|' + r.Type] = { actual: +r.Value2026, sample: r.Sample == null || r.Sample === '' ? 1 : +r.Sample };
+    });
   }
   const key = (p.name || normalizeName(p.rawName || '')) + '|' + (p.type || 'H');
   return key in _marketMap ? _marketMap[key] : null;

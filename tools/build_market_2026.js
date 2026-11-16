@@ -1,11 +1,17 @@
 #!/usr/bin/env node
-// tools/build_market_2026.js -- writes data/market_2026.csv (Name, Type, Value2026).
+// tools/build_market_2026.js -- writes data/market_2026.csv (Name, Type, Value2026, Sample).
 //   node tools/build_market_2026.js
 // What each rostered player's ACTUAL 2026 season was worth, valued by the same
 // engine as the projections (offseason date, today's rosters, actual lines in
 // place of projections). The trade finder blends 25% of it into the values it
 // uses to guess what trade PARTNERS will accept: managers price on what they
 // watched, not on Steamer. Your own valuations stay projection-only.
+//
+// RATES, not totals: managers remember how well a player hit when he played
+// (Judge raked in 285 PA), so the 2026 line is his actual 2026 RATES spread over
+// his 2027 projected playing time -- the projection still owns "how much".
+// Sample = min(1, PA/500 or IP/150): a short hot or cold stretch gets a
+// proportionally smaller say (the page multiplies the 25% blend by it).
 //
 // Source: the audit's daily MLB Stats API cache (audit/cache/stats, first-party).
 // Run `node audit/run.js` first if it is missing.
@@ -16,6 +22,7 @@ const { loadEngine } = require('../audit/lib/engine');
 const ROOT = path.join(__dirname, '..');
 const SEASON = '2026';
 const MIN = { pa: 100, ip: 30 };   // less than this = no real 2026 season, no market blend
+const FULL = { pa: 500, ip: 150 }; // a full sample: the blend gets its full weight
 
 const e = loadEngine();
 e.setDate('2026-11-15');
@@ -51,9 +58,26 @@ const pitCSV = ['Name,Team,GS,G,IP,HR,SO,BB,HR/9,WHIP,ERA'].concat([...P.values(
     (x.hr * 9 / ip).toFixed(3), ((x.bb + x.h) / ip).toFixed(3), (x.er * 9 / ip).toFixed(3)].join(',');
 })).join('\n');
 
-// Value the actual lines exactly as the pages value projections.
-const hp = e.call('parseHittingProjections', hitCSV);
-const pp = e.call('parsePitchingProjections', pitCSV);
+// Value the actual RATES at 2027 projected playing time, exactly as the pages
+// value projections. Players with no 2027 projection keep their actual volume.
+const rd = f => fs.readFileSync(path.join(ROOT, 'data', f), 'utf8');
+const projH = new Map(e.call('parseHittingProjections', rd('proj_hitting.csv')).map(p => [p.name, p.proj]));
+const projP = new Map(e.call('parsePitchingProjections', rd('proj_pitching.csv')).map(p => [p.name, p.proj]));
+const sample = new Map();
+const hp = e.call('parseHittingProjections', hitCSV).map(p => {
+  sample.set(p.name + '|H', Math.min(1, p.proj.pa / FULL.pa));
+  const f = projH.get(p.name); if (!f || !f.pa) return p;
+  const k = f.pa / p.proj.pa;
+  const x = p.proj;
+  return { ...p, proj: { ...x, pa: f.pa, ab: (x.ab || 0) * k, h: (x.h || 0) * k, bb: (x.bb || 0) * k, hbp: (x.hbp || 0) * k, hr: x.hr * k, r: x.r * k } };
+});
+const pp = e.call('parsePitchingProjections', pitCSV).map(p => {
+  sample.set(p.name + '|P', Math.min(1, p.proj.ip / FULL.ip));
+  const f = projP.get(p.name); if (!f || !f.ip) return p;
+  const k = f.ip / p.proj.ip;
+  const x = p.proj;
+  return { ...p, proj: { ...x, ip: f.ip, so: x.so * k, hr: x.hr * k, h: x.h * k, bb: x.bb * k, er: x.er * k, role: f.role || x.role } };
+});
 const rc = fs.readFileSync(path.join(ROOT, 'data', 'roster.csv'), 'utf8');
 const roster = e.call('parseRosterCSV', rc);
 const rows = e.call('parseCSV', rc);
@@ -63,13 +87,13 @@ const byT = {};
 m.forEach(p => (byT[p.teamId] = byT[p.teamId] || []).push(p));
 const vm = e.call('calculateAllValues', Object.values(byT), null, true);
 
-const out = ['Name,Type,Value2026'];
+const out = ['Name,Type,Value2026,Sample'];
 let n = 0;
 for (const p of m) {
   if (!p.proj) continue;                       // no real 2026 season -> no market blend
   const v = vm[p.fgId || p.name];
   if (!v) continue;
-  out.push([q(p.rawName), p.type, Math.round(v.projectedValue || 0)].join(','));
+  out.push([q(p.rawName), p.type, Math.round(v.projectedValue || 0), (sample.get(p.name + '|' + p.type) || 0).toFixed(2)].join(','));
   n++;
 }
 fs.writeFileSync(path.join(ROOT, 'data', 'market_2026.csv'), out.join('\n') + '\n');

@@ -102,8 +102,11 @@ test('offseason trade value charges salary once at the cap rate, floors at $0, a
   assert.strictEqual(v(59, 62, 0.25), 59 - 15.5);                 // Judge: a fair-priced star is worth real value
   assert.strictEqual(v(14, 35, 1), 0);                            // a bad contract is $0, never negative
   assert.strictEqual(v(36, 57, 0.25, { actual: 44, proj: 36 }), 36 + 2 - 14.25);
-  e.localStorage.setItem('ottoneu_market_2026', JSON.stringify([{ Name: 'Shohei Ohtani', Type: 'H', Value2026: '52' }, { Name: 'Shohei Ohtani', Type: 'P', Value2026: '20' }]));
-  assert.strictEqual(e.call('marketValueFor', { name: 'shohei ohtani', type: 'P' }), 20);
-  assert.strictEqual(e.call('marketValueFor', { name: 'shohei ohtani', type: 'H' }), 52);
+  // A half-season sample gets half the say: Judge raked in 285 PA.
+  assert.strictEqual(v(59, 62, 0.25, { actual: 41, sample: 0.5, proj: 59 }), 59 + 0.25 * 0.5 * (41 - 59) - 15.5);
+  e.localStorage.setItem('ottoneu_market_2026', JSON.stringify([{ Name: 'Shohei Ohtani', Type: 'H', Value2026: '52', Sample: '1.00' }, { Name: 'Shohei Ohtani', Type: 'P', Value2026: '20', Sample: '0.50' }]));
+  const op = e.call('marketValueFor', { name: 'shohei ohtani', type: 'P' });
+  assert.deepStrictEqual([op.actual, op.sample], [20, 0.5]);
+  assert.strictEqual(e.call('marketValueFor', { name: 'shohei ohtani', type: 'H' }).actual, 52);
   assert.strictEqual(e.call('marketValueFor', { name: 'nobody', type: 'H' }), null);
 });

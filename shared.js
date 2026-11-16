@@ -1506,7 +1506,10 @@ function weakestQuartile(players) {
 // ~0 across the league, so this redistributes value among hitters by position
 // WITHOUT shifting the hit/pitch pool. (Free agents carry no position data, so
 // they fall back to the general baseline — see hitterSGP.)
-const HIT_POS_DEPTH = { c: 12, '1b': 12, '2b': 16, ss: 16, '3b': 12, of: 60 };
+// 1B depth 24 = the 1B slot + the UTIL slot, which is filled mostly by 1B/DH
+// bats; at 12 the "replacement" cohort (Busch, Naylor, Pasquantino) were
+// actually UTIL starters, which set the 1B bar far too high.
+const HIT_POS_DEPTH = { c: 12, '1b': 24, '2b': 16, ss: 16, '3b': 12, of: 60 };
 function computePositionalOffsets(allTeamRosters) {
   const hitters = allTeamRosters.flat().filter(p => p.type === 'H' && p.proj && (p.proj.pa || 0) > 50);
   const raw = {};
@@ -1549,10 +1552,14 @@ function computePositionalOffsets(allTeamRosters) {
 // his most favorable (scarcest) eligible position — this is what rewards
 // positional flexibility and restores the catcher/middle-infield premium.
 // No mapped position (DH/UTIL-only, or FAs) → general baseline.
+// UTIL FLOOR: every hitter can fill the UTIL slot, so no hitter grades below
+// the general (UTIL) baseline. Without it a 1B-only bat was worth less than a
+// DH-only bat with the same line (Freeman $1 vs Yandy Diaz $22, Nov 2026).
 function hitterSGP(player, b, replH, posOffsets, sgpDenom, avgPA, avgIP) {
   const positions = (player.positions || []).filter(pos => posOffsets && posOffsets[pos]);
-  if (!positions.length) return calcPlayerSGP(player, b, replH, sgpDenom, avgPA, avgIP);
-  let best = -Infinity;
+  const util = calcPlayerSGP(player, b, replH, sgpDenom, avgPA, avgIP);
+  if (!positions.length) return util;
+  let best = util;
   for (const pos of positions) {
     const o = posOffsets[pos];
     // hrRate/rRate are per-PA deltas, so they scale onto the baseline's own PA

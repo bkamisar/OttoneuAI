@@ -67,3 +67,14 @@ test('projFlagFor finds a flag by name; label says what to check', () => {
   assert.ok(lab.text.length <= 8 && /183 IP/.test(lab.title) && /116 IP/.test(lab.title));
   assert.ok(/ZiPS/.test(e.call('projFlagLabel', e.call('projFlagFor', { name: 'jose ramirez' })).title));
 });
+
+test('UTIL floor: a 1B-only bat never grades below a UTIL-only bat with the same line', () => {
+  const e = loadEngine();
+  const b = { pa: 590, hr: 18, r: 75, obp: 0.355, slg: 0.443 };
+  const repl = { pa: 550, hr: 15, r: 65, obp: 0.320, slg: 0.410 };
+  const offs = { '1b': { obp: 0.015, slg: 0.027, hrRate: 0.005, rRate: 0.005 } };
+  const denom = { HR: 10, R: 25, OBP: 0.005, SLG: 0.009 };
+  const util = e.call('hitterSGP', { type: 'H', positions: [] }, b, repl, offs, denom, 550, 150);
+  const first = e.call('hitterSGP', { type: 'H', positions: ['1b'] }, b, repl, offs, denom, 550, 150);
+  assert.ok(first >= util, `1B ${first} < UTIL ${util}`);
+});

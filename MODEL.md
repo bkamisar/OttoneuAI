@@ -411,6 +411,19 @@ Odds panel on standings.html. Spec:
   4. **consolidation** — two of my low-marginal spares for one clearly better player
      (target must add ≥ 2×`TF_GAIN_MIN`).
 
+  5. **salary dump** (offseason only, added 2026-11-17) — `tfDumpCandidates`. `tfCapPlan` keeps each
+     team's players greedily by dynasty value per salary dollar under $400; the rest are its January cuts.
+     My dump candidates: next-season value $15+, salary $15+, and either in my cut set (`forcedCut`) or
+     overpaid long-term (dynasty surplus <= 0). The partner must gain $5+ of lineup value from him and
+     fit the net salary in its room AFTER its own cuts. Returns are its cheap (<= $15) positive-surplus
+     players worth no more than the dumped player x1.3 in offseason trade value, singly or in pairs.
+     **Scoring:** a `forcedCut` player is worth $0 to me after January, so targets.html's `evaluateDump`
+     scores my side against CUTTING him (trade minus a straight cut, in points and dynasty), not against
+     keeping him; their side and the fairness filter are unchanged. No status gate: in Nov 2026 every team
+     with cap room ranked in the bottom third. First run (my team, $184 over): 34 candidates, 30 pass
+     the partner's fairness, e.g. Tatis -> De Paula / Sloan / Barger / Bubic, Tucker -> Bonemer / Tibbs.
+     Soto fits my cap plan (and has positive dynasty surplus), so he is not offered as a dump; use Offer mode.
+
   **"Spare" means LOW MARGINAL, never high blockedness.** A player's marginal is
   essentially always below his absolute value (removing him promotes a bench bat),
   so `blockedness ≥ TF_BLOCK_MIN` passes nearly the whole roster — it once nominated

@@ -1204,6 +1204,38 @@
       }).slice(0, 3);
     }
 
+    // Salary dump of a player my cap plan cuts anyway (tradefinder.js archetype 5).
+    // My baseline is CUTTING him, not keeping him: my side is scored as the trade
+    // minus a straight cut (points and dynasty), so his lost production is not
+    // charged twice and any real return counts. Their side is scored as usual.
+    function evaluateDump(theirTeam, mine, theirs) {
+      var myStatus = teamStatusOf(myTeamName), thStatus = teamStatusOf(theirTeam);
+      var thLens  = lensFor('their', theirTeam);
+      var receive = pkgLensValue(mine, thLens, theirTeam, true);
+      var give    = pkgLensValue(theirs, thLens, theirTeam, true);
+      var premium = 1 + CONSOL_PREM * Math.max(0, mine.length - theirs.length);
+      if (receive < give * premium - tradeTol(give)) return [];     // they'd feel underpaid
+      var sim = simulateTrade(myTeamName, mine, theirTeam, theirs);
+      var cut = simulateTrade(myTeamName, mine, theirTeam, []);      // my side only: him gone, nothing back
+      var myPts = sim.aPts - cut.aPts, myZ = sim.aZ - cut.aZ;
+      var myDyn = dynastyDelta(theirs, []);                         // he is worth $0 to me after January
+      var salOut = mine.reduce(function(s, p) { return s + (p.salary || 0); }, 0);
+      var salIn  = theirs.reduce(function(s, p) { return s + (p.salary || 0); }, 0);
+      var myCap = capValueFor(myTeamName, salOut - salIn), thCap = capValueFor(theirTeam, salIn - salOut);
+      var thDyn = -dynastyDelta(theirs, mine);
+      var myB = benefitFor(myStatus, myPts, myZ, myDyn, myCap);
+      var thB = benefitFor(thStatus, sim.bPts, sim.bZ, thDyn, thCap);
+      if (!myB.ok || !thB.ok) return [];
+      var myNewSal = (teamSalaries[myTeamName] || 0) - salOut + salIn;
+      var thNewSal = (teamSalaries[theirTeam]  || 0) - salIn + salOut;
+      return [{
+        players: theirs, myPlayers: mine, myScore: myB.util,
+        myLine: 'vs cutting him: ' + fmtBenefit(myStatus, myPts, myZ, myDyn, myCap),
+        theirLine: fmtBenefit(thStatus, sim.bPts, sim.bZ, thDyn, thCap),
+        capNote: offseasonCapNote(myNewSal, thNewSal),
+      }];
+    }
+
     // Candidate package combos from a pool, sized 1-3, best-first by lens value
     function candidatePkgs(pool, lens) {
       var sorted = pool.slice()
@@ -1236,7 +1268,8 @@
         var options = [];
         for (var i = 0; i < cands.length && options.length < 3; i++) {
           var c = cands[i];
-          var res = evaluateCandidates(tc.name, [c.myPlayers], [c.theirPlayers]);
+          var res = c.forcedCut ? evaluateDump(tc.name, c.myPlayers, c.theirPlayers)
+                                : evaluateCandidates(tc.name, [c.myPlayers], [c.theirPlayers]);
           for (var j = 0; j < res.length && options.length < 3; j++) {
             res[j].archetype = c.archetype;
             res[j].reason    = c.reason;

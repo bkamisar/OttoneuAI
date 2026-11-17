@@ -197,6 +197,9 @@ function tfBuildContext(rostersByTeam, valueMap, dynastyMap, denoms, ipBudget) {
     ipBudget: budget,
     marginals: marginals,
     needGaps: tfNeedGaps(rostersByTeam, marginals),
+    // Offseason salary dumps (archetype 5) need the cap and the calendar.
+    offseason: typeof isOffseason === 'function' && isOffseason(),
+    cap: typeof SALARY_CAP_LIMIT !== 'undefined' ? SALARY_CAP_LIMIT : 400,
   };
 }
 
@@ -450,9 +453,108 @@ function tfConsolidationCandidates(ctx, myTeam, theirTeam) {
   return out;
 }
 
+// ARCHETYPE 5 — Offseason salary dump.
+// Every team must be under the cap by the January cut deadline, and cuts before it
+// are free. A team over the cap will cut someone anyway, so a good-but-expensive
+// player who does not make its cap plan is worth NOTHING to it after January —
+// any return beats cutting him. The partner needs real cap room (after its own
+// sensible cuts) and must want the production; it pays in cheap young players.
+// The other archetypes judge a trade against keeping today's roster; for a player
+// in the forced-cut set the honest baseline is "cut him", so targets.html scores
+// these against that baseline (forcedCut flag). A player who fits the cap plan but
+// is overpaid long-term (dynasty surplus <= 0) is also offered, scored the normal way.
+var TF_DUMP_MIN_VALUE  = 15;          // next-season $: a real player, not dead money
+var TF_DUMP_MIN_SALARY = 15;          // below this the cap relief is not the point
+var TF_DUMP_RETURN_MAX_SALARY = 15;   // "cheap young": what comes back must be cheap
+var TF_DUMP_RETURNS = 4;              // best young pieces per partner considered
+
+// Which players a team keeps under the cap: greedy by value per salary dollar
+// (dynasty value, so a contender does not dump its future to keep a rental),
+// keeping a player whenever he still fits. Players with no value are cut.
+// Returns { payroll, keptPay, room, cut: { key: true } }.
+function tfCapPlan(roster, dynastyMap, cap) {
+  cap = cap || 400;
+  var sal = function (p) { return Math.max(0, p.salary || 0); };
+  var val = function (p) { var d = dynastyMap[tfKey(p)]; return d ? Math.max(0, d.dynastyValue || 0) : 0; };
+  var payroll = roster.reduce(function (s, p) { return s + sal(p); }, 0);
+  var order = roster.slice().sort(function (a, b) { return val(b) / Math.max(1, sal(b)) - val(a) / Math.max(1, sal(a)); });
+  var kept = 0, cut = {};
+  order.forEach(function (p) {
+    if (val(p) > 0 && kept + sal(p) <= cap) kept += sal(p);
+    else cut[tfKey(p)] = true;
+  });
+  return { payroll: payroll, keptPay: kept, room: cap - kept, cut: cut };
+}
+
+function tfDumpCandidates(ctx, myTeam, theirTeam, myStatus, theirStatus) {
+  if (!ctx.offseason) return [];
+  // No status gate: this winter the cap room sits with the bottom third. Whether a
+  // rebuilder pays for a veteran is the fairness filter's and utility gate's call
+  // (rebuilders price at dynasty value, so they only pay for real future value).
+  var cap = ctx.cap || 400, out = [];
+  var myRoster = ctx.rostersByTeam[myTeam] || [], thRoster = ctx.rostersByTeam[theirTeam] || [];
+  var myPlan = tfCapPlan(myRoster, ctx.dynastyMap, cap);
+  var thPlan = tfCapPlan(thRoster, ctx.dynastyMap, cap);
+  var y0 = function (p) { return (ctx.valueMap[tfKey(p)] || {}).projectedValue || 0; };
+  var dyn = function (p) { return ctx.dynastyMap[tfKey(p)] || {}; };
+
+  var dumps = myRoster.filter(function (p) {
+    if (!p.proj || (p.salary || 0) < TF_DUMP_MIN_SALARY || y0(p) < TF_DUMP_MIN_VALUE) return false;
+    if (!myPlan.cut[tfKey(p)] && (dyn(p).dynastySurplus || 0) > 0) return false;   // a keeper, not a dump
+    return tfMarginalOn(p, thRoster, ctx.denoms, ctx.ipBudget) >= TF_GAIN_MIN;      // they must want him
+  }).sort(function (a, b) { return (b.salary || 0) - (a.salary || 0); }).slice(0, 3);
+  if (!dumps.length) return out;
+
+  // Offseason trade value in the better of the two lenses (salary charged once at
+  // the cap rate): how much a piece is worth to whoever holds it.
+  var tv = function (p) {
+    var d = dyn(p), now = y0(p), dv = d.dynastyValue || now;
+    if (typeof offseasonTradeValue !== 'function') return Math.max(now, dv);
+    return Math.max(offseasonTradeValue(now, p.salary || 0), offseasonTradeValue(dv, dv - (d.dynastySurplus || 0)));
+  };
+  var young = thRoster.filter(function (q) {
+    return q.proj && (q.salary || 0) <= TF_DUMP_RETURN_MAX_SALARY && !thPlan.cut[tfKey(q)] && (dyn(q).dynastySurplus || 0) > 0;
+  });
+
+  dumps.forEach(function (p) {
+    var forcedCut = !!myPlan.cut[tfKey(p)];
+    var adds = tfMarginalOn(p, thRoster, ctx.denoms, ctx.ipBudget);
+    // Pieces they could plausibly give for him: worth no more than he is, plus the
+    // 30% fairness window. The best of those by dynasty surplus, singly or in pairs.
+    var budget = tv(p) * 1.3;
+    var pool = young.filter(function (q) { return tv(q) <= budget; })
+      .sort(function (a, b) { return (dyn(b).dynastySurplus || 0) - (dyn(a).dynastySurplus || 0); })
+      .slice(0, TF_DUMP_RETURNS);
+    var packages = pool.map(function (q) { return [q]; });
+    for (var i = 0; i < pool.length; i++) for (var j = i + 1; j < pool.length; j++)
+      if (tv(pool[i]) + tv(pool[j]) <= budget) packages.push([pool[i], pool[j]]);
+    packages.forEach(function (pkg) {
+      var salBack = pkg.reduce(function (s, q) { return s + (q.salary || 0); }, 0);
+      var net = (p.salary || 0) - salBack;                // salary they take on
+      if (net > thPlan.room) return;                       // they cannot fit him by January
+      var surplusBack = pkg.reduce(function (s, q) { return s + (dyn(q).dynastySurplus || 0); }, 0);
+      out.push({
+        archetype: 'salary dump',
+        forcedCut: forcedCut,
+        myPlayers: [p], theirPlayers: pkg,
+        reason: (forcedCut
+          ? 'You are ' + tfDollars(myPlan.payroll - cap) + ' over the cap and ' + tfName(p) + ' (' + tfDollars(p.salary) +
+            ') does not fit your cap plan, so you would cut him for nothing in January. '
+          : tfName(p) + ' is worth about ' + tfDollars(y0(p)) + ' next season, but ' + tfDollars(p.salary) +
+            ' and rising is more than he returns long-term. ') +
+          'They can absorb ' + tfDollars(net) + ' of salary (' + tfDollars(thPlan.room) + ' of room after their own cuts) and he adds ' +
+          tfDollars(adds) + ' to their lineup. You get ' + pkg.map(tfName).join(' + ') +
+          ' (' + tfDollars(salBack) + ' total salary, ' + tfDollars(surplusBack) + ' of dynasty surplus).',
+      });
+    });
+  });
+  return out;
+}
+
 // Dispatcher — every archetype for one opponent, de-duplicated by player pairing.
 function tfGenerateCandidates(ctx, myTeam, theirTeam, myStatus, theirStatus) {
   var all = []
+    .concat(tfDumpCandidates(ctx, myTeam, theirTeam, myStatus, theirStatus))
     .concat(tfLogjamCandidates(ctx, myTeam, theirTeam))
     .concat(tfRentalCandidates(ctx, myTeam, theirTeam, myStatus, theirStatus))
     .concat(tfWindowCandidates(ctx, myTeam, theirTeam, myStatus, theirStatus))

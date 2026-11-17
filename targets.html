@@ -1208,30 +1208,35 @@
     // My baseline is CUTTING him, not keeping him: my side is scored as the trade
     // minus a straight cut (points and dynasty), so his lost production is not
     // charged twice and any real return counts. Their side is scored as usual.
-    function evaluateDump(theirTeam, mine, theirs) {
+    // ask = stretch ask (tradefinder.js): above model value, so their gates are
+    // skipped and the option is labelled as an opening offer instead.
+    // forcedCut = false: an overpaid keeper, scored against keeping him (normal baseline).
+    function evaluateDump(theirTeam, mine, theirs, ask, forcedCut) {
+      if (forcedCut === undefined) forcedCut = true;
       var myStatus = teamStatusOf(myTeamName), thStatus = teamStatusOf(theirTeam);
       var thLens  = lensFor('their', theirTeam);
       var receive = pkgLensValue(mine, thLens, theirTeam, true);
       var give    = pkgLensValue(theirs, thLens, theirTeam, true);
       var premium = 1 + CONSOL_PREM * Math.max(0, mine.length - theirs.length);
-      if (receive < give * premium - tradeTol(give)) return [];     // they'd feel underpaid
+      if (!ask && receive < give * premium - tradeTol(give)) return [];     // they'd feel underpaid
       var sim = simulateTrade(myTeamName, mine, theirTeam, theirs);
-      var cut = simulateTrade(myTeamName, mine, theirTeam, []);      // my side only: him gone, nothing back
+      var cut = forcedCut ? simulateTrade(myTeamName, mine, theirTeam, []) : { aPts: 0, aZ: 0 };   // my side: him gone, nothing back
       var myPts = sim.aPts - cut.aPts, myZ = sim.aZ - cut.aZ;
-      var myDyn = dynastyDelta(theirs, []);                         // he is worth $0 to me after January
+      var myDyn = forcedCut ? dynastyDelta(theirs, []) : dynastyDelta(theirs, mine);   // a forced cut is worth $0 to me after January
       var salOut = mine.reduce(function(s, p) { return s + (p.salary || 0); }, 0);
       var salIn  = theirs.reduce(function(s, p) { return s + (p.salary || 0); }, 0);
       var myCap = capValueFor(myTeamName, salOut - salIn), thCap = capValueFor(theirTeam, salIn - salOut);
       var thDyn = -dynastyDelta(theirs, mine);
       var myB = benefitFor(myStatus, myPts, myZ, myDyn, myCap);
       var thB = benefitFor(thStatus, sim.bPts, sim.bZ, thDyn, thCap);
-      if (!myB.ok || !thB.ok) return [];
+      if (!myB.ok || (!ask && !thB.ok)) return [];
       var myNewSal = (teamSalaries[myTeamName] || 0) - salOut + salIn;
       var thNewSal = (teamSalaries[theirTeam]  || 0) - salIn + salOut;
       return [{
         players: theirs, myPlayers: mine, myScore: myB.util,
-        myLine: 'vs cutting him: ' + fmtBenefit(myStatus, myPts, myZ, myDyn, myCap),
-        theirLine: fmtBenefit(thStatus, sim.bPts, sim.bZ, thDyn, thCap),
+        myLine: (forcedCut ? 'vs cutting him: ' : '') + fmtBenefit(myStatus, myPts, myZ, myDyn, myCap),
+        theirLine: (ask ? 'Opening ask, above model value; at model prices they would decline: ' : '') +
+                   fmtBenefit(thStatus, sim.bPts, sim.bZ, thDyn, thCap),
         capNote: offseasonCapNote(myNewSal, thNewSal),
       }];
     }
@@ -1265,15 +1270,19 @@
           cands = tfGenerateCandidates(tfCtx, myTeamName, tc.name, myStatus, teamStatusOf(tc.name));
         } catch (e) { return; }
         if (!cands.length) return;
-        var options = [];
-        for (var i = 0; i < cands.length && options.length < 3; i++) {
+        var options = [], asked = 0;
+        // Gated proposals first; stretch asks only fill in after them (at most one per team).
+        cands = cands.filter(function (x) { return !x.ask; }).concat(cands.filter(function (x) { return x.ask; }));
+        for (var i = 0; i < cands.length && options.length < 4; i++) {
           var c = cands[i];
-          var res = c.forcedCut ? evaluateDump(tc.name, c.myPlayers, c.theirPlayers)
+          if (c.ask ? asked >= 1 : options.length - asked >= 3) continue;
+          var res = c.forcedCut || c.ask ? evaluateDump(tc.name, c.myPlayers, c.theirPlayers, c.ask, c.forcedCut)
                                 : evaluateCandidates(tc.name, [c.myPlayers], [c.theirPlayers]);
-          for (var j = 0; j < res.length && options.length < 3; j++) {
+          for (var j = 0; j < res.length && options.length < 4; j++) {
             res[j].archetype = c.archetype;
             res[j].reason    = c.reason;
             options.push(res[j]);
+            if (c.ask) { asked++; break; }
           }
         }
         if (!options.length) return;

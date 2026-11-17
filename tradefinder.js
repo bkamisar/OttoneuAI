@@ -467,6 +467,13 @@ var TF_DUMP_MIN_VALUE  = 15;          // next-season $: a real player, not dead 
 var TF_DUMP_MIN_SALARY = 15;          // below this the cap relief is not the point
 var TF_DUMP_RETURN_MAX_SALARY = 15;   // "cheap young": what comes back must be cheap
 var TF_DUMP_RETURNS = 4;              // best young pieces per partner considered
+// Stretch asks: the search above stops at what the partner can afford AT MODEL
+// VALUE, which is the floor of a negotiation, not the opening. A team also shows
+// its better young pieces worth up to TF_DUMP_ASK_MULT x the dumped player's value,
+// flagged ask:true. They are not expected to clear the partner's gates; they are
+// opening offers for a player the partner (or his recent form) may price higher.
+var TF_DUMP_ASK_MULT = 2;
+var TF_DUMP_ASKS = 2;                 // stretch pieces per dumped player per partner
 
 // Which players a team keeps under the cap: greedy by value per salary dollar
 // (dynasty value, so a contender does not dump its future to keep a rental),
@@ -528,16 +535,22 @@ function tfDumpCandidates(ctx, myTeam, theirTeam, myStatus, theirStatus) {
     var packages = pool.map(function (q) { return [q]; });
     for (var i = 0; i < pool.length; i++) for (var j = i + 1; j < pool.length; j++)
       if (tv(pool[i]) + tv(pool[j]) <= budget) packages.push([pool[i], pool[j]]);
+    var asks = young.filter(function (q) { var v = tv(q); return v > budget && v <= tv(p) * TF_DUMP_ASK_MULT; })
+      .sort(function (a, b) { return (dyn(b).dynastySurplus || 0) - (dyn(a).dynastySurplus || 0); })
+      .slice(0, TF_DUMP_ASKS);
+    asks.forEach(function (q) { var pk = [q]; pk.ask = true; packages.push(pk); });
     packages.forEach(function (pkg) {
       var salBack = pkg.reduce(function (s, q) { return s + (q.salary || 0); }, 0);
       var net = (p.salary || 0) - salBack;                // salary they take on
       if (net > thPlan.room) return;                       // they cannot fit him by January
       var surplusBack = pkg.reduce(function (s, q) { return s + (dyn(q).dynastySurplus || 0); }, 0);
       out.push({
-        archetype: 'salary dump',
+        archetype: pkg.ask ? 'salary dump: ask' : 'salary dump',
         forcedCut: forcedCut,
+        ask: !!pkg.ask,
         myPlayers: [p], theirPlayers: pkg,
-        reason: (forcedCut
+        reason: (pkg.ask ? 'OPENING ASK, above model value (' + tfDollars(pkg.reduce(function (s, q) { return s + tv(q); }, 0)) +
+            ' for a player worth ' + tfDollars(tv(p)) + '): expect a counter. ' : '') + (forcedCut
           ? 'You are ' + tfDollars(myPlan.payroll - cap) + ' over the cap and ' + tfName(p) + ' (' + tfDollars(p.salary) +
             ') does not fit your cap plan, so you would cut him for nothing in January. '
           : tfName(p) + ' is worth about ' + tfDollars(y0(p)) + ' next season, but ' + tfDollars(p.salary) +

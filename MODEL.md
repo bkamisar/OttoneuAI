@@ -423,6 +423,19 @@ Odds panel on standings.html. Spec:
      with cap room ranked in the bottom third. First run (my team, $184 over): 34 candidates, 30 pass
      the partner's fairness, e.g. Tatis -> De Paula / Sloan / Barger / Bubic, Tucker -> Bonemer / Tibbs.
      Soto fits my cap plan (and has positive dynasty surplus), so he is not offered as a dump; use Offer mode.
+     **Stretch asks** (`ask: true`, badge "salary dump: ask"): the partner's better young pieces worth up to
+     `TF_DUMP_ASK_MULT` (2x) the dumped player's offseason trade value, at most one shown per team after the
+     gated proposals. Their gates are skipped and the option says so: these are opening offers, not
+     predicted accepts (Tatis -> Made / Arias / Bazzana / Schwellenbach; the gated floor is Barger / De Paula).
+     **Open issue (2026-11-17, not fixed): offseason trade value truncates veterans to one season.**
+     `computeContractHorizon` picks the holding horizon with salary at $1, then `offseasonTradeValue` charges
+     that horizon's salary at the 0.25 cap rate. For expensive veterans H0 wins at $1, so their multi-year
+     value is dropped: Tatis 29 / Soto 54 / Judge 54 now vs 118 / 198 / 150 if the horizon were re-chosen at
+     0.25. Neither is right: 0.25 holds for a team with spare room, near $1 for a team that is at the cap
+     every January, and the pure-0.25 version prices Soto above Roman Anthony, which this league's trades
+     contradict (Tatis was cut at $57 in Jan 2025 and traded for Burger + Drohan + Eury Pérez in June 2026).
+     A fix should choose the horizon at each team's own cap rate (teamCapPlan) for future seasons too, and be
+     checked against the league's veteran trades before shipping.
 
   **"Spare" means LOW MARGINAL, never high blockedness.** A player's marginal is
   essentially always below his absolute value (removing him promotes a bench bat),

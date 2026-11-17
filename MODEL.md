@@ -335,6 +335,22 @@ Odds panel on standings.html. Spec:
   to the **H2 value only** — a prospect's scouting-based worth is inherently
   long-horizon — so prospects resolve to `holdHorizon = 2` and the floor stays
   `max(model, floor)`, never additive.
+- **Prospect timing (2026-11-17).** The floor is multiplied by `PROSPECT_YEAR_DISCOUNT` (0.85,
+  PROVISIONAL) per year until arrival. Years away = board ETA minus `prospectSeason()` (next season once
+  this one ends), overridden by the prospects-model's FV+ "soon" tier (`data/prospect_model.json`,
+  loaded as a tier map `ottoneu_prospect_soon`): top 10% = 0 years, top 25% = at most 1. FV+ is used
+  ONLY for timing: the prospects-model found FanGraphs FV beats it on long-run quality ("rating: FV
+  stands") and adopted it for "soon" only. Effect on rostered prospects: 35 of 137 move, total -5%
+  (Willits $40 -> $29, Duno/Bonemer $29 -> $25); arrivals unchanged.
+- **League market check (2026-11-17), NOT acted on.** All 21 trades with a prospect since 2026-05-24,
+  replayed at the trade date: the side receiving prospects got 2.4x the dynasty surplus it gave, and
+  1.74x even counting the rest-of-season production it gave up (rentals explain part, not most). So
+  this league pays roughly 55-60% of the model's prospect value. Two readings the data cannot separate:
+  the league underprices prospects, or the curve's level is ~1.7x rich. 21 in-season trades, one season,
+  contender motives — too thin to rescale the curve. Practical rule: partners will not pay model value
+  for your prospects; prospects can be bought below model value, but treat the curve's level as unproven.
+  Re-check after the offseason trade window (no rental motive) and when outcomes for 2026's traded
+  prospects arrive.
 - Values are present values of the **winning horizon**, not always 3 seasons.
   Compare only against other dynasty numbers or the matching `dynastyCost`.
 

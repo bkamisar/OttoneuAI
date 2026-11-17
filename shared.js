@@ -148,6 +148,8 @@ const REPO_FILES = [
   // ZiPS for the same season as proj_*.csv, blended into it in the offseason (blendProjections).
   { file: 'proj_zips_hitting.csv',   key: 'ottoneu_proj_zips_hitting',   parse: parseHittingProjections },
   { file: 'proj_zips_pitching.csv',  key: 'ottoneu_proj_zips_pitching',  parse: parsePitchingProjections },
+  // FV+ "soon" tiers from prospects-model/ (only the tier map is kept, not the 600 KB file).
+  { file: 'prospect_model.json',     key: 'ottoneu_prospect_soon',       parse: parseProspectSoon },
 ];
 
 // Fetches all data/ CSVs from the repo, parses them, and writes to localStorage.
@@ -1033,6 +1035,8 @@ function calculateDynastyValues(allRosters, weights, extraPlayers) {
   // computed from scouting data (Top-100 rank, FV, position, risk) — see
   // prospectDynastyValue.
   const keyToProspect = {};
+  const soonTiers = (typeof loadData === 'function' && loadData('ottoneu_prospect_soon')) || {};
+  const soonOf = pr => soonTiers[pr.name + '|' + pr.org];
   const prospectList = (typeof loadData === 'function' && loadData('ottoneu_prospects')) || [];
   if (prospectList.length) {
     const prByName = {};
@@ -1057,7 +1061,7 @@ function calculateDynastyValues(allRosters, weights, extraPlayers) {
       v2.projectedValue || 0,
       v0.actualSalary   || 0,
       w1, w2,
-      prospectDynastyValue(keyToProspect[key])
+      prospectDynastyValue(keyToProspect[key], keyToProspect[key] && soonOf(keyToProspect[key]))
     );
     dynastyMap[key] = {
       ...v0,
@@ -1079,7 +1083,7 @@ function calculateDynastyValues(allRosters, weights, extraPlayers) {
       const v0 = vmY0[k] || {}, v1 = vmY1 ? (vmY1[k] || {}) : {}, v2 = vmY2 ? (vmY2[k] || {}) : {};
       const s0 = Math.max(1, v0.actualSalary || 0);
       let val2 = (v0.projectedValue || 0) + w1 * (v1.projectedValue || 0) + w2 * (v2.projectedValue || 0);
-      const fl = prospectDynastyValue(keyToProspect[k]);
+      const fl = prospectDynastyValue(keyToProspect[k], keyToProspect[k] && soonOf(keyToProspect[k]));
       if (fl > val2) val2 = fl;
       const forcedH2 = val2 - (s0 + w1 * Math.max(1, s0 + 2) + w2 * Math.max(1, s0 + 4));
       const gain = d.dynastySurplus - forcedH2;
@@ -1109,6 +1113,46 @@ const PROSPECT_RANK_CURVE = [[1, 62], [5, 50], [10, 44], [25, 33], [50, 24], [10
 // Unranked prospects fall back to their FV grade.
 const FV_DYNASTY_FLOORS = [[45, 4], [50, 8], [55, 14], [60, 22], [65, 32], [70, 42], [80, 55]];
 
+// TIMING. The curve above prices a prospect's long-run worth, but dynasty value counts
+// only three seasons, so a prospect who is years away is worth less TODAY than the same
+// grade arriving now (Eli Willits, 17, ETA 2029, priced like a 2026 arrival before).
+// FanGraphs FV grades ceiling, not timing; the prospects-model's FV+ "soon" score
+// (P of a starter-quality season within 2 years; validated, beats FV on timing for
+// hitters and pitchers) is the timing signal, with the board's ETA as the fallback:
+//   FV+ soon top 10%  -> arriving now (0 years away)
+//   FV+ soon top 25%  -> at most 1 year away
+//   otherwise         -> years until ETA
+// Each year away multiplies value by PROSPECT_YEAR_DISCOUNT: the 0.90/yr dynasty time
+// discount plus attrition. PROVISIONAL until the league-market check calibrates it.
+const PROSPECT_YEAR_DISCOUNT = 0.85;
+
+// The season prospects are measured against: next season once this one has ended.
+function prospectSeason() {
+  const now = new Date(), y = now.getFullYear();
+  return now > new Date(y, 8, 28, 23, 59, 59) ? y + 1 : y;
+}
+
+function prospectYearsAway(pr, soonTier) {
+  const eta = parseInt(pr && pr.eta, 10);
+  let years = isNaN(eta) ? 1 : Math.max(0, eta - prospectSeason());
+  if (soonTier === 5 || soonTier === 10) years = 0;
+  else if (soonTier === 25) years = Math.min(years, 1);
+  return years;
+}
+
+// data/prospect_model.json -> { 'normalized name|ORG': soonTier } for hitters and pitchers.
+function parseProspectSoon(text) {
+  const d = JSON.parse(text), out = {};
+  const fv = (d && d.fvplus) || {};
+  ['H', 'P'].forEach(function(t) {
+    Object.keys(fv[t] || {}).forEach(function(k) {
+      const i = k.lastIndexOf('|');
+      out[normalizeName(k.slice(0, i)) + '|' + k.slice(i + 1)] = fv[t][k].tier;
+    });
+  });
+  return out;
+}
+
 function interpAnchors(x, anchors) {
   if (x <= anchors[0][0]) return anchors[0][1];
   for (let i = 0; i < anchors.length - 1; i++) {
@@ -1123,7 +1167,8 @@ function fvDynastyFloor(fv) {
   return interpAnchors(fv, FV_DYNASTY_FLOORS);
 }
 
-function prospectDynastyValue(pr) {
+// soonTier: FV+ soon tier (5/10/25/0) or undefined when the model has no read.
+function prospectDynastyValue(pr, soonTier) {
   if (!pr || !pr.fv) return 0;
   // Base: Top-100 rank curve when ranked, FV grade otherwise. A ranked prospect
   // never values below his FV floor (guards against a stale rank column).
@@ -1138,7 +1183,7 @@ function prospectDynastyValue(pr) {
   const risk = String(pr.risk || '').toLowerCase();
   if (risk === 'high' || risk === 'extreme') base *= 0.85;
   else if (risk === 'low') base *= 1.12;
-  return base;
+  return base * Math.pow(PROSPECT_YEAR_DISCOUNT, prospectYearsAway(pr, soonTier));
 }
 
 // ── LINEUP OPTIMIZER ────────────────────────────────────────────────────────

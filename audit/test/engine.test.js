@@ -167,3 +167,30 @@ test('offseason: hitter replacement is the post-auction boundary, not a cut star
   assert.ok(Math.abs(inSeason - avg(fa.slice(0, 8))) < 1e-9, 'in season: the best actual free agents, star included');
   assert.ok(off < inSeason);
 });
+
+test('prospect timing: FV+ soon tier overrides ETA, each year away costs PROSPECT_YEAR_DISCOUNT', () => {
+  const e = loadEngine();
+  e.setDate('2026-11-17');                       // offseason: prospects are measured against 2027
+  assert.strictEqual(e.call('prospectSeason'), 2027);
+  e.setDate('2026-06-01');
+  assert.strictEqual(e.call('prospectSeason'), 2026);
+  e.setDate('2026-11-17');
+  const pr = { fv: 55, rank: 15, eta: '2029', pos: 'SS', risk: 'Med' };
+  const yrs = t => e.call('prospectYearsAway', pr, t);
+  assert.strictEqual(yrs(undefined), 2);         // ETA fallback
+  assert.strictEqual(yrs(0), 2);                 // modeled but not near: ETA stands
+  assert.strictEqual(yrs(25), 1);                // top-25% soon: at most a year away
+  assert.strictEqual(yrs(10), 0);
+  assert.strictEqual(yrs(5), 0);
+  assert.strictEqual(e.call('prospectYearsAway', { ...pr, eta: '2026' }, undefined), 0);   // already due
+  const d = e.get('PROSPECT_YEAR_DISCOUNT');
+  const now = e.call('prospectDynastyValue', pr, 5), far = e.call('prospectDynastyValue', pr, undefined);
+  assert.ok(Math.abs(far - now * d * d) < 1e-9);
+});
+
+test('parseProspectSoon keeps only the tier map, keyed by normalized name and org', () => {
+  const e = loadEngine();
+  const text = JSON.stringify({ fvplus: { H: { 'José Pérez|CLE': { rank: 3, tier: 5 } }, P: { 'Sam Arm|NYY': { rank: 300, tier: 0 } } }, graded: [{}] });
+  const m = e.call('parseProspectSoon', text);
+  assert.deepStrictEqual({ ...m }, { 'jose perez|CLE': 5, 'sam arm|NYY': 0 });
+});

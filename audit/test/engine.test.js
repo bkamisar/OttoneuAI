@@ -194,3 +194,33 @@ test('parseProspectSoon keeps only the tier map, keyed by normalized name and or
   const m = e.call('parseProspectSoon', text);
   assert.deepStrictEqual({ ...m }, { 'jose perez|CLE': 5, 'sam arm|NYY': 0 });
 });
+
+test('computeContractHorizon is the 3-season case of computeContractHorizonSeq', () => {
+  const e = loadEngine();
+  for (const [y0, y1, y2, s, fl] of [[20, 22, 21, 5, 0], [12, 18, 15, 30, 0], [2, 3, 2, 25, 0], [0, 2, 3, 1, 45], [10, 10, 10, 0, 0]]) {
+    const a = e.call('computeContractHorizon', y0, y1, y2, s, 0.9, 0.81, fl);
+    const b = e.call('computeContractHorizonSeq', [y0, y1, y2], s, [1, 0.9, 0.81], fl);
+    assert.deepStrictEqual({ ...a }, { ...b });
+  }
+});
+
+test('aging: young players gain seasons, old ones lose them; no age data = old 3-season window', () => {
+  const e = loadEngine();
+  assert.strictEqual(e.call('ageInSeason', '2003-05-01', 2027), 24);
+  assert.strictEqual(e.call('ageInSeason', '2003-08-01', 2027), 23);   // born after June 30
+  assert.strictEqual(e.call('ageStep', 24, 'H'), 1.06);
+  assert.strictEqual(e.call('ageStep', 28, 'H'), 1);
+  assert.strictEqual(e.call('ageStep', 34, 'P'), 0.88);
+  assert.strictEqual(e.call('ageStep', null, 'H'), 1);
+  const ws = e.call('dynastyWeights', 0.9, 0.81, 6);
+  assert.strictEqual(ws.length, 6);
+  assert.ok(Math.abs(ws[3] - 0.81 * 0.9 * e.get('DYNASTY_ATTRITION')) < 1e-12);
+  // A cheap 24-year-old keeps paying off past season 3; a 34-year-old does not.
+  const run = (age, sal) => {
+    const vals = [30, 30]; for (let t = 2; t < 6; t++) vals[t] = vals[t - 1] * e.call('ageStep', age + t, 'H');
+    return e.call('computeContractHorizonSeq', vals, sal, ws, 0);
+  };
+  assert.strictEqual(run(22, 5).holdHorizon, 5);
+  assert.ok(run(22, 5).dynastySurplus > e.call('computeContractHorizon', 30, 30, 30, 5, 0.9, 0.81, 0).dynastySurplus);
+  assert.ok(run(34, 25).holdHorizon <= 2);
+});

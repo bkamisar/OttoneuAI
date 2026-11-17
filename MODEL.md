@@ -157,8 +157,8 @@ players worth $15+ cleared at 0.71x (hitters 0.76, n=14; pitchers 0.56, n=4); pl
 0.80x. Selecting on value biases the ratio down and on price biases it up, so the truth sits between:
 `AUCTION_PRICE_RATIO` 0.8 stays. Under the old engine the two types were far apart (arms ~0.3x).
 
-**Not fixed, known:** the year-after file is empty, so dynasty counts the ZiPS 2028 line twice (weights
-0.90 and 0.81) with no aging; projection files carry no ages. Ohtani's pitching innings do not count
+**Fixed 2026-11-17:** the year-after file is empty, so dynasty counted the ZiPS 2028 line twice with no
+aging; season 2 is now aged from season 1 (see "Six seasons with aging" in §4). Ohtani's pitching innings do not count
 against his team's innings budget (a few dollars).
 
 ### Foundation backtest (2026-11-16) — formula checked against real outcomes, no change made
@@ -335,6 +335,22 @@ Odds panel on standings.html. Spec:
   to the **H2 value only** — a prospect's scouting-based worth is inherently
   long-horizon — so prospects resolve to `holdHorizon = 2` and the floor stays
   `max(model, floor)`, never additive.
+- **Six seasons with aging (2026-11-17).** When `data/ages.csv` is loaded, dynasty values cover
+  `DYNASTY_YEARS` = 6 seasons (`computeContractHorizonSeq`, holding horizons H0..H5). Seasons 0-1 come
+  from projections; season 2 from a real Y2 line when the player has one, otherwise season 1 x the
+  player's aging step; later seasons keep aging. `AGE_STEP` (standard rough curve, not league-fitted):
+  hitters +6%/yr through 25, flat 26-29, -8% 30-32, -15% 33+; pitchers -7% / -12% at the same ages.
+  Weights: the user's 0.90 / 0.81, then each later season one more 0.9 time discount x
+  `DYNASTY_ATTRITION` 0.92 (curves are measured on survivors). Ages: `node tools/build_ages.js` reads
+  birth dates from the prospects-model's MLB/AAA game records (no network; name collisions left out),
+  with the prospect board's age as fallback; unknown age = flat. No ages loaded (unit tests, the
+  audit) = the old three-season window. The prospect floor stays on the H2 option only.
+  Why: a 24-year-old's prime years counted for nothing. Effect (2026-11-17): ages 23-25 hold 36.4% ->
+  40.7% of positive dynasty surplus, 29+ 16.7% -> 13.6%. Kurtz surplus $120 -> $170, Wood $73 -> $95,
+  Basallo $41 -> $63, Griffin $50 -> $80, McGonigle $39 -> $52; Soto $13 -> $3 (H2 -> H0: at $68 and
+  30+, holding past this season no longer pays once season 2 ages instead of repeating ZiPS 2028).
+  Holding-horizon counts barely move at H0 (332 -> 334), so the trade finder's rental logic is
+  unaffected. Known approximation: aged seasons are not re-normalized to the $4,800 pool.
 - **Prospect timing (2026-11-17).** The floor is multiplied by `PROSPECT_YEAR_DISCOUNT` (0.85,
   PROVISIONAL) per year until arrival. Years away = board ETA minus `prospectSeason()` (next season once
   this one ends), overridden by the prospects-model's FV+ "soon" tier (`data/prospect_model.json`,

@@ -150,6 +150,8 @@ const REPO_FILES = [
   { file: 'proj_zips_pitching.csv',  key: 'ottoneu_proj_zips_pitching',  parse: parsePitchingProjections },
   // FV+ "soon" tiers from prospects-model/ (only the tier map is kept, not the 600 KB file).
   { file: 'prospect_model.json',     key: 'ottoneu_prospect_soon',       parse: parseProspectSoon },
+  // Birth dates for the dynasty aging curve (tools/build_ages.js).
+  { file: 'ages.csv',                key: 'ottoneu_ages',                parse: parseAges },
 ];
 
 // Fetches all data/ CSVs from the repo, parses them, and writes to localStorage.
@@ -943,29 +945,67 @@ function attachYearProjections(matchedPlayers, hittingProj, pitchingProj, projKe
 // Value and cost ALWAYS describe the same horizon; reporting a 3-year value
 // against a 1-year cost would credit production that was never paid for.
 function computeContractHorizon(y0, y1, y2, s0, w1, w2, floor) {
+  return computeContractHorizonSeq([y0, y1, y2], s0, [1, w1, w2], floor);
+}
+
+// Any number of seasons: vals[t] = value in season t, ws[t] = its weight (ws[0] = 1).
+// Holding through season h costs salary s0 + 2t each season t <= h. The prospect floor
+// is long-horizon by nature (what a prospect is worth if you hold him) and applies to
+// the H2 option only, as max() never additive (invariant #6) — longer holds are priced
+// on projections, so the floor's calibration does not depend on the window length.
+function computeContractHorizonSeq(vals, s0, ws, floor) {
   const salary = Math.max(1, s0 || 0);
-  const base0  = salary;                // full season-long cap commitment
-  const esc1   = Math.max(1, salary + 2);
-  const esc2   = Math.max(1, salary + 4);
+  let v = 0, cost = 0, best = null;
+  for (let t = 0; t < vals.length; t++) {
+    v += ws[t] * (vals[t] || 0);
+    cost += ws[t] * Math.max(1, salary + 2 * t);
+    const val = (t === 2 && floor > v) ? floor : v;
+    const o = { holdHorizon: t, dynastyValue: val, dynastyCost: cost, dynastySurplus: val - cost };
+    if (!best || o.dynastySurplus > best.dynastySurplus) best = o;
+  }
+  return best;
+}
 
-  const v0 = y0;
-  const v1 = y0 + w1 * y1;
-  // The prospect floor is long-horizon by nature — it represents what a
-  // prospect is worth if you hold him. Apply it to H2 only, as max() never
-  // additive (invariant #6).
-  let   v2 = y0 + w1 * y1 + w2 * y2;
-  if (floor > v2) v2 = floor;
-
-  const c0 = base0;
-  const c1 = base0 + w1 * esc1;
-  const c2 = base0 + w1 * esc1 + w2 * esc2;
-
-  const options = [
-    { holdHorizon: 0, dynastyValue: v0, dynastyCost: c0, dynastySurplus: v0 - c0 },
-    { holdHorizon: 1, dynastyValue: v1, dynastyCost: c1, dynastySurplus: v1 - c1 },
-    { holdHorizon: 2, dynastyValue: v2, dynastyCost: c2, dynastySurplus: v2 - c2 },
-  ];
-  return options.reduce((best, o) => (o.dynastySurplus > best.dynastySurplus ? o : best));
+// ── AGING (dynasty seasons beyond the projections) ───────────────────────────
+// Dynasty values cover DYNASTY_YEARS seasons. Seasons past the last projection are the
+// previous season's value times the player's aging step for his age that season, and
+// carry DYNASTY_ATTRITION per extrapolated season (injury, decline, bust: aging curves
+// are measured on survivors). Without this the window stopped after three seasons, so a
+// 24-year-old's prime years counted for nothing (Kurtz, Wood, Caminero, Basallo read
+// 25-50% light against veterans, Nov 2026). Standard rough curve, not league-fitted:
+// value rises ~6%/yr through 25, flat 26-29, falls after 30, faster after 33.
+// No age data loaded (unit tests, the audit) -> the old three-season window.
+const DYNASTY_YEARS = 6;
+const DYNASTY_ATTRITION = 0.92;
+const AGE_STEP = {
+  H: [[25, 1.06], [29, 1.00], [32, 0.92], [99, 0.85]],
+  P: [[25, 1.06], [29, 1.00], [32, 0.93], [99, 0.88]],
+};
+function ageStep(age, type) {
+  if (age == null) return 1;
+  const curve = AGE_STEP[type === 'P' ? 'P' : 'H'];
+  for (const [maxAge, step] of curve) if (age <= maxAge) return step;
+  return curve[curve.length - 1][1];
+}
+// Baseball age: age on June 30 of the season.
+function ageInSeason(birthDate, season) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(birthDate || '');
+  if (!m) return null;
+  return season - +m[1] - ((+m[2] > 6) ? 1 : 0);
+}
+// data/ages.csv -> { normalized name: 'YYYY-MM-DD' }
+function parseAges(text) {
+  const out = {};
+  parseCSV(text).forEach(function(r) { if (r.Name && r.BirthDate) out[normalizeName(r.Name)] = r.BirthDate; });
+  return out;
+}
+// Season weights: ws[1], ws[2] are the user's dynasty weights; each later season adds
+// one more year of the same time discount plus attrition.
+function dynastyWeights(w1, w2, n) {
+  const ws = [1, w1, w2];
+  const r = w1 > 0 ? w2 / w1 : 0;
+  for (let t = 3; t < n; t++) ws[t] = ws[t - 1] * r * DYNASTY_ATTRITION;
+  return ws.slice(0, n);
 }
 
 // Clone rosters swapping proj → a different year's projection. Top-level so
@@ -1034,6 +1074,16 @@ function calculateDynastyValues(allRosters, weights, extraPlayers) {
   // and the trade finder's rebuilder lens treats him as a throw-in. The floor is
   // computed from scouting data (Top-100 rank, FV, position, risk) — see
   // prospectDynastyValue.
+  const ages = (typeof loadData === 'function' && loadData('ottoneu_ages')) || {};
+  const aged = Object.keys(ages).length > 0;
+  const season0 = prospectSeason();
+  const playerAge = (p, pr) => {
+    const a = ageInSeason(ages[p.name], season0);
+    if (a != null) return a;
+    return pr && pr.age ? Math.floor(+pr.age) + (season0 > new Date().getFullYear() ? 1 : 0) : null;
+  };
+  const keyMeta = {};
+  allRosters.flat().concat(extraPlayers || []).forEach(p => { keyMeta[p.fgId || p.name] = p; });
   const keyToProspect = {};
   const soonTiers = (typeof loadData === 'function' && loadData('ottoneu_prospect_soon')) || {};
   const soonOf = pr => soonTiers[pr.name + '|' + pr.org];
@@ -1055,14 +1105,21 @@ function calculateDynastyValues(allRosters, weights, extraPlayers) {
     const v0 = vmY0[key] || {};
     const v1 = vmY1 ? (vmY1[key] || {}) : {};
     const v2 = vmY2 ? (vmY2[key] || {}) : {};
-    const h = computeContractHorizon(
-      v0.projectedValue || 0,
-      v1.projectedValue || 0,
-      v2.projectedValue || 0,
-      v0.actualSalary   || 0,
-      w1, w2,
-      prospectDynastyValue(keyToProspect[key], keyToProspect[key] && soonOf(keyToProspect[key]))
-    );
+    const floor = prospectDynastyValue(keyToProspect[key], keyToProspect[key] && soonOf(keyToProspect[key]));
+    let h;
+    const meta = keyMeta[key];
+    if (aged && meta && w1 > 0 && w2 > 0) {
+      // Seasons 0-1 from projections; season 2 from a real Y2 line when the player has
+      // one, else aged from season 1; later seasons aged.
+      const age = playerAge(meta, keyToProspect[key]);
+      const vals = [v0.projectedValue || 0, v1.projectedValue || 0];
+      vals[2] = meta.proj_y2 ? (v2.projectedValue || 0) : vals[1] * ageStep(age == null ? null : age + 2, meta.type);
+      for (let t = 3; t < DYNASTY_YEARS; t++) vals[t] = vals[t - 1] * ageStep(age == null ? null : age + t, meta.type);
+      h = computeContractHorizonSeq(vals, v0.actualSalary || 0, dynastyWeights(w1, w2, DYNASTY_YEARS), floor);
+    } else {
+      h = computeContractHorizon(v0.projectedValue || 0, v1.projectedValue || 0, v2.projectedValue || 0,
+        v0.actualSalary || 0, w1, w2, floor);
+    }
     dynastyMap[key] = {
       ...v0,
       dynastyValue:   h.dynastyValue,

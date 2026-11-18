@@ -281,6 +281,8 @@
         </div>
       </div>
       <div class="finder-run-row">
+        <label id="partnerWrap" class="finder-hint" style="display:flex;align-items:center;gap:6px">Trade partner
+          <select id="partnerSel"><option value="">All teams</option></select></label>
         <button class="finder-btn" id="findBtn">Find Trades</button>
         <span class="finder-hint" id="finderHint"></span>
       </div>
@@ -1058,6 +1060,15 @@
 
     function initFinder() {
       if (hasDynasty) document.getElementById('roleRow').style.display = '';
+      // Offer mode can aim at one partner: more options from that team, nobody else searched.
+      var partnerSel = document.getElementById('partnerSel');
+      teamCards.map(function(tc) { return tc.name; }).sort().forEach(function(n) {
+        var o = document.createElement('option'); o.value = n; o.textContent = n; partnerSel.appendChild(o);
+      });
+      partnerSel.addEventListener('change', function() {
+        clearEl(document.getElementById('finderResults'));
+        document.getElementById('finderHint').textContent = '';
+      });
 
       makeDropdown('myPkgSearch', 'myPkgDD', function(q) {
         return myRoster.filter(function(p) { return (p.rawName || p.name).toLowerCase().indexOf(q) !== -1; });
@@ -1077,6 +1088,7 @@
           // Find mode needs no package at all — the generator proposes both sides.
           document.getElementById('myPkgPanel').style.display     = (isAcquire || isFind) ? 'none' : '';
           document.getElementById('targetPkgPanel').style.display = isAcquire ? '' : 'none';
+          document.getElementById('partnerWrap').style.display    = tradeMode === 'offer' ? 'flex' : 'none';
           // Single column when only one panel is visible
           document.querySelector('.pkg-grid').classList.toggle('pkg-grid-single', isAcquire || isFind);
           var fr = document.getElementById('finderResults'); clearEl(fr);
@@ -1156,14 +1168,16 @@
       return parts.length ? 'Payroll after: ' + parts.join(', ') + ' to reach $' + SALARY_CAP + ' by the January cut deadline' : '';
     }
 
-    function evaluateCandidates(theirTeam, myPkgsOrFixed, theirPkgsOrFixed) {
+    // limit / maxSims: how many options to return and simulations to run (defaults 3 / 40;
+    // offer mode aimed at one partner asks for more of both).
+    function evaluateCandidates(theirTeam, myPkgsOrFixed, theirPkgsOrFixed, limit, maxSims) {
       var myStatus = teamStatusOf(myTeamName);
       var thStatus = teamStatusOf(theirTeam);
       var accepted = [];
       var sims = 0;
       for (var i = 0; i < myPkgsOrFixed.length; i++) {
         for (var j = 0; j < theirPkgsOrFixed.length; j++) {
-          if (sims >= MAX_SIMS_PER_TEAM) break;
+          if (sims >= (maxSims || MAX_SIMS_PER_TEAM)) break;
           var mine = myPkgsOrFixed[i], theirs = theirPkgsOrFixed[j];
           if (!fairEnough(mine, theirs, theirTeam)) continue;
           sims++;
@@ -1202,7 +1216,7 @@
         if (seen[k]) return false;
         seen[k] = true;
         return true;
-      }).slice(0, 3);
+      }).slice(0, limit || 3);
     }
 
     // Salary dump of a player my cap plan cuts anyway (tradefinder.js archetype 5).
@@ -1299,19 +1313,26 @@
       }
     }
 
+    var PARTNER_OPTIONS = 8, PARTNER_SIMS = 150;   // offer mode aimed at one team
     function runOfferMode(resultsEl) {
       var found = 0;
+      var partner = document.getElementById('partnerSel').value;
       teamCards.forEach(function(tc) {
+        if (partner && tc.name !== partner) return;
         var thLens = lensFor('their', tc.name);
         var pool = tc.theirChipsRaw.filter(function(p) { return p.proj && lensValue(p, thLens) > 1; });
-        var options = evaluateCandidates(tc.name, [myPackage], candidatePkgs(pool, thLens));
+        var options = partner
+          ? evaluateCandidates(tc.name, [myPackage], candidatePkgs(pool, thLens), PARTNER_OPTIONS, PARTNER_SIMS)
+          : evaluateCandidates(tc.name, [myPackage], candidatePkgs(pool, thLens));
         if (!options.length) return;
         found++;
         resultsEl.appendChild(makeTradeCard(tc.name, tc.weakCats, options, myPackage, false));
       });
       if (!found) {
         var msg = document.createElement('div'); msg.className = 'no-trades-msg';
-        msg.textContent = 'No mutually beneficial trades found for this package. Try different players — or a smaller ask.';
+        msg.textContent = partner
+          ? 'No package from ' + partner + ' works for both sides for these players. Try adding or swapping a player, or another team.'
+          : 'No mutually beneficial trades found for this package. Try different players — or a smaller ask.';
         resultsEl.appendChild(msg);
       }
     }

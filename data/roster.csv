@@ -15,7 +15,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10758,"Misiorowski Index",40262,29712,sa3017170,"Colson Montgomery",CHW,SS/3B,$9
 10758,"Misiorowski Index",35922,25385,sa829799,"Drew Rasmussen",TBR,SP,$9
 10758,"Misiorowski Index",37427,26121,sa3010862,"Francisco Alvarez",NYM,C,$9
-10758,"Misiorowski Index",23796,20437,sa3004259,"Royce Lewis",MIN,1B/2B/3B,$9
+10758,"Misiorowski Index",23796,20437,sa3004259,"Royce Lewis",LAD,1B/2B/3B,$9
 10758,"Misiorowski Index",37841,26319,sa3011540,"Michael Busch",CHC,1B,$8
 10758,"Misiorowski Index",39978,29591,sa3017018,"Colton Cowser",BAL,OF,$8
 10758,"Misiorowski Index",26857,22184,sa3004720,"Mark Vientos",NYM,1B,$7
@@ -38,7 +38,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10758,"Misiorowski Index",19296,15711,sa737633,"Tyler O'Neill",BAL,OF,$4
 10758,"Misiorowski Index",40607,29911,sa3017529,"Andrew Abbott",CIN,SP,$4
 10758,"Misiorowski Index",18364,17432,sa709602,"Jeff Hoffman",MIN,RP,$4
-10758,"Misiorowski Index",33622,21501,sa3008376,"Trevor Larnach",MIN,OF,$3
+10758,"Misiorowski Index",33622,21501,sa3008376,"Trevor Larnach",FA,OF,$3
 10758,"Misiorowski Index",36900,25620,sa3010130,"Luis Mey",CIN,RP,$3
 10758,"Misiorowski Index",23752,19953,sa917926,"Josh Lowe",LAA,OF,$3
 10759,"Juan Nation UndeGrom 🫡",23717,20123,sa906282,"Juan Soto",NYM,OF,$68
@@ -163,7 +163,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10764,"Wrecking Crews",38043,26440,sa3011818,"Ryan Gusto",MIA,SP/RP,$5
 10764,"Wrecking Crews",26783,20308,sa3004621,"Jake Meyers","HOU AAA",OF,$5
 10764,"Wrecking Crews",20917,16432,sa828674,"Foster Griffin",FA,SP,$4
-10764,"Wrecking Crews",26080,21897,sa3003171,"Christopher Morel",NYM,1B,$4
+10764,"Wrecking Crews",26080,21897,sa3003171,"Christopher Morel",FA,1B,$4
 10764,"Wrecking Crews",38317,27562,sa3014440,"Austin Wells",NYY,C,$4
 10764,"Wrecking Crews",42416,31912,sa3020219,"Chandler Simpson",TBR,OF,$3
 10764,"Wrecking Crews",40301,29630,sa3017050,"Joey Loperfido","HOU AAA",OF,$3
@@ -200,7 +200,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10818,"Bureau of Gleyber Statistics",44046,33312,sa3022603,"Brett Bateman",TOR,OF,$4
 10818,"Bureau of Gleyber Statistics",44274,33568,sa3022951,"Brandyn Garcia",ARI,RP,$3
 10818,"Bureau of Gleyber Statistics",43991,33214,sa3022526,"Trent Harris",SFG,RP,$3
-10818,"Bureau of Gleyber Statistics",19197,19753,sa737372,"Jonathan Loaisiga",FA,RP,$3
+10818,"Bureau of Gleyber Statistics",19197,19753,sa737372,"Jonathan Loaisiga",NYY,RP,$3
 10818,"Bureau of Gleyber Statistics",41478,,sa3018867,"Christian Zazueta","LAD ST",SP,$3
 10818,"Bureau of Gleyber Statistics",40817,30080,sa3017863,"Hao-Yu  Lee",DET,2B/3B,$3
 10818,"Bureau of Gleyber Statistics",40214,29539,sa3016926,"Abimelec Ortiz",WSN,1B,$3
@@ -330,7 +330,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10899,"Prospects R Us",20291,19858,sa826671,"Luis Rengifo",FA,3B/OF,$4
 10899,"Prospects R Us",22654,17988,sa874242,"Tyler Stephenson",FA,C,$4
 10899,"Prospects R Us",27162,23733,sa3005271,"Ezequiel Duran",TEX,2B/SS/3B/OF,$4
-10899,"Prospects R Us",32655,19354,sa918048,"Luke Raley",SEA,OF,$4
+10899,"Prospects R Us",32655,19354,sa918048,"Luke Raley",FA,OF,$4
 10899,"Prospects R Us",33609,21618,sa3007284,"Alec Bohm",FA,1B/3B,$4
 10899,"Prospects R Us",34817,24598,sa3006910,"Addison Barger",TOR,OF,$4
 10899,"Prospects R Us",35725,23986,sa3008392,"Curtis Mead",BOS,1B/3B,$4
@@ -514,7 +514,7 @@ TeamID,"Team Name","ottoneu ID","FG MajorLeagueID","FG MinorLeagueID",Name,"MLB 
 10974,"Ketel Corn",38320,27465,sa3014504,"Spencer Torkelson",DET,1B,$8
 10974,"Ketel Corn",23745,19287,sa908695,"Adolis García",FA,OF,$8
 10974,"Ketel Corn",37635,28080,sa3014696,"Jasson Dominguez","NYY ST",OF,$7
-10974,"Ketel Corn",23373,21052,sa877821,"Luis Gil",NYY,SP/RP,$7
+10974,"Ketel Corn",23373,21052,sa877821,"Luis Gil",FA,SP/RP,$7
 10974,"Ketel Corn",27074,23590,sa3005122,"Ben Brown",CHC,SP/RP,$7
 10974,"Ketel Corn",18422,17130,sa830702,"Raisel Iglesias",FA,RP,$7
 10974,"Ketel Corn",42304,31580,sa3020011,"Chase Meidroth",CHW,2B/SS,$6
